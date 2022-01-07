@@ -6,6 +6,7 @@ const { Router } = require("express");
 const { check } = require("express-validator");
 const {
   createCollaborator,
+  getCollaborators,
 } = require("../controllers/collaboratorsController");
 const { fieldValidator } = require("../middlewares/fieldValidator");
 
@@ -28,8 +29,9 @@ const router = Router();
 //   userLogin
 // );
 
-// create new user
+router.get("/", getCollaborators);
 
+// create new user
 router.post(
   "/create",
   [

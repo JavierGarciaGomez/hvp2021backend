@@ -47,6 +47,16 @@ const userLogin = async (req, res = response) => {
 };
 */
 
+const getCollaborators = async (req, res = response) => {
+  const collaborators = await Collaborator.find();
+
+  res.json({
+    ok: true,
+    msg: "getCollaborators",
+    collaborators,
+  });
+};
+
 const createCollaborator = async (req, res = response) => {
   const { col_code } = req.body;
 
@@ -124,4 +134,5 @@ module.exports = {
   // userLogin,
   // userRenewToken,
   createCollaborator,
+  getCollaborators,
 };
