@@ -1,6 +1,7 @@
 // 339
 const { Schema, model } = require("mongoose");
 const { boolean } = require("webidl-conversions");
+const { roles } = require("../types/types");
 
 const CollaboratorSchema = Schema({
   first_name: {
@@ -11,6 +12,11 @@ const CollaboratorSchema = Schema({
     type: String,
     require: true,
   },
+  role: {
+    type: String,
+    enum: roles,
+    default: roles[2],
+  },
   col_code: {
     type: String,
     require: true,
@@ -20,6 +26,16 @@ const CollaboratorSchema = Schema({
   },
   isActive: {
     type: Boolean,
+    default: true,
+  },
+  gender: {
+    type: String,
+  },
+  imgUrl: {
+    type: String,
+  },
+  accesCode: {
+    type: String,
   },
 });
 
