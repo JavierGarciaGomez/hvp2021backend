@@ -7,6 +7,7 @@ const { check } = require("express-validator");
 const {
   createCollaborator,
   getCollaborators,
+  getCollaboratorById,
 } = require("../controllers/collaboratorsController");
 const { fieldValidator } = require("../middlewares/fieldValidator");
 
@@ -30,6 +31,8 @@ const router = Router();
 // );
 
 router.get("/", getCollaborators);
+
+router.get("/:collaboratorId", getCollaboratorById);
 
 // create new user
 router.post(

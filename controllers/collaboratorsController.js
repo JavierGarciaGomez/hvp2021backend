@@ -113,6 +113,31 @@ const createCollaborator = async (req, res = response) => {
   }
 };
 
+const getCollaboratorById = async (req, res = response) => {
+  const id = req.params.collaboratorId;
+  console.log("este es el id", id);
+
+  try {
+    // check if the collaborator code is not used before
+    let collaborator = await Collaborator.findById(id);
+
+    console.log("collaborador encontrado", collaborator);
+
+    return res.status(201).json({
+      ok: true,
+      msg: "get Collaborator",
+      collaborator,
+    });
+  } catch (error) {
+    console.log("error", error);
+    res.status(500).json({
+      ok: "false",
+      msg: "Por favor, hable con el administrador",
+      error,
+    });
+  }
+};
+
 // ..., 344
 /*
 const userRenewToken = async (req, res = response) => {
@@ -135,4 +160,5 @@ module.exports = {
   // userRenewToken,
   createCollaborator,
   getCollaborators,
+  getCollaboratorById,
 };
