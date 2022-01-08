@@ -8,6 +8,7 @@ const {
   createCollaborator,
   getCollaborators,
   getCollaboratorById,
+  updateCollaborator,
 } = require("../controllers/collaboratorsController");
 const { fieldValidator } = require("../middlewares/fieldValidator");
 
@@ -49,6 +50,8 @@ router.post(
   ],
   createCollaborator
 );
+
+router.put("/:collaboratorId", updateCollaborator);
 
 // renew token
 // router.get("/renew", validarJWT, userRenewToken);

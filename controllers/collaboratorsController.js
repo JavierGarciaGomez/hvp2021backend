@@ -155,10 +155,57 @@ const userRenewToken = async (req, res = response) => {
 };
 */
 
+const updateCollaborator = async (req, res = response) => {
+  const collaboratorId = req.params.collaboratorId;
+
+  // const uid = req.uid;
+
+  try {
+    const collaborator = await Collaborator.findById(collaboratorId);
+
+    if (!collaborator) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No existe colaborador con ese ese id",
+      });
+    }
+
+    // if (evento.user.toString() !== uid) {
+    //   return res.status(401).json({
+    //     ok: false,
+    //     msg: "No tiene privilegio de editar este evento",
+    //   });
+    // }
+
+    const newCollaborator = {
+      ...req.body,
+    };
+
+    const updatedCollaborator = await Collaborator.findByIdAndUpdate(
+      collaboratorId,
+      newCollaborator,
+      { new: true }
+    );
+
+    res.json({
+      ok: true,
+      msg: "evento actualizado",
+      collaborator: updatedCollaborator,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Hable con el administrador",
+    });
+  }
+};
+
 module.exports = {
   // userLogin,
   // userRenewToken,
   createCollaborator,
   getCollaborators,
   getCollaboratorById,
+  updateCollaborator,
 };
