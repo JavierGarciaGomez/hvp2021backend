@@ -161,8 +161,9 @@ const updateCollaborator = async (req, res = response) => {
   // const uid = req.uid;
 
   try {
+    console.log("ACAAA", collaboratorId);
     const collaborator = await Collaborator.findById(collaboratorId);
-
+    console.log("OCOO");
     if (!collaborator) {
       return res.status(404).json({
         ok: false,
