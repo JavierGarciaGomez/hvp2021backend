@@ -60,4 +60,4 @@ const CollaboratorSchema = Schema({
   },
 });
 
-module.exports = model("Usuario", CollaboratorSchema);
+module.exports = model("Collaborator", CollaboratorSchema);

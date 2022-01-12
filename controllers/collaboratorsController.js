@@ -4,38 +4,35 @@ const Collaborator = require("../models/Collaborator");
 // const Usuario = require("../models/Usuario");
 // const { generarJWT } = require("../helpers/jwt");
 
-/*
-const userLogin = async (req, res = response) => {
+const collaboratorLogin = async (req, res = response) => {
   const { email, password } = req.body;
 
   try {
-    const usuario = await Usuario.findOne({ email });
+    const collaborator = await Collaborator.findOne({ email });
 
-    if (!usuario) {
-      return res.status(400).json({
-        ok: false,
-        msg: "El usuario no existe con ese email",
-      });
+    let isValid = false;
+
+    if (collaborator) {
+      const validPassword = bcrypt.compareSync(password, collaborator.password);
+      if (validPassword) {
+        isValid = true;
+      }
     }
 
-    // Confirmar los passwords
-    const validPassword = bcrypt.compareSync(password, usuario.password);
-
-    if (!validPassword) {
+    if (!isValid) {
       return res.status(400).json({
         ok: false,
-        msg: "Password incorrecto",
+        msg: "Email o contraseña incorrecta",
       });
     }
-
     // Generar JWT
-    const token = await generarJWT(usuario.id, usuario.name);
+    // const token = await generarJWT(usuario.id, usuario.name);
 
     res.json({
       ok: true,
-      uid: usuario.id,
-      name: usuario.name,
-      token,
+      uid: collaborator.id,
+      // name: usuario.name,
+      // token,
     });
   } catch (error) {
     console.log(error);
@@ -45,7 +42,6 @@ const userLogin = async (req, res = response) => {
     });
   }
 };
-*/
 
 const getCollaborators = async (req, res = response) => {
   const collaborators = await Collaborator.find();
@@ -136,6 +132,13 @@ const registerCollaborator = async (req, res = response) => {
       });
     }
 
+    if (collaborator.isRegistered) {
+      return res.status(400).json({
+        ok: false,
+        msg: `Este usuario ha sido registrado previamente por este correo: ${collaborator.email}. Si el problema persiste contacte al gerente.`,
+      });
+    }
+
     if (collaborator.accessCode !== accessCode) {
       return res.status(400).json({
         ok: false,
@@ -151,7 +154,7 @@ const registerCollaborator = async (req, res = response) => {
       ...collaborator.toJSON(),
       password: cryptedPassword,
       email,
-      registered: true,
+      isRegistered: true,
     };
     const updatedCollaborator = await Collaborator.findByIdAndUpdate(
       collaborator._id,
@@ -270,7 +273,7 @@ const updateCollaborator = async (req, res = response) => {
 };
 
 module.exports = {
-  // userLogin,
+  collaboratorLogin,
   // userRenewToken,
   createCollaborator,
   getCollaborators,

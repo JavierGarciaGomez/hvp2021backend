@@ -10,6 +10,7 @@ const {
   getCollaboratorById,
   updateCollaborator,
   registerCollaborator,
+  collaboratorLogin,
 } = require("../controllers/collaboratorsController");
 const { fieldValidator } = require("../middlewares/fieldValidator");
 
@@ -18,19 +19,15 @@ const { fieldValidator } = require("../middlewares/fieldValidator");
 
 const router = Router();
 
-// login
-// router.post(
-//   "/",
-//   [
-//     check("email", "no es una forma de email correcta").isEmail(),
-
-//     check("password", "el password debe ser de al menos 6 carácteres").isLength(
-//       { min: 6 }
-//     ),
-//     fieldValidator,
-//   ],
-//   userLogin
-// );
+// Login
+router.post(
+  "/",
+  [
+    check("email", "no es una forma de email correcta").isEmail(),
+    fieldValidator,
+  ],
+  collaboratorLogin
+);
 
 router.get("/", getCollaborators);
 
@@ -53,18 +50,21 @@ router.post(
 );
 
 // authenticate collaborator for register
-router.post(
+router.patch(
   "/register",
   [
     check("email", "No es una forma correcta de email").isEmail(),
-    check("password", "El password es obligatorio").not().isEmpty(),
+    check(
+      "password",
+      "El password es obligatorio y debe contener al menos seis carácteres"
+    ).isLength({ min: 6 }),
     check(
       "col_code",
       "El código de colaborador es obligatorio y debe contener tres letras"
     ).isLength({ min: 3, max: 3 }),
     check(
       "accessCode",
-      "el código de acceso es obligatorio y debe contener 6 carácteres"
+      "El código de acceso es obligatorio y debe contener 6 carácteres"
     ).isLength({ min: 6, max: 6 }),
     fieldValidator,
   ],

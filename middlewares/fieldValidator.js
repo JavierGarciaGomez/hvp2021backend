@@ -6,16 +6,19 @@ const { validationResult } = require("express-validator");
 const fieldValidator = (req, res = response, next) => {
   // 335 error handling
   const errors = validationResult(req);
-  console.log("this are the errors", errors);
 
   if (!errors.isEmpty()) {
+    let msg = "";
+    errors.errors.forEach((error) => {
+      msg = msg.concat(" ", error.msg);
+    });
+
     return res.status(400).json({
-      ok: "ERROR",
+      ok: false,
       errors,
+      msg,
     });
   }
-
-  console.log("there arent errors, so i go to next");
 
   next();
 };
