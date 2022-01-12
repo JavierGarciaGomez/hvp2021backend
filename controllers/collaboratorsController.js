@@ -50,11 +50,19 @@ const userLogin = async (req, res = response) => {
 const getCollaborators = async (req, res = response) => {
   const collaborators = await Collaborator.find();
 
-  res.json({
-    ok: true,
-    msg: "getCollaborators",
-    collaborators,
-  });
+  try {
+    res.json({
+      ok: true,
+      msg: "getCollaborators",
+      collaborators,
+    });
+  } catch {
+    res.status(500).json({
+      ok: "false",
+      msg: "Por favor, hable con el administrador",
+      error,
+    });
+  }
 };
 
 const createCollaborator = async (req, res = response) => {
@@ -101,6 +109,66 @@ const createCollaborator = async (req, res = response) => {
       // uid: user.id,
       // name: user.name,
       // password: user.password,
+      // token,
+    });
+  } catch (error) {
+    console.log("error", error);
+    res.status(500).json({
+      ok: "false",
+      msg: "Por favor, hable con el administrador",
+      error,
+    });
+  }
+};
+
+// Register collaborator by user
+const registerCollaborator = async (req, res = response) => {
+  const { col_code, email, accessCode, password } = req.body;
+
+  try {
+    // check if the collaborator code is not used before
+    let collaborator = await Collaborator.findOne({ col_code });
+
+    if (!collaborator) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No existe colaborador con ese ese código de acceso",
+      });
+    }
+
+    if (collaborator.accessCode !== accessCode) {
+      return res.status(400).json({
+        ok: false,
+        msg: "El código de acceso no coincide con el del colaborador que pretende ser registrado",
+      });
+    }
+
+    // encrypt pass
+    const salt = bcrypt.genSaltSync();
+    const cryptedPassword = bcrypt.hashSync(password, salt);
+
+    collaborator = {
+      ...collaborator.toJSON(),
+      password: cryptedPassword,
+      email,
+      registered: true,
+    };
+    const updatedCollaborator = await Collaborator.findByIdAndUpdate(
+      collaborator._id,
+      collaborator,
+      { new: true }
+    );
+
+    console.log("colaborador actualizado", updatedCollaborator);
+
+    // JWT
+    // const token = await generarJWT(user.id, user.name);
+
+    res.status(201).json({
+      ok: true,
+      message: "collaborator updated",
+      collaborator: updatedCollaborator,
+
       // token,
     });
   } catch (error) {
@@ -161,9 +229,8 @@ const updateCollaborator = async (req, res = response) => {
   // const uid = req.uid;
 
   try {
-    console.log("ACAAA", collaboratorId);
     const collaborator = await Collaborator.findById(collaboratorId);
-    console.log("OCOO");
+
     if (!collaborator) {
       return res.status(404).json({
         ok: false,
@@ -209,4 +276,5 @@ module.exports = {
   getCollaborators,
   getCollaboratorById,
   updateCollaborator,
+  registerCollaborator,
 };

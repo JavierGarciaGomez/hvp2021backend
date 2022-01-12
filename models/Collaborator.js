@@ -34,8 +34,29 @@ const CollaboratorSchema = Schema({
   imgUrl: {
     type: String,
   },
-  accesCode: {
+  accessCode: {
     type: String,
+  },
+  isRegistered: {
+    type: Boolean,
+    default: false,
+  },
+  email: {
+    type: String,
+  },
+  password: {
+    type: String,
+  },
+  position: {
+    type: String,
+  },
+  isDisplayedWeb: {
+    type: Boolean,
+    default: true,
+  },
+  textPresentation: {
+    type: String,
+    defaut: "",
   },
 });
 

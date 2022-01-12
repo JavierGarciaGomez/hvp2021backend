@@ -9,6 +9,7 @@ const {
   getCollaborators,
   getCollaboratorById,
   updateCollaborator,
+  registerCollaborator,
 } = require("../controllers/collaboratorsController");
 const { fieldValidator } = require("../middlewares/fieldValidator");
 
@@ -35,7 +36,7 @@ router.get("/", getCollaborators);
 
 router.get("/:collaboratorId", getCollaboratorById);
 
-// create new user
+// create collaborator by manager
 router.post(
   "/create",
   [
@@ -49,6 +50,25 @@ router.post(
     fieldValidator,
   ],
   createCollaborator
+);
+
+// authenticate collaborator for register
+router.post(
+  "/register",
+  [
+    check("email", "No es una forma correcta de email").isEmail(),
+    check("password", "El password es obligatorio").not().isEmpty(),
+    check(
+      "col_code",
+      "El código de colaborador es obligatorio y debe contener tres letras"
+    ).isLength({ min: 3, max: 3 }),
+    check(
+      "accessCode",
+      "el código de acceso es obligatorio y debe contener 6 carácteres"
+    ).isLength({ min: 6, max: 6 }),
+    fieldValidator,
+  ],
+  registerCollaborator
 );
 
 router.put("/:collaboratorId", updateCollaborator);
