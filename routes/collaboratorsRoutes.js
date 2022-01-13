@@ -11,11 +11,12 @@ const {
   updateCollaborator,
   registerCollaborator,
   collaboratorLogin,
+  collaboratorRenewToken,
 } = require("../controllers/collaboratorsController");
 const { fieldValidator } = require("../middlewares/fieldValidator");
 
 // TODO
-// const { validarJWT } = require("../middlewares/validar-jwt");
+const { validarJWT } = require("../middlewares/validar-jwt");
 
 const router = Router();
 
@@ -30,8 +31,6 @@ router.post(
 );
 
 router.get("/", getCollaborators);
-
-router.get("/:collaboratorId", getCollaboratorById);
 
 // create collaborator by manager
 router.post(
@@ -74,6 +73,8 @@ router.patch(
 router.put("/:collaboratorId", updateCollaborator);
 
 // renew token
-// router.get("/renew", validarJWT, userRenewToken);
+router.get("/renew", validarJWT, collaboratorRenewToken);
+
+router.get("/:collaboratorId", getCollaboratorById);
 
 module.exports = router;

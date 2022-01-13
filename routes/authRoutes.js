@@ -9,6 +9,7 @@ const {
   userCreate,
   //   userRenewToken,
 } = require("../controllers/authController");
+const { validarJWT } = require("../middlewares/validar-jwt");
 // const { fieldValidator } = require("../middlewares/fieldValidator");
 // const { validarJWT } = require("../middlewares/validar-jwt");
 
@@ -28,20 +29,7 @@ const router = Router();
 //   userLogin
 // );
 
-// create new user
-
-router.post(
-  "/create",
-  [
-    check("name", "el nombre es obligatorio").not().isEmpty(),
-    check("email", "no es una forma de email correcta").isEmail(),
-    check("password", "el password debe ser de al menos 6 carácteres").isLength(
-      { min: 6 }
-    ),
-    // fieldValidator,
-  ],
-  userCreate
-);
+// router.get("/renew", validarJWT, collaboratorRenewToken);
 
 // renew token
 // router.get("/renew", validarJWT, userRenewToken);

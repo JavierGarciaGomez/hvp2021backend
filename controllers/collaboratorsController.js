@@ -2,7 +2,7 @@ const { response } = require("express");
 const bcrypt = require("bcryptjs");
 const Collaborator = require("../models/Collaborator");
 // const Usuario = require("../models/Usuario");
-// const { generarJWT } = require("../helpers/jwt");
+const { generateJWT } = require("../helpers/jwt");
 
 const collaboratorLogin = async (req, res = response) => {
   const { email, password } = req.body;
@@ -26,13 +26,18 @@ const collaboratorLogin = async (req, res = response) => {
       });
     }
     // Generar JWT
-    // const token = await generarJWT(usuario.id, usuario.name);
+    const token = await generateJWT(
+      collaborator._id,
+      collaborator.col_code,
+      collaborator.role
+    );
 
     res.json({
       ok: true,
       uid: collaborator.id,
-      // name: usuario.name,
-      // token,
+      token,
+      col_code: collaborator.col_code,
+      role: collaborator.role,
     });
   } catch (error) {
     console.log(error);
@@ -210,21 +215,21 @@ const getCollaboratorById = async (req, res = response) => {
 };
 
 // ..., 344
-/*
-const userRenewToken = async (req, res = response) => {
-  const { uid, name } = req;
+
+const collaboratorRenewToken = async (req, res = response) => {
+  const { uid, col_code, role } = req;
 
   // Generar JWT
-  const token = await generarJWT(uid, name);
+  const token = await generateJWT(uid, col_code, role);
 
   res.json({
     ok: true,
     token,
     uid,
-    name,
+    col_code,
+    role,
   });
 };
-*/
 
 const updateCollaborator = async (req, res = response) => {
   const collaboratorId = req.params.collaboratorId;
@@ -274,7 +279,7 @@ const updateCollaborator = async (req, res = response) => {
 
 module.exports = {
   collaboratorLogin,
-  // userRenewToken,
+  collaboratorRenewToken,
   createCollaborator,
   getCollaborators,
   getCollaboratorById,
