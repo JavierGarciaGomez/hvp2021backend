@@ -21,10 +21,6 @@ app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.json());
 
 // routes
-app.get("/", (req, res) => {
-  console.log("se requirió /");
-  res.json({ ok: true });
-});
 
 // collaborator
 app.use("/api/collaborators", require("./routes/collaboratorsRoutes"));
