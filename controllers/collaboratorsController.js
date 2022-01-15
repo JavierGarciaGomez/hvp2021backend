@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const Collaborator = require("../models/Collaborator");
 // const Usuario = require("../models/Usuario");
 const { generateJWT } = require("../helpers/jwt");
+const { body } = require("express-validator");
 
 const collaboratorLogin = async (req, res = response) => {
   const { email, password } = req.body;
@@ -197,7 +198,12 @@ const getCollaboratorById = async (req, res = response) => {
     // check if the collaborator code is not used before
     let collaborator = await Collaborator.findById(id);
 
-    console.log("collaborador encontrado", collaborator);
+    if (!collaborator) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No existe colaborador con ese ese código de acceso",
+      });
+    }
 
     return res.status(201).json({
       ok: true,
