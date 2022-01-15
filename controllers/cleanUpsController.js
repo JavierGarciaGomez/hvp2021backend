@@ -5,10 +5,11 @@ const Collaborator = require("../models/Collaborator");
 const { generateJWT } = require("../helpers/jwt");
 const { body } = require("express-validator");
 const DailyCleanup = require("../models/DailyCleanup");
-const { branches } = require("../types/types");
+const { branches, dailyCleanUpActions } = require("../types/types");
 const { getDateWithoutTime } = require("../helpers/utilities");
 var dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
+const { getCollaboratorById } = require("./collaboratorsController");
 dayjs.extend(utc);
 
 const checkCleanUpsAndGenerate = async (req, res = response) => {
@@ -31,62 +32,108 @@ const checkCleanUpsAndGenerate = async (req, res = response) => {
     }
   }
 
-  // console.log("hey", i);
-  // }
+  // TODO:
+  // return dailycleanups from the last 10 days
 
-  res.json({
-    ok: true,
-    msg: "generado",
-    date,
-  });
-};
+  const utcDateEnd = dayjs(date).utc(true).endOf("day");
+  const utcDateStart = utcDateEnd.subtract(10, "day");
 
-const editCleanUp = async (req, res = response) => {
-  const { branch } = req.body;
-  const id = req.params.dailyCleanUpId;
-  const date = dayjs();
-  console.log(branch, date);
-
-  const utcDateStart = dayjs(date).utc(true).startOf("day");
-  const utcDateEnd = utcDateStart.add(1, "day");
-
-  let dailyCleanUp = await DailyCleanup.findOne({
+  let dailyCleanUps = await DailyCleanup.find({
     date: {
       $gte: new Date(utcDateStart),
       $lt: new Date(utcDateEnd),
     },
-    branch,
   });
 
-  res.json({ id, branch, date, dailyCleanUp });
+  res.json({
+    ok: true,
+    msg: "generado",
+    dailyCleanUps,
+  });
+};
 
-  // const date = dayjs().utc(true).startOf("day");
-  // console.log("date", date);
+const editCleanUp = async (req, res = response) => {
+  const id = req.params.dailyCleanUpId;
+  const { action, comment } = req.body;
+  const { uid, col_code, role } = req;
 
-  // for (branch of branches) {
-  //   for (i = 0; i < 7; i++) {
-  //     const newDate = date.subtract(i, "day");
-  //     // console.log("branch", branch, i);
+  try {
+    let dailyCleanUp = await DailyCleanup.findById(id);
+    if (!dailyCleanUp) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No existe control de limpieza diario con ese ese id",
+      });
+    }
 
-  //     let dailyCleanUp = await DailyCleanup.findOne({ date: newDate, branch });
-  //     if (!dailyCleanUp) {
-  //       dailyCleanUp = new DailyCleanup({
-  //         date: newDate,
-  //         branch,
-  //       });
-  //       const savedDailyCleanUp = await dailyCleanUp.save();
-  //     }
-  //   }
-  // }
+    // get collaborator
+    const collaborator = await Collaborator.findById(uid);
+    let updatedDailyCleanUp;
 
-  // console.log("hey", i);
-  // }
+    switch (action) {
+      case dailyCleanUpActions.addCleaner:
+        for (element of dailyCleanUp.cleaners) {
+          if (element.cleaner._id.toString() === uid) {
+            return res.status(404).json({
+              ok: false,
+              msg: "Este colaborador ha sido ya registrado",
+            });
+          }
+        }
+        // add the cleaner
+        dailyCleanUp.cleaners.push({ cleaner: collaborator, time: dayjs() });
+        break;
 
-  // res.json({
-  //   ok: true,
-  //   msg: "generado",
-  //   date,
-  // });
+      case dailyCleanUpActions.addSupervisor:
+        for (element of dailyCleanUp.supervisors) {
+          if (element.supervisor._id.toString() === uid) {
+            return res.status(404).json({
+              ok: false,
+              msg: "Este colaborador ha sido ya registrado",
+            });
+          }
+        }
+        // add the supervisor
+        dailyCleanUp.supervisors.push({
+          supervisor: collaborator,
+          time: dayjs(),
+        });
+        break;
+
+      case dailyCleanUpActions.addComment:
+        console.log("here", comment);
+        dailyCleanUp.comments.push({ comment, creator: collaborator });
+        break;
+
+      default:
+        break;
+    }
+    if (action === dailyCleanUpActions.addCleaner) {
+    }
+
+    dailyCleanUp.hasBeenUsed = true;
+    // update it
+    updatedDailyCleanUp = await DailyCleanup.findByIdAndUpdate(
+      id,
+      dailyCleanUp,
+      { new: true }
+    );
+
+    res.status(201).json({
+      ok: true,
+      message: "great",
+      updatedDailyCleanUp,
+      uid,
+      col_code,
+      role,
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: "false",
+      msg: "Por favor, hable con el administrador",
+      error,
+    });
+  }
 };
 
 module.exports = { checkCleanUpsAndGenerate, editCleanUp };

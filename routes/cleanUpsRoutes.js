@@ -14,7 +14,11 @@ const { validarJWT } = require("../middlewares/validar-jwt");
 
 const router = Router();
 
-router.get("/daily/checkCleanUpsAndGenerate", checkCleanUpsAndGenerate);
-router.patch("/daily/:dailyCleanUpId", editCleanUp);
+router.get(
+  "/daily/checkCleanUpsAndGenerate",
+  validarJWT,
+  checkCleanUpsAndGenerate
+);
+router.patch("/daily/:dailyCleanUpId", validarJWT, editCleanUp);
 
 module.exports = router;

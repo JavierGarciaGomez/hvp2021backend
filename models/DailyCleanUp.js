@@ -22,8 +22,10 @@ const DailyCleanUpSchema = Schema({
   ],
   supervisors: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "Collaborator",
+      supervisor: { type: Schema.Types.ObjectId, ref: "Collaborator" },
+      time: {
+        type: Date,
+      },
     },
   ],
   comments: [
@@ -38,7 +40,8 @@ const DailyCleanUpSchema = Schema({
     },
   ],
   hasBeenUsed: {
-    type: String,
+    type: Boolean,
+    default: false,
   },
 });
 
