@@ -16,7 +16,7 @@ const {
 const { fieldValidator } = require("../middlewares/fieldValidator");
 
 // TODO
-const { validarJWT } = require("../middlewares/validar-jwt");
+const { validateJwt } = require("../middlewares/validateJwt");
 
 const router = Router();
 
@@ -73,7 +73,7 @@ router.patch(
 router.put("/:collaboratorId", updateCollaborator);
 
 // renew token
-router.get("/renew", validarJWT, collaboratorRenewToken);
+router.get("/renew", validateJwt, collaboratorRenewToken);
 
 router.get("/:collaboratorId", getCollaboratorById);
 

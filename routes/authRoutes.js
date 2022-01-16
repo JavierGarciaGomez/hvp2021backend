@@ -9,7 +9,7 @@ const {
   userCreate,
   //   userRenewToken,
 } = require("../controllers/authController");
-const { validarJWT } = require("../middlewares/validar-jwt");
+
 // const { fieldValidator } = require("../middlewares/fieldValidator");
 // const { validarJWT } = require("../middlewares/validar-jwt");
 

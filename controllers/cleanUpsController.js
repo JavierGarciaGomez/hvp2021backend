@@ -5,14 +5,19 @@ const Collaborator = require("../models/Collaborator");
 const { generateJWT } = require("../helpers/jwt");
 const { body } = require("express-validator");
 const DailyCleanup = require("../models/DailyCleanUp");
-const { branches, dailyCleanUpActions } = require("../types/types");
+const {
+  branches,
+  dailyCleanUpActions,
+  deepCleanUpActivities,
+} = require("../types/types");
 const { getDateWithoutTime } = require("../helpers/utilities");
 var dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
 const { getCollaboratorById } = require("./collaboratorsController");
+const DeepCleanUp = require("../models/DeepCleanUp");
 dayjs.extend(utc);
 
-const checkCleanUpsAndGenerate = async (req, res = response) => {
+const checkDailyCleanUpsAndGenerate = async (req, res = response) => {
   const date = dayjs().utc(true).startOf("day");
   console.log("date", date);
 
@@ -55,7 +60,7 @@ const checkCleanUpsAndGenerate = async (req, res = response) => {
   });
 };
 
-const editCleanUp = async (req, res = response) => {
+const updateDailyCleanUp = async (req, res = response) => {
   console.log("here");
   const { action, comment, cleanUpId } = req.body;
 
@@ -105,7 +110,6 @@ const editCleanUp = async (req, res = response) => {
           time: dayjs(),
         });
 
-        console.log("aca maria");
         break;
 
       case dailyCleanUpActions.addComment:
@@ -147,4 +151,78 @@ const editCleanUp = async (req, res = response) => {
   }
 };
 
-module.exports = { checkCleanUpsAndGenerate, editCleanUp };
+const createDeepCleanUp = async (req, res = response) => {
+  try {
+    const date = dayjs();
+    const { branch, activities = [] } = req.body;
+
+    const { uid } = req;
+
+    const utcDateStart = dayjs(date).utc(true).startOf("day");
+    const utcDateEnd = dayjs(utcDateStart).add(1, "day");
+
+    console.log(utcDateStart);
+    console.log(utcDateEnd);
+
+    // TODO
+    let deepCleanUp = await DeepCleanUp.findOne({
+      date: {
+        $gte: new Date(utcDateStart),
+        $lt: new Date(utcDateEnd),
+      },
+      branch,
+    });
+    console.log(deepCleanUp);
+
+    if (deepCleanUp) {
+      return res.status(404).json({
+        ok: false,
+        msg: `No se pueden registrar dos limpiezas profundas en la misma sucursal (${branch}) el mismo día`,
+      });
+    }
+
+    deepCleanUp = new DeepCleanUp();
+
+    const collaborator = await Collaborator.findById(uid);
+
+    activities.map((activity) => {
+      if (deepCleanUpActivities.includes(activity)) {
+        deepCleanUp.activities[activity] = {
+          done: true,
+          cleaner: collaborator,
+          time: date,
+        };
+      } else {
+        return res.status(404).json({
+          ok: false,
+          msg: `Esta actividad no existe`,
+        });
+      }
+    });
+
+    deepCleanUp.date = date;
+    deepCleanUp.branch = branch;
+
+    await deepCleanUp.save();
+
+    res.status(201).json({
+      ok: true,
+      message: "great",
+      date,
+      branch,
+      deepCleanUp,
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: "false",
+      msg: "Por favor, hable con el administrador",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = {
+  checkDailyCleanUpsAndGenerate,
+  updateDailyCleanUp,
+  createDeepCleanUp,
+};

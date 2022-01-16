@@ -8,8 +8,19 @@ const dailyCleanUpActions = {
   addComment: "addComment",
 };
 
+const deepCleanUpActivities = [
+  "correctOrder",
+  "wasteDisposal",
+  "cleanedEquipment",
+  "cleanedCages",
+  "cleanedDrawers",
+  "cleanedRefigerator",
+  "everyAreaCleaned",
+];
+
 module.exports = {
   roles,
   branches,
   dailyCleanUpActions,
+  deepCleanUpActivities,
 };

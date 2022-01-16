@@ -1,6 +1,5 @@
 // 339
 const { Schema, model } = require("mongoose");
-const { boolean } = require("webidl-conversions");
 const { roles } = require("../types/types");
 
 const CollaboratorSchema = Schema({
