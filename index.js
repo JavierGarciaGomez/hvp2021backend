@@ -38,6 +38,6 @@ app.use("/api/cleanups", require("./routes/cleanUpsRoutes"));
 // });
 
 // 330
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT || 4000, () => {
   console.log("Server running in port " + process.env.PORT);
 });
