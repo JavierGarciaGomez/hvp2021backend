@@ -5,7 +5,7 @@
 const { Router } = require("express");
 const { check } = require("express-validator");
 const {
-  // checkCleanUpsAndGenerate,
+  checkCleanUpsAndGenerate,
   editCleanUp,
 } = require("../controllers/cleanUpsController");
 const { validarJWT } = require("../middlewares/validar-jwt");
@@ -14,11 +14,15 @@ const { validarJWT } = require("../middlewares/validar-jwt");
 
 const router = Router();
 
+router.get("/go", (req, res) => {
+  res.send("hola");
+});
+
 // router.get(
 //   "/daily/checkCleanUpsAndGenerate",
 //   validarJWT,
 //   checkCleanUpsAndGenerate
 // );
-router.patch("/daily/", editCleanUp);
+// router.patch("/daily/", validarJWT, editCleanUp);
 
 module.exports = router;
