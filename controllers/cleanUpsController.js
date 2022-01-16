@@ -43,7 +43,10 @@ const checkCleanUpsAndGenerate = async (req, res = response) => {
       $gte: new Date(utcDateStart),
       $lt: new Date(utcDateEnd),
     },
-  });
+  })
+    .populate("cleaners.cleaner", "imgUrl col_code")
+    .populate("supervisors.supervisor", "imgUrl col_code")
+    .populate("comments.comment", "imgUrl col_code");
 
   res.json({
     ok: true,
@@ -53,12 +56,14 @@ const checkCleanUpsAndGenerate = async (req, res = response) => {
 };
 
 const editCleanUp = async (req, res = response) => {
-  const id = req.params.dailyCleanUpId;
-  const { action, comment } = req.body;
+  console.log("here");
+  const { action, comment, cleanUpId } = req.body;
+
   const { uid, col_code, role } = req;
 
   try {
-    let dailyCleanUp = await DailyCleanup.findById(id);
+    let dailyCleanUp = await DailyCleanup.findById(cleanUpId);
+
     if (!dailyCleanUp) {
       return res.status(404).json({
         ok: false,
@@ -68,6 +73,7 @@ const editCleanUp = async (req, res = response) => {
 
     // get collaborator
     const collaborator = await Collaborator.findById(uid);
+
     let updatedDailyCleanUp;
 
     switch (action) {
@@ -98,10 +104,11 @@ const editCleanUp = async (req, res = response) => {
           supervisor: collaborator,
           time: dayjs(),
         });
+
+        console.log("aca maria");
         break;
 
       case dailyCleanUpActions.addComment:
-        console.log("here", comment);
         dailyCleanUp.comments.push({ comment, creator: collaborator });
         break;
 
@@ -112,12 +119,16 @@ const editCleanUp = async (req, res = response) => {
     }
 
     dailyCleanUp.hasBeenUsed = true;
+
+    console.log("esto se atualizara", dailyCleanUp);
     // update it
     updatedDailyCleanUp = await DailyCleanup.findByIdAndUpdate(
-      id,
+      cleanUpId,
       dailyCleanUp,
       { new: true }
     );
+
+    console.log(updatedDailyCleanUp);
 
     res.status(201).json({
       ok: true,

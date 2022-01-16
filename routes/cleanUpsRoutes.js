@@ -19,6 +19,6 @@ router.get(
   validarJWT,
   checkCleanUpsAndGenerate
 );
-router.patch("/daily/:dailyCleanUpId", validarJWT, editCleanUp);
+router.patch("/daily/", validarJWT, editCleanUp);
 
 module.exports = router;
