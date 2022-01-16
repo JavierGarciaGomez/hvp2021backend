@@ -24,11 +24,11 @@ app.use(express.json());
 // routes
 
 // collaborator
-app.use("/api/collaborators", require("./routes/collaboratorsRoutes"));
+// app.use("/api/collaborators", require("./routes/collaboratorsRoutes"));
 
 // 332 users routes
-app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/cleanups", require("./routes/cleanUpsRoutes"));
+// app.use("/api/auth", require("./routes/authRoutes"));
+// app.use("/api/cleanups", require("./routes/cleanUpsRoutes"));
 // 350 events routes
 // app.use("/api/events", require("./routes/events"));
 
