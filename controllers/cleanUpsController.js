@@ -4,13 +4,13 @@ const Collaborator = require("../models/Collaborator");
 // const Usuario = require("../models/Usuario");
 const { generateJWT } = require("../helpers/jwt");
 const { body } = require("express-validator");
-const DailyCleanup = require("../models/DailyCleanup");
-// const { branches, dailyCleanUpActions } = require("../types/types");
-// const { getDateWithoutTime } = require("../helpers/utilities");
-// const dayjs = require("dayjs");
-// const utc = require("dayjs/plugin/utc");
-// const { getCollaboratorById } = require("./collaboratorsController");
-// dayjs.extend(utc);
+// const DailyCleanup = require("../models/DailyCleanup");
+const { branches, dailyCleanUpActions } = require("../types/types");
+const { getDateWithoutTime } = require("../helpers/utilities");
+const dayjs = require("dayjs");
+const utc = require("dayjs/plugin/utc");
+const { getCollaboratorById } = require("./collaboratorsController");
+dayjs.extend(utc);
 
 // const checkCleanUpsAndGenerate = async (req, res = response) => {
 //   const date = dayjs().utc(true).startOf("day");
