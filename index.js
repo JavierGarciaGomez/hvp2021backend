@@ -13,6 +13,7 @@ dbConnection();
 
 // CORS
 app.use(cors());
+app.options("*", cors()); // include before other routes
 
 // Public directory
 app.use(express.static(path.join(__dirname, "/public")));
