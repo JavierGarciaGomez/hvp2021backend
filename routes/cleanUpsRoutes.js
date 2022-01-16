@@ -18,7 +18,7 @@ const {
   checkCleanUp,
 } = require("../controllers/collaboratorsController");
 const {
-  checkCleanUpsAndGenerate,
+  // checkCleanUpsAndGenerate,
   editCleanUp,
 } = require("../controllers/cleanUpsController");
 const { fieldValidator } = require("../middlewares/fieldValidator");
