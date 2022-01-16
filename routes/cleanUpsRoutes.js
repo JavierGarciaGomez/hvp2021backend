@@ -5,6 +5,8 @@
 const { Router } = require("express");
 const { check } = require("express-validator");
 
+module.exports = router;
+
 // const { Router } = require("express");
 // const { check } = require("express-validator");
 // const {
