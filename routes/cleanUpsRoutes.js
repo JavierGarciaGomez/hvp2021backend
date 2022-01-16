@@ -19,7 +19,7 @@ const {
 } = require("../controllers/collaboratorsController");
 const {
   // checkCleanUpsAndGenerate,
-  editCleanUp,
+  // editCleanUp,
 } = require("../controllers/cleanUpsController");
 const { fieldValidator } = require("../middlewares/fieldValidator");
 
