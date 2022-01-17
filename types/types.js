@@ -14,7 +14,7 @@ const deepCleanUpActivities = [
   "cleanedEquipment",
   "cleanedCages",
   "cleanedDrawers",
-  "cleanedRefigerator",
+  "cleanedRefrigerator",
   "everyAreaCleaned",
 ];
 

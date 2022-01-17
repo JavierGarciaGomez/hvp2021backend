@@ -76,7 +76,7 @@ const DeepCleanUpSchema = Schema({
         type: Date,
       },
     },
-    cleanedRefigerator: {
+    cleanedRefrigerator: {
       done: {
         type: Boolean,
         default: false,

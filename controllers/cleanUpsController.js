@@ -154,7 +154,7 @@ const updateDailyCleanUp = async (req, res = response) => {
 const createDeepCleanUp = async (req, res = response) => {
   try {
     const date = dayjs();
-    const { branch, activities = [] } = req.body;
+    const { branch, activities = [], comment } = req.body;
 
     const { uid } = req;
 
@@ -202,6 +202,7 @@ const createDeepCleanUp = async (req, res = response) => {
 
     deepCleanUp.date = date;
     deepCleanUp.branch = branch;
+    deepCleanUp.comments.push({ comment, creator: collaborator });
 
     await deepCleanUp.save();
 
@@ -221,8 +222,45 @@ const createDeepCleanUp = async (req, res = response) => {
   }
 };
 
+const getDeepCleanUps = async (req, res = response) => {
+  try {
+    const date = dayjs().utc(true).startOf("day");
+    const { branch } = req.body;
+    const utcDateEnd = dayjs(date).utc(true).endOf("day");
+    const utcDateStart = utcDateEnd.subtract(1, "month");
+    let deepCleanUps = await DeepCleanUp.find({
+      date: {
+        $gte: new Date(utcDateStart),
+        $lt: new Date(utcDateEnd),
+      },
+      branch,
+    })
+      .populate("activities.correctOrder.cleaner", "imgUrl col_code")
+      .populate("activities.cleanedCages.cleaner", "imgUrl col_code")
+      .populate("activities.wasteDisposal.cleaner", "imgUrl col_code")
+      .populate("activities.cleanedEquipment.cleaner", "imgUrl col_code")
+      .populate("activities.cleanedCages.cleaner", "imgUrl col_code")
+      .populate("activities.cleanedDrawers.cleaner", "imgUrl col_code")
+      .populate("activities.cleanedRefrigerator.cleaner", "imgUrl col_code")
+      .populate("activities.everyAreaCleaned.cleaner", "imgUrl col_code");
+
+    res.json({
+      ok: true,
+      msg: "generado",
+      deepCleanUps,
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: "false",
+      msg: "Por favor, hable con el administrador",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   checkDailyCleanUpsAndGenerate,
   updateDailyCleanUp,
   createDeepCleanUp,
+  getDeepCleanUps,
 };

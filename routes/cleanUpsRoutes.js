@@ -8,6 +8,7 @@ const {
   checkDailyCleanUpsAndGenerate,
   updateDailyCleanUp,
   createDeepCleanUp,
+  getDeepCleanUps,
 } = require("../controllers/cleanUpsController");
 const { validateJwt } = require("../middlewares/validateJwt");
 // const { fieldValidator } = require("../middlewares/fieldValidator");
@@ -23,5 +24,6 @@ router.get(
 router.patch("/daily/", validateJwt, updateDailyCleanUp);
 
 router.post("/deep/createNew", validateJwt, createDeepCleanUp);
+router.get("/deep/", validateJwt, getDeepCleanUps);
 
 module.exports = router;
