@@ -10,7 +10,10 @@ const {
   dailyCleanUpActions,
   deepCleanUpActivities,
 } = require("../types/types");
-const { getDateWithoutTime } = require("../helpers/utilities");
+const {
+  getDateWithoutTime,
+  checkIfElementExists,
+} = require("../helpers/utilities");
 var dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
 const { getCollaboratorById } = require("./collaboratorsController");
@@ -152,7 +155,7 @@ const updateDailyCleanUp = async (req, res = response) => {
 
 const createDeepCleanUp = async (req, res = response) => {
   try {
-    const date = dayjs().subtract(10, "day");
+    const date = dayjs();
     const {
       branch,
       activities = [],
@@ -230,6 +233,106 @@ const createDeepCleanUp = async (req, res = response) => {
   }
 };
 
+const updateDeepCleanUp = async (req, res = response) => {
+  try {
+    const { deepCleanUpId } = req.params;
+
+    let deepCleanUp = await DeepCleanUp.findById(deepCleanUpId);
+
+    if (!deepCleanUp) {
+      return res.status(400).json({
+        ok: false,
+        msg: "No existe limpieza profunda con ese ese id",
+      });
+    }
+
+    const date = deepCleanUp.date;
+
+    const { activities = [], comment, iscleaner, issupervisor } = req.body;
+
+    const { uid } = req;
+
+    const collaborator = await Collaborator.findById(uid);
+
+    let newActivities = {};
+    deepCleanUpActivities.forEach((activity) => {
+      if (activities.includes(activity)) {
+        newActivities[activity] = true;
+      } else {
+        newActivities[activity] = false;
+      }
+    });
+
+    deepCleanUp.activities = newActivities;
+
+    // for (let activity in deepCleanUp.activities) {
+    //   if (activities.includes(activity)) {
+    //     console.log("estoy en esta actividad+++++", activity);
+    //     activity = true;
+    //   } else {
+    //     console.log("estoy en esta actividad----", activity);
+    //     activity = false;
+    //   }
+    // }
+
+    // todo
+    console.log(deepCleanUp);
+
+    // activities.map((activity) => {
+
+    //   if (deepCleanUpActivities.includes(activity)) {
+    //     deepCleanUp.activities[activity] = true;
+    //   } else {
+    //     return res.status(400).json({
+    //       ok: false,
+    //       msg: `Esta actividad no existe`,
+    //     });
+    //   }
+    // });
+
+    console.log(
+      "esto pruebo",
+      iscleaner,
+      !checkIfElementExists(deepCleanUp.cleaners, "cleaner", uid)
+    );
+    if (
+      iscleaner &&
+      !checkIfElementExists(deepCleanUp.cleaners, "cleaner", uid)
+    ) {
+      deepCleanUp.cleaners.push({ cleaner: collaborator, time: dayjs() });
+    }
+
+    if (
+      issupervisor &&
+      !checkIfElementExists(deepCleanUp.supervisors, "supervisor", uid)
+    ) {
+      deepCleanUp.supervisors.push({ supervisor: collaborator, time: dayjs() });
+    }
+
+    if (comment) deepCleanUp.comments.push({ comment, creator: collaborator });
+
+    console.log(deepCleanUp);
+    const updatedDeepCleanUp = await DeepCleanUp.findByIdAndUpdate(
+      deepCleanUpId,
+      { ...deepCleanUp },
+      { new: true }
+    );
+
+    res.status(201).json({
+      ok: true,
+      message: "great",
+      updatedDeepCleanUp,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: "false",
+      msg: "Por favor, hable con el administrador",
+      error: error.message,
+    });
+  }
+};
+
 const getDeepCleanUps = async (req, res = response) => {
   try {
     const { branch } = req.params;
@@ -272,9 +375,30 @@ const getDeepCleanUps = async (req, res = response) => {
   }
 };
 
+const getDeepCleanUp = async (req, res = response) => {
+  try {
+    const { deepCleanUpId } = req.params;
+
+    let deepCleanUp = await DeepCleanUp.findById(deepCleanUpId);
+    res.json({
+      ok: true,
+      msg: "deepCleanUp devuelto",
+      deepCleanUp,
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: "false",
+      msg: "Por favor, hable con el administrador",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   checkDailyCleanUpsAndGenerate,
   updateDailyCleanUp,
   createDeepCleanUp,
   getDeepCleanUps,
+  getDeepCleanUp,
+  updateDeepCleanUp,
 };

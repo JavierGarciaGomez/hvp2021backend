@@ -23,4 +23,4 @@ const convertDateToUTC = (date) =>
     date.getUTCSeconds()
   );
 
-module.exports = { getDateWithoutTime, convertDateToUTC };
+module.exports = { getDateWithoutTime, convertDateToUTC, checkIfElementExists };

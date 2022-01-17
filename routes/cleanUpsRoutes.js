@@ -9,6 +9,8 @@ const {
   updateDailyCleanUp,
   createDeepCleanUp,
   getDeepCleanUps,
+  getDeepCleanUp,
+  updateDeepCleanUp,
 } = require("../controllers/cleanUpsController");
 const { validateJwt } = require("../middlewares/validateJwt");
 // const { fieldValidator } = require("../middlewares/fieldValidator");
@@ -26,5 +28,7 @@ router.patch("/daily/", validateJwt, updateDailyCleanUp);
 router.post("/deep/createNew", validateJwt, createDeepCleanUp);
 // todo redesign this to be ge get sending string
 router.get("/deep/:branch", validateJwt, getDeepCleanUps);
+router.get("/deep/:branch/:deepCleanUpId", validateJwt, getDeepCleanUp);
+router.put("/deep/:branch/:deepCleanUpId", validateJwt, updateDeepCleanUp);
 
 module.exports = router;
