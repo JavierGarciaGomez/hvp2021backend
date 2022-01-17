@@ -20,10 +20,12 @@ const { getCollaboratorById } = require("./collaboratorsController");
 const DeepCleanUp = require("../models/DeepCleanUp");
 dayjs.extend(utc);
 
-const checkDailyCleanUpsAndGenerate = async (req, res = response) => {
-  const date = dayjs().utc(true).startOf("day");
+const getDailyCleanUpsAndGenerate = async (req, res = response) => {
+  try {
+    const { branch } = req.params;
+    const date = dayjs().utc(true).startOf("day");
 
-  for (branch of branches) {
+    // create registers for the last seven days if they doesn't exist
     for (i = 0; i < 7; i++) {
       const newDate = date.subtract(i, "day");
       // console.log("branch", branch, i);
@@ -34,32 +36,36 @@ const checkDailyCleanUpsAndGenerate = async (req, res = response) => {
           date: newDate,
           branch,
         });
-        const savedDailyCleanUp = await dailyCleanUp.save();
+        await dailyCleanUp.save();
       }
     }
+
+    // start and endi dates that will be retrieved
+    const utcDateEnd = dayjs(date).utc(true).endOf("day");
+    const utcDateStart = utcDateEnd.subtract(10, "day");
+
+    let dailyCleanUps = await DailyCleanup.find({
+      date: {
+        $gte: new Date(utcDateStart),
+        $lt: new Date(utcDateEnd),
+      },
+    })
+      .populate("cleaners.cleaner", "imgUrl col_code")
+      .populate("supervisors.supervisor", "imgUrl col_code")
+      .populate("comments.comment", "imgUrl col_code");
+
+    res.json({
+      ok: true,
+      msg: "generado",
+      dailyCleanUps,
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: "false",
+      msg: "Por favor, hable con el administrador",
+      error: error.message,
+    });
   }
-
-  // TODO:
-  // return dailycleanups from the last 10 days
-
-  const utcDateEnd = dayjs(date).utc(true).endOf("day");
-  const utcDateStart = utcDateEnd.subtract(10, "day");
-
-  let dailyCleanUps = await DailyCleanup.find({
-    date: {
-      $gte: new Date(utcDateStart),
-      $lt: new Date(utcDateEnd),
-    },
-  })
-    .populate("cleaners.cleaner", "imgUrl col_code")
-    .populate("supervisors.supervisor", "imgUrl col_code")
-    .populate("comments.comment", "imgUrl col_code");
-
-  res.json({
-    ok: true,
-    msg: "generado",
-    dailyCleanUps,
-  });
 };
 
 const updateDailyCleanUp = async (req, res = response) => {
@@ -338,7 +344,6 @@ const getDeepCleanUps = async (req, res = response) => {
     const { branch } = req.params;
     const date = dayjs().utc(true).startOf("day");
 
-    console.log("branch recibida", branch);
     const utcDateEnd = dayjs(date).utc(true).endOf("day");
     const utcDateStart = utcDateEnd.subtract(1, "month");
     let deepCleanUps = await DeepCleanUp.find({
@@ -395,7 +400,7 @@ const getDeepCleanUp = async (req, res = response) => {
 };
 
 module.exports = {
-  checkDailyCleanUpsAndGenerate,
+  getDailyCleanUpsAndGenerate,
   updateDailyCleanUp,
   createDeepCleanUp,
   getDeepCleanUps,

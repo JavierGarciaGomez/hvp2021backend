@@ -5,12 +5,12 @@
 const { Router } = require("express");
 const { check } = require("express-validator");
 const {
-  checkDailyCleanUpsAndGenerate,
   updateDailyCleanUp,
   createDeepCleanUp,
   getDeepCleanUps,
   getDeepCleanUp,
   updateDeepCleanUp,
+  getDailyCleanUpsAndGenerate,
 } = require("../controllers/cleanUpsController");
 const { validateJwt } = require("../middlewares/validateJwt");
 // const { fieldValidator } = require("../middlewares/fieldValidator");
@@ -18,15 +18,20 @@ const { validateJwt } = require("../middlewares/validateJwt");
 
 const router = Router();
 
-router.get(
-  "/daily/checkCleanUpsAndGenerate",
-  validateJwt,
-  checkDailyCleanUpsAndGenerate
-);
-router.patch("/daily/", validateJwt, updateDailyCleanUp);
+router.get("/daily/:branch", validateJwt, getDailyCleanUpsAndGenerate);
+// router.get("/daily/:branch/:dailyCleanUpId", validateJwt, getdailyCleanUp);
+router.put("/daily/:branch/:dailyCleanUpId", validateJwt, updateDeepCleanUp);
+
+router.get("/daily/:branch", validateJwt, getDailyCleanUpsAndGenerate);
+
+// router.get(
+//   "/daily/checkCleanUpsAndGenerate",
+//   validateJwt,
+//   checkDailyCleanUpsAndGenerate
+// );
+// router.patch("/daily/", validateJwt, updateDailyCleanUp);
 
 router.post("/deep/createNew", validateJwt, createDeepCleanUp);
-// todo redesign this to be ge get sending string
 router.get("/deep/:branch", validateJwt, getDeepCleanUps);
 router.get("/deep/:branch/:deepCleanUpId", validateJwt, getDeepCleanUp);
 router.put("/deep/:branch/:deepCleanUpId", validateJwt, updateDeepCleanUp);
