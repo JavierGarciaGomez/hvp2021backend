@@ -24,6 +24,7 @@ router.get(
 router.patch("/daily/", validateJwt, updateDailyCleanUp);
 
 router.post("/deep/createNew", validateJwt, createDeepCleanUp);
-router.get("/deep/", validateJwt, getDeepCleanUps);
+// todo redesign this to be ge get sending string
+router.post("/deep/", validateJwt, getDeepCleanUps);
 
 module.exports = router;

@@ -19,7 +19,6 @@ dayjs.extend(utc);
 
 const checkDailyCleanUpsAndGenerate = async (req, res = response) => {
   const date = dayjs().utc(true).startOf("day");
-  console.log("date", date);
 
   for (branch of branches) {
     for (i = 0; i < 7; i++) {
@@ -226,6 +225,7 @@ const getDeepCleanUps = async (req, res = response) => {
   try {
     const date = dayjs().utc(true).startOf("day");
     const { branch } = req.body;
+    console.log("branch recibida", req.body);
     const utcDateEnd = dayjs(date).utc(true).endOf("day");
     const utcDateStart = utcDateEnd.subtract(1, "month");
     let deepCleanUps = await DeepCleanUp.find({
