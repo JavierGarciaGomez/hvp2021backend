@@ -27,50 +27,36 @@ const DeepCleanUpSchema = Schema({
       },
     },
   ],
-  activities: [
-    {
-      correctOrder: {
-        type: Boolean,
-        default: false,
-      },
+  activities: {
+    correctOrder: {
+      type: Boolean,
+      default: false,
     },
-    {
-      wasteDisposal: {
-        type: Boolean,
-        default: false,
-      },
+    wasteDisposal: {
+      type: Boolean,
+      default: false,
     },
-    {
-      cleanedEquipment: {
-        type: Boolean,
-        default: false,
-      },
+    cleanedEquipment: {
+      type: Boolean,
+      default: false,
     },
-    {
-      cleanedCages: {
-        type: Boolean,
-        default: false,
-      },
+    cleanedCages: {
+      type: Boolean,
+      default: false,
     },
-    {
-      cleanedDrawers: {
-        type: Boolean,
-        default: false,
-      },
+    cleanedDrawers: {
+      type: Boolean,
+      default: false,
     },
-    {
-      cleanedRefrigerator: {
-        type: Boolean,
-        default: false,
-      },
+    cleanedRefrigerator: {
+      type: Boolean,
+      default: false,
     },
-    {
-      everyAreaCleaned: {
-        type: Boolean,
-        default: false,
-      },
+    everyAreaCleaned: {
+      type: Boolean,
+      default: false,
     },
-  ],
+  },
   comments: [
     {
       comment: {

@@ -152,7 +152,7 @@ const updateDailyCleanUp = async (req, res = response) => {
 
 const createDeepCleanUp = async (req, res = response) => {
   try {
-    const date = dayjs();
+    const date = dayjs().subtract(10, "day");
     const {
       branch,
       activities = [],
@@ -160,6 +160,8 @@ const createDeepCleanUp = async (req, res = response) => {
       iscleaner,
       issupervisor,
     } = req.body;
+
+    console.log("es body", req.body);
 
     const { uid } = req;
 
@@ -183,9 +185,11 @@ const createDeepCleanUp = async (req, res = response) => {
     }
 
     deepCleanUp = new DeepCleanUp();
+    console.log("activities", activities);
     const collaborator = await Collaborator.findById(uid);
     activities.map((activity) => {
       if (deepCleanUpActivities.includes(activity)) {
+        console.log("activities2", activities);
         deepCleanUp.activities[activity] = true;
       } else {
         return res.status(400).json({
@@ -197,13 +201,16 @@ const createDeepCleanUp = async (req, res = response) => {
 
     if (iscleaner)
       deepCleanUp.cleaners.push({ cleaner: collaborator, time: dayjs() });
-    if (issupervisor)
+    if (issupervisor) {
+      console.log("si es supervisor");
       deepCleanUp.supervisors.push({ supervisor: collaborator, time: dayjs() });
+    }
+
     deepCleanUp.date = date;
     deepCleanUp.branch = branch;
     if (comment) deepCleanUp.comments.push({ comment, creator: collaborator });
 
-    console.log("esti", deepCleanUp);
+    console.log(deepCleanUp);
     await deepCleanUp.save();
 
     res.status(201).json({
@@ -237,7 +244,10 @@ const getDeepCleanUps = async (req, res = response) => {
         $lt: new Date(utcDateEnd),
       },
       branch,
-    });
+    })
+      .populate("cleaners.cleaner", "imgUrl col_code")
+      .populate("supervisors.supervisor", "imgUrl col_code")
+      .populate("comments.comment", "imgUrl col_code");
     // todo
     // .populate("activities.correctOrder.cleaner", "imgUrl col_code")
     // .populate("activities.cleanedCages.cleaner", "imgUrl col_code")
