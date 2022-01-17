@@ -10,104 +10,64 @@ const DeepCleanUpSchema = Schema({
     type: Date,
     required: true,
   },
-  activities: {
-    correctOrder: {
-      done: {
-        type: Boolean,
-        default: false,
-      },
-      cleaner: {
-        type: Schema.Types.ObjectId,
-        ref: "Collaborator",
-      },
+  cleaners: [
+    {
+      cleaner: { type: Schema.Types.ObjectId, ref: "Collaborator" },
       time: {
         type: Date,
       },
     },
-    wasteDisposal: {
-      done: {
-        type: Boolean,
-        default: false,
-      },
-      cleaner: {
-        type: Schema.Types.ObjectId,
-        ref: "Collaborator",
-      },
-      time: {
-        type: Date,
-      },
-    },
-    cleanedEquipment: {
-      done: {
-        type: Boolean,
-        default: false,
-      },
-      cleaner: {
-        type: Schema.Types.ObjectId,
-        ref: "Collaborator",
-      },
-      time: {
-        type: Date,
-      },
-    },
-    cleanedCages: {
-      done: {
-        type: Boolean,
-        default: false,
-      },
-      cleaner: {
-        type: Schema.Types.ObjectId,
-        ref: "Collaborator",
-      },
-      time: {
-        type: Date,
-      },
-    },
-    cleanedDrawers: {
-      done: {
-        type: Boolean,
-        default: false,
-      },
-      cleaner: {
-        type: Schema.Types.ObjectId,
-        ref: "Collaborator",
-      },
-      time: {
-        type: Date,
-      },
-    },
-    cleanedRefrigerator: {
-      done: {
-        type: Boolean,
-        default: false,
-      },
-      cleaner: {
-        type: Schema.Types.ObjectId,
-        ref: "Collaborator",
-      },
-      time: {
-        type: Date,
-      },
-    },
-    everyAreaCleaned: {
-      done: {
-        type: Boolean,
-        default: false,
-      },
-      cleaner: {
-        type: Schema.Types.ObjectId,
-        ref: "Collaborator",
-      },
-      time: {
-        type: Date,
-      },
-    },
-  },
+  ],
+
   supervisors: [
     {
       supervisor: { type: Schema.Types.ObjectId, ref: "Collaborator" },
       time: {
         type: Date,
+      },
+    },
+  ],
+  activities: [
+    {
+      correctOrder: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    {
+      wasteDisposal: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    {
+      cleanedEquipment: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    {
+      cleanedCages: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    {
+      cleanedDrawers: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    {
+      cleanedRefrigerator: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    {
+      everyAreaCleaned: {
+        type: Boolean,
+        default: false,
       },
     },
   ],

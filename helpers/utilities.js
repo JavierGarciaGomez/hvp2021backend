@@ -4,6 +4,15 @@ const getDateWithoutTime = (date = new Date()) => {
   );
 };
 
+const checkIfElementExists = (collection, objectToCheck, id) => {
+  for (element of collection) {
+    if (element[objectToCheck]._id.toString() === id) {
+      return true;
+    }
+  }
+  return false;
+};
+
 const convertDateToUTC = (date) =>
   new Date(
     date.getUTCFullYear(),

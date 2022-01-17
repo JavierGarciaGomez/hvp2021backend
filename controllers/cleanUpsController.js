@@ -153,15 +153,18 @@ const updateDailyCleanUp = async (req, res = response) => {
 const createDeepCleanUp = async (req, res = response) => {
   try {
     const date = dayjs();
-    const { branch, activities = [], comment } = req.body;
+    const {
+      branch,
+      activities = [],
+      comment,
+      iscleaner,
+      issupervisor,
+    } = req.body;
 
     const { uid } = req;
 
     const utcDateStart = dayjs(date).utc(true).startOf("day");
     const utcDateEnd = dayjs(utcDateStart).add(1, "day");
-
-    console.log(utcDateStart);
-    console.log(utcDateEnd);
 
     // TODO
     let deepCleanUp = await DeepCleanUp.findOne({
@@ -171,7 +174,6 @@ const createDeepCleanUp = async (req, res = response) => {
       },
       branch,
     });
-    console.log(deepCleanUp);
 
     if (deepCleanUp) {
       return res.status(404).json({
@@ -181,28 +183,27 @@ const createDeepCleanUp = async (req, res = response) => {
     }
 
     deepCleanUp = new DeepCleanUp();
-
     const collaborator = await Collaborator.findById(uid);
-
     activities.map((activity) => {
       if (deepCleanUpActivities.includes(activity)) {
-        deepCleanUp.activities[activity] = {
-          done: true,
-          cleaner: collaborator,
-          time: date,
-        };
+        deepCleanUp.activities[activity] = true;
       } else {
-        return res.status(404).json({
+        return res.status(400).json({
           ok: false,
           msg: `Esta actividad no existe`,
         });
       }
     });
 
+    if (iscleaner)
+      deepCleanUp.cleaners.push({ cleaner: collaborator, time: dayjs() });
+    if (issupervisor)
+      deepCleanUp.supervisors.push({ supervisor: collaborator, time: dayjs() });
     deepCleanUp.date = date;
     deepCleanUp.branch = branch;
-    deepCleanUp.comments.push({ comment, creator: collaborator });
+    if (comment) deepCleanUp.comments.push({ comment, creator: collaborator });
 
+    console.log("esti", deepCleanUp);
     await deepCleanUp.save();
 
     res.status(201).json({
@@ -213,6 +214,7 @@ const createDeepCleanUp = async (req, res = response) => {
       deepCleanUp,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       ok: "false",
       msg: "Por favor, hable con el administrador",
@@ -223,9 +225,10 @@ const createDeepCleanUp = async (req, res = response) => {
 
 const getDeepCleanUps = async (req, res = response) => {
   try {
+    const { branch } = req.params;
     const date = dayjs().utc(true).startOf("day");
-    const { branch } = req.body;
-    console.log("branch recibida", req.body);
+
+    console.log("branch recibida", branch);
     const utcDateEnd = dayjs(date).utc(true).endOf("day");
     const utcDateStart = utcDateEnd.subtract(1, "month");
     let deepCleanUps = await DeepCleanUp.find({
@@ -234,15 +237,16 @@ const getDeepCleanUps = async (req, res = response) => {
         $lt: new Date(utcDateEnd),
       },
       branch,
-    })
-      .populate("activities.correctOrder.cleaner", "imgUrl col_code")
-      .populate("activities.cleanedCages.cleaner", "imgUrl col_code")
-      .populate("activities.wasteDisposal.cleaner", "imgUrl col_code")
-      .populate("activities.cleanedEquipment.cleaner", "imgUrl col_code")
-      .populate("activities.cleanedCages.cleaner", "imgUrl col_code")
-      .populate("activities.cleanedDrawers.cleaner", "imgUrl col_code")
-      .populate("activities.cleanedRefrigerator.cleaner", "imgUrl col_code")
-      .populate("activities.everyAreaCleaned.cleaner", "imgUrl col_code");
+    });
+    // todo
+    // .populate("activities.correctOrder.cleaner", "imgUrl col_code")
+    // .populate("activities.cleanedCages.cleaner", "imgUrl col_code")
+    // .populate("activities.wasteDisposal.cleaner", "imgUrl col_code")
+    // .populate("activities.cleanedEquipment.cleaner", "imgUrl col_code")
+    // .populate("activities.cleanedCages.cleaner", "imgUrl col_code")
+    // .populate("activities.cleanedDrawers.cleaner", "imgUrl col_code")
+    // .populate("activities.cleanedRefrigerator.cleaner", "imgUrl col_code")
+    // .populate("activities.everyAreaCleaned.cleaner", "imgUrl col_code");
 
     res.json({
       ok: true,
