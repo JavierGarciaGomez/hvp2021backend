@@ -42,13 +42,14 @@ const getDailyCleanUpsAndGenerate = async (req, res = response) => {
 
     // start and endi dates that will be retrieved
     const utcDateEnd = dayjs(date).utc(true).endOf("day");
-    const utcDateStart = utcDateEnd.subtract(10, "day");
+    const utcDateStart = utcDateEnd.subtract(7, "day");
 
     let dailyCleanUps = await DailyCleanup.find({
       date: {
         $gte: new Date(utcDateStart),
         $lt: new Date(utcDateEnd),
       },
+      branch,
     })
       .populate("cleaners.cleaner", "imgUrl col_code")
       .populate("supervisors.supervisor", "imgUrl col_code")
@@ -69,13 +70,12 @@ const getDailyCleanUpsAndGenerate = async (req, res = response) => {
 };
 
 const updateDailyCleanUp = async (req, res = response) => {
-  console.log("here");
-  const { action, comment, cleanUpId } = req.body;
-
-  const { uid, col_code, role } = req;
-
   try {
-    let dailyCleanUp = await DailyCleanup.findById(cleanUpId);
+    const { dailyCleanUpId } = req.params;
+    const { action, comment } = req.body;
+    const { uid } = req;
+
+    let dailyCleanUp = await DailyCleanup.findById(dailyCleanUpId);
 
     if (!dailyCleanUp) {
       return res.status(404).json({
@@ -84,10 +84,7 @@ const updateDailyCleanUp = async (req, res = response) => {
       });
     }
 
-    // get collaborator
     const collaborator = await Collaborator.findById(uid);
-
-    let updatedDailyCleanUp;
 
     switch (action) {
       case dailyCleanUpActions.addCleaner:
@@ -117,7 +114,6 @@ const updateDailyCleanUp = async (req, res = response) => {
           supervisor: collaborator,
           time: dayjs(),
         });
-
         break;
 
       case dailyCleanUpActions.addComment:
@@ -127,30 +123,22 @@ const updateDailyCleanUp = async (req, res = response) => {
       default:
         break;
     }
-    if (action === dailyCleanUpActions.addCleaner) {
-    }
 
     dailyCleanUp.hasBeenUsed = true;
-
-    console.log("esto se atualizara", dailyCleanUp);
     // update it
-    updatedDailyCleanUp = await DailyCleanup.findByIdAndUpdate(
-      cleanUpId,
+    const updatedDailyCleanUp = await DailyCleanup.findByIdAndUpdate(
+      dailyCleanUpId,
       dailyCleanUp,
       { new: true }
     );
-
-    console.log(updatedDailyCleanUp);
 
     res.status(201).json({
       ok: true,
       message: "great",
       updatedDailyCleanUp,
-      uid,
-      col_code,
-      role,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       ok: "false",
       msg: "Por favor, hable con el administrador",
@@ -242,6 +230,8 @@ const createDeepCleanUp = async (req, res = response) => {
 const updateDeepCleanUp = async (req, res = response) => {
   try {
     const { deepCleanUpId } = req.params;
+    const { activities = [], comment, iscleaner, issupervisor } = req.body;
+    const { uid } = req;
 
     let deepCleanUp = await DeepCleanUp.findById(deepCleanUpId);
 
@@ -253,10 +243,6 @@ const updateDeepCleanUp = async (req, res = response) => {
     }
 
     const date = deepCleanUp.date;
-
-    const { activities = [], comment, iscleaner, issupervisor } = req.body;
-
-    const { uid } = req;
 
     const collaborator = await Collaborator.findById(uid);
 
@@ -271,36 +257,7 @@ const updateDeepCleanUp = async (req, res = response) => {
 
     deepCleanUp.activities = newActivities;
 
-    // for (let activity in deepCleanUp.activities) {
-    //   if (activities.includes(activity)) {
-    //     console.log("estoy en esta actividad+++++", activity);
-    //     activity = true;
-    //   } else {
-    //     console.log("estoy en esta actividad----", activity);
-    //     activity = false;
-    //   }
-    // }
-
-    // todo
-    console.log(deepCleanUp);
-
-    // activities.map((activity) => {
-
-    //   if (deepCleanUpActivities.includes(activity)) {
-    //     deepCleanUp.activities[activity] = true;
-    //   } else {
-    //     return res.status(400).json({
-    //       ok: false,
-    //       msg: `Esta actividad no existe`,
-    //     });
-    //   }
-    // });
-
-    console.log(
-      "esto pruebo",
-      iscleaner,
-      !checkIfElementExists(deepCleanUp.cleaners, "cleaner", uid)
-    );
+    // add cleaner, supervisor or comment
     if (
       iscleaner &&
       !checkIfElementExists(deepCleanUp.cleaners, "cleaner", uid)
@@ -317,7 +274,6 @@ const updateDeepCleanUp = async (req, res = response) => {
 
     if (comment) deepCleanUp.comments.push({ comment, creator: collaborator });
 
-    console.log(deepCleanUp);
     const updatedDeepCleanUp = await DeepCleanUp.findByIdAndUpdate(
       deepCleanUpId,
       { ...deepCleanUp },

@@ -19,17 +19,7 @@ const { validateJwt } = require("../middlewares/validateJwt");
 const router = Router();
 
 router.get("/daily/:branch", validateJwt, getDailyCleanUpsAndGenerate);
-// router.get("/daily/:branch/:dailyCleanUpId", validateJwt, getdailyCleanUp);
-router.put("/daily/:branch/:dailyCleanUpId", validateJwt, updateDeepCleanUp);
-
-router.get("/daily/:branch", validateJwt, getDailyCleanUpsAndGenerate);
-
-// router.get(
-//   "/daily/checkCleanUpsAndGenerate",
-//   validateJwt,
-//   checkDailyCleanUpsAndGenerate
-// );
-// router.patch("/daily/", validateJwt, updateDailyCleanUp);
+router.patch("/daily/:branch/:dailyCleanUpId", validateJwt, updateDailyCleanUp);
 
 router.post("/deep/createNew", validateJwt, createDeepCleanUp);
 router.get("/deep/:branch", validateJwt, getDeepCleanUps);
