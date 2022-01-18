@@ -163,8 +163,6 @@ const createDeepCleanUp = async (req, res = response) => {
       issupervisor,
     } = req.body;
 
-    console.log("es body", req.body);
-
     const { uid } = req;
 
     const utcDateStart = dayjs(date).utc(true).startOf("day");
@@ -187,11 +185,9 @@ const createDeepCleanUp = async (req, res = response) => {
     }
 
     deepCleanUp = new DeepCleanUp();
-    console.log("activities", activities);
     const collaborator = await Collaborator.findById(uid);
     activities.map((activity) => {
       if (deepCleanUpActivities.includes(activity)) {
-        console.log("activities2", activities);
         deepCleanUp.activities[activity] = true;
       } else {
         return res.status(400).json({
@@ -212,7 +208,6 @@ const createDeepCleanUp = async (req, res = response) => {
     deepCleanUp.branch = branch;
     if (comment) deepCleanUp.comments.push({ comment, creator: collaborator });
 
-    console.log(deepCleanUp);
     await deepCleanUp.save();
 
     res.status(201).json({
@@ -501,8 +496,6 @@ const updateOperatingRoomCleanUp = async (req, res = response) => {
         operatingRoomCleanUp,
         { new: true }
       );
-
-    console.log(updatedOperatingRoomCleanUp);
 
     res.status(201).json({
       ok: true,

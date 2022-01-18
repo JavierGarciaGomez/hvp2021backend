@@ -16,7 +16,6 @@ const checkIfElementExists = (collection, objectToCheck, id) => {
 };
 
 const validateMaxDays = (registerDate, updateDate, maxDays) => {
-  console.log(dayjs(registerDate).diff(dayjs(updateDate), "day"));
   return maxDays > dayjs(updateDate).diff(dayjs(registerDate), "day");
 };
 

@@ -26,11 +26,13 @@ const collaboratorLogin = async (req, res = response) => {
         msg: "Email o contraseña incorrecta",
       });
     }
+
     // Generar JWT
     const token = await generateJWT(
       collaborator._id,
       collaborator.col_code,
-      collaborator.role
+      collaborator.role,
+      collaborator.imgUrl
     );
 
     res.json({
@@ -39,6 +41,7 @@ const collaboratorLogin = async (req, res = response) => {
       token,
       col_code: collaborator.col_code,
       role: collaborator.role,
+      imgUrl: collaborator.imgUrl,
     });
   } catch (error) {
     console.log(error);
@@ -50,9 +53,8 @@ const collaboratorLogin = async (req, res = response) => {
 };
 
 const getCollaborators = async (req, res = response) => {
-  const collaborators = await Collaborator.find();
-
   try {
+    const collaborators = await Collaborator.find();
     res.json({
       ok: true,
       msg: "getCollaborators",
@@ -67,11 +69,38 @@ const getCollaborators = async (req, res = response) => {
   }
 };
 
+const getCollaboratorsForWeb = async (req, res = response) => {
+  try {
+    const collaborators = await Collaborator.find(
+      { isDisplayedWeb: true },
+      {
+        first_name: 1,
+        last_name: 1,
+        col_code: 1,
+        imgUrl: 1,
+        position: 1,
+        textPresentation: 1,
+      }
+    );
+    res.json({
+      ok: true,
+      msg: "getCollaborators",
+      collaborators,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: "false",
+      msg: "Por favor, hable con el administrador",
+      error,
+    });
+  }
+};
+
 const createCollaborator = async (req, res = response) => {
   const { col_code } = req.body;
 
   try {
-    console.log("este es el req.body", req.body);
     // check if the collaborator code is not used before
     let collaborator = await Collaborator.findOne({ col_code });
 
@@ -83,7 +112,6 @@ const createCollaborator = async (req, res = response) => {
     }
 
     collaborator = new Collaborator(req.body);
-    console.log("grabar colaborador", collaborator);
     await collaborator.save();
 
     /*
@@ -168,8 +196,6 @@ const registerCollaborator = async (req, res = response) => {
       { new: true }
     );
 
-    console.log("colaborador actualizado", updatedCollaborator);
-
     // JWT
     // const token = await generarJWT(user.id, user.name);
 
@@ -192,8 +218,6 @@ const registerCollaborator = async (req, res = response) => {
 
 const getCollaboratorById = async (req, res = response) => {
   const id = req.params.collaboratorId;
-  console.log("este es el id", id);
-
   try {
     // check if the collaborator code is not used before
     let collaborator = await Collaborator.findById(id);
@@ -223,10 +247,9 @@ const getCollaboratorById = async (req, res = response) => {
 // ..., 344
 
 const collaboratorRenewToken = async (req, res = response) => {
-  const { uid, col_code, role } = req;
-
+  const { uid, col_code, role, imgUrl } = req;
   // Generar JWT
-  const token = await generateJWT(uid, col_code, role);
+  const token = await generateJWT(uid, col_code, role, imgUrl);
 
   res.json({
     ok: true,
@@ -234,6 +257,7 @@ const collaboratorRenewToken = async (req, res = response) => {
     uid,
     col_code,
     role,
+    imgUrl,
   });
 };
 
@@ -291,4 +315,5 @@ module.exports = {
   getCollaboratorById,
   updateCollaborator,
   registerCollaborator,
+  getCollaboratorsForWeb,
 };

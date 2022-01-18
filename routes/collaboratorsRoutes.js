@@ -12,6 +12,7 @@ const {
   registerCollaborator,
   collaboratorLogin,
   collaboratorRenewToken,
+  getCollaboratorsForWeb,
 } = require("../controllers/collaboratorsController");
 const { fieldValidator } = require("../middlewares/fieldValidator");
 
@@ -30,6 +31,7 @@ router.post(
   collaboratorLogin
 );
 
+router.get("/getAllForWeb", getCollaboratorsForWeb);
 router.get("/", validateJwt, getCollaborators);
 
 // create collaborator by manager
