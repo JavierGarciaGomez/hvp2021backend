@@ -13,6 +13,7 @@ const {
   collaboratorLogin,
   collaboratorRenewToken,
   getCollaboratorsForWeb,
+  deleteCollaborator,
 } = require("../controllers/collaboratorsController");
 const { fieldValidator } = require("../middlewares/fieldValidator");
 
@@ -75,6 +76,7 @@ router.patch(
 );
 
 router.put("/:collaboratorId", validateJwt, updateCollaborator);
+router.delete("/:collaboratorId", validateJwt, deleteCollaborator);
 
 // renew token
 router.get("/renew", validateJwt, collaboratorRenewToken);

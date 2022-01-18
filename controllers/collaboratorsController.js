@@ -101,10 +101,13 @@ const createCollaborator = async (req, res = response) => {
   const { col_code } = req.body;
 
   try {
+    // get the uid of the creator
+    const { role } = req;
     // check if the collaborator code is not used before
-    let collaborator = await Collaborator.findOne({ col_code });
 
-    if (collaborator) {
+    let usedColCode = await Collaborator.findOne({ col_code });
+
+    if (usedColCode) {
       return res.status(400).json({
         ok: false,
         msg: "Ya existen usuarios con ese código de colaborador",
@@ -112,34 +115,24 @@ const createCollaborator = async (req, res = response) => {
     }
 
     collaborator = new Collaborator(req.body);
-    await collaborator.save();
 
-    /*
-    // encrypt pass
-    const salt = bcrypt.genSaltSync();
-    user.password = bcrypt.hashSync(password, salt);
+    // check if is trying to create admin or manager
+    if (
+      (role !== "Administrador" && collaborator.role === "Administrador") ||
+      (role !== "Administrador" && collaborator.role === "Gerente")
+    ) {
+      return res.status(400).json({
+        ok: false,
+        msg: "Solo el administrador puede crear usuarios de tipo administrador o gerente",
+      });
+    }
 
-    console.log("grabar usuario", user);
+    const savedCollaborator = await collaborator.save();
 
-    const what = await user.save();
-
-    // JWT
-    const token = await generarJWT(user.id, user.name);
-*/
     res.status(201).json({
       ok: true,
-      message: "create collaborator",
-      col_code: collaborator.col_code,
-      first_name: collaborator.first_name,
-      last_name: collaborator.last_name,
-      role: collaborator.role,
-      col_numId: collaborator.col_numId,
-      isActive: collaborator.isActive,
-      gender: collaborator.gender,
-      // uid: user.id,
-      // name: user.name,
-      // password: user.password,
-      // token,
+      message: "collaborador creado con éxito",
+      collaborator: savedCollaborator,
     });
   } catch (error) {
     console.log("error", error);
@@ -157,6 +150,14 @@ const registerCollaborator = async (req, res = response) => {
 
   try {
     // check if the collaborator code is not used before
+    let usedMail = await Collaborator.findOne({ email });
+    if (usedMail) {
+      return res.status(400).json({
+        ok: false,
+        msg: "Ya existe un colaborador registrado con ese email",
+      });
+    }
+
     let collaborator = await Collaborator.findOne({ col_code });
 
     if (!collaborator) {
@@ -262,11 +263,11 @@ const collaboratorRenewToken = async (req, res = response) => {
 };
 
 const updateCollaborator = async (req, res = response) => {
-  const collaboratorId = req.params.collaboratorId;
-
   // const uid = req.uid;
 
   try {
+    const collaboratorId = req.params.collaboratorId;
+    const { role } = req;
     const collaborator = await Collaborator.findById(collaboratorId);
 
     if (!collaborator) {
@@ -287,6 +288,16 @@ const updateCollaborator = async (req, res = response) => {
       ...req.body,
     };
 
+    if (
+      (role !== "Administrador" && newCollaborator.role === "Administrador") ||
+      (role !== "Administrador" && newCollaborator.role === "Gerente")
+    ) {
+      return res.status(400).json({
+        ok: false,
+        msg: "Solo el administrador puede crear usuarios de tipo administrador o gerente",
+      });
+    }
+
     const updatedCollaborator = await Collaborator.findByIdAndUpdate(
       collaboratorId,
       newCollaborator,
@@ -295,8 +306,25 @@ const updateCollaborator = async (req, res = response) => {
 
     res.json({
       ok: true,
-      msg: "evento actualizado",
+      msg: "colaborador actualizado",
       collaborator: updatedCollaborator,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Hable con el administrador",
+    });
+  }
+};
+
+const deleteCollaborator = async (req, res = response) => {
+  const collaboratorId = req.params.collaboratorId;
+  try {
+    await Collaborator.findByIdAndDelete(collaboratorId);
+    res.json({
+      ok: true,
+      msg: "colaborador eliminado",
     });
   } catch (error) {
     console.log(error);
@@ -316,4 +344,5 @@ module.exports = {
   updateCollaborator,
   registerCollaborator,
   getCollaboratorsForWeb,
+  deleteCollaborator,
 };
