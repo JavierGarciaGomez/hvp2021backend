@@ -30,11 +30,12 @@ router.post(
   collaboratorLogin
 );
 
-router.get("/", getCollaborators);
+router.get("/", validateJwt, getCollaborators);
 
 // create collaborator by manager
 router.post(
   "/create",
+
   [
     check("first_name", "El nombre (s) es obligatorio").not().isEmpty(),
     check("last_name", "Los apellidos son obligatorios").not().isEmpty(),
@@ -42,7 +43,7 @@ router.post(
       "col_code",
       "El código de colaborador es obligatorio y debe contener tres letras"
     ).isLength({ min: 3, max: 3 }),
-
+    validateJwt,
     fieldValidator,
   ],
   createCollaborator
@@ -67,14 +68,15 @@ router.patch(
     ).isLength({ min: 6, max: 6 }),
     fieldValidator,
   ],
+
   registerCollaborator
 );
 
-router.put("/:collaboratorId", updateCollaborator);
+router.put("/:collaboratorId", validateJwt, updateCollaborator);
 
 // renew token
 router.get("/renew", validateJwt, collaboratorRenewToken);
 
-router.get("/:collaboratorId", getCollaboratorById);
+router.get("/:collaboratorId", validateJwt, getCollaboratorById);
 
 module.exports = router;

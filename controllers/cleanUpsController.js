@@ -7,10 +7,10 @@ const { body } = require("express-validator");
 const DailyCleanup = require("../models/DailyCleanUp");
 const { cleanUpActions, deepCleanUpActivities } = require("../types/types");
 const {
-  getDateWithoutTime,
   checkIfElementExists,
+  validateMaxDays,
 } = require("../helpers/utilities");
-var dayjs = require("dayjs");
+const dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
 const { getCollaboratorById } = require("./collaboratorsController");
 const DeepCleanUp = require("../models/DeepCleanUp");
@@ -78,6 +78,14 @@ const updateDailyCleanUp = async (req, res = response) => {
       return res.status(404).json({
         ok: false,
         msg: "No existe control de limpieza diario con ese ese id",
+      });
+    }
+
+    const currentDate = dayjs();
+    if (!validateMaxDays(dailyCleanUp.date, currentDate, 2)) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No puedes actualizar un registro antiguo",
       });
     }
 
@@ -240,6 +248,13 @@ const updateDeepCleanUp = async (req, res = response) => {
     }
 
     const date = deepCleanUp.date;
+    const currentDate = dayjs();
+    if (!validateMaxDays(date, currentDate, 5)) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No puedes actualizar un registro antiguo",
+      });
+    }
 
     const collaborator = await Collaborator.findById(uid);
 
@@ -423,6 +438,15 @@ const updateOperatingRoomCleanUp = async (req, res = response) => {
       return res.status(404).json({
         ok: false,
         msg: "No existe control de limpieza diario con ese ese id",
+      });
+    }
+
+    const date = operatingRoomCleanUp.date;
+    const currentDate = dayjs();
+    if (!validateMaxDays(date, currentDate, 2)) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No puedes actualizar un registro antiguo",
       });
     }
 

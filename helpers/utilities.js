@@ -1,3 +1,5 @@
+const dayjs = require("dayjs");
+
 const getDateWithoutTime = (date = new Date()) => {
   return convertDateToUTC(
     new Date(date.getFullYear(), date.getMonth(), date.getDate())
@@ -13,6 +15,11 @@ const checkIfElementExists = (collection, objectToCheck, id) => {
   return false;
 };
 
+const validateMaxDays = (registerDate, updateDate, maxDays) => {
+  console.log(dayjs(registerDate).diff(dayjs(updateDate), "day"));
+  return maxDays > dayjs(updateDate).diff(dayjs(registerDate), "day");
+};
+
 const convertDateToUTC = (date) =>
   new Date(
     date.getUTCFullYear(),
@@ -23,4 +30,9 @@ const convertDateToUTC = (date) =>
     date.getUTCSeconds()
   );
 
-module.exports = { getDateWithoutTime, convertDateToUTC, checkIfElementExists };
+module.exports = {
+  getDateWithoutTime,
+  convertDateToUTC,
+  checkIfElementExists,
+  validateMaxDays,
+};
