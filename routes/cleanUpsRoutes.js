@@ -11,6 +11,9 @@ const {
   getDeepCleanUp,
   updateDeepCleanUp,
   getDailyCleanUpsAndGenerate,
+  getOperatingRoomCleanUps,
+  updateOperatingRoomCleanUp,
+  createOperatingRoomCleanUp,
 } = require("../controllers/cleanUpsController");
 const { validateJwt } = require("../middlewares/validateJwt");
 // const { fieldValidator } = require("../middlewares/fieldValidator");
@@ -25,5 +28,17 @@ router.post("/deep/createNew", validateJwt, createDeepCleanUp);
 router.get("/deep/:branch", validateJwt, getDeepCleanUps);
 router.get("/deep/:branch/:deepCleanUpId", validateJwt, getDeepCleanUp);
 router.put("/deep/:branch/:deepCleanUpId", validateJwt, updateDeepCleanUp);
+
+router.post(
+  "/operatingRoom/:branch/createNew",
+  validateJwt,
+  createOperatingRoomCleanUp
+);
+router.get("/operatingRoom/:branch", validateJwt, getOperatingRoomCleanUps);
+router.patch(
+  "/operatingRoom/:branch/:operatingRoomCleanUpId",
+  validateJwt,
+  updateOperatingRoomCleanUp
+);
 
 module.exports = router;

@@ -2,7 +2,7 @@ const roles = ["Administrador", "Gerente", "Colaborador", "User", "Invitado"];
 
 const branches = ["Urban", "The Harbor", "Montejo"];
 
-const dailyCleanUpActions = {
+const cleanUpActions = {
   addCleaner: "addCleaner",
   addSupervisor: "addSupervisor",
   addComment: "addComment",
@@ -21,6 +21,6 @@ const deepCleanUpActivities = [
 module.exports = {
   roles,
   branches,
-  dailyCleanUpActions,
+  cleanUpActions,
   deepCleanUpActivities,
 };

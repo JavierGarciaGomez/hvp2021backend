@@ -5,11 +5,7 @@ const Collaborator = require("../models/Collaborator");
 const { generateJWT } = require("../helpers/jwt");
 const { body } = require("express-validator");
 const DailyCleanup = require("../models/DailyCleanUp");
-const {
-  branches,
-  dailyCleanUpActions,
-  deepCleanUpActivities,
-} = require("../types/types");
+const { cleanUpActions, deepCleanUpActivities } = require("../types/types");
 const {
   getDateWithoutTime,
   checkIfElementExists,
@@ -18,6 +14,7 @@ var dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
 const { getCollaboratorById } = require("./collaboratorsController");
 const DeepCleanUp = require("../models/DeepCleanUp");
+const OperatingRoomCleanUp = require("../models/OperatingRoomCleanUp");
 dayjs.extend(utc);
 
 const getDailyCleanUpsAndGenerate = async (req, res = response) => {
@@ -87,7 +84,7 @@ const updateDailyCleanUp = async (req, res = response) => {
     const collaborator = await Collaborator.findById(uid);
 
     switch (action) {
-      case dailyCleanUpActions.addCleaner:
+      case cleanUpActions.addCleaner:
         for (element of dailyCleanUp.cleaners) {
           if (element.cleaner._id.toString() === uid) {
             return res.status(404).json({
@@ -100,7 +97,7 @@ const updateDailyCleanUp = async (req, res = response) => {
         dailyCleanUp.cleaners.push({ cleaner: collaborator, time: dayjs() });
         break;
 
-      case dailyCleanUpActions.addSupervisor:
+      case cleanUpActions.addSupervisor:
         for (element of dailyCleanUp.supervisors) {
           if (element.supervisor._id.toString() === uid) {
             return res.status(404).json({
@@ -116,7 +113,7 @@ const updateDailyCleanUp = async (req, res = response) => {
         });
         break;
 
-      case dailyCleanUpActions.addComment:
+      case cleanUpActions.addComment:
         dailyCleanUp.comments.push({ comment, creator: collaborator });
         break;
 
@@ -312,15 +309,6 @@ const getDeepCleanUps = async (req, res = response) => {
       .populate("cleaners.cleaner", "imgUrl col_code")
       .populate("supervisors.supervisor", "imgUrl col_code")
       .populate("comments.comment", "imgUrl col_code");
-    // todo
-    // .populate("activities.correctOrder.cleaner", "imgUrl col_code")
-    // .populate("activities.cleanedCages.cleaner", "imgUrl col_code")
-    // .populate("activities.wasteDisposal.cleaner", "imgUrl col_code")
-    // .populate("activities.cleanedEquipment.cleaner", "imgUrl col_code")
-    // .populate("activities.cleanedCages.cleaner", "imgUrl col_code")
-    // .populate("activities.cleanedDrawers.cleaner", "imgUrl col_code")
-    // .populate("activities.cleanedRefrigerator.cleaner", "imgUrl col_code")
-    // .populate("activities.everyAreaCleaned.cleaner", "imgUrl col_code");
 
     res.json({
       ok: true,
@@ -355,6 +343,158 @@ const getDeepCleanUp = async (req, res = response) => {
   }
 };
 
+const createOperatingRoomCleanUp = async (req, res = response) => {
+  try {
+    const { branch } = req.params;
+    const { uid } = req;
+    const date = dayjs();
+
+    let operatingRoomCleanUp = new OperatingRoomCleanUp();
+    const collaborator = await Collaborator.findById(uid);
+    operatingRoomCleanUp.cleaners.push({
+      cleaner: collaborator,
+      time: dayjs(),
+    });
+
+    operatingRoomCleanUp.date = date;
+    operatingRoomCleanUp.branch = branch;
+
+    await operatingRoomCleanUp.save();
+
+    res.status(201).json({
+      ok: true,
+      message: "great",
+      date,
+      branch,
+      operatingRoomCleanUp,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: "false",
+      msg: "Por favor, hable con el administrador",
+      error: error.message,
+    });
+  }
+};
+
+const getOperatingRoomCleanUps = async (req, res = response) => {
+  try {
+    const { branch } = req.params;
+    const date = dayjs().utc(true).startOf("day");
+
+    const utcDateEnd = dayjs(date).utc(true).endOf("day");
+    const utcDateStart = utcDateEnd.subtract(2, "week");
+    let operatingRoomCleanUps = await OperatingRoomCleanUp.find({
+      date: {
+        $gte: new Date(utcDateStart),
+        $lt: new Date(utcDateEnd),
+      },
+      branch,
+    })
+      .populate("cleaners.cleaner", "imgUrl col_code")
+      .populate("supervisors.supervisor", "imgUrl col_code")
+      .populate("comments.comment", "imgUrl col_code");
+
+    res.json({
+      ok: true,
+      operatingRoomCleanUps,
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: "false",
+      msg: "Por favor, hable con el administrador",
+      error: error.message,
+    });
+  }
+};
+
+const updateOperatingRoomCleanUp = async (req, res = response) => {
+  try {
+    const { operatingRoomCleanUpId } = req.params;
+    const { action, comment } = req.body;
+    const { uid } = req;
+
+    let operatingRoomCleanUp = await OperatingRoomCleanUp.findById(
+      operatingRoomCleanUpId
+    );
+
+    if (!operatingRoomCleanUp) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No existe control de limpieza diario con ese ese id",
+      });
+    }
+
+    const collaborator = await Collaborator.findById(uid);
+
+    switch (action) {
+      case cleanUpActions.addCleaner:
+        for (element of operatingRoomCleanUp.cleaners) {
+          if (element.cleaner._id.toString() === uid) {
+            return res.status(404).json({
+              ok: false,
+              msg: "Este colaborador ha sido ya registrado",
+            });
+          }
+        }
+        // add the cleaner
+        operatingRoomCleanUp.cleaners.push({
+          cleaner: collaborator,
+          time: dayjs(),
+        });
+        break;
+
+      case cleanUpActions.addSupervisor:
+        for (element of operatingRoomCleanUp.supervisors) {
+          if (element.supervisor._id.toString() === uid) {
+            return res.status(404).json({
+              ok: false,
+              msg: "Este colaborador ha sido ya registrado",
+            });
+          }
+        }
+        // add the supervisor
+        operatingRoomCleanUp.supervisors.push({
+          supervisor: collaborator,
+          time: dayjs(),
+        });
+        break;
+
+      case cleanUpActions.addComment:
+        operatingRoomCleanUp.comments.push({ comment, creator: collaborator });
+        break;
+
+      default:
+        break;
+    }
+
+    operatingRoomCleanUp.hasBeenUsed = true;
+    // update it
+    const updatedOperatingRoomCleanUp =
+      await OperatingRoomCleanUp.findByIdAndUpdate(
+        operatingRoomCleanUpId,
+        operatingRoomCleanUp,
+        { new: true }
+      );
+
+    console.log(updatedOperatingRoomCleanUp);
+
+    res.status(201).json({
+      ok: true,
+      message: "great",
+      updatedOperatingRoomCleanUp,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: "false",
+      msg: "Por favor, hable con el administrador",
+      error,
+    });
+  }
+};
+
 module.exports = {
   getDailyCleanUpsAndGenerate,
   updateDailyCleanUp,
@@ -362,4 +502,7 @@ module.exports = {
   getDeepCleanUps,
   getDeepCleanUp,
   updateDeepCleanUp,
+  getOperatingRoomCleanUps,
+  updateOperatingRoomCleanUp,
+  createOperatingRoomCleanUp,
 };
