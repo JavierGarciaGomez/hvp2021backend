@@ -14,6 +14,7 @@ const {
   getOperatingRoomCleanUps,
   updateOperatingRoomCleanUp,
   createOperatingRoomCleanUp,
+  getAllCleanUpsFromLastMonth,
 } = require("../controllers/cleanUpsController");
 const { validateJwt } = require("../middlewares/validateJwt");
 // const { fieldValidator } = require("../middlewares/fieldValidator");
@@ -21,6 +22,7 @@ const { validateJwt } = require("../middlewares/validateJwt");
 
 const router = Router();
 
+router.get("/allLastMonth", validateJwt, getAllCleanUpsFromLastMonth);
 router.get("/daily/:branch", validateJwt, getDailyCleanUpsAndGenerate);
 router.patch("/daily/:branch/:dailyCleanUpId", validateJwt, updateDailyCleanUp);
 

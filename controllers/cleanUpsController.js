@@ -15,7 +15,57 @@ const utc = require("dayjs/plugin/utc");
 const { getCollaboratorById } = require("./collaboratorsController");
 const DeepCleanUp = require("../models/DeepCleanUp");
 const OperatingRoomCleanUp = require("../models/OperatingRoomCleanUp");
+const { uncatchedError } = require("../helpers/const");
 dayjs.extend(utc);
+
+const getAllCleanUpsFromLastMonth = async (req, res = response) => {
+  try {
+    // today date
+    const date = dayjs().utc(true).startOf("day");
+
+    const utcDateEnd = dayjs(date).utc(true).endOf("day");
+    const utcDateStart = utcDateEnd.subtract(1, "month");
+
+    let deepCleanUps = await DeepCleanUp.find({
+      date: {
+        $gte: new Date(utcDateStart),
+        $lt: new Date(utcDateEnd),
+      },
+    })
+      .populate("cleaners.cleaner", "imgUrl col_code")
+      .populate("supervisors.supervisor", "imgUrl col_code");
+
+    let dailyCleanUps = await DailyCleanup.find({
+      date: {
+        $gte: new Date(utcDateStart),
+        $lt: new Date(utcDateEnd),
+      },
+    })
+      .populate("cleaners.cleaner", "imgUrl col_code")
+      .populate("supervisors.supervisor", "imgUrl col_code");
+
+    let operatingRoomCleanUps = await OperatingRoomCleanUp.find({
+      date: {
+        $gte: new Date(utcDateStart),
+        $lt: new Date(utcDateEnd),
+      },
+    })
+      .populate("cleaners.cleaner", "imgUrl col_code")
+      .populate("supervisors.supervisor", "imgUrl col_code");
+
+    res.json({
+      ok: true,
+      msg: "generado",
+      allCleanUps: {
+        deepCleanUps,
+        dailyCleanUps,
+        operatingRoomCleanUps,
+      },
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
 
 const getDailyCleanUpsAndGenerate = async (req, res = response) => {
   try {
@@ -522,4 +572,5 @@ module.exports = {
   getOperatingRoomCleanUps,
   updateOperatingRoomCleanUp,
   createOperatingRoomCleanUp,
+  getAllCleanUpsFromLastMonth,
 };
