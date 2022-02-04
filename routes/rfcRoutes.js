@@ -34,7 +34,7 @@ router.post(
   createRFC
 );
 
-router.patch(
+router.put(
   "/:rfcId",
   [
     check("rfc", "El RFC debe contar con 13 caracteres").isLength({

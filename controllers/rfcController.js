@@ -62,6 +62,7 @@ const getAllRfc = async (req, res = response) => {
 const updateRFC = async (req, res = response) => {
   try {
     const rfcId = req.params.rfcId;
+    console.log("this is the id", rfcId);
 
     const rfc = await RFC.findById(rfcId);
 

@@ -20,6 +20,9 @@ const RFCSchema = Schema({
   address: {
     type: String,
   },
+  notes: {
+    type: String,
+  },
 });
 
 module.exports = model("RFC", RFCSchema);
