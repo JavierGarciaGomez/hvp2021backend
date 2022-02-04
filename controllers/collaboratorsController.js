@@ -314,6 +314,7 @@ const updateCollaborator = async (req, res = response) => {
     res.status(500).json({
       ok: false,
       msg: "Hable con el administrador",
+      error: error.msg,
     });
   }
 };
