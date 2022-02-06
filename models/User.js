@@ -11,7 +11,8 @@ const UserSchema = Schema({
   password: {
     type: String,
   },
-  username: {
+  // todo: fix this and use displayname instead
+  col_code: {
     type: String,
     require: true,
   },

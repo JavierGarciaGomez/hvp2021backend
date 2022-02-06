@@ -9,8 +9,7 @@ const {} = require("../controllers/authController");
 
 const router = Router();
 
-const CLIENT_URL = "http://localhost:3001/";
-
+// TODO next methods to authactions
 router.get(
   "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
@@ -27,7 +26,8 @@ router.get(
     console.log("llegué  acá");
     console.log(req.user);
 
-    res.redirect(`${process.env.CLIENT_URL}#/auth?token=${req.user.token}`);
+    res.cookie("auth", req.user.token); // Choose whatever name you'd like for that cookie,
+    res.redirect(`${process.env.CLIENT_URL}#/auth`);
   }
 );
 

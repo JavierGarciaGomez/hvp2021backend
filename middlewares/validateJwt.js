@@ -16,7 +16,7 @@ const validateJwt = (req, res = response, next) => {
     const payload = jwt.verify(token, process.env.SECRET_JWT_SEED);
 
     const { uid, col_code, role, imgUrl } = payload;
-    console.log("received token", token, payload);
+    console.log("received token", token, payload.col_code);
 
     req.uid = uid;
     req.col_code = col_code;

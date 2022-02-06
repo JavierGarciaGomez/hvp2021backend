@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const Collaborator = require("../models/Collaborator");
 const User = require("../models/User");
 const { generateJWT } = require("../helpers/jwt");
+const jwt = require("jsonwebtoken");
 
 // called when registering or doing login with google
 const CreateUserIfNotExist = async (
@@ -13,18 +14,20 @@ const CreateUserIfNotExist = async (
 ) => {
   try {
     // get the email and check if is registered
-    console.log("CreateUserIfNotExist");
     const email = profile.emails[0].value;
     let userToReturn = {};
+    let userId;
     let usedMailByCollaborator = await Collaborator.findOne({ email });
     let usedMailByUser = await User.findOne({ email });
 
     // if existed, get the userdata
     if (usedMailByCollaborator) {
-      userToReturn = { ...usedMailByCollaborator };
+      userToReturn = { ...usedMailByCollaborator.toObject() };
+      userId = usedMailByCollaborator.id;
     }
     if (usedMailByUser) {
-      userToReturn = { ...usedMailByUser };
+      userToReturn = { ...usedMailByUser.toObject() };
+      userId = usedMailByUser.id;
     }
     // if is not registered, register it and get the data
     if (!usedMailByCollaborator && !usedMailByUser) {
@@ -33,21 +36,28 @@ const CreateUserIfNotExist = async (
         imgUrl: profile.photos[0].value,
         email: profile.emails[0].value,
       });
-      const savedUser = user.save();
+      const savedUser = await user.save();
+      // todo save the id
 
-      userToReturn = { ...savedUser };
+      userToReturn = { ...savedUser.toObject() };
+      userId = savedUser.id;
     }
 
     const token = await generateJWT(
-      userToReturn._id,
+      userId,
       userToReturn.col_code,
       userToReturn.role,
       userToReturn.imgUrl
     );
 
+    // todo: delete
+    const payload = jwt.verify(token, process.env.SECRET_JWT_SEED);
+
+    const { uid, col_code, role, imgUrl } = payload;
+
     // generate the user data that will be returned
     const userData = { ...userToReturn, token };
-    console.log("user data", userData);
+
     done(null, userData);
   } catch (error) {
     console.log("error", error);
