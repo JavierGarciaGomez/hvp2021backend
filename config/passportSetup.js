@@ -2,7 +2,7 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 // const GithubStrategy = require("passport-github2").Strategy;
 // const FacebookStrategy = require("passport-facebook").Strategy;
 const passport = require("passport");
-const { CreateUserIfNotExist } = require("../controllers/authController");
+const { createUserIfNotExist } = require("../controllers/authController");
 
 passport.use(
   new GoogleStrategy(
@@ -11,7 +11,7 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "/api/auth/google/callback",
     },
-    CreateUserIfNotExist
+    createUserIfNotExist
   )
 );
 // GITHUB_CLIENT_ID = "your id";

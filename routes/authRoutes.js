@@ -3,39 +3,95 @@
 */
 
 const { Router } = require("express");
+const { check } = require("express-validator");
 const passport = require("passport");
 
-const {} = require("../controllers/authController");
+const {
+  passportAuthenticate,
+  googleAuth,
+  createUser,
+  userLogin,
+  getUsers,
+  getUser,
+  updateUser,
+  deleteUser,
+} = require("../controllers/authController");
+const { fieldValidator } = require("../middlewares/fieldValidator");
+const {
+  validateAuthorization,
+} = require("../middlewares/validateAuthorization");
+const { validateJwt } = require("../middlewares/validateJwt");
+const { roleTypes } = require("../types/types");
 
 const router = Router();
 
-// TODO next methods to authactions
+/************PASSPORT********* */
+// first call from client, it triggers passport to very google account
 router.get(
   "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
+// callback from google
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    // successRedirect: CLIENT_URL,
     failureRedirect: "/api/auth/googleLogin/failed",
-    // successRedirect: "/api/auth/googleLogin/success",
   }),
-  function (req, res) {
-    console.log("llegué  acá");
-    console.log(req.user);
-
-    res.cookie("auth", req.user.token); // Choose whatever name you'd like for that cookie,
-    res.redirect(`${process.env.CLIENT_URL}#/auth`);
-  }
+  googleAuth
 );
+
+/************USERS CRUD********* */
+// LOGIN
+router.post(
+  "/",
+  [
+    check("email", "no es una forma de email correcta").isEmail(),
+    fieldValidator,
+  ],
+  userLogin
+);
+
+// CREATE
+router.post(
+  "/create",
+  [
+    check("email", "No es una forma correcta de email").isEmail(),
+    check(
+      "password",
+      "El password es obligatorio y debe contener al menos seis carácteres"
+    ).isLength({ min: 6 }),
+    check("col_code", "El nombre de usuario es obligatorio").not().isEmpty(),
+    fieldValidator,
+  ],
+  createUser
+);
+
+// GET ALL USERS
+router.get("/", validateJwt, getUsers);
+
+// GET USER
+router.get("/:userId", validateJwt, getUser);
+
+// TODO: UPDATE
+router.put(
+  "/:userId",
+  [
+    check("email", "No es una forma correcta de email").isEmail(),
+    check("password", "El password debe contener al menos seis carácteres")
+      .isLength({ min: 6 })
+      .optional(),
+    validateJwt,
+    fieldValidator,
+  ],
+  updateUser
+);
+// TODO: DELETE
+router.delete("/:userId", validateJwt, deleteUser);
 
 // TODO: DELETE
 // route called by the callback if its a success
 router.get("/googleLogin/success", (req, res) => {
-  console.log("SUCCESS *************************** im here");
-  console.log(req.user);
   if (req.user) {
     res.redirect(`${process.env.CLIENT_URL}${user.displayName}`);
     res.status(200).json({

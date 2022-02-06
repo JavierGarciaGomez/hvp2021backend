@@ -18,8 +18,17 @@ const deepCleanUpActivities = [
   "everyAreaCleaned",
 ];
 
+const roleTypes = {
+  admin: "Administrador",
+  manager: "Gerente",
+  collaborator: "Colaborador",
+  user: "User",
+  guest: "Invitado",
+};
+
 module.exports = {
   roles,
+  roleTypes,
   branches,
   cleanUpActions,
   deepCleanUpActivities,
