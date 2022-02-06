@@ -1,13 +1,23 @@
 // importations
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
 const { dbConnection } = require("./database/config");
+const passport = require("passport");
+const passportSetup = require("./config/passportSetup");
+const cleanUpsRoutes = require("./routes/cleanUpsRoutes");
+const collaboratorsRoutes = require("./routes/collaboratorsRoutes");
+const authRoutes = require("./routes/authRoutes");
+const rfcRoutes = require("./routes/rfcRoutes");
 
-require("dotenv").config();
 // Create express server
 
 const app = express();
+
+app.use(passport.initialize());
+// TODO ¿is need it?
+// app.use(passport.session());
 // dbConnection
 dbConnection();
 
@@ -22,26 +32,11 @@ app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.json());
 
 // routes
+app.use("/api/collaborators", collaboratorsRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/cleanups", cleanUpsRoutes);
+app.use("/api/rfc", rfcRoutes);
 
-// collaborator
-app.use("/api/collaborators", require("./routes/collaboratorsRoutes"));
-
-// 332 users routes
-app.use("/api/auth", require("./routes/authRoutes"));
-
-app.use("/api/cleanups", require("./routes/cleanUpsRoutes"));
-
-app.use("/api/rfc", require("./routes/rfcRoutes"));
-
-// 350 events routes
-// app.use("/api/events", require("./routes/events"));
-
-// app.get("*", (req, res) => {
-//   console.log("se requirió *");
-//   res.sendFile(path.resolve(__dirname, "public", "index.html"));
-// });
-
-// 330
 app.listen(process.env.PORT || 4000, () => {
   console.log("Server running in port " + process.env.PORT);
 });
