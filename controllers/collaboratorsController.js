@@ -4,6 +4,12 @@ const Collaborator = require("../models/Collaborator");
 // const Usuario = require("../models/Usuario");
 const { generateJWT } = require("../helpers/jwt");
 const { body } = require("express-validator");
+const { roleTypes } = require("../types/types");
+const { uncatchedError } = require("../helpers/const");
+const {
+  isAuthorizedByRole,
+  isAuthorizeByRoleOrOwnership,
+} = require("../helpers/utilities");
 
 // todo: Delete. Now the login is equal for colls and user
 const collaboratorLogin = async (req, res = response) => {
@@ -55,6 +61,14 @@ const collaboratorLogin = async (req, res = response) => {
 
 const getCollaborators = async (req, res = response) => {
   try {
+    const { role } = req;
+    const isAuthorized = isAuthorizedByRole(role, roleTypes.collaborator);
+    if (!isAuthorized) {
+      return res.json({
+        ok: false,
+        msg: "No estás autorizado para conocer los datos",
+      });
+    }
     const collaborators = await Collaborator.find();
     res.json({
       ok: true,
@@ -99,9 +113,8 @@ const getCollaboratorsForWeb = async (req, res = response) => {
 };
 
 const createCollaborator = async (req, res = response) => {
-  const { col_code } = req.body;
-
   try {
+    const { col_code } = req.body;
     // get the uid of the creator
     const { role } = req;
     // check if the collaborator code is not used before
@@ -119,13 +132,16 @@ const createCollaborator = async (req, res = response) => {
 
     // check if is trying to create admin or manager
     if (
-      (role !== "Administrador" && collaborator.role === "Administrador") ||
-      (role !== "Administrador" && collaborator.role === "Gerente")
+      collaborator.role === roleTypes.admin ||
+      collaborator.role === roleTypes.manager
     ) {
-      return res.status(400).json({
-        ok: false,
-        msg: "Solo el administrador puede crear usuarios de tipo administrador o gerente",
-      });
+      const isAuthorized = isAuthorizedByRole(role, roleTypes.admin);
+      if (!isAuthorized) {
+        return res.json({
+          ok: false,
+          msg: "No estás autorizado",
+        });
+      }
     }
 
     const savedCollaborator = await collaborator.save();
@@ -136,12 +152,7 @@ const createCollaborator = async (req, res = response) => {
       collaborator: savedCollaborator,
     });
   } catch (error) {
-    console.log("error", error);
-    res.status(500).json({
-      ok: "false",
-      msg: "Por favor, hable con el administrador",
-      error,
-    });
+    uncatchedError(error, res);
   }
 };
 
@@ -200,13 +211,6 @@ const registerCollaborator = async (req, res = response) => {
       { new: true }
     );
 
-    console.log(
-      "xxxxxxxx",
-      collaboratorId,
-      updatedCollaborator.col_code,
-      updatedCollaborator.role,
-      updatedCollaborator.imgUrl
-    );
     // JWT
     const token = await generateJWT(
       collaboratorId,
@@ -222,12 +226,7 @@ const registerCollaborator = async (req, res = response) => {
       token,
     });
   } catch (error) {
-    console.log("error", error);
-    res.status(500).json({
-      ok: "false",
-      msg: "Por favor, hable con el administrador",
-      error,
-    });
+    uncatchedError(error, res);
   }
 };
 
@@ -250,16 +249,9 @@ const getCollaboratorById = async (req, res = response) => {
       collaborator,
     });
   } catch (error) {
-    console.log("error", error);
-    res.status(500).json({
-      ok: "false",
-      msg: "Por favor, hable con el administrador",
-      error,
-    });
+    uncatchedError(error, res);
   }
 };
-
-// ..., 344
 
 const collaboratorRenewToken = async (req, res = response) => {
   const { uid, col_code, role, imgUrl } = req;
@@ -281,7 +273,7 @@ const updateCollaborator = async (req, res = response) => {
 
   try {
     const collaboratorId = req.params.collaboratorId;
-    const { role } = req;
+    const { role, uid } = req;
     const collaborator = await Collaborator.findById(collaboratorId);
 
     if (!collaborator) {
@@ -291,25 +283,26 @@ const updateCollaborator = async (req, res = response) => {
       });
     }
 
-    // if (evento.user.toString() !== uid) {
-    //   return res.status(401).json({
-    //     ok: false,
-    //     msg: "No tiene privilegio de editar este evento",
-    //   });
-    // }
-
     const newCollaborator = {
       ...req.body,
     };
 
     if (
-      (role !== "Administrador" && newCollaborator.role === "Administrador") ||
-      (role !== "Administrador" && newCollaborator.role === "Gerente")
+      newCollaborator.role === roleTypes.admin ||
+      newCollaborator.role === roleTypes.manager
     ) {
-      return res.status(400).json({
-        ok: false,
-        msg: "Solo el administrador puede crear usuarios de tipo administrador o gerente",
-      });
+      const isAuthorized = isAuthorizeByRoleOrOwnership(
+        role,
+        roleTypes.admin,
+        uid,
+        collaboratorId
+      );
+      if (!isAuthorized) {
+        return res.json({
+          ok: false,
+          msg: "No estás autorizado",
+        });
+      }
     }
 
     const updatedCollaborator = await Collaborator.findByIdAndUpdate(
@@ -336,6 +329,14 @@ const updateCollaborator = async (req, res = response) => {
 const deleteCollaborator = async (req, res = response) => {
   const collaboratorId = req.params.collaboratorId;
   try {
+    const { role } = req;
+    const isAuthorized = isAuthorizedByRole(role, roleTypes.admin);
+    if (!isAuthorized) {
+      return res.json({
+        ok: false,
+        msg: "No estás autorizado para conocer los datos",
+      });
+    }
     await Collaborator.findByIdAndDelete(collaboratorId);
     res.json({
       ok: true,

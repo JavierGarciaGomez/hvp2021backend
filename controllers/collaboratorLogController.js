@@ -22,7 +22,7 @@ const getLogs = async (req, res = response) => {
     );
     res.json({
       ok: true,
-      msg: "getUsers",
+      msg: "collaborator logs",
       authLogs,
     });
   } catch (error) {

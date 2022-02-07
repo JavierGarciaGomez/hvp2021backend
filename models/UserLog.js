@@ -12,7 +12,7 @@ const userLogSchema = Schema({
     type: String,
     enum: authEnum,
   },
-  collaborator: { type: Schema.Types.ObjectId, ref: "Collaborator" },
+  user: { type: Schema.Types.ObjectId, ref: "User" },
 });
 
 module.exports = model("UserLog", userLogSchema);

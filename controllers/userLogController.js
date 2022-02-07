@@ -16,13 +16,10 @@ const getLogs = async (req, res = response) => {
       });
     }
 
-    const authLogs = await UserLog.find().populate(
-      "collaborator",
-      "imgUrl col_code"
-    );
+    const authLogs = await UserLog.find().populate("user", "imgUrl col_code");
     res.json({
       ok: true,
-      msg: "getUsers",
+      msg: "user logs",
       authLogs,
     });
   } catch (error) {
