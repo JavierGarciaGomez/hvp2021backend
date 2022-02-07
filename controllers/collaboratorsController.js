@@ -185,6 +185,8 @@ const registerCollaborator = async (req, res = response) => {
     const salt = bcrypt.genSaltSync();
     const cryptedPassword = bcrypt.hashSync(password, salt);
 
+    let collaboratorId = collaborator.id;
+
     collaborator = {
       ...collaborator.toJSON(),
       password: cryptedPassword,
@@ -197,15 +199,26 @@ const registerCollaborator = async (req, res = response) => {
       { new: true }
     );
 
+    console.log(
+      "xxxxxxxx",
+      collaboratorId,
+      updatedCollaborator.col_code,
+      updatedCollaborator.role,
+      updatedCollaborator.imgUrl
+    );
     // JWT
-    // const token = await generarJWT(user.id, user.name);
+    const token = await generateJWT(
+      collaboratorId,
+      updatedCollaborator.col_code,
+      updatedCollaborator.role,
+      updatedCollaborator.imgUrl
+    );
 
     res.status(201).json({
       ok: true,
       message: "collaborator updated",
       collaborator: updatedCollaborator,
-
-      // token,
+      token,
     });
   } catch (error) {
     console.log("error", error);

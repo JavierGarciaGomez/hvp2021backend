@@ -4,6 +4,7 @@ const { roles } = require("../types/types");
 
 // TODO
 const UserSchema = Schema({
+  nombre: { type: String },
   email: {
     type: String,
     require: true,

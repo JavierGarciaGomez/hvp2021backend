@@ -160,10 +160,19 @@ const createUser = async (req, res = response) => {
     user.password = cryptedPassword;
     const savedUser = await user.save();
 
+    // Generate JWT
+    const token = await generateJWT(
+      savedUser._id,
+      savedUser.col_code,
+      savedUser.role,
+      savedUser.imgUrl
+    );
+
     res.status(201).json({
       ok: true,
       message: "usuario creado con éxito",
       usuario: savedUser,
+      token,
     });
   } catch (error) {
     uncatchedError(error, res);
@@ -226,6 +235,7 @@ const updateUser = async (req, res = response) => {
   try {
     // from token
     const { uid, role } = req;
+    const { password } = req.body;
     // from params
     const reqUserId = req.params.userId;
     // validate authorization
@@ -254,6 +264,13 @@ const updateUser = async (req, res = response) => {
     const tempUser = {
       ...req.body,
     };
+
+    if (password) {
+      // encrypt pass
+      const salt = bcrypt.genSaltSync();
+      const cryptedPassword = bcrypt.hashSync(password, salt);
+      tempUser.password = cryptedPassword;
+    }
 
     const updatedUser = await User.findByIdAndUpdate(reqUserId, tempUser, {
       new: true,

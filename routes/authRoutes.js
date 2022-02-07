@@ -73,7 +73,7 @@ router.get("/", validateJwt, getUsers);
 // GET USER
 router.get("/:userId", validateJwt, getUser);
 
-// TODO: UPDATE
+// Update
 router.put(
   "/:userId",
   [
@@ -86,7 +86,7 @@ router.put(
   ],
   updateUser
 );
-// TODO: DELETE
+// Delete
 router.delete("/:userId", validateJwt, deleteUser);
 
 // TODO: DELETE
