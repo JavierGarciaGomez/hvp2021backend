@@ -1,4 +1,5 @@
 const roles = ["Administrador", "Gerente", "Colaborador", "User", "Invitado"];
+const authEnum = ["Login", "Logout", "Register"];
 
 const branches = ["Urban", "The Harbor", "Montejo"];
 
@@ -26,9 +27,17 @@ const roleTypes = {
   guest: "Invitado",
 };
 
+const authTypes = {
+  login: "Login",
+  logout: "Logout",
+  register: "Register",
+};
+
 module.exports = {
   roles,
   roleTypes,
+  authTypes,
+  authEnum,
   branches,
   cleanUpActions,
   deepCleanUpActivities,

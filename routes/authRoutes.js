@@ -7,7 +7,6 @@ const { check } = require("express-validator");
 const passport = require("passport");
 
 const {
-  passportAuthenticate,
   googleAuth,
   createUser,
   userLogin,
@@ -17,12 +16,7 @@ const {
   deleteUser,
 } = require("../controllers/authController");
 const { fieldValidator } = require("../middlewares/fieldValidator");
-const {
-  validateAuthorization,
-} = require("../middlewares/validateAuthorization");
 const { validateJwt } = require("../middlewares/validateJwt");
-const { roleTypes } = require("../types/types");
-
 const router = Router();
 
 /************PASSPORT********* */

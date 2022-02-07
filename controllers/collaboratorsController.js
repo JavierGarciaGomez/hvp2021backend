@@ -5,6 +5,7 @@ const Collaborator = require("../models/Collaborator");
 const { generateJWT } = require("../helpers/jwt");
 const { body } = require("express-validator");
 
+// todo: Delete. Now the login is equal for colls and user
 const collaboratorLogin = async (req, res = response) => {
   const { email, password } = req.body;
 

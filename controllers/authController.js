@@ -7,15 +7,15 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const { uncatchedError } = require("../helpers/const");
 
-const { roleTypes } = require("../types/types");
+const { roleTypes, authTypes } = require("../types/types");
 const {
-  isAuthorizedByRole: checkAutorization,
-  checkIfOwner,
   isAuthorizeByRoleOrOwnership,
   isAuthorizedByRole,
+  registerLog,
 } = require("../helpers/utilities");
+const AuthLog = require("../models/CollaboratorLog");
 
-// called when registering or doing login with google
+// googleAuth
 const createUserIfNotExist = async (
   accessToken,
   refreshToken,
@@ -25,48 +25,37 @@ const createUserIfNotExist = async (
   try {
     // get the email and check if is registered
     const email = profile.emails[0].value;
-    let userToReturn = {};
-    let userId;
-    let usedMailByCollaborator = await Collaborator.findOne({ email });
-    let usedMailByUser = await User.findOne({ email });
 
-    // if existed, get the userdata
-    if (usedMailByCollaborator) {
-      userToReturn = { ...usedMailByCollaborator.toObject() };
-      userId = usedMailByCollaborator.id;
+    let user = {};
+    user = await Collaborator.findOne({ email });
+    let userType = "collaborator";
+    if (!user) {
+      user = await User.findOne({ email });
+      userType = "user";
     }
-    if (usedMailByUser) {
-      userToReturn = { ...usedMailByUser.toObject() };
-      userId = usedMailByUser.id;
-    }
-    // if is not registered, register it and get the data
-    if (!usedMailByCollaborator && !usedMailByUser) {
-      const user = new User({
+    if (!user) {
+      user = new User({
         col_code: profile.displayName,
         imgUrl: profile.photos[0].value,
         email: profile.emails[0].value,
       });
       const savedUser = await user.save();
-      // todo save the id
-
-      userToReturn = { ...savedUser.toObject() };
-      userId = savedUser.id;
+      user = savedUser;
+      userType = "user";
     }
 
     const token = await generateJWT(
-      userId,
-      userToReturn.col_code,
-      userToReturn.role,
-      userToReturn.imgUrl
+      user.id,
+      user.col_code,
+      user.role,
+      user.imgUrl
     );
 
-    // todo: delete
-    const payload = jwt.verify(token, process.env.SECRET_JWT_SEED);
-
-    const { uid, col_code, role, imgUrl } = payload;
-
     // generate the user data that will be returned
-    const userData = { ...userToReturn, token };
+    const userData = { ...user, token };
+
+    // register the login
+    registerLog(userType, user, authTypes.login);
 
     done(null, userData);
   } catch (error) {
@@ -80,7 +69,6 @@ const createUserIfNotExist = async (
 };
 
 // authenticate with passport google
-
 const googleAuth = (req, res = response) => {
   res.cookie("auth", req.user.token); // Choose whatever name you'd like for that cookie,
   res.redirect(`${process.env.CLIENT_URL}#/auth`);
@@ -89,14 +77,15 @@ const googleAuth = (req, res = response) => {
 /********************************/
 /************USERS CRUD********* */
 /********************************/
-
 const userLogin = async (req, res = response) => {
   try {
     const { email, password } = req.body;
 
     let user = await Collaborator.findOne({ email });
+    let userType = "collaborator";
     if (!user) {
       user = await User.findOne({ email });
+      userType = "user";
     }
 
     let isValid = false;
@@ -117,11 +106,14 @@ const userLogin = async (req, res = response) => {
 
     // Generate JWT
     const token = await generateJWT(
-      user._id,
+      user.id,
       user.col_code,
       user.role,
       user.imgUrl
     );
+
+    // generate the log
+    registerLog(userType, user, authTypes.login);
 
     res.json({
       ok: true,
@@ -168,10 +160,13 @@ const createUser = async (req, res = response) => {
       savedUser.imgUrl
     );
 
+    // generate the log
+    registerLog("user", savedUser, authTypes.login);
+
     res.status(201).json({
       ok: true,
       message: "usuario creado con éxito",
-      usuario: savedUser,
+      user: savedUser,
       token,
     });
   } catch (error) {

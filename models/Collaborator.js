@@ -57,6 +57,14 @@ const CollaboratorSchema = Schema({
     type: String,
     defaut: "",
   },
+  registeredDate: {
+    type: Date,
+    default: Date.now,
+    require: true,
+  },
+  lastLogin: {
+    type: Date,
+  },
 });
 
 module.exports = model("Collaborator", CollaboratorSchema);

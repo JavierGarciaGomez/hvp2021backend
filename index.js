@@ -10,6 +10,8 @@ const cleanUpsRoutes = require("./routes/cleanUpsRoutes");
 const collaboratorsRoutes = require("./routes/collaboratorsRoutes");
 const authRoutes = require("./routes/authRoutes");
 const rfcRoutes = require("./routes/rfcRoutes");
+const collaboratorLogRoutes = require("./routes/collaboratorLogRoutes");
+const userLogRoutes = require("./routes/userLogRoutes");
 
 // Create express server
 
@@ -32,10 +34,12 @@ app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.json());
 
 // routes
-app.use("/api/collaborators", collaboratorsRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/collaborators", collaboratorsRoutes);
 app.use("/api/cleanups", cleanUpsRoutes);
 app.use("/api/rfc", rfcRoutes);
+app.use("/api/collaboratorLog", collaboratorLogRoutes);
+app.use("/api/userLog", userLogRoutes);
 
 app.listen(process.env.PORT || 4000, () => {
   console.log("Server running in port " + process.env.PORT);

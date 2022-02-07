@@ -1,4 +1,8 @@
 const dayjs = require("dayjs");
+const Collaborator = require("../models/Collaborator");
+const CollaboratorLog = require("../models/CollaboratorLog");
+const User = require("../models/User");
+const UserLog = require("../models/UserLog");
 const { roleTypes } = require("../types/types");
 
 const getDateWithoutTime = (date = new Date()) => {
@@ -80,6 +84,43 @@ const checkIfOwner = (userId, userFoundId) => {
   return userId === userFoundId;
 };
 
+// method to generate a new log
+const registerLog = async (userType, user, action) => {
+  // asign the lastLogin to user
+  const date = new Date();
+  user.lastLogin = date;
+
+  // create the authlog
+  let authLog;
+  // collaborator: save the authlog
+  if (userType === "collaborator") {
+    authLog = new CollaboratorLog({
+      date,
+      collaborator: user,
+      action,
+    });
+
+    // update the collaborator with the last login
+
+    await Collaborator.findByIdAndUpdate(user.id, {
+      ...user,
+    });
+  }
+  if (userType === "user") {
+    authLog = new UserLog({
+      date,
+      user,
+      action,
+    });
+
+    await User.findByIdAndUpdate(user.id, {
+      ...user,
+    });
+  }
+
+  await authLog.save();
+};
+
 module.exports = {
   getDateWithoutTime,
   convertDateToUTC,
@@ -88,4 +129,5 @@ module.exports = {
   isAuthorizedByRole,
   checkIfOwner,
   isAuthorizeByRoleOrOwnership,
+  registerLog,
 };

@@ -4,7 +4,7 @@ const { roles } = require("../types/types");
 
 // TODO
 const UserSchema = Schema({
-  nombre: { type: String },
+  name: { type: String },
   email: {
     type: String,
     require: true,
@@ -29,6 +29,14 @@ const UserSchema = Schema({
     type: String,
     enum: roles,
     default: roles[3],
+  },
+  registeredDate: {
+    type: Date,
+    default: Date.now,
+    require: true,
+  },
+  lastLogin: {
+    type: Date,
   },
 });
 
