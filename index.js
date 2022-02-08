@@ -26,8 +26,6 @@ app.use(
   })
 );
 
-app.use(passport.initialize());
-app.use(passport.session());
 // dbConnection
 dbConnection();
 
@@ -42,6 +40,9 @@ app.use(
     allowedHeaders: "X-Requested-With,content-type, x-token",
   })
 );
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 /*
 app.use(function (req, res, next) {
