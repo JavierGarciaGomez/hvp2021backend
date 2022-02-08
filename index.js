@@ -27,14 +27,13 @@ app.use(passport.session());
 // dbConnection
 dbConnection();
 
-// todo is this need it?
-app.options("*", cors()); // include before other routes
 // CORS
 app.use(
   cors({
-    origin: true,
-    methods: "GET,POST,PUT,DELETE, PATCH",
+    origin: "http://localhost:3000",
+    methods: "GET,POST,PUT,DELETE",
     credentials: true,
+    maxAge: 3600,
   })
 );
 
