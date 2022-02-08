@@ -62,6 +62,12 @@ router.post(
   createUser
 );
 
+// TODO: XXXX
+router.get("/logout", (req, res) => {
+  req.logout();
+  res.redirect(`${process.env.CLIENT_URL}`);
+});
+
 // GET ALL USERS
 router.get("/", validateJwt, getUsers);
 
@@ -106,12 +112,6 @@ router.get("/googleLogin/failed", (req, res) => {
     success: false,
     message: "failure",
   });
-});
-
-// TODO: XXXX
-router.get("/logout", (req, res) => {
-  req.logout();
-  res.redirect(CLIENT_URL);
 });
 
 router.get("test", (req, res) => {});
