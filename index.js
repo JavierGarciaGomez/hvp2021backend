@@ -35,7 +35,7 @@ console.log("review url", process.env.CLIENT_URL);
 // CORS
 app.use(
   cors({
-    origin: "*",
+    origin: process.env.CLIENT_URL,
     methods: "GET,POST,PUT,DELETE, PATCH",
     credentials: true,
     maxAge: 3600,
