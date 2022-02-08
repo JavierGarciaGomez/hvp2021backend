@@ -27,10 +27,11 @@ app.use(passport.session());
 // dbConnection
 dbConnection();
 
+console.log("review url", process.env.CLIENT_URL);
 // CORS
 app.use(
   cors({
-    origin: true,
+    origin: process.env.CLIENT_URL,
     methods: "GET,POST,PUT,DELETE, PATCH",
     credentials: true,
     maxAge: 3600,
@@ -66,14 +67,14 @@ app.use(function (req, res, next) {
 });
 */
 
-app.options(
-  "*",
-  cors({
-    origin: true,
-    methods: "GET,POST,PUT,DELETE, PATCH",
-    credentials: true,
-  })
-);
+// app.options(
+//   "*",
+//   cors({
+//     origin: true,
+//     methods: "GET,POST,PUT,DELETE, PATCH",
+//     credentials: true,
+//   })
+// );
 
 // Public directory
 app.use(express.static(path.join(__dirname, "/public")));
