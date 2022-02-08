@@ -93,7 +93,7 @@ router.delete("/:userId", validateJwt, deleteUser);
 // TODO: DELETE
 // route called by the callback if its a success
 router.get("/googleLogin/success", (req, res) => {
-  console.log("success", req.user, req);
+  console.log("success", req.user);
   if (req.user) {
     res.status(200).json({
       success: true,

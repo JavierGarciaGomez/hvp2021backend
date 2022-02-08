@@ -19,7 +19,11 @@ const cookieSession = require("cookie-session");
 const app = express();
 
 app.use(
-  cookieSession({ name: "session", keys: ["lama"], maxAge: 24 * 60 * 60 * 100 })
+  cookieSession({
+    name: "session",
+    keys: ["whatever"],
+    maxAge: 24 * 60 * 60 * 100,
+  })
 );
 
 app.use(passport.initialize());
@@ -31,7 +35,7 @@ console.log("review url", process.env.CLIENT_URL);
 // CORS
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: "*",
     methods: "GET,POST,PUT,DELETE, PATCH",
     credentials: true,
     maxAge: 3600,
