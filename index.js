@@ -27,6 +27,8 @@ app.use(passport.session());
 // dbConnection
 dbConnection();
 
+// todo is this need it?
+app.options("*", cors()); // include before other routes
 // CORS
 app.use(
   cors({
