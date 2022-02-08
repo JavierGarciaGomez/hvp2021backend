@@ -71,7 +71,7 @@ const createUserIfNotExist = async (
 // authenticate with passport google
 const googleAuth = (req, res = response) => {
   res.cookie("auth", req.user.token); // Choose whatever name you'd like for that cookie,
-  res.redirect(`${process.env.CLIENT_URL}#/auth`);
+  res.redirect(`${process.env.CLIENT_URL}#/auth?token=${req.user.token}`);
 };
 
 /********************************/
