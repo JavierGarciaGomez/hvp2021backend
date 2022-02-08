@@ -30,8 +30,8 @@ dbConnection();
 // CORS
 app.use(
   cors({
-    origin: "https://www.hospitalveterinariopeninsular.com",
-    methods: "GET,POST,PUT,DELETE",
+    origin: true,
+    methods: "GET,POST,PUT,DELETE, PATCH",
     credentials: true,
   })
 );
@@ -64,9 +64,6 @@ app.use(function (req, res, next) {
   next();
 });
 */
-
-// todo is this need it?
-// app.options("*", cors()); // include before other routes
 
 // Public directory
 app.use(express.static(path.join(__dirname, "/public")));
