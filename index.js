@@ -29,13 +29,12 @@ dbConnection();
 
 // CORS
 app.use(
-  cors(  
-    //   {
-    //   origin: "*",
-    //   methods: "GET,POST,PUT,DELETE",
-    //   credentials: true,
-    // })
-
+  cors()
+  //   {
+  //   origin: "*",
+  //   methods: "GET,POST,PUT,DELETE",
+  //   credentials: true,
+  // })
 );
 
 app.use(function (req, res, next) {
