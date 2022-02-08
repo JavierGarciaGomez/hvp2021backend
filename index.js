@@ -30,7 +30,7 @@ dbConnection();
 // CORS
 app.use(
   cors({
-    origin: "*",
+    origin: "https://www.hospitalveterinariopeninsular.com",
     methods: "GET,POST,PUT,DELETE",
     credentials: true,
   })
