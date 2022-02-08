@@ -20,6 +20,30 @@ const { validateJwt } = require("../middlewares/validateJwt");
 const router = Router();
 
 /************PASSPORT********* */
+
+// route called by the callback if its a success
+router.get("/googleLogin/success", (req, res) => {
+  console.log("success", req.user);
+  if (req.user) {
+    res.status(200).json({
+      success: true,
+
+      message: "successfull",
+      user: req.user,
+      token: req.user.token,
+      //   cookies: req.cookies
+    });
+  }
+});
+
+// route called by the callback if its a failure
+router.get("/googleLogin/failed", (req, res) => {
+  res.status(401).json({
+    success: false,
+    message: "failure",
+  });
+});
+
 // first call from client, it triggers passport to very google account
 router.get(
   "/google",
@@ -89,30 +113,6 @@ router.put(
 );
 // Delete
 router.delete("/:userId", validateJwt, deleteUser);
-
-// TODO: DELETE
-// route called by the callback if its a success
-router.get("/googleLogin/success", (req, res) => {
-  console.log("success", req.user);
-  if (req.user) {
-    res.status(200).json({
-      success: true,
-
-      message: "successfull",
-      user: req.user,
-      token: req.user.token,
-      //   cookies: req.cookies
-    });
-  }
-});
-
-// route called by the callback if its a failure
-router.get("/googleLogin/failed", (req, res) => {
-  res.status(401).json({
-    success: false,
-    message: "failure",
-  });
-});
 
 router.get("test", (req, res) => {});
 module.exports = router;
