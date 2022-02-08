@@ -39,6 +39,7 @@ app.use(
     methods: "GET,POST,PUT,DELETE, PATCH",
     credentials: true,
     maxAge: 3600,
+    allowedHeaders: "X-Requested-With,content-type",
   })
 );
 
