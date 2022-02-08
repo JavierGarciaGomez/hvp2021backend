@@ -12,19 +12,29 @@ const authRoutes = require("./routes/authRoutes");
 const rfcRoutes = require("./routes/rfcRoutes");
 const collaboratorLogRoutes = require("./routes/collaboratorLogRoutes");
 const userLogRoutes = require("./routes/userLogRoutes");
+const cookieSession = require("cookie-session");
 
 // Create express server
 
 const app = express();
 
+app.use(
+  cookieSession({ name: "session", keys: ["lama"], maxAge: 24 * 60 * 60 * 100 })
+);
+
 app.use(passport.initialize());
-// TODO ¿is need it?
-// app.use(passport.session());
+app.use(passport.session());
 // dbConnection
 dbConnection();
 
 // CORS
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
+  })
+);
 app.options("*", cors()); // include before other routes
 
 // Public directory

@@ -31,8 +31,9 @@ router.get(
   "/google/callback",
   passport.authenticate("google", {
     failureRedirect: "/api/auth/googleLogin/failed",
-  }),
-  googleAuth
+    successRedirect: `${process.env.CLIENT_URL}/#/auth`,
+  })
+  // googleAuth
 );
 
 /************USERS CRUD********* */
@@ -86,16 +87,16 @@ router.delete("/:userId", validateJwt, deleteUser);
 // TODO: DELETE
 // route called by the callback if its a success
 router.get("/googleLogin/success", (req, res) => {
+  console.log("success", req.user);
   if (req.user) {
-    res.redirect(`${process.env.CLIENT_URL}${user.displayName}`);
     res.status(200).json({
       success: true,
 
       message: "successfull",
       user: req.user,
+      token: req.user.token,
       //   cookies: req.cookies
     });
-    res.redirect(CLIENT_URL);
   }
 });
 
@@ -105,6 +106,12 @@ router.get("/googleLogin/failed", (req, res) => {
     success: false,
     message: "failure",
   });
+});
+
+// TODO: XXXX
+router.get("/logout", (req, res) => {
+  req.logout();
+  res.redirect(CLIENT_URL);
 });
 
 router.get("test", (req, res) => {});
