@@ -30,11 +30,11 @@ dbConnection();
 // CORS
 app.use(
   cors()
-  //   {
-  //   origin: "*",
-  //   methods: "GET,POST,PUT,DELETE",
-  //   credentials: true,
-  // }
+    {
+    origin: process.env.CLIENT_URL,
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
+  }
 );
 
 app.use(function (req, res, next) {
