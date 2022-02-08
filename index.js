@@ -30,8 +30,8 @@ dbConnection();
 // CORS
 app.use(
   cors({
-    origin: "http://localhost:3000",
-    methods: "GET,POST,PUT,DELETE",
+    origin: true,
+    methods: "GET,POST,PUT,DELETE, PATCH",
     credentials: true,
     maxAge: 3600,
   })
@@ -65,6 +65,15 @@ app.use(function (req, res, next) {
   next();
 });
 */
+
+app.options(
+  "*",
+  cors({
+    origin: true,
+    methods: "GET,POST,PUT,DELETE, PATCH",
+    credentials: true,
+  })
+);
 
 // Public directory
 app.use(express.static(path.join(__dirname, "/public")));
