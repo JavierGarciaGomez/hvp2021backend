@@ -29,14 +29,14 @@ dbConnection();
 
 // CORS
 app.use(
-  cors()
-  //   {
-  //   origin: "*",
-  //   methods: "GET,POST,PUT,DELETE",
-  //   credentials: true,
-  // })
+  cors({
+    origin: "*",
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
+  })
 );
 
+/*
 app.use(function (req, res, next) {
   // Website you wish to allow to connect
   res.setHeader(
@@ -63,7 +63,9 @@ app.use(function (req, res, next) {
   // Pass to next layer of middleware
   next();
 });
+*/
 
+// todo is this need it?
 // app.options("*", cors()); // include before other routes
 
 // Public directory
