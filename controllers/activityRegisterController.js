@@ -1,0 +1,178 @@
+const { response } = require("express");
+const bcrypt = require("bcryptjs");
+const Collaborator = require("../models/Collaborator");
+const User = require("../models/User");
+const { generateJWT } = require("../helpers/jwt");
+const jwt = require("jsonwebtoken");
+const passport = require("passport");
+const { uncatchedError } = require("../helpers/const");
+
+const { roleTypes, authTypes } = require("../types/types");
+const {
+  registerLog,
+  isAuthorizeByRoleOrOwnership,
+} = require("../helpers/utilities");
+
+const ActivityRegister = require("../models/ActivityRegister");
+
+// create new activity register
+// todo: don't create if there is an open one of the same user
+const createActivityRegister = async (req, res = response) => {
+  try {
+    // get uid from jwt
+    const { uid } = req;
+    // get body
+    const { startingTime, endingTime, activity, comments } = req.body;
+    if (!startingTime) {
+      req.body.startingTime = new Date();
+    }
+    const collaborator = await Collaborator.findById(uid);
+
+    const activityRegister = new ActivityRegister({
+      ...req.body,
+      collaborator,
+    });
+
+    const savedActivityRegister = await activityRegister.save();
+
+    res.status(201).json({
+      ok: true,
+      message: "Creado con éxito",
+      savedActivityRegister,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+// get all
+const getAllActivityRegisters = async (req, res = response) => {
+  try {
+    let allActivityRegisters = await ActivityRegister.find();
+    res.json({
+      ok: true,
+      msg: "generado",
+      allActivityRegisters,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+// get from a user
+const getActiviyRegistersByCol = async (req, res = response) => {
+  try {
+    // get the collaboratorId
+    const id = req.params.collaboratorId;
+
+    let activityRegisters = await ActivityRegister.find({
+      collaborator: id,
+    });
+
+    res.json({
+      ok: true,
+      msg: "generado",
+      activityRegisters,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+// get from a user
+const updateActiviyRegister = async (req, res = response) => {
+  try {
+    // get the activity register id
+    const id = req.params.activityRegisterId;
+    // get the data of the updater
+    const { role, uid } = req;
+
+    const activityRegister = await ActivityRegister.findById(id);
+    if (!activityRegister) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No existe data con ese ese id",
+      });
+    }
+
+    const updateData = { ...req.body };
+
+    const isAuthorized = isAuthorizeByRoleOrOwnership(
+      role,
+      roleTypes.admin,
+      uid,
+      activityRegister.id
+    );
+
+    if (!isAuthorized) {
+      return res.json({
+        ok: false,
+        msg: "No estás autorizado",
+      });
+    }
+
+    const updatedActivityRegister = await ActivityRegister.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true }
+    );
+
+    res.json({
+      ok: true,
+      msg: "Éxito",
+      updatedActivityRegister,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+const deleteActivityRegister = async (req, res = response) => {
+  try {
+    // get the activity register id
+    const id = req.params.activityRegisterId;
+    // get the data of the fetcher
+    const { role, uid } = req;
+
+    const activityRegister = await ActivityRegister.findById(id);
+    if (!activityRegister) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No existe data con ese ese id",
+      });
+    }
+
+    const isAuthorized = isAuthorizeByRoleOrOwnership(
+      role,
+      roleTypes.admin,
+      uid,
+      activityRegister.id
+    );
+
+    if (!isAuthorized) {
+      return res.json({
+        ok: false,
+        msg: "No estás autorizado",
+      });
+    }
+
+    await ActivityRegister.findByIdAndDelete(id);
+
+    res.json({
+      ok: true,
+      msg: "Éxito",
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+module.exports = {
+  // userLogin,
+  // userRenewToken,
+  createActivityRegister,
+  getAllActivityRegisters,
+  getActiviyRegistersByCol,
+  updateActiviyRegister,
+  deleteActivityRegister,
+};

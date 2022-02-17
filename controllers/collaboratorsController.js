@@ -255,6 +255,8 @@ const getCollaboratorById = async (req, res = response) => {
 
 const collaboratorRenewToken = async (req, res = response) => {
   const { uid, col_code, role, imgUrl } = req;
+
+  console.log("puta madre", uid, col_code, role, imgUrl);
   // Generar JWT
   const token = await generateJWT(uid, col_code, role, imgUrl);
 

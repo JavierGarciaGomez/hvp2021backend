@@ -12,6 +12,7 @@ const authRoutes = require("./routes/authRoutes");
 const rfcRoutes = require("./routes/rfcRoutes");
 const collaboratorLogRoutes = require("./routes/collaboratorLogRoutes");
 const userLogRoutes = require("./routes/userLogRoutes");
+const activityRegisterRoutes = require("./routes/activityRegisterRoutes");
 const cookieSession = require("cookie-session");
 
 // Create express server
@@ -96,6 +97,7 @@ app.use("/api/cleanups", cleanUpsRoutes);
 app.use("/api/rfc", rfcRoutes);
 app.use("/api/collaboratorLog", collaboratorLogRoutes);
 app.use("/api/userLog", userLogRoutes);
+app.use("/api/activityRegister", activityRegisterRoutes);
 
 app.listen(process.env.PORT || 4000, () => {
   console.log("Server running in port " + process.env.PORT);
