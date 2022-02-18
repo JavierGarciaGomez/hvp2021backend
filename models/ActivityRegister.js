@@ -16,7 +16,7 @@ const activityRegisterSchema = Schema({
     type: String,
     default: "Indeterminado",
   },
-  comments: {
+  desc: {
     type: String,
   },
 });
