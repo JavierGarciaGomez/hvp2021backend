@@ -8,9 +8,12 @@ const MiscSchema = Schema({
     type: String,
     required: true,
   },
-  data: {
-    type: Object,
-  },
+
+  data: [
+    {
+      type: Object,
+    },
+  ],
 });
 
 module.exports = model("Misc", MiscSchema);

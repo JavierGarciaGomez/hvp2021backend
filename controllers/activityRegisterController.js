@@ -67,6 +67,24 @@ const getAllActivityRegisters = async (req, res = response) => {
   }
 };
 
+// get single
+const getActiviyRegister = async (req, res = response) => {
+  try {
+    // get the collaboratorId
+    const id = req.params.activityRegister;
+
+    let activityRegister = await ActivityRegister.findById(id);
+
+    res.json({
+      ok: true,
+      msg: "generado",
+      activityRegister,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
 // get from a user
 const getActiviyRegistersByCol = async (req, res = response) => {
   try {
@@ -183,4 +201,5 @@ module.exports = {
   getActiviyRegistersByCol,
   updateActiviyRegister,
   deleteActivityRegister,
+  getActiviyRegister,
 };

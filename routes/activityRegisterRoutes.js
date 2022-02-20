@@ -9,6 +9,7 @@ const {
   getActiviyRegistersByCol,
   updateActiviyRegister,
   deleteActivityRegister,
+  getActiviyRegister,
 } = require("../controllers/activityRegisterController");
 const { getLogs } = require("../controllers/userLogController");
 
@@ -23,8 +24,11 @@ router.post("/", validateJwt, createActivityRegister);
 // GET ALL
 router.get("/", validateJwt, getAllActivityRegisters);
 
+// GET ACTIVITY REGISTER
+router.get("/:activityRegister", validateJwt, getActiviyRegister);
+
 // GET ALL BY USER
-router.get("/:collaboratorId", validateJwt, getActiviyRegistersByCol);
+router.get("/getByCol/:collaboratorId", validateJwt, getActiviyRegistersByCol);
 
 // UPDATE ACTIVITY REGISTER
 router.put("/:activityRegisterId", validateJwt, updateActiviyRegister);
