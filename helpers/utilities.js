@@ -121,6 +121,10 @@ const registerLog = async (userType, user, action) => {
   await authLog.save();
 };
 
+const convertMongooseObjectIdToString = (ObjectId) => {
+  return ObjectId.toString();
+};
+
 module.exports = {
   getDateWithoutTime,
   convertDateToUTC,
@@ -130,4 +134,5 @@ module.exports = {
   checkIfOwner,
   isAuthorizeByRoleOrOwnership,
   registerLog,
+  convertMongooseObjectIdToString,
 };

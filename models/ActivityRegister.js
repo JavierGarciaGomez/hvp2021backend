@@ -11,6 +11,7 @@ const activityRegisterSchema = Schema({
   },
   endingTime: {
     type: Date,
+    default: null,
   },
   activity: {
     type: String,

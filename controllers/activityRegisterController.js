@@ -11,6 +11,7 @@ const { roleTypes, authTypes } = require("../types/types");
 const {
   registerLog,
   isAuthorizeByRoleOrOwnership,
+  convertMongooseObjectIdToString,
 } = require("../helpers/utilities");
 
 const ActivityRegister = require("../models/ActivityRegister");
@@ -28,6 +29,10 @@ const createActivityRegister = async (req, res = response) => {
     }
     const collaborator = await Collaborator.findById(uid);
 
+    console.log("este es el req.body", req.body);
+    // remove id
+    delete req.body._id;
+
     const activityRegister = new ActivityRegister({
       ...req.body,
       collaborator,
@@ -37,7 +42,7 @@ const createActivityRegister = async (req, res = response) => {
 
     res.status(201).json({
       ok: true,
-      message: "Creado con éxito",
+      msg: "Creado con éxito",
       savedActivityRegister,
     });
   } catch (error) {
@@ -48,7 +53,10 @@ const createActivityRegister = async (req, res = response) => {
 // get all
 const getAllActivityRegisters = async (req, res = response) => {
   try {
-    let allActivityRegisters = await ActivityRegister.find();
+    let allActivityRegisters = await ActivityRegister.find().populate(
+      "collaborator",
+      "imgUrl col_code"
+    );
     res.json({
       ok: true,
       msg: "generado",
@@ -91,7 +99,7 @@ const updateActiviyRegister = async (req, res = response) => {
     if (!activityRegister) {
       return res.status(404).json({
         ok: false,
-        msg: "No existe data con ese ese id",
+        msg: "No existe data con ese id",
       });
     }
 
@@ -101,7 +109,7 @@ const updateActiviyRegister = async (req, res = response) => {
       role,
       roleTypes.admin,
       uid,
-      activityRegister.id
+      convertMongooseObjectIdToString(activityRegister.collaborator._id)
     );
 
     if (!isAuthorized) {
@@ -146,7 +154,7 @@ const deleteActivityRegister = async (req, res = response) => {
       role,
       roleTypes.admin,
       uid,
-      activityRegister.id
+      convertMongooseObjectIdToString(activityRegister.collaborator._id)
     );
 
     if (!isAuthorized) {

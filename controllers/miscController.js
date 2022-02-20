@@ -110,7 +110,6 @@ const updateMisc = async (req, res = response) => {
   }
 };
 
-// todo
 const deleteMisc = async (req, res = response) => {
   try {
     // get the key
