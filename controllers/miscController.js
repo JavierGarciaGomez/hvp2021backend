@@ -23,12 +23,13 @@ const createMisc = async (req, res = response) => {
 
     const foundData = await Misc.findOne({ key });
     if (foundData) {
-      res.status(201).json({
+      return res.status(201).json({
         ok: false,
         message: "Ya existe esa key",
         foundData,
       });
     }
+
     const misc = new Misc({
       ...req.body,
     });
