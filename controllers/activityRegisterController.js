@@ -122,6 +122,7 @@ const updateActiviyRegister = async (req, res = response) => {
     }
 
     const updateData = { ...req.body };
+    console.log(updateData);
 
     const isAuthorized = isAuthorizeByRoleOrOwnership(
       role,
