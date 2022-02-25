@@ -6,7 +6,7 @@ const { roles } = require("../types/types");
 const OperatingRoomCleanUpSchema = Schema({
   branch: {
     type: String,
-    require: true,
+    required: true,
   },
   date: {
     type: Date,

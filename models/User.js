@@ -7,7 +7,7 @@ const UserSchema = Schema({
   name: { type: String },
   email: {
     type: String,
-    require: true,
+    required: true,
   },
   password: {
     type: String,
@@ -15,7 +15,7 @@ const UserSchema = Schema({
   // todo: fix this and use displayname instead
   col_code: {
     type: String,
-    require: true,
+    required: true,
   },
 
   isActive: {

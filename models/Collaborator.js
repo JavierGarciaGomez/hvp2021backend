@@ -5,11 +5,11 @@ const { roles } = require("../types/types");
 const CollaboratorSchema = Schema({
   first_name: {
     type: String,
-    require: true,
+    required: true,
   },
   last_name: {
     type: String,
-    require: true,
+    required: true,
   },
   role: {
     type: String,
@@ -18,7 +18,7 @@ const CollaboratorSchema = Schema({
   },
   col_code: {
     type: String,
-    require: true,
+    required: true,
   },
   col_numId: {
     type: Number,
@@ -60,7 +60,7 @@ const CollaboratorSchema = Schema({
   registeredDate: {
     type: Date,
     default: Date.now,
-    require: true,
+    required: true,
   },
   lastLogin: {
     type: Date,

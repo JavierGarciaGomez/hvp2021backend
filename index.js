@@ -5,7 +5,7 @@ const path = require("path");
 const cors = require("cors");
 const { dbConnection } = require("./database/config");
 const passport = require("passport");
-const passportSetup = require("./config/passportSetup");
+
 const cleanUpsRoutes = require("./routes/cleanUpsRoutes");
 const collaboratorsRoutes = require("./routes/collaboratorsRoutes");
 const authRoutes = require("./routes/authRoutes");
@@ -15,6 +15,8 @@ const userLogRoutes = require("./routes/userLogRoutes");
 const activityRegisterRoutes = require("./routes/activityRegisterRoutes");
 const miscRoutes = require("./routes/miscRoutes");
 const documentationRoutes = require("./routes/documentationRoutes");
+const userClientRoutes = require("./routes/userClientRoutes");
+const fcmPartnerRoutes = require("./routes/fcmPartnerRoutes");
 const cookieSession = require("cookie-session");
 
 // Create express server
@@ -102,6 +104,8 @@ app.use("/api/userLog", userLogRoutes);
 app.use("/api/activityRegister", activityRegisterRoutes);
 app.use("/api/misc", miscRoutes);
 app.use("/api/documentation", documentationRoutes);
+app.use("/api/fcmPartner", fcmPartnerRoutes);
+app.use("/api/userClient", userClientRoutes);
 
 app.listen(process.env.PORT || 4000, () => {
   console.log("Server running in port " + process.env.PORT);

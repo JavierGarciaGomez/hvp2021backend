@@ -5,11 +5,11 @@ const { roles } = require("../types/types");
 const RFCSchema = Schema({
   rfc: {
     type: String,
-    require: true,
+    required: true,
   },
   name: {
     type: String,
-    require: true,
+    required: true,
   },
   email: {
     type: String,

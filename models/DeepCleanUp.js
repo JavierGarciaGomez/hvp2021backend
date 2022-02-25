@@ -4,7 +4,7 @@ const { Schema, model } = require("mongoose");
 const DeepCleanUpSchema = Schema({
   branch: {
     type: String,
-    require: true,
+    required: true,
   },
   date: {
     type: Date,
