@@ -1,4 +1,5 @@
 const roles = ["Administrador", "Gerente", "Colaborador", "User", "Invitado"];
+const rolesValues = ["admin", "manager", "collaborator", "user", "guest"];
 const authEnum = ["Login", "Logout", "Register"];
 
 const branches = ["Urban", "The Harbor", "Montejo"];
@@ -35,6 +36,7 @@ const authTypes = {
 
 module.exports = {
   roles,
+  rolesValues,
   roleTypes,
   authTypes,
   authEnum,

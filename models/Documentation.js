@@ -1,6 +1,6 @@
 // 339
 const { Schema, model } = require("mongoose");
-const { authEnum, roles } = require("../types/types");
+const { authEnum, roles, rolesValues } = require("../types/types");
 
 // TODO
 const DocumentationSchema = Schema({
@@ -31,6 +31,7 @@ const DocumentationSchema = Schema({
   },
   lastUpdateDate: {
     type: Date,
+    default: "",
   },
   version: {
     type: Number,
@@ -46,8 +47,8 @@ const DocumentationSchema = Schema({
   },
   authorization: {
     type: String,
-    enum: roles,
-    default: roles[2],
+    enum: rolesValues,
+    default: rolesValues[2],
   },
 });
 

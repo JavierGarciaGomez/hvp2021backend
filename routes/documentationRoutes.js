@@ -9,6 +9,7 @@ const {
   getDocumentation,
   updateDocumentation,
   deleteDocumentation,
+  insertDummy,
 } = require("../controllers/documentationController");
 const { getLogs } = require("../controllers/userLogController");
 
@@ -29,5 +30,7 @@ router.put("/:id", validateJwt, updateDocumentation);
 
 // DELETE ACTIVITY REGISTER
 router.delete("/:id", validateJwt, deleteDocumentation);
+// todo delete
+router.post("/insertDummy/", validateJwt, insertDummy);
 
 module.exports = router;
