@@ -10,9 +10,12 @@ const { uncatchedError } = require("../helpers/const");
 const FcmPartner = require("../models/FcmPartner");
 
 // todo
-// create new activity register
+// create new fcmPartner
 const createFcmPartner = async (req, res = response) => {
   try {
+    // check who is doing the register
+    const { uid } = req;
+
     const { partnerNum } = req.body;
     const foundObject = await FcmPartner.findOne({ partnerNum });
     if (foundObject) {
@@ -22,11 +25,16 @@ const createFcmPartner = async (req, res = response) => {
       });
     }
 
-    const fcmPartner = new FcmPartner({
-      ...req.body,
-    });
+    const data = { ...req.body };
+    data.creator = uid;
+
+    const fcmPartner = new FcmPartner({ ...data });
 
     const saved = await fcmPartner.save();
+    // save it in the user fcmpartner
+    const user = await User.findById(uid);
+    user.linkedFcmPartners.push(saved._id);
+    await User.findByIdAndUpdate(uid, user);
 
     res.status(201).json({
       ok: true,
@@ -41,12 +49,15 @@ const createFcmPartner = async (req, res = response) => {
 // get all
 const getAllFcmPartner = async (req, res = response) => {
   try {
-    let allFcmPartner = await FcmPartner.find();
+    let allFcmPartners = await FcmPartner.find().populate(
+      "creator",
+      "col_code"
+    );
 
     res.json({
       ok: true,
       msg: "generado",
-      allFcmPartner,
+      allFcmPartners,
     });
   } catch (error) {
     uncatchedError(error, res);
@@ -57,10 +68,9 @@ const getFcmPartner = async (req, res = response) => {
   try {
     // get the id
     const id = req.params.id;
+    console.log("getfcm", id);
 
-    let fcmPartner = await FcmPartner.findById({
-      id,
-    });
+    let fcmPartner = await FcmPartner.findById(id);
 
     res.json({
       ok: true,
@@ -101,9 +111,11 @@ const getFcmPartnerByPartnerNum = async (req, res = response) => {
 // get from a user
 const updateFcmPartner = async (req, res = response) => {
   try {
+    const { uid } = req;
     // get the id
     const id = req.params.id;
 
+    // get the original data
     let fcmPartner = await FcmPartner.findById(id);
     if (!fcmPartner) {
       return res.status(404).json({
@@ -112,8 +124,11 @@ const updateFcmPartner = async (req, res = response) => {
       });
     }
 
+    // get the new data and add the creator
     const updateData = { ...req.body };
+    updateData.creator = uid;
 
+    // Save the update
     const updatedData = await FcmPartner.findByIdAndUpdate(id, updateData, {
       new: true,
     });

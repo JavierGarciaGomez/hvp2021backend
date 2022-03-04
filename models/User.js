@@ -38,6 +38,7 @@ const UserSchema = Schema({
   lastLogin: {
     type: Date,
   },
+  linkedFcmPartners: [{ type: Schema.Types.ObjectId, ref: "FcmPartner" }],
 });
 
 module.exports = model("User", UserSchema);

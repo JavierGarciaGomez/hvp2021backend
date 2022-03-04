@@ -78,9 +78,6 @@ router.patch(
 router.put("/:collaboratorId", validateJwt, updateCollaborator);
 router.delete("/:collaboratorId", validateJwt, deleteCollaborator);
 
-// renew token
-router.get("/renew", validateJwt, collaboratorRenewToken);
-
 router.get("/:collaboratorId", validateJwt, getCollaboratorById);
 
 module.exports = router;

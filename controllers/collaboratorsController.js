@@ -253,22 +253,6 @@ const getCollaboratorById = async (req, res = response) => {
   }
 };
 
-const collaboratorRenewToken = async (req, res = response) => {
-  const { uid, col_code, role, imgUrl } = req;
-
-  // Generar JWT
-  const token = await generateJWT(uid, col_code, role, imgUrl);
-
-  res.json({
-    ok: true,
-    token,
-    uid,
-    col_code,
-    role,
-    imgUrl,
-  });
-};
-
 const updateCollaborator = async (req, res = response) => {
   // const uid = req.uid;
 
@@ -354,7 +338,7 @@ const deleteCollaborator = async (req, res = response) => {
 
 module.exports = {
   collaboratorLogin,
-  collaboratorRenewToken,
+
   createCollaborator,
   getCollaborators,
   getCollaboratorById,

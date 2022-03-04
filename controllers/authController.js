@@ -15,7 +15,9 @@ const {
 } = require("../helpers/utilities");
 const AuthLog = require("../models/CollaboratorLog");
 
-// googleAuth
+// TODO: Move out the strictly user from auth
+
+// googleAuth. This is called by passport
 const createUserIfNotExist = async (
   accessToken,
   refreshToken,
@@ -74,13 +76,11 @@ const googleAuth = (req, res = response) => {
   res.redirect(`${process.env.CLIENT_URL}#/auth?token=${req.user.token}`);
 };
 
-/********************************/
-/************USERS CRUD********* */
-/********************************/
 const userLogin = async (req, res = response) => {
   try {
     const { email, password } = req.body;
 
+    // check if collaborator or user
     let user = await Collaborator.findOne({ email });
     let userType = "collaborator";
     if (!user) {
@@ -128,184 +128,26 @@ const userLogin = async (req, res = response) => {
   }
 };
 
-const createUser = async (req, res = response) => {
-  try {
-    const { email, password } = req.body;
+const userRenewToken = async (req, res = response) => {
+  console.log("user renew");
+  const { uid, col_code, role, imgUrl } = req;
 
-    // check if the collaborator code is not used before
-    let usedMail = await Collaborator.findOne({ email });
-    if (!usedMail) {
-      usedMail = await User.findOne({ email });
-    }
-    if (usedMail) {
-      return res.status(400).json({
-        ok: false,
-        msg: "Ya existe un usuario registrado con ese email",
-      });
-    }
+  // Generar JWT
+  const token = await generateJWT(uid, col_code, role, imgUrl);
 
-    // encrypt pass
-    const salt = bcrypt.genSaltSync();
-    const cryptedPassword = bcrypt.hashSync(password, salt);
-
-    const user = new User(req.body);
-    user.password = cryptedPassword;
-    const savedUser = await user.save();
-
-    // Generate JWT
-    const token = await generateJWT(
-      savedUser._id,
-      savedUser.col_code,
-      savedUser.role,
-      savedUser.imgUrl
-    );
-
-    // generate the log
-    registerLog("user", savedUser, authTypes.login);
-
-    res.status(201).json({
-      ok: true,
-      message: "usuario creado con éxito",
-      user: savedUser,
-      token,
-    });
-  } catch (error) {
-    uncatchedError(error, res);
-  }
+  res.json({
+    ok: true,
+    token,
+    uid,
+    col_code,
+    role,
+    imgUrl,
+  });
 };
 
-const getUsers = async (req, res = response) => {
-  try {
-    // from token
-    const { role } = req;
-    const isAuthorized = isAuthorizedByRole(role, roleTypes.collaborator);
-    if (!isAuthorized) {
-      return res.json({
-        ok: false,
-        msg: "No estás autorizado para conocer los datos",
-      });
-    }
-
-    const users = await User.find();
-    res.json({
-      ok: true,
-      msg: "getUsers",
-      users,
-    });
-  } catch (error) {
-    uncatchedError(error, res);
-  }
-};
-
-const getUser = async (req, res = response) => {
-  try {
-    // from token
-    const { uid, role } = req;
-    // from params
-    const reqUserId = req.params.userId;
-    // validate authorization
-    const isAuthorized = isAuthorizeByRoleOrOwnership(
-      role,
-      roleTypes.collaborator,
-      uid,
-      reqUserId
-    );
-    if (!isAuthorized) {
-      return res.json({
-        ok: false,
-        msg: "No estás autorizado para conocer los datos de este usuario",
-      });
-    }
-    let user = await User.findById(reqUserId);
-    res.json({
-      ok: true,
-      msg: "getUser",
-      user,
-    });
-  } catch (error) {
-    uncatchedError(error, res);
-  }
-};
-const updateUser = async (req, res = response) => {
-  try {
-    // from token
-    const { uid, role } = req;
-    const { password } = req.body;
-    // from params
-    const reqUserId = req.params.userId;
-    // validate authorization
-
-    const isAuthorized = isAuthorizeByRoleOrOwnership(
-      role,
-      roleTypes.collaborator,
-      uid,
-      reqUserId
-    );
-    if (!isAuthorized) {
-      return res.json({
-        ok: false,
-        msg: "No estás autorizado para conocer los datos de este usuario",
-      });
-    }
-
-    let user = await User.findById(reqUserId);
-    if (!user) {
-      return res.status(404).json({
-        ok: false,
-        msg: "No existe usuario con ese ese id",
-      });
-    }
-
-    const tempUser = {
-      ...req.body,
-    };
-
-    if (password) {
-      // encrypt pass
-      const salt = bcrypt.genSaltSync();
-      const cryptedPassword = bcrypt.hashSync(password, salt);
-      tempUser.password = cryptedPassword;
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(reqUserId, tempUser, {
-      new: true,
-    });
-
-    res.json({
-      ok: true,
-      msg: "Usuario actualizado",
-      updatedUser,
-    });
-  } catch (error) {
-    uncatchedError(error, res);
-  }
-};
-
-const deleteUser = async (req, res = response) => {
-  try {
-    // from token
-    const { uid, role } = req;
-    // from params
-    const reqUserId = req.params.userId;
-    // validate authorization
-
-    const isAuthorized = isAuthorizedByRole(role, roleTypes.admin);
-    if (!isAuthorized) {
-      return res.json({
-        ok: false,
-        msg: "No estás autorizado",
-      });
-    }
-
-    await User.findByIdAndDelete(reqUserId);
-    res.json({
-      ok: true,
-      msg: "Usuario eliminado",
-    });
-  } catch (error) {
-    uncatchedError(error, res);
-  }
-};
+/********************************/
+/************USERS CRUD********* */
+/********************************/
 
 module.exports = {
   // userLogin,
@@ -313,10 +155,6 @@ module.exports = {
   createUserIfNotExist,
 
   googleAuth,
-  createUser,
   userLogin,
-  getUsers,
-  getUser,
-  updateUser,
-  deleteUser,
+  userRenewToken,
 };

@@ -125,6 +125,10 @@ const convertMongooseObjectIdToString = (ObjectId) => {
   return ObjectId.toString();
 };
 
+const printSmth = () => {
+  console.log("LLEGUE AL PRINT");
+};
+
 module.exports = {
   getDateWithoutTime,
   convertDateToUTC,
@@ -135,4 +139,5 @@ module.exports = {
   isAuthorizeByRoleOrOwnership,
   registerLog,
   convertMongooseObjectIdToString,
+  printSmth,
 };

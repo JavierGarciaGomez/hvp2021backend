@@ -3,6 +3,7 @@
 */
 
 const { Router } = require("express");
+const { check } = require("express-validator");
 const {
   createFcmPartner,
   getAllFcmPartner,
@@ -13,28 +14,29 @@ const {
   getFcmPartnerByPartnerNum,
 } = require("../controllers/fcmPartnerController");
 const { getLogs } = require("../controllers/userLogController");
+const { fieldValidator } = require("../middlewares/fieldValidator");
 
 const { validateJwt } = require("../middlewares/validateJwt");
 const router = Router();
 
 /************ CRUD********* */
-router.post("/", validateJwt, createFcmPartner);
+router.post("/partners/", validateJwt, createFcmPartner);
 
 // GET ALL
-router.get("/", validateJwt, getAllFcmPartner);
+router.get("/partners/", validateJwt, getAllFcmPartner);
 
 // GET ONE
-router.get("/:id", validateJwt, getFcmPartner);
+router.get("/partners/:id", validateJwt, getFcmPartner);
 
 // GET ONE BY PARTNERNUM
 router.get(
-  "/getByPartnerNum/:partnerNum",
+  "/partners/partner/:partnerNum",
   validateJwt,
   getFcmPartnerByPartnerNum
 );
 
-router.put("/:id", validateJwt, updateFcmPartner);
+router.put("/partners/:id", validateJwt, updateFcmPartner);
 
-router.delete("/:id", validateJwt, deleteFcmPartner);
+router.delete("/partners/:id", validateJwt, deleteFcmPartner);
 
 module.exports = router;

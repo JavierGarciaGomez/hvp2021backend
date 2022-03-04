@@ -2,7 +2,7 @@
 const { Schema, model } = require("mongoose");
 
 const FcmPartnerSchema = Schema({
-  first_name: {
+  firstName: {
     type: String,
     required: true,
   },
@@ -53,6 +53,12 @@ const FcmPartnerSchema = Schema({
   email: {
     type: String,
   },
+
+  url: {
+    type: String,
+  },
+
+  creator: { type: Schema.Types.ObjectId, ref: "User" },
 });
 
 module.exports = model("FcmPartner", FcmPartnerSchema);

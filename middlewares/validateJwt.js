@@ -3,16 +3,16 @@ const { response } = require("express");
 const jwt = require("jsonwebtoken");
 
 const validateJwt = (req, res = response, next) => {
-  // x-token headers
-  const token = req.header("x-token");
-  if (!token) {
-    return res.status(401).json({
-      ok: false,
-      msg: "No hay token en la petición",
-    });
-  }
-
   try {
+    console.log("validate jwt");
+    // x-token headers
+    const token = req.header("x-token");
+    if (!token) {
+      return res.status(401).json({
+        ok: false,
+        msg: "No hay token en la petición",
+      });
+    }
     const payload = jwt.verify(token, process.env.SECRET_JWT_SEED);
 
     const { uid, col_code, role, imgUrl } = payload;
@@ -21,8 +21,9 @@ const validateJwt = (req, res = response, next) => {
     req.col_code = col_code;
     req.role = role;
     req.imgUrl = imgUrl;
+    console.log("llegué al catch");
   } catch (error) {
-    console.log(error);
+    console.log("ERROR", error);
     return res.status(401).json({
       ok: false,
       msg: "Token no válido",

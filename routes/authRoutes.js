@@ -8,12 +8,8 @@ const passport = require("passport");
 
 const {
   googleAuth,
-  createUser,
   userLogin,
-  getUsers,
-  getUser,
-  updateUser,
-  deleteUser,
+  userRenewToken,
 } = require("../controllers/authController");
 const { fieldValidator } = require("../middlewares/fieldValidator");
 const { validateJwt } = require("../middlewares/validateJwt");
@@ -71,48 +67,14 @@ router.post(
   userLogin
 );
 
-// CREATE
-router.post(
-  "/create",
-  [
-    check("email", "No es una forma correcta de email").isEmail(),
-    check(
-      "password",
-      "El password es obligatorio y debe contener al menos seis carácteres"
-    ).isLength({ min: 6 }),
-    check("col_code", "El nombre de usuario es obligatorio").not().isEmpty(),
-    fieldValidator,
-  ],
-  createUser
-);
-
 // TODO: XXXX
 router.get("/logout", (req, res) => {
   req.logout();
   res.redirect(`${process.env.CLIENT_URL}`);
 });
 
-// GET ALL USERS
-router.get("/", validateJwt, getUsers);
-
-// GET USER
-router.get("/:userId", validateJwt, getUser);
-
-// Update
-router.put(
-  "/:userId",
-  [
-    check("email", "No es una forma correcta de email").isEmail(),
-    check("password", "El password debe contener al menos seis carácteres")
-      .isLength({ min: 6 })
-      .optional(),
-    validateJwt,
-    fieldValidator,
-  ],
-  updateUser
-);
-// Delete
-router.delete("/:userId", validateJwt, deleteUser);
+// renew token
+router.get("/renew", validateJwt, userRenewToken);
 
 router.get("test", (req, res) => {});
 module.exports = router;

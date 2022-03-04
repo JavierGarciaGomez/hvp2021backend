@@ -60,9 +60,7 @@ const getDocumentation = async (req, res = response) => {
     // get the id
     const id = req.params.id;
 
-    let documentation = await Documentation.findOne({
-      id,
-    });
+    let documentation = await Documentation.findOne(id);
 
     res.json({
       ok: true,
