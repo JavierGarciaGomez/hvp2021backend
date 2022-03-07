@@ -2,6 +2,7 @@ const { response } = require("express");
 const bcrypt = require("bcryptjs");
 const Collaborator = require("../models/Collaborator");
 const User = require("../models/User");
+const Dog = require("../models/Dog");
 const { generateJWT } = require("../helpers/jwt");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
@@ -103,7 +104,9 @@ const getUser = async (req, res = response) => {
         msg: "No estás autorizado para conocer los datos de este usuario",
       });
     }
-    let user = await User.findById(reqUserId).populate("linkedFcmPartners");
+    let user = await User.findById(reqUserId).populate(
+      "linkedFcmPartners linkedDogs"
+    );
     res.json({
       ok: true,
       msg: "getUser",

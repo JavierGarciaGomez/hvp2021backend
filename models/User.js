@@ -39,6 +39,7 @@ const UserSchema = Schema({
     type: Date,
   },
   linkedFcmPartners: [{ type: Schema.Types.ObjectId, ref: "FcmPartner" }],
+  linkedDogs: [{ type: Schema.Types.ObjectId, ref: "Dog" }],
 });
 
 module.exports = model("User", UserSchema);

@@ -4,22 +4,22 @@ const { Schema, model } = require("mongoose");
 const FcmPartnerSchema = Schema({
   firstName: {
     type: String,
-    required: true,
+    // required: true,
   },
   paternalSurname: {
     type: String,
-    required: true,
+    // required: true,
   },
   maternalSurname: {
     type: String,
   },
   partnerNum: {
     type: String,
-    required: true,
+    // required: true,
   },
   expirationDate: {
     type: Date,
-    required: true,
+    // required: true,
   },
   address: {
     street: {
@@ -53,9 +53,21 @@ const FcmPartnerSchema = Schema({
   email: {
     type: String,
   },
-
-  url: {
+  urlPartnerCard: {
     type: String,
+  },
+  urlProofOfResidency: {
+    type: String,
+  },
+  urlFrontIne: {
+    type: String,
+  },
+  urlBackIne: {
+    type: String,
+  },
+
+  isPending: {
+    type: Boolean,
   },
 
   creator: { type: Schema.Types.ObjectId, ref: "User" },

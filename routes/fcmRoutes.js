@@ -12,14 +12,19 @@ const {
   deleteFcmPartner,
   insertDummy,
   getFcmPartnerByPartnerNum,
-} = require("../controllers/fcmPartnerController");
+  createDog,
+  getAllDogs,
+  getDog,
+  updateDog,
+  deleteDog,
+} = require("../controllers/fcmController");
 const { getLogs } = require("../controllers/userLogController");
 const { fieldValidator } = require("../middlewares/fieldValidator");
 
 const { validateJwt } = require("../middlewares/validateJwt");
 const router = Router();
 
-/************ CRUD********* */
+/************ CRUD PARTNERS********* */
 router.post("/partners/", validateJwt, createFcmPartner);
 
 // GET ALL
@@ -38,5 +43,12 @@ router.get(
 router.put("/partners/:id", validateJwt, updateFcmPartner);
 
 router.delete("/partners/:id", validateJwt, deleteFcmPartner);
+
+/************ CRUD DOGS********* */
+router.post("/dogs/", validateJwt, createDog);
+router.get("/dogs/", validateJwt, getAllDogs);
+router.get("/dogs/:id", validateJwt, getDog);
+router.put("/dogs/:id", validateJwt, updateDog);
+router.delete("/dogs/:id", validateJwt, deleteDog);
 
 module.exports = router;
