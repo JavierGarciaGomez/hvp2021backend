@@ -199,7 +199,14 @@ const createDog = async (req, res = response) => {
     const saved = await dog.save();
     // save it in the user dog
     const user = await User.findById(uid);
-    user.linkedDogs.push(saved._id);
+    // just if is a user create fcmPartners
+    if (user) {
+      if (!user.linkedFcmPartners) {
+        user.linkedFcmPartners = [];
+      }
+      user.linkedFcmPartners.push(saved._id);
+      await User.findByIdAndUpdate(uid, user);
+    }
     await User.findByIdAndUpdate(uid, user);
 
     res.status(201).json({

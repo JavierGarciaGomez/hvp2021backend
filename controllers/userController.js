@@ -286,6 +286,95 @@ const linkFcmPartner = async (req, res = response) => {
   }
 };
 
+// fcmPartner
+const unlinkDog = async (req, res = response) => {
+  try {
+    // from token
+    const { uid, role } = req;
+    // from params
+    const { userId, dogId } = req.params;
+
+    const user = await User.findById(userId);
+    // validate authorization
+    const isAuthorized = isAuthorizeByRoleOrOwnership(
+      role,
+      roleTypes.collaborator,
+      uid,
+      user.id
+    );
+    if (!isAuthorized) {
+      return res.json({
+        ok: false,
+        msg: "No estás autorizado",
+      });
+    }
+
+    // remove dog
+    user.linkedDogs = user.linkedDogs.filter(
+      (element) => element.toString() !== dogId
+    );
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { ...user },
+      {
+        new: true,
+      }
+    );
+
+    res.json({
+      ok: true,
+      msg: "Usuario actualizado",
+      updatedUser,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+const linkDog = async (req, res = response) => {
+  try {
+    // from token
+    const { uid, role } = req;
+    // from params
+    const { userId, dogId } = req.params;
+
+    const user = await User.findById(userId);
+    // validate authorization
+    const isAuthorized = isAuthorizeByRoleOrOwnership(
+      role,
+      roleTypes.collaborator,
+      uid,
+      user.id
+    );
+    if (!isAuthorized) {
+      return res.json({
+        ok: false,
+        msg: "No estás autorizado",
+      });
+    }
+
+    // remove linkFcmPartner
+    user.linkedDogs = user.linkedDogs.push(dogId);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { ...user },
+      {
+        new: true,
+      }
+    );
+
+    res.json({
+      ok: true,
+      msg: "Usuario actualizado",
+      updatedUser,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
 module.exports = {
   // userLogin,
   // userRenewToken,
@@ -298,4 +387,6 @@ module.exports = {
   deleteUser,
   unlinkFcmPartner,
   linkFcmPartner,
+  linkDog,
+  unlinkDog,
 };

@@ -66,11 +66,16 @@ router.patch(
   unlinkFcmPartner
 );
 
-// FCMPARTNER
 router.patch(
   "/:userId/fcmPartner/link/:fcmPartnerId",
   validateJwt,
   linkFcmPartner
 );
+
+// DOGS
+router.patch("/:userId/dogs/unlink/:dogId", validateJwt, unlinkFcmPartner);
+
+// FCMPARTNER
+router.patch("/:userId/dogs/link/:dogId", validateJwt, linkFcmPartner);
 
 module.exports = router;
