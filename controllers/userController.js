@@ -74,7 +74,9 @@ const getUsers = async (req, res = response) => {
       });
     }
 
-    const users = await User.find().populate("linkedFcmPartners");
+    const users = await User.find().populate(
+      "linkedFcmPartners linkedDogs linkedFcmPackages"
+    );
     res.json({
       ok: true,
       msg: "getUsers",
@@ -105,7 +107,7 @@ const getUser = async (req, res = response) => {
       });
     }
     let user = await User.findById(reqUserId).populate(
-      "linkedFcmPartners linkedDogs"
+      "linkedFcmPartners linkedDogs linkedFcmPackages"
     );
     res.json({
       ok: true,
@@ -205,6 +207,8 @@ const unlinkFcmPartner = async (req, res = response) => {
     // from params
     const { userId, fcmPartnerId } = req.params;
 
+    console.log("estos son los parámetros", userId, fcmPartnerId);
+
     const user = await User.findById(userId);
     // validate authorization
     const isAuthorized = isAuthorizeByRoleOrOwnership(
@@ -219,6 +223,8 @@ const unlinkFcmPartner = async (req, res = response) => {
         msg: "No estás autorizado",
       });
     }
+
+    console.log("esto es el user", user);
 
     // remove linkFcmPartner
     user.linkedFcmPartners = user.linkedFcmPartners.filter(
@@ -286,7 +292,6 @@ const linkFcmPartner = async (req, res = response) => {
   }
 };
 
-// fcmPartner
 const unlinkDog = async (req, res = response) => {
   try {
     // from token
@@ -375,6 +380,95 @@ const linkDog = async (req, res = response) => {
   }
 };
 
+// FCM PACKAGES
+const unlinkFcmPackage = async (req, res = response) => {
+  try {
+    // from token
+    const { uid, role } = req;
+    // from params
+    const { userId, fcmPackageId } = req.params;
+
+    const user = await User.findById(userId);
+    // validate authorization
+    const isAuthorized = isAuthorizeByRoleOrOwnership(
+      role,
+      roleTypes.collaborator,
+      uid,
+      user.id
+    );
+    if (!isAuthorized) {
+      return res.json({
+        ok: false,
+        msg: "No estás autorizado",
+      });
+    }
+
+    // remove dog
+    user.linkedFcmPackages = user.linkedFcmPackages.filter(
+      (element) => element.toString() !== fcmPackageId
+    );
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { ...user },
+      {
+        new: true,
+      }
+    );
+
+    res.json({
+      ok: true,
+      msg: "Usuario actualizado",
+      updatedUser,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+const linkFcmPackage = async (req, res = response) => {
+  try {
+    // from token
+    const { uid, role } = req;
+    // from params
+    const { userId, fcmPackageId } = req.params;
+
+    const user = await User.findById(userId);
+    // validate authorization
+    const isAuthorized = isAuthorizeByRoleOrOwnership(
+      role,
+      roleTypes.collaborator,
+      uid,
+      user.id
+    );
+    if (!isAuthorized) {
+      return res.json({
+        ok: false,
+        msg: "No estás autorizado",
+      });
+    }
+
+    // remove linkFcmPartner
+    user.linkedFcmPackages = user.linkedFcmPackages.push(fcmPackageId);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { ...user },
+      {
+        new: true,
+      }
+    );
+
+    res.json({
+      ok: true,
+      msg: "Usuario actualizado",
+      updatedUser,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
 module.exports = {
   // userLogin,
   // userRenewToken,
@@ -389,4 +483,6 @@ module.exports = {
   linkFcmPartner,
   linkDog,
   unlinkDog,
+  linkFcmPackage,
+  unlinkFcmPackage,
 };

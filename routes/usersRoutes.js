@@ -19,6 +19,8 @@ const {
   deleteUser,
   unlinkFcmPartner,
   linkFcmPartner,
+  unlinkFcmPackage,
+  linkFcmPackage,
 } = require("../controllers/userController");
 
 // GET ALL USERS
@@ -74,8 +76,18 @@ router.patch(
 
 // DOGS
 router.patch("/:userId/dogs/unlink/:dogId", validateJwt, unlinkFcmPartner);
-
-// FCMPARTNER
 router.patch("/:userId/dogs/link/:dogId", validateJwt, linkFcmPartner);
+
+// PACKAGES
+router.patch(
+  "/:userId/fcmPackages/unlink/:fcmPackageId",
+  validateJwt,
+  unlinkFcmPackage
+);
+router.patch(
+  "/:userId/fcmPackages/link/:fcmPackageId",
+  validateJwt,
+  linkFcmPackage
+);
 
 module.exports = router;

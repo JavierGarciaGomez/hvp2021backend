@@ -38,6 +38,13 @@ const DogSchema = Schema({
     type: String,
     required: true,
   },
+
+  isTransferPending: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+
   owner: { type: Schema.Types.ObjectId, ref: "FcmPartner" },
 
   creator: { type: Schema.Types.ObjectId, ref: "User" },

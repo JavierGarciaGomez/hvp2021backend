@@ -40,6 +40,8 @@ const UserSchema = Schema({
   },
   linkedFcmPartners: [{ type: Schema.Types.ObjectId, ref: "FcmPartner" }],
   linkedDogs: [{ type: Schema.Types.ObjectId, ref: "Dog" }],
+  linkedFcmPackages: [{ type: Schema.Types.ObjectId, ref: "Package" }],
+  linkedFcmTransfers: [{ type: Schema.Types.ObjectId, ref: "FcmTransfer" }],
 });
 
 module.exports = model("User", UserSchema);

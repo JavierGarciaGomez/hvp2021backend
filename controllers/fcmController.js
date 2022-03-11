@@ -8,6 +8,9 @@ const passport = require("passport");
 const { uncatchedError } = require("../helpers/const");
 
 const FcmPartner = require("../models/FcmPartner");
+const Dog = require("../models/Dog");
+const FcmTransfer = require("../models/FcmTransfer.js");
+const Package = require("../models/Package");
 
 // todo
 // create new fcmPartner
@@ -134,7 +137,6 @@ const updateFcmPartner = async (req, res = response) => {
 
     // get the new data and add the creator
     const updateData = { ...req.body };
-    updateData.creator = uid;
 
     // Save the update
     const updatedData = await FcmPartner.findByIdAndUpdate(id, updateData, {
@@ -201,13 +203,12 @@ const createDog = async (req, res = response) => {
     const user = await User.findById(uid);
     // just if is a user create fcmPartners
     if (user) {
-      if (!user.linkedFcmPartners) {
-        user.linkedFcmPartners = [];
+      if (!user.linkedDogs) {
+        user.linkedDogs = [];
       }
-      user.linkedFcmPartners.push(saved._id);
+      user.linkedDogs.push(saved._id);
       await User.findByIdAndUpdate(uid, user);
     }
-    await User.findByIdAndUpdate(uid, user);
 
     res.status(201).json({
       ok: true,
@@ -269,7 +270,6 @@ const updateDog = async (req, res = response) => {
 
     // get the new data and add the creator
     const updateData = { ...req.body };
-    updateData.creator = uid;
 
     // Save the update
     const updatedData = await Dog.findByIdAndUpdate(id, updateData, {
@@ -310,6 +310,257 @@ const deleteDog = async (req, res = response) => {
   }
 };
 
+// FCMTRANSFERS
+const createFcmTransfer = async (req, res = response) => {
+  try {
+    // check who is doing the register
+    const { uid } = req;
+    const data = { ...req.body };
+    data.creator = uid;
+    const fcmTransfer = new FcmTransfer({ ...data });
+
+    const saved = await fcmTransfer.save();
+    // save it in the user fcmTransfer
+    const user = await User.findById(uid);
+    // just if is a user create fcmPartners
+    if (user) {
+      if (!user.linkedFcmTransfers) {
+        user.linkedFcmTransfers = [];
+      }
+      user.linkedFcmTransfers.push(saved._id);
+      await User.findByIdAndUpdate(uid, user);
+    }
+
+    res.status(201).json({
+      ok: true,
+      msg: "Creado con éxito",
+      saved,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+// get all
+const getAllFcmTransfers = async (req, res = response) => {
+  try {
+    let allFcmTransfers = await FcmTransfer.find().populate(
+      "creator",
+      "col_code"
+    );
+
+    res.json({
+      ok: true,
+      msg: "generado",
+      allFcmTransfers,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+const getFcmTransfer = async (req, res = response) => {
+  try {
+    // get the id
+    const id = req.params.id;
+    console.log("getfcm", id);
+
+    let fcmTransfer = await FcmTransfer.findById(id);
+
+    res.json({
+      ok: true,
+      msg: "generado",
+      fcmTransfer,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+const updateFcmTransfer = async (req, res = response) => {
+  try {
+    const { uid } = req;
+    // get the id
+    const id = req.params.id;
+
+    // get the original data
+    let fcmTransfer = await FcmTransfer.findById(id);
+    if (!fcmTransfer) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No existe data con ese ese id",
+      });
+    }
+
+    // get the new data and add the creator
+    const updateData = { ...req.body };
+
+    // Save the update
+    const updatedData = await FcmTransfer.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
+
+    res.json({
+      ok: true,
+      msg: "Éxito",
+      updatedData,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+const deleteFcmTransfer = async (req, res = response) => {
+  try {
+    // get the id
+    const id = req.params.id;
+    let fcmTransfer = await FcmTransfer.findById(id);
+
+    if (!fcmTransfer) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No existe data con ese ese id",
+      });
+    }
+
+    await FcmTransfer.findByIdAndDelete(id);
+
+    res.json({
+      ok: true,
+      msg: "Éxito",
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+// PACKAGES
+const createFcmPackage = async (req, res = response) => {
+  try {
+    // check who is doing the register
+    const { uid } = req;
+
+    const data = { ...req.body };
+
+    data.creator = uid;
+
+    const package = new Package({ ...data });
+
+    const saved = await package.save();
+    // save it in the user package
+    const user = await User.findById(uid);
+    // just if is a user create fcmPartners
+
+    if (user) {
+      if (!user.linkedFcmPackages) {
+        user.linkedFcmPackages = [];
+      }
+      user.linkedFcmPackages.push(saved._id);
+      console.log("este es el user", user);
+      await User.findByIdAndUpdate(uid, user);
+      console.log("llegué acá");
+    }
+
+    res.status(201).json({
+      ok: true,
+      msg: "Creado con éxito",
+      saved,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+// get all
+const getAllFcmPackages = async (req, res = response) => {
+  try {
+    let allPackages = await Package.find().populate("creator", "col_code");
+
+    res.json({
+      ok: true,
+      msg: "generado",
+      allPackages,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+const getFcmPackage = async (req, res = response) => {
+  try {
+    // get the id
+    const id = req.params.id;
+    console.log("getfcm", id);
+
+    let data = await Package.findById(id);
+
+    res.json({
+      ok: true,
+      msg: "generado",
+      data,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+const updateFcmPackage = async (req, res = response) => {
+  try {
+    // get the id
+    const id = req.params.id;
+    console.lo;
+
+    // get the original data
+    let package = await Package.findById(id);
+    if (!package) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No existe data con ese ese id",
+      });
+    }
+
+    // get the new data and add the creator
+    const updateData = { ...req.body };
+
+    // Save the update
+    const updatedData = await Package.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
+
+    res.json({
+      ok: true,
+      msg: "Éxito",
+      updatedData,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
+const deleteFcmPackage = async (req, res = response) => {
+  try {
+    // get the id
+    const id = req.params.id;
+    let package = await Package.findById(id);
+
+    if (!package) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No existe data con ese ese id",
+      });
+    }
+
+    await Package.findByIdAndDelete(id);
+
+    res.json({
+      ok: true,
+      msg: "Éxito",
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+};
+
 module.exports = {
   createFcmPartner,
   getAllFcmPartner,
@@ -322,4 +573,14 @@ module.exports = {
   getDog,
   updateDog,
   deleteDog,
+  createFcmTransfer,
+  getAllFcmTransfers,
+  getFcmTransfer,
+  updateFcmTransfer,
+  deleteFcmTransfer,
+  createFcmPackage,
+  getAllFcmPackages,
+  getFcmPackage,
+  updateFcmPackage,
+  deleteFcmPackage,
 };

@@ -17,6 +17,16 @@ const {
   getDog,
   updateDog,
   deleteDog,
+  createFcmPackage,
+  getAllFcmPackages,
+  getFcmPackage,
+  updateFcmPackage,
+  deleteFcmPackage,
+  createFcmTransfer,
+  getAllFcmTransfers,
+  getFcmTransfer,
+  updateFcmTransfer,
+  deleteFcmTransfer,
 } = require("../controllers/fcmController");
 const { getLogs } = require("../controllers/userLogController");
 const { fieldValidator } = require("../middlewares/fieldValidator");
@@ -50,5 +60,19 @@ router.get("/dogs/", validateJwt, getAllDogs);
 router.get("/dogs/:id", validateJwt, getDog);
 router.put("/dogs/:id", validateJwt, updateDog);
 router.delete("/dogs/:id", validateJwt, deleteDog);
+
+/************ PACKAGES ********* */
+router.post("/fcmPackages/", validateJwt, createFcmPackage);
+router.get("/fcmPackages/", validateJwt, getAllFcmPackages);
+router.get("/fcmPackages/:id", validateJwt, getFcmPackage);
+router.put("/fcmPackages/:id", validateJwt, updateFcmPackage);
+router.delete("/fcmPackages/:id", validateJwt, deleteFcmPackage);
+
+/************ TRANSFER ********* */
+router.post("/fcmTransfers/", validateJwt, createFcmTransfer);
+router.get("/fcmTransfers/", validateJwt, getAllFcmTransfers);
+router.get("/fcmTransfers/:id", validateJwt, getFcmTransfer);
+router.put("/fcmTransfers/:id", validateJwt, updateFcmTransfer);
+router.delete("/fcmTransfers/:id", validateJwt, deleteFcmTransfer);
 
 module.exports = router;
