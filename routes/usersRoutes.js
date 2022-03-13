@@ -21,6 +21,10 @@ const {
   linkFcmPartner,
   unlinkFcmPackage,
   linkFcmPackage,
+  unlinkDog,
+  linkDog,
+  unlinkFcmTransfer,
+  linkFcmTransfer,
 } = require("../controllers/userController");
 
 // GET ALL USERS
@@ -75,8 +79,20 @@ router.patch(
 );
 
 // DOGS
-router.patch("/:userId/dogs/unlink/:dogId", validateJwt, unlinkFcmPartner);
-router.patch("/:userId/dogs/link/:dogId", validateJwt, linkFcmPartner);
+router.patch("/:userId/dogs/unlink/:dogId", validateJwt, unlinkDog);
+router.patch("/:userId/dogs/link/:dogId", validateJwt, linkDog);
+
+// FCMTRANSFERS
+router.patch(
+  "/:userId/fcmTransfers/unlink/:fcmTransferId",
+  validateJwt,
+  unlinkFcmTransfer
+);
+router.patch(
+  "/:userId/fcmTransfers/link/:fcmTransferId",
+  validateJwt,
+  linkFcmTransfer
+);
 
 // PACKAGES
 router.patch(

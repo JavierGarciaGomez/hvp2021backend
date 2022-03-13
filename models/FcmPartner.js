@@ -66,8 +66,13 @@ const FcmPartnerSchema = Schema({
     type: String,
   },
 
+  // pending is first register
   isPending: {
     type: Boolean,
+  },
+  isCardLost: {
+    type: Boolean,
+    default: false,
   },
 
   creator: { type: Schema.Types.ObjectId, ref: "User" },

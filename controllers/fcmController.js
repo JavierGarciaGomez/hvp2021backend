@@ -12,6 +12,38 @@ const Dog = require("../models/Dog");
 const FcmTransfer = require("../models/FcmTransfer.js");
 const Package = require("../models/Package");
 
+/************ CRUD ALL********* */
+const getAllFcm = async (req, res = response) => {
+  try {
+    // get partners
+    let allFcmPartners = await FcmPartner.find().populate(
+      "creator",
+      "col_code"
+    );
+    let allDogs = await Dog.find().populate("creator", "col_code");
+    let allFcmTransfers = await FcmTransfer.find().populate(
+      "creator",
+      "col_code"
+    );
+    let allPackages = await Package.find().populate("creator", "col_code");
+
+    res.json({
+      ok: true,
+      msg: "generado",
+      allFcmPartners,
+      allDogs,
+      allFcmTransfers,
+      allPackages,
+    });
+  } catch (error) {
+    uncatchedError(error, res);
+  }
+
+  // get dogs
+  // get packages
+  // get transfers
+};
+
 // todo
 // create new fcmPartner
 const createFcmPartner = async (req, res = response) => {
@@ -177,7 +209,7 @@ const deleteFcmPartner = async (req, res = response) => {
   }
 };
 
-// DOGS
+/************ CRUD DOGS********* */
 const createDog = async (req, res = response) => {
   try {
     // check who is doing the register
@@ -310,7 +342,7 @@ const deleteDog = async (req, res = response) => {
   }
 };
 
-// FCMTRANSFERS
+/************ FCMTRANSFER ********* */
 const createFcmTransfer = async (req, res = response) => {
   try {
     // check who is doing the register
@@ -434,7 +466,7 @@ const deleteFcmTransfer = async (req, res = response) => {
   }
 };
 
-// PACKAGES
+/************ PACKAGES ********* */
 const createFcmPackage = async (req, res = response) => {
   try {
     // check who is doing the register
@@ -562,6 +594,7 @@ const deleteFcmPackage = async (req, res = response) => {
 };
 
 module.exports = {
+  getAllFcm,
   createFcmPartner,
   getAllFcmPartner,
   getFcmPartner,
