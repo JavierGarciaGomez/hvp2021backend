@@ -1,7 +1,7 @@
 // 339
 const { Schema, model } = require("mongoose");
 
-const PackageSchema = Schema({
+const FcmPackageSchema = Schema({
   steps: {
     type: String,
     required: true,
@@ -19,6 +19,9 @@ const PackageSchema = Schema({
   activeStep: {
     type: Number,
   },
+  medicalInspection: {
+    type: Object,
+  },
   skippedSteps: { type: Object },
   completedSteps: { type: Object },
   currentProps: { type: Object },
@@ -31,6 +34,7 @@ const PackageSchema = Schema({
   documentation: [{ type: Object }],
   status: { type: String },
   creator: { type: Schema.Types.ObjectId, ref: "User" },
+  applicationDate: { type: Date },
 });
 
-module.exports = model("Package", PackageSchema);
+module.exports = model("FcmPackage", FcmPackageSchema);

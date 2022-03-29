@@ -2,11 +2,12 @@ const { response } = require("express");
 const bcrypt = require("bcryptjs");
 const Collaborator = require("../models/Collaborator");
 const User = require("../models/User");
-const Dog = require("../models/Dog");
+
 const { generateJWT } = require("../helpers/jwt");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const { uncatchedError } = require("../helpers/const");
+const FcmDog = require("../models/FcmDog");
 
 const { roleTypes, authTypes } = require("../types/types");
 const {

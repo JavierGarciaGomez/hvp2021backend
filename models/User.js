@@ -39,8 +39,8 @@ const UserSchema = Schema({
     type: Date,
   },
   linkedFcmPartners: [{ type: Schema.Types.ObjectId, ref: "FcmPartner" }],
-  linkedDogs: [{ type: Schema.Types.ObjectId, ref: "Dog" }],
-  linkedFcmPackages: [{ type: Schema.Types.ObjectId, ref: "Package" }],
+  linkedDogs: [{ type: Schema.Types.ObjectId, ref: "FcmDog" }],
+  linkedFcmPackages: [{ type: Schema.Types.ObjectId, ref: "FcmPackage" }],
   linkedFcmTransfers: [{ type: Schema.Types.ObjectId, ref: "FcmTransfer" }],
 });
 

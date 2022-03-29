@@ -8,9 +8,10 @@ const passport = require("passport");
 const { uncatchedError } = require("../helpers/const");
 
 const FcmPartner = require("../models/FcmPartner");
-const Dog = require("../models/Dog");
+
 const FcmTransfer = require("../models/FcmTransfer.js");
-const Package = require("../models/Package");
+const FcmPackage = require("../models/FcmPackage");
+const FcmDog = require("../models/FcmDog");
 
 /************ CRUD ALL********* */
 const getAllFcm = async (req, res = response) => {
@@ -20,20 +21,24 @@ const getAllFcm = async (req, res = response) => {
       "creator",
       "col_code"
     );
-    let allDogs = await Dog.find().populate("creator", "col_code");
-    let allFcmTransfers = await FcmTransfer.find().populate(
+    let allFcmDogs = await FcmDog.find().populate("creator", "col_code");
+    let allFcmTransfers = await FcmTransfer.find()
+      .populate("newOwner")
+      .populate("dog");
+    let allFcmPackages = await FcmPackage.find().populate(
       "creator",
-      "col_code"
+      "col_code email"
     );
-    let allPackages = await Package.find().populate("creator", "col_code");
 
     res.json({
       ok: true,
       msg: "generado",
-      allFcmPartners,
-      allDogs,
-      allFcmTransfers,
-      allPackages,
+      allFcm: {
+        allFcmPartners,
+        allFcmDogs,
+        allFcmTransfers,
+        allFcmPackages,
+      },
     });
   } catch (error) {
     uncatchedError(error, res);
@@ -218,7 +223,7 @@ const createDog = async (req, res = response) => {
     const data = { ...req.body };
 
     const { registerNum } = data;
-    const foundObject = await Dog.findOne({ registerNum });
+    const foundObject = await FcmDog.findOne({ registerNum });
     if (foundObject) {
       return res.status(500).json({
         ok: false,
@@ -228,7 +233,7 @@ const createDog = async (req, res = response) => {
 
     data.creator = uid;
 
-    const dog = new Dog({ ...data });
+    const dog = new FcmDog({ ...data });
 
     const saved = await dog.save();
     // save it in the user dog
@@ -255,7 +260,7 @@ const createDog = async (req, res = response) => {
 // get all
 const getAllDogs = async (req, res = response) => {
   try {
-    let allDogs = await Dog.find().populate("creator", "col_code");
+    let allDogs = await FcmDog.find().populate("creator", "col_code");
 
     res.json({
       ok: true,
@@ -273,7 +278,7 @@ const getDog = async (req, res = response) => {
     const id = req.params.id;
     console.log("getfcm", id);
 
-    let dog = await Dog.findById(id);
+    let dog = await FcmDog.findById(id);
 
     res.json({
       ok: true,
@@ -292,7 +297,7 @@ const updateDog = async (req, res = response) => {
     const id = req.params.id;
 
     // get the original data
-    let dog = await Dog.findById(id);
+    let dog = await FcmDog.findById(id);
     if (!dog) {
       return res.status(404).json({
         ok: false,
@@ -304,7 +309,7 @@ const updateDog = async (req, res = response) => {
     const updateData = { ...req.body };
 
     // Save the update
-    const updatedData = await Dog.findByIdAndUpdate(id, updateData, {
+    const updatedData = await FcmDog.findByIdAndUpdate(id, updateData, {
       new: true,
     });
 
@@ -322,7 +327,7 @@ const deleteDog = async (req, res = response) => {
   try {
     // get the id
     const id = req.params.id;
-    let dog = await Dog.findById(id);
+    let dog = await FcmDog.findById(id);
 
     if (!dog) {
       return res.status(404).json({
@@ -331,7 +336,7 @@ const deleteDog = async (req, res = response) => {
       });
     }
 
-    await Dog.findByIdAndDelete(id);
+    await FcmDog.findByIdAndDelete(id);
 
     res.json({
       ok: true,
@@ -415,6 +420,8 @@ const updateFcmTransfer = async (req, res = response) => {
     // get the id
     const id = req.params.id;
 
+    console.log({ ...req.body });
+
     // get the original data
     let fcmTransfer = await FcmTransfer.findById(id);
     if (!fcmTransfer) {
@@ -476,7 +483,7 @@ const createFcmPackage = async (req, res = response) => {
 
     data.creator = uid;
 
-    const package = new Package({ ...data });
+    const package = new FcmPackage({ ...data });
 
     const saved = await package.save();
     // save it in the user package
@@ -506,7 +513,7 @@ const createFcmPackage = async (req, res = response) => {
 // get all
 const getAllFcmPackages = async (req, res = response) => {
   try {
-    let allPackages = await Package.find().populate("creator", "col_code");
+    let allPackages = await FcmPackage.find().populate("creator", "col_code");
 
     res.json({
       ok: true,
@@ -524,7 +531,7 @@ const getFcmPackage = async (req, res = response) => {
     const id = req.params.id;
     console.log("getfcm", id);
 
-    let data = await Package.findById(id);
+    let data = await FcmPackage.findById(id);
 
     res.json({
       ok: true,
@@ -540,10 +547,10 @@ const updateFcmPackage = async (req, res = response) => {
   try {
     // get the id
     const id = req.params.id;
-    console.lo;
+    console.log("este es el puto id", id);
 
     // get the original data
-    let package = await Package.findById(id);
+    let package = await FcmPackage.findById(id);
     if (!package) {
       return res.status(404).json({
         ok: false,
@@ -553,9 +560,11 @@ const updateFcmPackage = async (req, res = response) => {
 
     // get the new data and add the creator
     const updateData = { ...req.body };
+    updateData.creator = package.creator;
+    console.log("esta es la updateddata", updateData);
 
     // Save the update
-    const updatedData = await Package.findByIdAndUpdate(id, updateData, {
+    const updatedData = await FcmPackage.findByIdAndUpdate(id, updateData, {
       new: true,
     });
 
@@ -573,7 +582,7 @@ const deleteFcmPackage = async (req, res = response) => {
   try {
     // get the id
     const id = req.params.id;
-    let package = await Package.findById(id);
+    let package = await FcmPackage.findById(id);
 
     if (!package) {
       return res.status(404).json({
@@ -582,7 +591,7 @@ const deleteFcmPackage = async (req, res = response) => {
       });
     }
 
-    await Package.findByIdAndDelete(id);
+    await FcmPackage.findByIdAndDelete(id);
 
     res.json({
       ok: true,

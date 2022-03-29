@@ -1,7 +1,7 @@
 // 339
 const { Schema, model } = require("mongoose");
 
-const DogSchema = Schema({
+const FcmDogSchema = Schema({
   petName: {
     type: String,
     required: true,
@@ -32,11 +32,14 @@ const DogSchema = Schema({
   },
   urlFront: {
     type: String,
-    required: true,
   },
   urlBack: {
     type: String,
+  },
+  isRegisterPending: {
+    type: Boolean,
     required: true,
+    default: false,
   },
 
   isTransferPending: {
@@ -50,4 +53,4 @@ const DogSchema = Schema({
   creator: { type: Schema.Types.ObjectId, ref: "User" },
 });
 
-module.exports = model("Dog", DogSchema);
+module.exports = model("FcmDog", FcmDogSchema);

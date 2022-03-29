@@ -2,7 +2,7 @@
 const { Schema, model } = require("mongoose");
 
 const FcmTransferSchema = Schema({
-  previousOwner: {
+  prevOwner: {
     firstName: {
       type: String,
       required: true,
@@ -23,7 +23,7 @@ const FcmTransferSchema = Schema({
   },
 
   newOwner: { type: Schema.Types.ObjectId, ref: "FcmPartner" },
-  dog: { type: Schema.Types.ObjectId, ref: "Dog" },
+  dog: { type: Schema.Types.ObjectId, ref: "FcmDog" },
 
   creator: { type: Schema.Types.ObjectId, ref: "User" },
 });

@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 
 const validateJwt = (req, res = response, next) => {
   try {
-    console.log("validate jwt");
     // x-token headers
     const token = req.header("x-token");
     if (!token) {
@@ -21,7 +20,6 @@ const validateJwt = (req, res = response, next) => {
     req.col_code = col_code;
     req.role = role;
     req.imgUrl = imgUrl;
-    console.log("llegué al catch");
   } catch (error) {
     console.log("ERROR", error);
     return res.status(401).json({
