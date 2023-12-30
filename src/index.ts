@@ -1,4 +1,5 @@
 // importations
+import timeOffRequestsRoutes from "./routes/timeOffRequests";
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
@@ -18,6 +19,7 @@ const documentationRoutes = require("./routes/documentationRoutes");
 const userClientRoutes = require("./routes/userClientRoutes");
 const fcmRoutes = require("./routes/fcmRoutes");
 const usersRoutes = require("./routes/usersRoutes");
+
 const cookieSession = require("cookie-session");
 
 // Create express server
@@ -108,6 +110,7 @@ app.use("/api/documentation", documentationRoutes);
 app.use("/api/fcm", fcmRoutes);
 app.use("/api/userClient", userClientRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/time-off-requests", timeOffRequestsRoutes);
 
 app.listen(process.env.PORT || 4000, () => {
   console.log("Server running in port " + process.env.PORT);
