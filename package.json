@@ -17,18 +17,17 @@
     "passport": "^0.5.2",
     "passport-google-oauth20": "^2.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "yarn": "^1.22.21"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
     "start": "node index.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/JavierGarciaGomez/hvp2021backend.git"
-  },
+  "repository": "git+https://github.com/JavierGarciaGomez/hvp2021backend.git",
   "keywords": [],
-  "author": "",
+  "author": "Javier Garcia <javieron.garcia@gmail.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/JavierGarciaGomez/hvp2021backend/issues"
