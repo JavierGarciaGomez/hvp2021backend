@@ -21,7 +21,7 @@ const validateJwt = (req, res = response, next) => {
     req.role = role;
     req.imgUrl = imgUrl;
   } catch (error) {
-    console.log("ERROR", error);
+    console.log("ERROR", error.message);
     return res.status(401).json({
       ok: false,
       msg: "Token no válido",

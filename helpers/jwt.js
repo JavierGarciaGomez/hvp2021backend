@@ -9,7 +9,7 @@ const generateJWT = (uid, col_code, role, imgUrl) => {
       payload,
       process.env.SECRET_JWT_SEED,
       {
-        expiresIn: "24h",
+        expiresIn: "7d",
       },
       (err, token) => {
         if (err) {
