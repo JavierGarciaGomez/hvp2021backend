@@ -5,6 +5,7 @@ import mongoose, { ObjectId } from "mongoose";
 import CollaboratorModel from "../models/Collaborator";
 import { calculateVacations } from "../helpers/timeOffHelpers";
 
+// TODO complete all endpoints
 interface HandleRequestParams {
   req: RequestWithAuthCollaborator;
   res: Response;
@@ -125,6 +126,7 @@ export const deleteTimeOffRequest = async (
   res.status(200).json({ msg: "deleteTimeOffRequest" });
 };
 
+// TODO continue working on this endpoint
 export const getCollaboratorVacationsStatus = async (
   req: RequestWithAuthCollaborator,
   res: Response
