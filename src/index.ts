@@ -1,5 +1,5 @@
 // importations
-import timeOffRequestsRoutes from "./routes/timeOffRequests";
+import timeOffRequestsRoutes from "./routes/timeOffRequestsRoutes";
 require("dotenv").config();
 const express = require("express");
 const path = require("path");

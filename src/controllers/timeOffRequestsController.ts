@@ -3,7 +3,13 @@ import TimeOffRequestModel from "../models/TimeOffRequestModel";
 import { RequestWithAuthCollaborator } from "../types/RequestsAndResponses";
 import mongoose, { ObjectId } from "mongoose";
 import CollaboratorModel from "../models/Collaborator";
-import { calculateVacations } from "../helpers/timeOffHelpers";
+import {
+  calculateTotalVacationDays,
+  getApprovedVacations,
+  getNotRejectedTimeOffsByType,
+  getPendingVacations,
+} from "../helpers/timeOffHelpers";
+import { TimeOffType } from "../constants/AttendanceConstants";
 
 // TODO complete all endpoints
 interface HandleRequestParams {
@@ -127,23 +133,100 @@ export const deleteTimeOffRequest = async (
 };
 
 // TODO continue working on this endpoint
-export const getCollaboratorVacationsStatus = async (
+type CollaboratorVacations = {
+  totalVacationDays: number; // a) The number of vacation days the collaborator has a right to take
+  vacationsTaken: Date[]; // b) Vacations taken by the collaborator (an array of dates)
+  vacationsRequested: Date[]; // c) Vacations requested but not approved (an array of dates)
+  remainingVacationDays: number; // d) Number of vacation days left for the collaborator
+  partialPermissions: Date[];
+  simulatedAbsences: Date[];
+  sickLeavesIMSSUnpaid: Date[];
+  sickLeavesIMSSPaid: Date[];
+  sickLeavesJustifiedByCompany: Date[];
+  dayLeaves: Date[];
+};
+
+export const getCollaboratorTimeOffStatus = async (
   req: RequestWithAuthCollaborator,
   res: Response
 ) => {
   const collaboratorId = req.params.collaboratorId;
+  const endDateParam = req.body.endDate;
+  const endDate = endDateParam ? new Date(endDateParam) : new Date();
+
   const collaboratorTimeOffRequests = await TimeOffRequestModel.find({
     collaborator: req.params.collaboratorId,
   });
   const collaborator = await CollaboratorModel.findById(collaboratorId);
 
-  const vacations = calculateVacations(
+  // const vacations = calculateVacations(
+  //   collaborator?.startDate!,
+  //   collaboratorTimeOffRequests
+  // );
+
+  const totalVacationDays = calculateTotalVacationDays(
     collaborator?.startDate!,
+    endDate
+  );
+
+  const vacationsTaken: Date[] = getApprovedVacations(
     collaboratorTimeOffRequests
   );
 
+  const vacationsRequested: Date[] = getPendingVacations(
+    collaboratorTimeOffRequests
+  );
+
+  const partialPermissions: Date[] = getNotRejectedTimeOffsByType(
+    collaboratorTimeOffRequests,
+    TimeOffType.partialPermission
+  );
+
+  const simulatedAbsences: Date[] = getNotRejectedTimeOffsByType(
+    collaboratorTimeOffRequests,
+    TimeOffType.simulatedAbsence
+  );
+
+  const sickLeavesIMSSUnpaid: Date[] = getNotRejectedTimeOffsByType(
+    collaboratorTimeOffRequests,
+    TimeOffType.sickLeaveIMSSUnpaid
+  );
+
+  const sickLeavesIMSSPaid: Date[] = getNotRejectedTimeOffsByType(
+    collaboratorTimeOffRequests,
+    TimeOffType.sickLeaveIMSSPaid
+  );
+
+  const sickLeavesJustifiedByCompany: Date[] = getNotRejectedTimeOffsByType(
+    collaboratorTimeOffRequests,
+    TimeOffType.sickLeaveJustifiedByCompany
+  );
+
+  const dayLeaves: Date[] = getNotRejectedTimeOffsByType(
+    collaboratorTimeOffRequests,
+    TimeOffType.dayLeave
+  );
+
+  const remainingVacationDays =
+    totalVacationDays -
+    vacationsTaken.length -
+    vacationsRequested.length -
+    (collaborator?.vacationsTakenBefore2021 ?? 0);
+  const data: CollaboratorVacations = {
+    totalVacationDays,
+    vacationsTaken,
+    vacationsRequested: vacationsRequested,
+    remainingVacationDays,
+    partialPermissions,
+    simulatedAbsences,
+    sickLeavesIMSSUnpaid,
+    sickLeavesIMSSPaid,
+    sickLeavesJustifiedByCompany,
+    dayLeaves,
+  };
+
   res.status(200).json({
     msg: "getCollaboratorVacationsStatus",
-    data: { collaboratorTimeOffRequests, collaborator, vacations },
+    data,
   });
 };

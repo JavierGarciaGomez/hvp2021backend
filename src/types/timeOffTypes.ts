@@ -2,6 +2,7 @@ import { Document, Schema, model } from "mongoose";
 import { TimeOffStatus, TimeOffType } from "../constants/AttendanceConstants";
 
 export interface TimeOffRequest extends Document {
+  _id?: Schema.Types.ObjectId;
   approvalDate?: Date;
   collaborator: Schema.Types.ObjectId;
   createdAt: Date;

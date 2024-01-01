@@ -4,6 +4,7 @@ tokens.txt
 .env
 uploads/productos/**.*
 uploads/usuarios/**.*
+coverage/
 
 .env.development
 .env.production

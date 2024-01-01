@@ -8,45 +8,53 @@ import {
   updateTimeOffRequest,
   approveTimeOffRequest,
   deleteTimeOffRequest,
-  getCollaboratorVacationsStatus,
+  getCollaboratorTimeOffStatus,
 } from "../controllers/timeOffRequestsController";
+import isAuthorized from "../middlewares/isAuthorized";
+import { CollaboratorRole } from "../models/Collaborator";
 
 const { validateJwt } = require("../middlewares/validateJwt");
 const router = Router();
+router.use(validateJwt);
 
 // GET ALL
-router.get("/", validateJwt, getTimeOffRequests);
+router.get("/", getTimeOffRequests);
 
 // GET by collaborator
 router.get(
   "/collaborator/:collaboratorId",
-  validateJwt,
+
   getTimeOffRequestsByCollaborator
 );
 
 // GET by year
-router.get("/year/:year", validateJwt, getTimeOffRequestsByYear);
+router.get("/year/:year", getTimeOffRequestsByYear);
 
 // GET one by ID
-router.get("/:id", validateJwt, getTimeOffRequestById);
+router.get("/:id", getTimeOffRequestById);
 
 // GET collaborator vacation status
 router.get(
   "/collaborator/:collaboratorId/vacations-status",
-  validateJwt,
-  getCollaboratorVacationsStatus
+
+  getCollaboratorTimeOffStatus
 );
 
 // CREATE
-router.post("/", validateJwt, createTimeOffRequest);
+router.post("/", createTimeOffRequest);
 
 // UPDATE
-router.put("/:id", validateJwt, updateTimeOffRequest);
+router.put(
+  "/:id",
+
+  isAuthorized([CollaboratorRole.admin]),
+  updateTimeOffRequest
+);
 
 // APPROVE
-router.patch("/:id/approve", validateJwt, approveTimeOffRequest);
+router.patch("/:id/approve", approveTimeOffRequest);
 
 // DELETE
-router.delete("/:id", validateJwt, deleteTimeOffRequest);
+router.delete("/:id", deleteTimeOffRequest);
 
 export default router;

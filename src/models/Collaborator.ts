@@ -2,7 +2,7 @@
 import { Schema, model, Document } from "mongoose";
 const { roles } = require("../types/types");
 
-enum CollaboratorRoles {
+export enum CollaboratorRole {
   admin = "Administrador",
   manager = "Gerente",
   collaborator = "Colaborador",
@@ -10,10 +10,10 @@ enum CollaboratorRoles {
   guest = "Invitado",
 }
 
-interface Collaborator extends Document {
+export interface Collaborator extends Document {
   first_name: string;
   last_name: string;
-  role: CollaboratorRoles; // You might want to use Roles enum here
+  role: CollaboratorRole;
   col_code: string;
   col_numId?: number;
   isActive: boolean;
@@ -31,7 +31,8 @@ interface Collaborator extends Document {
   // VacationDays
   startDate?: Date;
   endDate?: Date;
-  remainingVacationsAtDecember2020?: number;
+  vacationsTakenBefore2021?: number;
+  createdBy: Schema.Types.ObjectId;
 }
 
 const CollaboratorSchema = new Schema<Collaborator>({
@@ -104,8 +105,12 @@ const CollaboratorSchema = new Schema<Collaborator>({
   endDate: {
     type: Date,
   },
-  remainingVacationsAtDecember2020: {
+  vacationsTakenBefore2021: {
     type: Number,
+  },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: "Collaborator",
   },
 });
 

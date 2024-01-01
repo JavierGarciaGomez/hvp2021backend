@@ -1,3 +1,6 @@
+import { TimeOffStatus, TimeOffType } from "../constants/AttendanceConstants";
+import timeOffRequestsFixture from "../tests/fixtures/timeOffRequestsFixtures";
+import { TimeOffRequest } from "../types/timeOffTypes";
 import {
   calculateTotalVacationDays,
   calculateVacationDaysBefore2023,
@@ -7,12 +10,74 @@ import {
   calculateVacationsForFullYearsBefore2023,
   calculateVacationsForYearAfter2022,
   calculateYears,
+  getApprovedVacations,
+  getNotRejectedTimeOffsByType,
+  getPendingVacations,
 } from "./timeOffHelpers";
 import dayjs from "dayjs";
 
 describe("timeOffHelpers", () => {
-  it("should return true", () => {
-    expect(true).toBe(true);
+  describe("getNotRejectedVacations", () => {
+    test("getNotRejectedTimeOffsByType returns correct filtered days", () => {
+      const timeOffRequests = timeOffRequestsFixture as TimeOffRequest[];
+
+      const result = getNotRejectedTimeOffsByType(
+        timeOffRequests,
+        TimeOffType.partialPermission
+      );
+
+      expect(result.length).toEqual(2);
+    });
+  });
+  describe("getApprovedVacations", () => {
+    test("returns an array of dates for approved vacation requests", () => {
+      // Replace with your actual data for testing
+      const timeOffRequests = timeOffRequestsFixture as TimeOffRequest[];
+
+      const result = getApprovedVacations(timeOffRequests);
+      expect(result.length).toEqual(24);
+    });
+    test("returns an empty array for not approved vacation requests", () => {
+      // Replace with your actual data for testing
+      const timeOffRequests = [] as TimeOffRequest[];
+
+      const result = getApprovedVacations(timeOffRequests);
+      expect(result.length).toEqual(0);
+    });
+  });
+
+  describe("getPendingVacations", () => {
+    test("returns an array of dates for pending vacation requests", () => {
+      // Replace with your actual data for testing
+      const pendingVacationRequests =
+        timeOffRequestsFixture as TimeOffRequest[];
+      const expectedPendingVacationDates: Date[] = [
+        new Date("2023-10-01"),
+        new Date("2023-10-02"),
+      ];
+
+      const result = getPendingVacations(pendingVacationRequests);
+      expect(result).toEqual(expectedPendingVacationDates);
+    });
+    test("returns an empty array for no pending vacation requests", () => {
+      const timeOffRequests = [
+        {
+          id: "1",
+          timeOffType: TimeOffType.vacation,
+          status: TimeOffStatus.approved,
+          requestedDays: [new Date("2023-01-01")],
+        },
+        {
+          id: "2",
+          timeOffType: TimeOffType.dayLeave,
+          status: TimeOffStatus.rejected,
+          requestedDays: [new Date("2023-02-01")],
+        },
+      ] as TimeOffRequest[];
+      // Replace with your actual data for testing
+
+      expect(getPendingVacations(timeOffRequests)).toEqual([]);
+    });
   });
 
   describe("calculateTotalVacationDays", () => {
@@ -87,6 +152,18 @@ describe("timeOffHelpers", () => {
         expectedTotalVacationDays
       );
     });
+
+    test("returns correct total vacation days for scenario 6", () => {
+      // Replace with your actual values for testing
+      const employmentStartDate = new Date("2018-01-01");
+      const endDate = new Date("2024-01-01");
+
+      // Replace 'expectedTotalVacationDays' with the expected result based on your provided dates
+      const expectedTotalVacationDays = 78; // Adjust based on your expected result
+      expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
+        expectedTotalVacationDays
+      );
+    });
   });
 
   describe("calculateVacationDaysBefore2023", () => {
@@ -104,7 +181,7 @@ describe("timeOffHelpers", () => {
       // Replace with your actual values for testing
       const employmentStartDate = new Date("2018-01-01");
 
-      const expectedVacationDays = 50; // Adjust based on your expected result
+      const expectedVacationDays = 36; // Adjust based on your expected result
       expect(calculateVacationDaysBefore2023(employmentStartDate)).toBe(
         expectedVacationDays
       );

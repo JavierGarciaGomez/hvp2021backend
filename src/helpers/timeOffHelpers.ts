@@ -34,47 +34,84 @@ A partir del sexto año, el periodo de vacaciones aumentará en dos días por ca
 15th year 24
 16th year 26
 */
-export const calculateVacations = (
-  startDate: Date,
+
+// TODO create tests for this function
+export const getNotRejectedTimeOffsByType = (
   timeOffRequests: TimeOffRequest[],
-  remainingVacationsAtDecember2020 = 0
+  timeOffType: TimeOffType
 ) => {
+  const filteredTimeOffs = timeOffRequests.filter(
+    (timeOffRequest) =>
+      timeOffRequest.timeOffType === timeOffType &&
+      (timeOffRequest.status === TimeOffStatus.approved ||
+        timeOffRequest.status === TimeOffStatus.pending)
+  );
+
+  const filteredDays: Date[] = [];
+  filteredTimeOffs.forEach((vacations) => {
+    vacations.requestedDays.forEach((day) => {
+      filteredDays.push(day);
+    });
+  });
+
+  return filteredDays;
+};
+
+export const getApprovedVacations = (timeOffRequests: TimeOffRequest[]) => {
   //get vacations taken
-  const vacationsApproved = timeOffRequests.filter(
+  const timeOffVacationsRequestsApproved = timeOffRequests.filter(
     (timeOffRequest) =>
       timeOffRequest.timeOffType === TimeOffType.vacation &&
       timeOffRequest.status === TimeOffStatus.approved
   );
 
-  // const vacs = calculateVacationsRightForAGivenPeriod(startDate);
-
-  const vacationsDays: Date[] = [];
-  vacationsApproved.forEach((vacations) => {
+  const vacationsDaysApproved: Date[] = [];
+  timeOffVacationsRequestsApproved.forEach((vacations) => {
     vacations.requestedDays.forEach((day) => {
-      vacationsDays.push(day);
+      vacationsDaysApproved.push(day);
     });
   });
 
-  // Vacations time
+  return vacationsDaysApproved;
+};
+
+export const getPendingVacations = (timeOffRequests: TimeOffRequest[]) => {
+  //get vacations taken
+  const filteredTimeOffVacations = timeOffRequests.filter(
+    (timeOffRequest) =>
+      timeOffRequest.timeOffType === TimeOffType.vacation &&
+      timeOffRequest.status === TimeOffStatus.pending
+  );
+
+  const filteredDates: Date[] = [];
+  filteredTimeOffVacations.forEach((vacations) => {
+    vacations.requestedDays.forEach((day) => {
+      filteredDates.push(day);
+    });
+  });
+
+  return filteredDates;
 };
 
 export const calculateTotalVacationDays = (
   employmentStartDate: Date,
   endDate = new Date()
 ): number => {
-  const vacationsBefore2023 =
-    calculateVacationDaysBefore2023(employmentStartDate);
+  const vacationsBefore2023 = calculateVacationDaysBefore2023(
+    employmentStartDate,
+    endDate
+  );
   const vacationsAfter2022 = calculateVacationsAfter2022(
     employmentStartDate,
     endDate
   );
 
-  console.log({ vacationsBefore2023, vacationsAfter2022 });
   return vacationsBefore2023 + vacationsAfter2022;
 };
 
 export const calculateVacationDaysBefore2023 = (
-  employmentStartDate: Date
+  employmentStartDate: Date,
+  endDate = new Date()
 ): number => {
   const isStartDateBefore2023 = dayjs(employmentStartDate).isAfter(
     dayjs("2022-12-31")
@@ -84,8 +121,10 @@ export const calculateVacationDaysBefore2023 = (
     return 0;
   }
 
+  const itEndsAtDec2022 = dayjs(endDate).isSame(dayjs("2022-12-31"), "day");
+
   const workedYears = Math.floor(
-    calculateYears(employmentStartDate, new Date("2022-12-31"))
+    calculateYears(employmentStartDate, new Date("2022-12-31"), itEndsAtDec2022)
   );
   return calculateVacationsForFullYearsBefore2023(workedYears);
 };
@@ -176,11 +215,6 @@ export const calculateVacationsAfter2022 = (
     calculateVacationsForYearAfter2022(totalWorkedYears + 1) *
       remainingOfTheLastYear
   );
-
-  console.log({
-    vacationsForFullYearsAfter2022,
-    vacationsForPartialYearAfter2022,
-  });
 
   return vacationsForFullYearsAfter2022 + vacationsForPartialYearAfter2022;
 };
