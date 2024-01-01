@@ -1,6 +1,9 @@
+import { RequestWithAuthCollaborator } from "../types/RequestsAndResponses";
+import Collaborator from "../models/Collaborator";
+import { Request, Response } from "express";
 const { response } = require("express");
 const bcrypt = require("bcryptjs");
-const Collaborator = require("../models/Collaborator");
+
 // const Usuario = require("../models/Usuario");
 const { generateJWT } = require("../helpers/jwt");
 const { body } = require("express-validator");
@@ -12,7 +15,7 @@ const {
 } = require("../helpers/utilities");
 
 // todo: Delete. Now the login is equal for colls and user
-const collaboratorLogin = async (req, res = response) => {
+export const collaboratorLogin = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
@@ -36,19 +39,19 @@ const collaboratorLogin = async (req, res = response) => {
 
     // Generar JWT
     const token = await generateJWT(
-      collaborator._id,
-      collaborator.col_code,
-      collaborator.role,
-      collaborator.imgUrl
+      collaborator!._id,
+      collaborator!.col_code,
+      collaborator!.role,
+      collaborator!.imgUrl
     );
 
     res.json({
       ok: true,
-      uid: collaborator.id,
+      uid: collaborator!.id,
       token,
-      col_code: collaborator.col_code,
-      role: collaborator.role,
-      imgUrl: collaborator.imgUrl,
+      col_code: collaborator!.col_code,
+      role: collaborator!.role,
+      imgUrl: collaborator!.imgUrl,
     });
   } catch (error) {
     console.log(error);
@@ -59,9 +62,12 @@ const collaboratorLogin = async (req, res = response) => {
   }
 };
 
-const getCollaborators = async (req, res = response) => {
+export const getCollaborators = async (
+  req: RequestWithAuthCollaborator,
+  res: Response
+) => {
   try {
-    const { role } = req;
+    const { role } = req.authenticatedCollaborator ?? {};
     const isAuthorized = isAuthorizedByRole(role, roleTypes.collaborator);
     if (!isAuthorized) {
       return res.json({
@@ -75,16 +81,19 @@ const getCollaborators = async (req, res = response) => {
       msg: "getCollaborators",
       collaborators,
     });
-  } catch {
+  } catch (error) {
+    console.error("Error:", error);
     res.status(500).json({
-      ok: "false",
-      msg: "Por favor, hable con el administrador",
-      error,
+      msg: "Internal Server Error",
+      statusCode: 500,
+      error:
+        (error as Error).message ||
+        `An error occurred while fetching getCollaborators}.`,
     });
   }
 };
 
-const getCollaboratorsForWeb = async (req, res = response) => {
+export const getCollaboratorsForWeb = async (req: Request, res: Response) => {
   try {
     const collaborators = await Collaborator.find(
       { isDisplayedWeb: true },
@@ -112,11 +121,14 @@ const getCollaboratorsForWeb = async (req, res = response) => {
   }
 };
 
-const createCollaborator = async (req, res = response) => {
+export const createCollaborator = async (
+  req: RequestWithAuthCollaborator,
+  res: Response
+) => {
   try {
     const { col_code } = req.body;
     // get the uid of the creator
-    const { role } = req;
+    const { role } = req.authenticatedCollaborator ?? {};
     // check if the collaborator code is not used before
 
     let usedColCode = await Collaborator.findOne({ col_code });
@@ -128,7 +140,7 @@ const createCollaborator = async (req, res = response) => {
       });
     }
 
-    collaborator = new Collaborator(req.body);
+    const collaborator = new Collaborator(req.body);
 
     // check if is trying to create admin or manager
     if (
@@ -157,7 +169,7 @@ const createCollaborator = async (req, res = response) => {
 };
 
 // Register collaborator by user
-const registerCollaborator = async (req, res = response) => {
+export const registerCollaborator = async (req: Request, res: Response) => {
   const { col_code, email, accessCode, password } = req.body;
 
   try {
@@ -197,14 +209,12 @@ const registerCollaborator = async (req, res = response) => {
     const salt = bcrypt.genSaltSync();
     const cryptedPassword = bcrypt.hashSync(password, salt);
 
+    collaborator.password = cryptedPassword;
+    collaborator.email = email;
+    collaborator.isRegistered = true;
+
     let collaboratorId = collaborator.id;
 
-    collaborator = {
-      ...collaborator.toJSON(),
-      password: cryptedPassword,
-      email,
-      isRegistered: true,
-    };
     const updatedCollaborator = await Collaborator.findByIdAndUpdate(
       collaborator._id,
       collaborator,
@@ -214,9 +224,9 @@ const registerCollaborator = async (req, res = response) => {
     // JWT
     const token = await generateJWT(
       collaboratorId,
-      updatedCollaborator.col_code,
-      updatedCollaborator.role,
-      updatedCollaborator.imgUrl
+      updatedCollaborator!.col_code,
+      updatedCollaborator!.role,
+      updatedCollaborator!.imgUrl
     );
 
     res.status(201).json({
@@ -230,7 +240,7 @@ const registerCollaborator = async (req, res = response) => {
   }
 };
 
-const getCollaboratorById = async (req, res = response) => {
+export const getCollaboratorById = async (req: Request, res: Response) => {
   const id = req.params.collaboratorId;
   try {
     // check if the collaborator code is not used before
@@ -253,12 +263,15 @@ const getCollaboratorById = async (req, res = response) => {
   }
 };
 
-const updateCollaborator = async (req, res = response) => {
+export const updateCollaborator = async (
+  req: RequestWithAuthCollaborator,
+  res: Response
+) => {
   // const uid = req.uid;
 
   try {
     const collaboratorId = req.params.collaboratorId;
-    const { role, uid } = req;
+    const { role, uid } = req.authenticatedCollaborator ?? {};
     const collaborator = await Collaborator.findById(collaboratorId);
 
     if (!collaborator) {
@@ -302,19 +315,24 @@ const updateCollaborator = async (req, res = response) => {
       collaborator: updatedCollaborator,
     });
   } catch (error) {
-    console.log(error);
+    console.error("Error:", error);
     res.status(500).json({
-      ok: false,
-      msg: "Hable con el administrador",
-      error: error.msg,
+      msg: "Internal Server Error",
+      statusCode: 500,
+      error:
+        (error as Error).message ||
+        `An error occurred while fetching getCollaborators}.`,
     });
   }
 };
 
-const deleteCollaborator = async (req, res = response) => {
+export const deleteCollaborator = async (
+  req: RequestWithAuthCollaborator,
+  res: Response
+) => {
   const collaboratorId = req.params.collaboratorId;
   try {
-    const { role } = req;
+    const { role } = req.authenticatedCollaborator ?? {};
     const isAuthorized = isAuthorizedByRole(role, roleTypes.admin);
     if (!isAuthorized) {
       return res.json({
@@ -334,16 +352,4 @@ const deleteCollaborator = async (req, res = response) => {
       msg: "Hable con el administrador",
     });
   }
-};
-
-module.exports = {
-  collaboratorLogin,
-
-  createCollaborator,
-  getCollaborators,
-  getCollaboratorById,
-  updateCollaborator,
-  registerCollaborator,
-  getCollaboratorsForWeb,
-  deleteCollaborator,
 };
