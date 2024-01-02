@@ -9,36 +9,37 @@ import {
   getNotRejectedTimeOffsByType,
   getPendingVacations,
 } from "../helpers/timeOffHelpers";
-import { TimeOffType } from "../constants/AttendanceConstants";
+import { TimeOffStatus, TimeOffType } from "../constants/AttendanceConstants";
+import throwErrorResponse from "../helpers/throwErrorResponse";
+import { TimeOffRequest } from "../types/timeOffTypes";
 
 // TODO complete all endpoints
 interface HandleRequestParams {
   req: RequestWithAuthCollaborator;
   res: Response;
   query: any;
-  successMessage: string;
+  operation: string;
 }
 const handleRequest = async ({
   req,
   res,
   query,
-  successMessage,
+  operation,
 }: HandleRequestParams) => {
   try {
     const timeOffRequests = await TimeOffRequestModel.find(query);
     res.status(200).json({
-      msg: successMessage,
+      msg: operation,
       statusCode: 200,
       data: timeOffRequests,
+      operation,
     });
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({
-      msg: "Internal Server Error",
+    throwErrorResponse({
+      res,
       statusCode: 500,
-      error:
-        (error as Error).message ||
-        `An error occurred while fetching ${successMessage.toLowerCase()}.`,
+      operation,
+      error: error as Error,
     });
   }
 };
@@ -51,7 +52,7 @@ export const getTimeOffRequests = async (
     req,
     res,
     query: {},
-    successMessage: "getTimeOffRequests",
+    operation: "getTimeOffRequests",
   });
 };
 
@@ -64,7 +65,7 @@ export const getTimeOffRequestsByCollaborator = async (
     req,
     res,
     query: { collaborator: collaboratorId },
-    successMessage: "getTimeOffRequestsByCollaborator",
+    operation: "getTimeOffRequestsByCollaborator",
   });
 };
 
@@ -82,7 +83,7 @@ export const getTimeOffRequestsByYear = async (
         $lte: new Date(`${year}-12-31`),
       },
     },
-    successMessage: "getTimeOffRequestsByYear",
+    operation: "getTimeOffRequestsByYear",
   });
 };
 
@@ -90,46 +91,210 @@ export const getTimeOffRequestById = async (
   req: RequestWithAuthCollaborator,
   res: Response
 ) => {
-  res.status(200).json({ msg: "getTimeOffRequestById" });
+  const operationId = "getTimeOffRequestById";
+  try {
+    const id = req.params.id;
+    const timeOffRequest = await TimeOffRequestModel.findById(id);
+    if (!timeOffRequest) {
+      throwErrorResponse({
+        res,
+        statusCode: 404,
+        operation: operationId,
+        error: new Error("Resource not found"),
+      });
+      return;
+    }
+    res.status(200).json({
+      msg: operationId,
+      statusCode: 200,
+      data: timeOffRequest,
+      operation: operationId,
+    });
+  } catch (error) {
+    throwErrorResponse({
+      res,
+      statusCode: 500,
+      operation: operationId,
+      error: error as Error,
+    });
+  }
 };
 
 export const createTimeOffRequest = async (
   req: RequestWithAuthCollaborator,
   res: Response
 ) => {
-  const { authenticatedCollaborator } = req;
-  console.log({ authenticatedCollaborator });
-  const { uid } = authenticatedCollaborator!;
-  const { body } = req;
-  const timeOffRequest = new TimeOffRequestModel({
-    ...body,
-    createdBy: uid as unknown as ObjectId,
-    updatedBy: uid as unknown as ObjectId,
-  });
+  const operationId = "createTimeOffRequest";
+  try {
+    const { authenticatedCollaborator } = req;
+    console.log({ authenticatedCollaborator });
+    const { uid } = authenticatedCollaborator!;
+    const { body } = req;
+    const timeOffRequest = new TimeOffRequestModel({
+      ...body,
+      createdBy: uid as unknown as ObjectId,
+      updatedBy: uid as unknown as ObjectId,
+    });
 
-  await timeOffRequest.save();
-  res.status(200).json({ msg: "createTimeOffRequest", timeOffRequest });
+    const savedTimeOffRequest = await timeOffRequest.save();
+    res.status(200).json({
+      msg: operationId,
+      statusCode: 200,
+      data: savedTimeOffRequest,
+      operation: operationId,
+    });
+  } catch (error) {
+    throwErrorResponse({
+      res,
+      statusCode: 500,
+      operation: operationId,
+      error: error as Error,
+    });
+  }
 };
 
 export const updateTimeOffRequest = async (
   req: RequestWithAuthCollaborator,
   res: Response
 ) => {
-  res.status(200).json({ msg: "updateTimeOffRequest" });
+  const operationId = "updateTimeOffRequest";
+  try {
+    const id = req.params.id;
+    const { role, uid } = req.authenticatedCollaborator!;
+    const updateData = req.body as TimeOffRequest;
+
+    const timeOffRequest = await TimeOffRequestModel.findById(id);
+    if (!timeOffRequest) {
+      throwErrorResponse({
+        res,
+        statusCode: 404,
+        operation: operationId,
+        error: new Error("Resource not found"),
+      });
+      return;
+    }
+
+    updateData.updatedBy = uid as unknown as ObjectId;
+    updateData.updatedAt = new Date();
+    const updatedResource = await TimeOffRequestModel.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true }
+    );
+    res.status(200).json({
+      msg: operationId,
+      statusCode: 200,
+      data: updatedResource,
+      operation: operationId,
+    });
+  } catch (error) {
+    throwErrorResponse({
+      res,
+      statusCode: 500,
+      operation: operationId,
+      error: error as Error,
+    });
+  }
 };
 
 export const approveTimeOffRequest = async (
   req: RequestWithAuthCollaborator,
   res: Response
 ) => {
-  res.status(200).json({ msg: "approveTimeOffRequest" });
+  const operationId = "approveTimeOffRequest";
+  try {
+    const id = req.params.id;
+    const { uid } = req.authenticatedCollaborator!;
+    const updateData = req.body as TimeOffRequest;
+
+    const timeOffRequest = await TimeOffRequestModel.findById(id);
+    if (!timeOffRequest) {
+      throwErrorResponse({
+        res,
+        statusCode: 404,
+        operation: operationId,
+        error: new Error("Resource not found"),
+      });
+      return;
+    }
+
+    // Update only the status field to "sent"
+    const updatedResource = await TimeOffRequestModel.findByIdAndUpdate(
+      id,
+      {
+        status: updateData.status,
+        updatedBy: uid as unknown as ObjectId,
+        updatedAt: new Date(),
+      },
+      { new: true }
+    );
+
+    res.status(200).json({
+      msg: operationId,
+      statusCode: 200,
+      data: updatedResource,
+      operation: operationId,
+    });
+  } catch (error) {
+    throwErrorResponse({
+      res,
+      statusCode: 500,
+      operation: operationId,
+      error: error as Error,
+    });
+  }
 };
 
 export const deleteTimeOffRequest = async (
   req: RequestWithAuthCollaborator,
   res: Response
 ) => {
-  res.status(200).json({ msg: "deleteTimeOffRequest" });
+  const operationId = "deleteTimeOffRequest";
+  try {
+    const id = req.params.id;
+
+    const timeOffRequest = await TimeOffRequestModel.findById(id);
+    if (!timeOffRequest) {
+      throwErrorResponse({
+        res,
+        statusCode: 404,
+        operation: operationId,
+        error: new Error("Resource not found"),
+      });
+      return;
+    }
+
+    if (
+      timeOffRequest.status === TimeOffStatus.approved ||
+      timeOffRequest.status === TimeOffStatus.rejected
+    ) {
+      throwErrorResponse({
+        res,
+        statusCode: 400,
+        operation: operationId,
+        error: new Error(
+          "Cannot delete approved or rejected time off requests"
+        ),
+      });
+      return;
+    }
+
+    await TimeOffRequestModel.findByIdAndDelete(id);
+
+    res.status(200).json({
+      msg: operationId,
+      statusCode: 200,
+      data: { id },
+      operation: operationId,
+    });
+  } catch (error) {
+    throwErrorResponse({
+      res,
+      statusCode: 500,
+      operation: operationId,
+      error: error as Error,
+    });
+  }
 };
 
 // TODO continue working on this endpoint
@@ -150,83 +315,88 @@ export const getCollaboratorTimeOffStatus = async (
   req: RequestWithAuthCollaborator,
   res: Response
 ) => {
-  const collaboratorId = req.params.collaboratorId;
-  const endDateParam = req.body.endDate;
-  const endDate = endDateParam ? new Date(endDateParam) : new Date();
+  try {
+    const collaboratorId = req.params.collaboratorId;
+    const endDateParam = req.body.endDate;
+    const endDate = endDateParam ? new Date(endDateParam) : new Date();
 
-  const collaboratorTimeOffRequests = await TimeOffRequestModel.find({
-    collaborator: req.params.collaboratorId,
-  });
-  const collaborator = await CollaboratorModel.findById(collaboratorId);
+    const collaboratorTimeOffRequests = await TimeOffRequestModel.find({
+      collaborator: req.params.collaboratorId,
+    });
+    const collaborator = await CollaboratorModel.findById(collaboratorId);
 
-  // const vacations = calculateVacations(
-  //   collaborator?.startDate!,
-  //   collaboratorTimeOffRequests
-  // );
+    const totalVacationDays = calculateTotalVacationDays(
+      collaborator?.startDate!,
+      endDate
+    );
 
-  const totalVacationDays = calculateTotalVacationDays(
-    collaborator?.startDate!,
-    endDate
-  );
+    const vacationsTaken: Date[] = getApprovedVacations(
+      collaboratorTimeOffRequests
+    );
 
-  const vacationsTaken: Date[] = getApprovedVacations(
-    collaboratorTimeOffRequests
-  );
+    const vacationsRequested: Date[] = getPendingVacations(
+      collaboratorTimeOffRequests
+    );
 
-  const vacationsRequested: Date[] = getPendingVacations(
-    collaboratorTimeOffRequests
-  );
+    const partialPermissions: Date[] = getNotRejectedTimeOffsByType(
+      collaboratorTimeOffRequests,
+      TimeOffType.partialPermission
+    );
 
-  const partialPermissions: Date[] = getNotRejectedTimeOffsByType(
-    collaboratorTimeOffRequests,
-    TimeOffType.partialPermission
-  );
+    const simulatedAbsences: Date[] = getNotRejectedTimeOffsByType(
+      collaboratorTimeOffRequests,
+      TimeOffType.simulatedAbsence
+    );
 
-  const simulatedAbsences: Date[] = getNotRejectedTimeOffsByType(
-    collaboratorTimeOffRequests,
-    TimeOffType.simulatedAbsence
-  );
+    const sickLeavesIMSSUnpaid: Date[] = getNotRejectedTimeOffsByType(
+      collaboratorTimeOffRequests,
+      TimeOffType.sickLeaveIMSSUnpaid
+    );
 
-  const sickLeavesIMSSUnpaid: Date[] = getNotRejectedTimeOffsByType(
-    collaboratorTimeOffRequests,
-    TimeOffType.sickLeaveIMSSUnpaid
-  );
+    const sickLeavesIMSSPaid: Date[] = getNotRejectedTimeOffsByType(
+      collaboratorTimeOffRequests,
+      TimeOffType.sickLeaveIMSSPaid
+    );
 
-  const sickLeavesIMSSPaid: Date[] = getNotRejectedTimeOffsByType(
-    collaboratorTimeOffRequests,
-    TimeOffType.sickLeaveIMSSPaid
-  );
+    const sickLeavesJustifiedByCompany: Date[] = getNotRejectedTimeOffsByType(
+      collaboratorTimeOffRequests,
+      TimeOffType.sickLeaveJustifiedByCompany
+    );
 
-  const sickLeavesJustifiedByCompany: Date[] = getNotRejectedTimeOffsByType(
-    collaboratorTimeOffRequests,
-    TimeOffType.sickLeaveJustifiedByCompany
-  );
+    const dayLeaves: Date[] = getNotRejectedTimeOffsByType(
+      collaboratorTimeOffRequests,
+      TimeOffType.dayLeave
+    );
 
-  const dayLeaves: Date[] = getNotRejectedTimeOffsByType(
-    collaboratorTimeOffRequests,
-    TimeOffType.dayLeave
-  );
+    const remainingVacationDays =
+      totalVacationDays -
+      vacationsTaken.length -
+      vacationsRequested.length -
+      (collaborator?.vacationsTakenBefore2021 ?? 0);
+    const data: CollaboratorVacations = {
+      totalVacationDays,
+      vacationsTaken,
+      vacationsRequested: vacationsRequested,
+      remainingVacationDays,
+      partialPermissions,
+      simulatedAbsences,
+      sickLeavesIMSSUnpaid,
+      sickLeavesIMSSPaid,
+      sickLeavesJustifiedByCompany,
+      dayLeaves,
+    };
 
-  const remainingVacationDays =
-    totalVacationDays -
-    vacationsTaken.length -
-    vacationsRequested.length -
-    (collaborator?.vacationsTakenBefore2021 ?? 0);
-  const data: CollaboratorVacations = {
-    totalVacationDays,
-    vacationsTaken,
-    vacationsRequested: vacationsRequested,
-    remainingVacationDays,
-    partialPermissions,
-    simulatedAbsences,
-    sickLeavesIMSSUnpaid,
-    sickLeavesIMSSPaid,
-    sickLeavesJustifiedByCompany,
-    dayLeaves,
-  };
-
-  res.status(200).json({
-    msg: "getCollaboratorVacationsStatus",
-    data,
-  });
+    res.status(200).json({
+      msg: "getCollaboratorVacationsStatus",
+      statusCode: 200,
+      data,
+    });
+  } catch (error) {
+    throwErrorResponse({
+      res,
+      statusCode: 500,
+      operation: "getCollaboratorVacationsStatus",
+      error: error as Error,
+    });
+  }
 };

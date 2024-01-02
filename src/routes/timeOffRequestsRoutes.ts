@@ -21,11 +21,7 @@ router.use(validateJwt);
 router.get("/", getTimeOffRequests);
 
 // GET by collaborator
-router.get(
-  "/collaborator/:collaboratorId",
-
-  getTimeOffRequestsByCollaborator
-);
+router.get("/collaborator/:collaboratorId", getTimeOffRequestsByCollaborator);
 
 // GET by year
 router.get("/year/:year", getTimeOffRequestsByYear);
@@ -36,7 +32,6 @@ router.get("/:id", getTimeOffRequestById);
 // GET collaborator vacation status
 router.get(
   "/collaborator/:collaboratorId/vacations-status",
-
   getCollaboratorTimeOffStatus
 );
 
@@ -46,15 +41,22 @@ router.post("/", createTimeOffRequest);
 // UPDATE
 router.put(
   "/:id",
-
-  isAuthorized([CollaboratorRole.admin]),
+  isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager], true),
   updateTimeOffRequest
 );
 
 // APPROVE
-router.patch("/:id/approve", approveTimeOffRequest);
+router.patch(
+  "/:id/approve",
+  isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager]),
+  approveTimeOffRequest
+);
 
 // DELETE
-router.delete("/:id", deleteTimeOffRequest);
+router.delete(
+  "/:id",
+  isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager], true),
+  deleteTimeOffRequest
+);
 
 export default router;

@@ -1,4 +1,5 @@
 // importations
+import { NextFunction, Request } from "express";
 import timeOffRequestsRoutes from "./routes/timeOffRequestsRoutes";
 require("dotenv").config();
 const express = require("express");
@@ -33,6 +34,12 @@ app.use(
     maxAge: 24 * 60 * 60 * 100,
   })
 );
+
+// My middleware to console log
+app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log(`Requested path: ${req.path}`);
+  next();
+});
 
 // dbConnection
 dbConnection();

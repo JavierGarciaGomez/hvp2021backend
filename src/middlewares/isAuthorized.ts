@@ -1,16 +1,10 @@
-import { Model } from "mongoose";
 import { RequestWithAuthCollaborator } from "../types/RequestsAndResponses";
-import { Request, Response, NextFunction } from "express";
-import CollaboratorModel, {
-  Collaborator,
-  CollaboratorRole,
-} from "../models/Collaborator";
-import TimeOffRequestModel from "../models/TimeOffRequestModel";
-import { TimeOffRequest } from "../types/timeOffTypes";
+import { Response, NextFunction } from "express";
+import { CollaboratorRole } from "../models/Collaborator";
 import { ResourceCreatedBy, getResource } from "../helpers/fetchHelpers";
 
 const isAuthorized =
-  (allowedRoles: CollaboratorRole[] = []) =>
+  (allowedRoles: CollaboratorRole[] = [], creatorCanUpdate: boolean = false) =>
   async (
     req: RequestWithAuthCollaborator,
     res: Response,
@@ -26,10 +20,11 @@ const isAuthorized =
     }
 
     const hasAllowedRole = allowedRoles.includes(collaboratorRole);
+
     const isCreator = resource!.createdBy.toString() === uid;
 
-    if (hasAllowedRole || isCreator) {
-      next(); // User is authorized, proceed to the next middleware/route handler
+    if (hasAllowedRole || (isCreator && creatorCanUpdate)) {
+      next();
     } else {
       res.status(403).json({ error: "Unauthorized" });
     }
