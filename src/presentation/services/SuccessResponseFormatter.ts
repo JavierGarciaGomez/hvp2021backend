@@ -2,7 +2,7 @@ import {
   SingleSuccessResponse,
   ListSuccessResponse,
 } from "../../data/types/responses";
-import { HttpStatusCode } from "../../errors/BaseError";
+import { HttpStatusCode } from "../../domain/errors/BaseError";
 
 interface FormatListResponseParams<T> {
   data: T[];

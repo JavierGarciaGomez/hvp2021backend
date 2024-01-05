@@ -1,4 +1,35 @@
-import { HttpStatusCode } from "../../errors/BaseError";
+export enum HttpStatusCode {
+  // Informational
+  CONTINUE = 100,
+
+  // Success
+  OK = 200,
+  CREATED = 201,
+  ACCEPTED = 202,
+  NO_CONTENT = 204,
+
+  // Redirection
+  MOVED_PERMANENTLY = 301,
+
+  // Client Errors
+  BAD_REQUEST = 400,
+  UNAUTHORIZED = 401,
+  FORBIDDEN = 403,
+  NOT_FOUND = 404,
+  METHOD_NOT_ALLOWED = 405,
+  CONFLICT = 409,
+  GONE = 410,
+  PRECONDITION_FAILED = 412,
+  UNSUPPORTED_MEDIA_TYPE = 415,
+
+  // Server Errors
+  INTERNAL_SERVER = 500,
+  NOT_IMPLEMENTED = 501,
+  BAD_GATEWAY = 502,
+  SERVICE_UNAVAILABLE = 503,
+  GATEWAY_TIMEOUT = 504,
+  HTTP_VERSION_NOT_SUPPORTED = 505,
+}
 
 interface BaseErrorOptions {
   statusCode: HttpStatusCode;
