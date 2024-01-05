@@ -1,6 +1,7 @@
 // importations
 import { NextFunction, Request } from "express";
 import timeOffRequestsRoutes from "./routes/timeOffRequestsRoutes";
+import { errorHandler } from "./middlewares/errorHandler";
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
@@ -118,6 +119,8 @@ app.use("/api/fcm", fcmRoutes);
 app.use("/api/userClient", userClientRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/time-off-requests", timeOffRequestsRoutes);
+
+app.use(errorHandler);
 
 app.listen(process.env.PORT || 4000, () => {
   console.log("Server running in port " + process.env.PORT);

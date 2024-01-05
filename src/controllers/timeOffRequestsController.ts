@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import TimeOffRequestModel from "../models/TimeOffRequestModel";
 import { RequestWithAuthCollaborator } from "../types/RequestsAndResponses";
 import mongoose, { ObjectId } from "mongoose";
@@ -16,6 +16,7 @@ import {
   CollaboratorImeOffOverview,
   TimeOffRequest,
 } from "../types/timeOffTypes";
+import { BaseError, HttpStatusCode } from "../errors/BaseError";
 
 // TODO complete all endpoints
 interface HandleRequestParams {
@@ -93,21 +94,23 @@ export const getTimeOffRequestsByYear = async (
 
 export const getTimeOffRequestById = async (
   req: RequestWithAuthCollaborator,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   const operationId = "getTimeOffRequestById";
   try {
     const id = req.params.id;
     const timeOffRequest = await TimeOffRequestModel.findById(id);
     if (!timeOffRequest) {
-      throwErrorResponse({
-        res,
-        statusCode: 404,
-        operation: operationId,
-        error: new Error("Resource not found"),
+      throw new BaseError({
+        statusCode: HttpStatusCode.NOT_FOUND,
+        typeName: "ResourceNotFound",
+        message: `${operationId}: Failed to fetch resource with id ${id}`,
+        isOperational: true,
+        detail: `${operationId}: Failed to fetch resource with id ${id}`,
       });
-      return;
     }
+
     res.status(200).json({
       msg: operationId,
       statusCode: 200,
@@ -115,12 +118,7 @@ export const getTimeOffRequestById = async (
       operation: operationId,
     });
   } catch (error) {
-    throwErrorResponse({
-      res,
-      statusCode: 500,
-      operation: operationId,
-      error: error as Error,
-    });
+    next(error);
   }
 };
 
