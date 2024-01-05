@@ -16,6 +16,7 @@ const { getCollaboratorById } = require("./collaboratorsController");
 const DeepCleanUp = require("../models/DeepCleanUp");
 const OperatingRoomCleanUp = require("../models/OperatingRoomCleanUp");
 const { uncatchedError } = require("../helpers/const");
+const { default: CollaboratorModel } = require("../models/Collaborator");
 dayjs.extend(utc);
 
 const getAllCleanUpsFromLastMonth = async (req, res = response) => {
@@ -139,7 +140,7 @@ const updateDailyCleanUp = async (req, res = response) => {
       });
     }
 
-    const collaborator = await Collaborator.findById(uid);
+    const collaborator = await CollaboratorModel.findById(uid);
 
     switch (action) {
       case cleanUpActions.addCleaner:
@@ -235,7 +236,7 @@ const createDeepCleanUp = async (req, res = response) => {
     }
 
     deepCleanUp = new DeepCleanUp();
-    const collaborator = await Collaborator.findById(uid);
+    const collaborator = await CollaboratorModel.findById(uid);
     activities.map((activity) => {
       if (deepCleanUpActivities.includes(activity)) {
         deepCleanUp.activities[activity] = true;
@@ -301,7 +302,7 @@ const updateDeepCleanUp = async (req, res = response) => {
       });
     }
 
-    const collaborator = await Collaborator.findById(uid);
+    const collaborator = await CollaboratorModel.findById(uid);
 
     let newActivities = {};
     deepCleanUpActivities.forEach((activity) => {
@@ -410,7 +411,7 @@ const createOperatingRoomCleanUp = async (req, res = response) => {
     const date = dayjs();
 
     let operatingRoomCleanUp = new OperatingRoomCleanUp();
-    const collaborator = await Collaborator.findById(uid);
+    const collaborator = await CollaboratorModel.findById(uid);
     operatingRoomCleanUp.cleaners.push({
       cleaner: collaborator,
       time: dayjs(),
@@ -495,7 +496,7 @@ const updateOperatingRoomCleanUp = async (req, res = response) => {
       });
     }
 
-    const collaborator = await Collaborator.findById(uid);
+    const collaborator = await CollaboratorModel.findById(uid);
 
     switch (action) {
       case cleanUpActions.addCleaner:

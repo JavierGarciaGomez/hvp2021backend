@@ -16,13 +16,14 @@ const {
   registerLog,
 } = require("../helpers/utilities");
 const AuthLog = require("../models/CollaboratorLog");
+const { default: CollaboratorModel } = require("../models/Collaborator");
 
 const createUser = async (req, res = response) => {
   try {
     const { email, password } = req.body;
 
     // check if the collaborator code is not used before
-    let usedMail = await Collaborator.findOne({ email });
+    let usedMail = await CollaboratorModel.findOne({ email });
     if (!usedMail) {
       usedMail = await User.findOne({ email });
     }

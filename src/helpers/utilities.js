@@ -1,9 +1,10 @@
 const dayjs = require("dayjs");
-const Collaborator = require("../models/Collaborator");
+
 const CollaboratorLog = require("../models/CollaboratorLog");
 const User = require("../models/User");
 const UserLog = require("../models/UserLog");
 const { roleTypes } = require("../types/types");
+const { default: CollaboratorModel } = require("../models/Collaborator");
 
 const getDateWithoutTime = (date = new Date()) => {
   return convertDateToUTC(
@@ -102,7 +103,7 @@ const registerLog = async (userType, user, action) => {
 
     // update the collaborator with the last login
 
-    await Collaborator.findByIdAndUpdate(user.id, {
+    await CollaboratorModel.findByIdAndUpdate(user.id, {
       ...user,
     });
   }

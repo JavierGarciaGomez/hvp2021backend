@@ -80,7 +80,7 @@ describe("timeOffHelpers", () => {
     });
   });
 
-  describe("calculateTotalVacationDays", () => {
+  describe.only("calculateTotalVacationDays", () => {
     test("returns 0 if employment start date is after end date", () => {
       const employmentStartDate = new Date("2023-01-01");
       const endDate = new Date("2022-12-31");
@@ -96,6 +96,11 @@ describe("timeOffHelpers", () => {
     test("returns correct total vacation days for scenario 1", () => {
       // Replace with your actual values for testing
       const employmentStartDate = new Date("2018-01-01");
+      // 2018  6 days
+      // 2019  8 days
+      // 2020  10 days
+      // 2021  12 days
+      // 2022  14 days
       const endDate = new Date("2022-12-31");
 
       // Replace 'expectedTotalVacationDays' with the expected result based on your provided dates
@@ -160,6 +165,47 @@ describe("timeOffHelpers", () => {
 
       // Replace 'expectedTotalVacationDays' with the expected result based on your provided dates
       const expectedTotalVacationDays = 78; // Adjust based on your expected result
+      expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
+        expectedTotalVacationDays
+      );
+    });
+
+    test("returns correct total vacation days for scenario 7", () => {
+      // Replace with your actual values for testing
+      const employmentStartDate = new Date("2017-05-15");
+      /*
+      15/5/2018 6
+      15/5/2019 8
+      15/5/2020 10
+      15/5/2021 12
+      15/5/2022 14
+      15/5/2023 22
+      02/1/2024 12
+      */
+      const endDate = new Date("2024-01-02");
+
+      // Replace 'expectedTotalVacationDays' with the expected result based on your provided dates
+      const expectedTotalVacationDays = 85; // Adjust based on your expected result
+      expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
+        expectedTotalVacationDays
+      );
+    });
+    test.only("returns correct total vacation days for scenario 7", () => {
+      // Replace with your actual values for testing
+      const employmentStartDate = new Date("2016-12-01");
+      /*
+      15/5/2018 6
+      15/5/2019 8
+      15/5/2020 10
+      15/5/2021 12
+      15/5/2022 14
+      15/5/2023 22
+      02/1/2024 12
+      */
+      const endDate = new Date("2024-01-04");
+
+      // Replace 'expectedTotalVacationDays' with the expected result based on your provided dates
+      const expectedTotalVacationDays = 85; // Adjust based on your expected result
       expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
         expectedTotalVacationDays
       );

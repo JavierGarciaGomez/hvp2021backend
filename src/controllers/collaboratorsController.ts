@@ -1,6 +1,7 @@
 import { RequestWithAuthCollaborator } from "../types/RequestsAndResponses";
-import Collaborator from "../models/Collaborator";
+
 import { Request, Response } from "express";
+import CollaboratorModel from "../models/Collaborator";
 const { response } = require("express");
 const bcrypt = require("bcryptjs");
 
@@ -19,7 +20,7 @@ export const collaboratorLogin = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
-    const collaborator = await Collaborator.findOne({ email });
+    const collaborator = await CollaboratorModel.findOne({ email });
 
     let isValid = false;
 
@@ -75,7 +76,7 @@ export const getCollaborators = async (
         msg: "No estás autorizado para conocer los datos",
       });
     }
-    const collaborators = await Collaborator.find();
+    const collaborators = await CollaboratorModel.find();
     res.json({
       ok: true,
       msg: "getCollaborators",
@@ -95,7 +96,7 @@ export const getCollaborators = async (
 
 export const getCollaboratorsForWeb = async (req: Request, res: Response) => {
   try {
-    const collaborators = await Collaborator.find(
+    const collaborators = await CollaboratorModel.find(
       { isDisplayedWeb: true },
       {
         first_name: 1,
@@ -131,7 +132,7 @@ export const createCollaborator = async (
     const { role } = req.authenticatedCollaborator ?? {};
     // check if the collaborator code is not used before
 
-    let usedColCode = await Collaborator.findOne({ col_code });
+    let usedColCode = await CollaboratorModel.findOne({ col_code });
 
     if (usedColCode) {
       return res.status(400).json({
@@ -140,7 +141,7 @@ export const createCollaborator = async (
       });
     }
 
-    const collaborator = new Collaborator(req.body);
+    const collaborator = new CollaboratorModel(req.body);
 
     // check if is trying to create admin or manager
     if (
@@ -174,7 +175,7 @@ export const registerCollaborator = async (req: Request, res: Response) => {
 
   try {
     // check if the collaborator code is not used before
-    let usedMail = await Collaborator.findOne({ email });
+    let usedMail = await CollaboratorModel.findOne({ email });
     if (usedMail) {
       return res.status(400).json({
         ok: false,
@@ -182,7 +183,7 @@ export const registerCollaborator = async (req: Request, res: Response) => {
       });
     }
 
-    let collaborator = await Collaborator.findOne({ col_code });
+    let collaborator = await CollaboratorModel.findOne({ col_code });
 
     if (!collaborator) {
       return res.status(404).json({
@@ -215,7 +216,7 @@ export const registerCollaborator = async (req: Request, res: Response) => {
 
     let collaboratorId = collaborator.id;
 
-    const updatedCollaborator = await Collaborator.findByIdAndUpdate(
+    const updatedCollaborator = await CollaboratorModel.findByIdAndUpdate(
       collaborator._id,
       collaborator,
       { new: true }
@@ -244,7 +245,7 @@ export const getCollaboratorById = async (req: Request, res: Response) => {
   const id = req.params.collaboratorId;
   try {
     // check if the collaborator code is not used before
-    let collaborator = await Collaborator.findById(id);
+    let collaborator = await CollaboratorModel.findById(id);
 
     if (!collaborator) {
       return res.status(404).json({
@@ -272,7 +273,7 @@ export const updateCollaborator = async (
   try {
     const collaboratorId = req.params.collaboratorId;
     const { role, uid } = req.authenticatedCollaborator ?? {};
-    const collaborator = await Collaborator.findById(collaboratorId);
+    const collaborator = await CollaboratorModel.findById(collaboratorId);
 
     if (!collaborator) {
       return res.status(404).json({
@@ -303,7 +304,7 @@ export const updateCollaborator = async (
       }
     }
 
-    const updatedCollaborator = await Collaborator.findByIdAndUpdate(
+    const updatedCollaborator = await CollaboratorModel.findByIdAndUpdate(
       collaboratorId,
       newCollaborator,
       { new: true }
@@ -340,7 +341,7 @@ export const deleteCollaborator = async (
         msg: "No estás autorizado para conocer los datos",
       });
     }
-    await Collaborator.findByIdAndDelete(collaboratorId);
+    await CollaboratorModel.findByIdAndDelete(collaboratorId);
     res.json({
       ok: true,
       msg: "colaborador eliminado",

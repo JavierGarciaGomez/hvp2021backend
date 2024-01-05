@@ -1,6 +1,6 @@
 const { response } = require("express");
 const bcrypt = require("bcryptjs");
-const Collaborator = require("../models/Collaborator");
+
 const User = require("../models/User");
 const { generateJWT } = require("../helpers/jwt");
 const jwt = require("jsonwebtoken");
@@ -15,6 +15,7 @@ const {
 } = require("../helpers/utilities");
 
 const ActivityRegister = require("../models/ActivityRegister");
+const { default: CollaboratorModel } = require("../models/Collaborator");
 
 // create new activity register
 // todo: don't create if there is an open one of the same user
@@ -27,7 +28,7 @@ const createActivityRegister = async (req, res = response) => {
     if (!startingTime) {
       req.body.startingTime = new Date();
     }
-    const collaborator = await Collaborator.findById(uid);
+    const collaborator = await CollaboratorModel.findById(uid);
 
     console.log("este es el req.body", req.body);
     // remove id

@@ -15,7 +15,8 @@ const timeOffRequestSchema = new Schema<TimeOffRequest>(
       type: Schema.Types.ObjectId,
       ref: "Collaborator",
     },
-    reason: { type: String },
+    collaboratorNote: { type: String },
+    managerNote: { type: String },
     requestedAt: { type: Date, default: Date.now },
     requestedDays: { type: [Date], required: true },
     status: {

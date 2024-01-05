@@ -8,7 +8,8 @@ import {
   updateTimeOffRequest,
   approveTimeOffRequest,
   deleteTimeOffRequest,
-  getCollaboratorTimeOffStatus,
+  getCollaboratorTimeOffOverview,
+  getCollaboratorsTimeOffOverview,
 } from "../controllers/timeOffRequestsController";
 import isAuthorized from "../middlewares/isAuthorized";
 import { CollaboratorRole } from "../models/Collaborator";
@@ -29,10 +30,13 @@ router.get("/year/:year", getTimeOffRequestsByYear);
 // GET one by ID
 router.get("/:id", getTimeOffRequestById);
 
+// GET collaborators vacation status
+router.get("/collaborators/time-off-overview", getCollaboratorsTimeOffOverview);
+
 // GET collaborator vacation status
 router.get(
-  "/collaborator/:collaboratorId/vacations-status",
-  getCollaboratorTimeOffStatus
+  "/collaborators/time-off-overview/:collaboratorId",
+  getCollaboratorTimeOffOverview
 );
 
 // CREATE

@@ -14,6 +14,7 @@ const {
   registerLog,
 } = require("../helpers/utilities");
 const AuthLog = require("../models/CollaboratorLog");
+const { default: CollaboratorModel } = require("../models/Collaborator");
 
 // TODO: Move out the strictly user from auth
 
@@ -29,7 +30,7 @@ const createUserIfNotExist = async (
     const email = profile.emails[0].value;
 
     let user = {};
-    user = await Collaborator.findOne({ email });
+    user = await CollaboratorModel.findOne({ email });
     let userType = "collaborator";
     if (!user) {
       user = await User.findOne({ email });
@@ -81,7 +82,7 @@ const userLogin = async (req, res = response) => {
     const { email, password } = req.body;
 
     // check if collaborator or user
-    let user = await Collaborator.findOne({ email });
+    let user = await CollaboratorModel.findOne({ email });
     let userType = "collaborator";
     if (!user) {
       user = await User.findOne({ email });

@@ -5,9 +5,14 @@ import {
   TimeOffStatus,
   TimeOffType,
 } from "../constants/AttendanceConstants";
-import { TimeOffRequest } from "../types/timeOffTypes";
+import {
+  CollaboratorImeOffOverview,
+  TimeOffRequest,
+} from "../types/timeOffTypes";
 import duration from "dayjs/plugin/duration";
 import dayjs from "../config/dayjsConfig";
+import TimeOffRequestModel from "../models/TimeOffRequestModel";
+import CollaboratorModel from "../models/Collaborator";
 
 /*
 Vacations 
@@ -35,7 +40,81 @@ A partir del sexto año, el periodo de vacaciones aumentará en dos días por ca
 16th year 26
 */
 
-// TODO create tests for this function
+export const getCollaboratorTimeOffOverviewAnother = async (
+  collaboratorId: string,
+  endDate: Date = new Date()
+) => {
+  const collaboratorTimeOffRequests = await TimeOffRequestModel.find({
+    collaborator: collaboratorId,
+  });
+
+  const collaborator = await CollaboratorModel.findById(collaboratorId);
+
+  const totalVacationDays = calculateTotalVacationDays(
+    collaborator?.startDate!,
+    endDate
+  );
+
+  const vacationsTaken: Date[] = getApprovedVacations(
+    collaboratorTimeOffRequests
+  );
+
+  const vacationsRequested: Date[] = getPendingVacations(
+    collaboratorTimeOffRequests
+  );
+
+  const partialPermissions: Date[] = getNotRejectedTimeOffsByType(
+    collaboratorTimeOffRequests,
+    TimeOffType.partialPermission
+  );
+
+  const simulatedAbsences: Date[] = getNotRejectedTimeOffsByType(
+    collaboratorTimeOffRequests,
+    TimeOffType.simulatedAbsence
+  );
+
+  const sickLeavesIMSSUnpaid: Date[] = getNotRejectedTimeOffsByType(
+    collaboratorTimeOffRequests,
+    TimeOffType.sickLeaveIMSSUnpaid
+  );
+
+  const sickLeavesIMSSPaid: Date[] = getNotRejectedTimeOffsByType(
+    collaboratorTimeOffRequests,
+    TimeOffType.sickLeaveIMSSPaid
+  );
+
+  const sickLeavesJustifiedByCompany: Date[] = getNotRejectedTimeOffsByType(
+    collaboratorTimeOffRequests,
+    TimeOffType.sickLeaveJustifiedByCompany
+  );
+
+  const dayLeaves: Date[] = getNotRejectedTimeOffsByType(
+    collaboratorTimeOffRequests,
+    TimeOffType.dayLeave
+  );
+
+  const remainingVacationDays =
+    totalVacationDays -
+    vacationsTaken.length -
+    vacationsRequested.length -
+    (collaborator?.vacationsTakenBefore2021 ?? 0);
+  const data: CollaboratorImeOffOverview = {
+    collaboratorId,
+    totalVacationDays,
+    vacationsTaken,
+    vacationsRequested: vacationsRequested,
+    remainingVacationDays,
+    partialPermissions,
+    simulatedAbsences,
+    sickLeavesIMSSUnpaid,
+    sickLeavesIMSSPaid,
+    sickLeavesJustifiedByCompany,
+    dayLeaves,
+  };
+
+  return data;
+};
+
 export const getNotRejectedTimeOffsByType = (
   timeOffRequests: TimeOffRequest[],
   timeOffType: TimeOffType
