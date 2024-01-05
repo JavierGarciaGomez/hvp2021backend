@@ -1,0 +1,23 @@
+file schema:
+
+src
+    config
+    data
+        models
+            timeOffRequest.model.ts
+        types
+            attendance.types.ts
+            timeOff.types.ts
+    domain
+        datasources
+        dtos
+        entities
+        errors
+        repositories
+        use-cases
+    infrastructure
+        datasource
+        repositories
+    presentation
+        resources
+        services

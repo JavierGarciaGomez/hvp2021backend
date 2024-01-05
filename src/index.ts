@@ -2,6 +2,7 @@
 import { NextFunction, Request } from "express";
 import timeOffRequestsRoutes from "./routes/timeOffRequestsRoutes";
 import { errorHandler } from "./middlewares/errorHandler";
+import { TimeOffRequestsRoutes } from "./presentation/resources/timeOffRequests/timeOffRequestsRoutes";
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
@@ -118,7 +119,7 @@ app.use("/api/documentation", documentationRoutes);
 app.use("/api/fcm", fcmRoutes);
 app.use("/api/userClient", userClientRoutes);
 app.use("/api/users", usersRoutes);
-app.use("/api/time-off-requests", timeOffRequestsRoutes);
+app.use("/api/time-off-requests", TimeOffRequestsRoutes.routes);
 
 app.use(errorHandler);
 

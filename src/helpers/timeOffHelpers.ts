@@ -1,11 +1,6 @@
 import mongoose from "mongoose";
 
 import {
-  AttendanceType,
-  TimeOffStatus,
-  TimeOffType,
-} from "../constants/AttendanceConstants";
-import {
   CollaboratorImeOffOverview,
   TimeOffRequest,
 } from "../types/timeOffTypes";
@@ -13,6 +8,7 @@ import duration from "dayjs/plugin/duration";
 import dayjs from "../config/dayjsConfig";
 import TimeOffRequestModel from "../models/TimeOffRequestModel";
 import CollaboratorModel from "../models/Collaborator";
+import { TimeOffStatus, TimeOffType } from "../data/types/timeOffTypes";
 
 /*
 Vacations 

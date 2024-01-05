@@ -1,7 +1,9 @@
 import { Document, Schema, model } from "mongoose";
-
-import { TimeOffRequest } from "../types/timeOffTypes";
-import { TimeOffStatus, TimeOffType } from "../data/types/timeOffTypes";
+import {
+  TimeOffRequest,
+  TimeOffStatus,
+  TimeOffType,
+} from "../types/timeOffTypes";
 
 const timeOffRequestSchema = new Schema<TimeOffRequest>(
   {

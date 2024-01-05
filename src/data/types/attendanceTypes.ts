@@ -74,19 +74,3 @@ export const attendanceTypeDescriptions: Record<
     previousCode: "NCO",
   },
 };
-
-export enum TimeOffType {
-  partialPermission = AttendanceType.partialPermission,
-  simulatedAbsence = AttendanceType.simulatedAbsence,
-  vacation = AttendanceType.vacation,
-  sickLeaveIMSSUnpaid = AttendanceType.sickLeaveIMSSUnpaid,
-  sickLeaveIMSSPaid = AttendanceType.sickLeaveIMSSPaid,
-  sickLeaveJustifiedByCompany = AttendanceType.sickLeaveJustifiedByCompany,
-  dayLeave = AttendanceType.dayLeave,
-}
-
-export enum TimeOffStatus {
-  pending = "Pending",
-  approved = "Approved",
-  rejected = "Rejected",
-}
