@@ -169,12 +169,38 @@ export class TimeOffRequestController {
     req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
-  ) => {};
+  ) => {
+    try {
+      const collaboratorId = req.params.collaboratorId;
+
+      const response =
+        await this.timeOffRequestsService.getCollaboratorTimeOffOverview(
+          collaboratorId
+        );
+      res.status(response.status_code).json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
   public getCollaboratorsTimeOffOverview = async (
     req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
-  ) => {};
+  ) => {
+    try {
+      const { page = 1, limit = 10, all } = req.query;
+      const isAll =
+        all === "true" || all === "" || (page === 1 && limit === 10);
+      const [error, paginationDto] = PaginationDto.create(+page, +limit, isAll);
+      if (error) this.handleError(error, res, next);
+
+      const response =
+        await this.timeOffRequestsService.getCollaboratorsTimeOffOverview(
+          paginationDto!
+        );
+      res.status(response.status_code).json(response);
+    } catch (error) {}
+  };
 }
 
 interface HandleRequestParams {

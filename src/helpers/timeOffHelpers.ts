@@ -6,9 +6,10 @@ import {
 } from "../types/timeOffTypes";
 import duration from "dayjs/plugin/duration";
 import dayjs from "../config/dayjsConfig";
-import TimeOffRequestModel from "../models/TimeOffRequestModel";
+
 import CollaboratorModel from "../models/Collaborator";
 import { TimeOffStatus, TimeOffType } from "../data/types/timeOffTypes";
+import TimeOffRequestModel from "../data/models/TimeOffRequestModel";
 
 /*
 Vacations 
@@ -36,13 +37,21 @@ A partir del sexto año, el periodo de vacaciones aumentará en dos días por ca
 16th year 26
 */
 
-export const getCollaboratorTimeOffOverviewAnother = async (
+export const getCollaboratorTimeOffOverviewDetails = async (
   collaboratorId: string,
-  endDate: Date = new Date()
+  endDate: Date = new Date(),
+  excludedTimeOffRequestId?: string
 ) => {
-  const collaboratorTimeOffRequests = await TimeOffRequestModel.find({
+  let collaboratorTimeOffRequests = await TimeOffRequestModel.find({
     collaborator: collaboratorId,
   });
+
+  if (excludedTimeOffRequestId) {
+    collaboratorTimeOffRequests = collaboratorTimeOffRequests.filter(
+      (timeOffRequest) =>
+        timeOffRequest._id.toString() !== excludedTimeOffRequestId
+    );
+  }
 
   const collaborator = await CollaboratorModel.findById(collaboratorId);
 

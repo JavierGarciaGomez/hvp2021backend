@@ -14,6 +14,13 @@ import { TimeOffRequestDto } from "../../../domain/dtos/timeOffRequests/TimeOffR
 import { AuthenticatedCollaborator } from "../../../types/RequestsAndResponses";
 import { ObjectId } from "mongoose";
 import { CollaboratorRole } from "../../../models/Collaborator";
+import { getCollaboratorTimeOffOverviewDetails } from "../../../helpers/timeOffHelpers";
+import {
+  formatDateWithoutTime,
+  getEarliestDate,
+} from "../../../helpers/dateHelpers";
+import { getActiveCollaborators } from "../../../helpers/collaboratorsHelpers";
+import { CollaboratorImeOffOverview } from "../../../types/timeOffTypes";
 
 // import {
 //   CreateCategoryDto,
@@ -102,11 +109,40 @@ export class TimeOffRequestsService {
     authenticatedCollaborator: AuthenticatedCollaborator
   ) {
     const { uid } = authenticatedCollaborator;
+
     const timeOffRequest = new TimeOffRequestModel({
       ...timeOffRequestDto.data,
       createdBy: uid as unknown as ObjectId,
     });
 
+    const firstVacationDate = getEarliestDate(timeOffRequest.requestedDays);
+    const vacationsDaysRequested = timeOffRequest.requestedDays.length;
+
+    const { remainingVacationDays, vacationsTaken, vacationsRequested } =
+      await getCollaboratorTimeOffOverviewDetails(uid, firstVacationDate);
+    const pendingOrTakenVacations = vacationsTaken.concat(vacationsRequested);
+
+    // TODO: Check if dates were already requested
+    for (const date of timeOffRequest.requestedDays) {
+      const dateOnly = formatDateWithoutTime(date);
+
+      const pendingDatesWithoutTime = pendingOrTakenVacations.map(
+        formatDateWithoutTime
+      );
+
+      if (pendingDatesWithoutTime.includes(dateOnly)) {
+        throw BaseError.badRequest(
+          `The collaborator already has a time off request for the date ${dateOnly}.`
+        );
+      }
+    }
+    // Todo check if he has enough days
+
+    if (remainingVacationDays < vacationsDaysRequested) {
+      throw BaseError.badRequest(
+        `The collaborator has ${remainingVacationDays} vacations days for the ${firstVacationDate.toISOString()}.`
+      );
+    }
     const savedTimeOffRequest = await timeOffRequest.save();
 
     const response =
@@ -117,6 +153,7 @@ export class TimeOffRequestsService {
 
     return response;
   }
+
   async updateTimeOffRequest(
     id: string,
     timeOffRequestDto: TimeOffRequestDto,
@@ -138,11 +175,42 @@ export class TimeOffRequestsService {
       );
     }
 
+    const firstVacationDate = getEarliestDate(timeOffRequest.requestedDays);
+    const vacationsDaysRequested = timeOffRequest.requestedDays.length;
+
+    const { remainingVacationDays, vacationsTaken, vacationsRequested } =
+      await getCollaboratorTimeOffOverviewDetails(uid, firstVacationDate, id);
+    const pendingOrTakenVacations = vacationsTaken.concat(vacationsRequested);
+
+    // TODO: Check if dates were already requested
+    for (const date of timeOffRequestDto.data.requestedDays) {
+      const dateOnly = formatDateWithoutTime(new Date(date));
+
+      const pendingDatesWithoutTime = pendingOrTakenVacations.map(
+        formatDateWithoutTime
+      );
+
+      if (pendingDatesWithoutTime.includes(dateOnly)) {
+        throw BaseError.badRequest(
+          `The collaborator already has a time off request for the date ${dateOnly}.`
+        );
+      }
+    }
+    // Todo check if he has enough days
+
+    if (remainingVacationDays < vacationsDaysRequested) {
+      throw BaseError.badRequest(
+        `The collaborator has ${remainingVacationDays} vacations days for the ${firstVacationDate.toISOString()}.`
+      );
+    }
+
     const updatedResource = await TimeOffRequestModel.findByIdAndUpdate(
       id,
-      { ...timeOffRequestDto, updatedAt: new Date(), updatedBy: uid },
+      { ...timeOffRequestDto.data, updatedAt: new Date(), updatedBy: uid },
       { new: true }
     );
+
+    console.log({ updatedResource });
 
     // const timeOffRequest = new TimeOffRequestModel({
     //   ...timeOffRequestDto,
@@ -151,7 +219,7 @@ export class TimeOffRequestsService {
 
     const response =
       SuccessResponseFormatter.formatUpdateResponse<TimeOffRequest>({
-        data: timeOffRequest,
+        data: updatedResource!,
         resource,
       });
 
@@ -159,8 +227,47 @@ export class TimeOffRequestsService {
   }
   async approveTimeOffRequest() {}
   async deleteTimeOffRequest() {}
-  async getCollaboratorTimeOffOverview() {}
-  async getCollaboratorsTimeOffOverview() {}
+  async getCollaboratorTimeOffOverview(collaboratorId: string) {
+    const overview = await getCollaboratorTimeOffOverviewDetails(
+      collaboratorId
+    );
+
+    const response =
+      SuccessResponseFormatter.formatGetOneResponse<CollaboratorImeOffOverview>(
+        {
+          data: overview,
+          resource: "CollaboratorTimeOffOverview",
+        }
+      );
+
+    return response;
+  }
+  async getCollaboratorsTimeOffOverview(paginationDto: PaginationDto) {
+    const { all, page, limit } = paginationDto;
+    const activeCollaborators = await getActiveCollaborators();
+    const collaboratorsOverview: CollaboratorImeOffOverview[] = [];
+    for (const collaborator of activeCollaborators) {
+      const collaboratorId = collaborator._id; // Adjust this based on your collaborator data structure
+
+      // Use the getCollaboratorTimeOffOverview function to get the time-off overview for the current collaborator
+      const overview = await getCollaboratorTimeOffOverviewDetails(
+        collaboratorId
+      );
+
+      // Add the collaborator's time-off overview to the array
+      collaboratorsOverview.push(overview);
+    }
+    const response =
+      SuccessResponseFormatter.formatListResponse<CollaboratorImeOffOverview>({
+        data: collaboratorsOverview,
+        page,
+        limit,
+        total: collaboratorsOverview.length,
+        path: `${commonPath}${TimeOffRequestsRoutePaths.collaboratorsOverview}`,
+        resource: "CollaboratorsTimeOffOverview",
+      });
+    return response;
+  }
 
   private async fetchTimeOffRequestsLists(
     query: ResourceQuery<TimeOffRequest>,

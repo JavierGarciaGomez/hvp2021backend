@@ -6,7 +6,7 @@ import CollaboratorModel from "../models/Collaborator";
 import {
   calculateTotalVacationDays,
   getApprovedVacations,
-  getCollaboratorTimeOffOverviewAnother,
+  getCollaboratorTimeOffOverviewDetails,
   getNotRejectedTimeOffsByType,
   getPendingVacations,
 } from "../helpers/timeOffHelpers";
@@ -315,7 +315,7 @@ export const getCollaboratorsTimeOffOverview = async (
       const collaboratorId = collaborator._id; // Adjust this based on your collaborator data structure
 
       // Use the getCollaboratorTimeOffOverview function to get the time-off overview for the current collaborator
-      const overview = await getCollaboratorTimeOffOverviewAnother(
+      const overview = await getCollaboratorTimeOffOverviewDetails(
         collaboratorId,
         endDate
       );
@@ -341,7 +341,7 @@ export const getCollaboratorTimeOffOverview = async (
     const endDateParam = req.body.endDate;
     const endDate = endDateParam ? new Date(endDateParam) : new Date();
 
-    const data = await getCollaboratorTimeOffOverviewAnother(
+    const data = await getCollaboratorTimeOffOverviewDetails(
       collaboratorId,
       endDate
     );

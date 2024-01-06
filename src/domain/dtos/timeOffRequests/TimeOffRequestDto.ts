@@ -51,7 +51,9 @@ export class TimeOffRequestDto {
   }
 
   private static validateOptions(data: Options): string | undefined {
-    const { collaborator, requestedDays, timeOffType, status } = data;
+    let { collaborator, requestedDays, timeOffType, status } = data;
+
+    status = status ? status : TimeOffStatus.pending;
 
     if (!collaborator) return "Collaborator ID is missing";
     if (!requestedDays || requestedDays.length === 0)
