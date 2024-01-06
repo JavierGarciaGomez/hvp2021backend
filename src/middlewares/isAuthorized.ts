@@ -1,10 +1,15 @@
 import { RequestWithAuthCollaborator } from "../types/RequestsAndResponses";
 import { Response, NextFunction } from "express";
 import { CollaboratorRole } from "../models/Collaborator";
-import { ResourceCreatedBy, getResource } from "../helpers/fetchHelpers";
+import { ResourceWithCollaborator, getResource } from "../helpers/fetchHelpers";
+import { errorHandler } from "./errorHandler";
+import { BaseError } from "../domain/errors/BaseError";
 
 const isAuthorized =
-  (allowedRoles: CollaboratorRole[] = [], creatorCanUpdate: boolean = false) =>
+  (
+    allowedRoles: CollaboratorRole[] = [],
+    collaboratorCanUpdate: boolean = false
+  ) =>
   async (
     req: RequestWithAuthCollaborator,
     res: Response,
@@ -13,20 +18,27 @@ const isAuthorized =
     const { role: collaboratorRole, uid } = req.authenticatedCollaborator!;
     const id = req.params.id;
 
-    const resource: ResourceCreatedBy = await getResource(req.baseUrl, id);
+    const resource: ResourceWithCollaborator = await getResource(
+      req.baseUrl,
+      id
+    );
 
     if (!resource) {
-      return res.status(404).json({ error: "Resource not found" });
+      const error = BaseError.notFound(`Resource not found with id ${id}`);
+      errorHandler(error, req, res, next);
     }
 
     const hasAllowedRole = allowedRoles.includes(collaboratorRole);
 
-    const isCreator = resource!.createdBy.toString() === uid;
+    const isCollaborator = resource!.collaborator.toString() === uid;
 
-    if (hasAllowedRole || (isCreator && creatorCanUpdate)) {
+    if (hasAllowedRole || (isCollaborator && collaboratorCanUpdate)) {
       next();
     } else {
-      res.status(403).json({ error: "Unauthorized" });
+      const error = BaseError.unauthorized(
+        "You are not authorized to perform this action"
+      );
+      errorHandler(error, req, res, next);
     }
   };
 

@@ -4,9 +4,11 @@ import { Router } from "express";
 // import { CategoryService } from "../services/category.service";
 import { TimeOffRequestController } from "./timeOffRequestsController";
 import { TimeOffRequestsService } from "./timeOffRequestsService";
+import { CollaboratorRole } from "../../../models/Collaborator";
+import isAuthorized from "../../../middlewares/isAuthorized";
 const { validateJwt } = require("../../../middlewares/validateJwt");
 
-export enum TimeOffRoutes {
+export enum TimeOffRequestsRoutePaths {
   all = "/",
   byCollaborator = "/collaborator/:collaboratorId",
   byYear = "/year/:year",
@@ -28,7 +30,49 @@ export class TimeOffRequestsRoutes {
     router.use(validateJwt);
 
     // Definir las rutas
-    router.get("/", controller.getTimeOffRequests);
+    router.get(TimeOffRequestsRoutePaths.all, controller.getTimeOffRequests);
+    router.get(
+      TimeOffRequestsRoutePaths.byCollaborator,
+      controller.getTimeOffRequestsByCollaborator
+    );
+    router.get(
+      TimeOffRequestsRoutePaths.byYear,
+      controller.getTimeOffRequestsByYear
+    );
+
+    router.get(
+      TimeOffRequestsRoutePaths.byId,
+      controller.getTimeOffRequestById
+    );
+
+    router.post(
+      TimeOffRequestsRoutePaths.create,
+      controller.createTimeOffRequest
+    );
+    router.put(
+      TimeOffRequestsRoutePaths.update,
+      isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager], true),
+      controller.updateTimeOffRequest
+    );
+    router.patch(
+      TimeOffRequestsRoutePaths.approve,
+      isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager]),
+      controller.approveTimeOffRequest
+    );
+    router.delete(
+      TimeOffRequestsRoutePaths.delete,
+      isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager], true),
+      controller.deleteTimeOffRequest
+    );
+    router.get(
+      TimeOffRequestsRoutePaths.collaboratorsOverview,
+      controller.getCollaboratorsTimeOffOverview
+    );
+    router.get(
+      TimeOffRequestsRoutePaths.collaboratorOverview,
+      controller.getCollaboratorTimeOffOverview
+    );
+
     // router.post("/", [AuthMiddleware.validateJWT], controller.createCategory);
 
     return router;

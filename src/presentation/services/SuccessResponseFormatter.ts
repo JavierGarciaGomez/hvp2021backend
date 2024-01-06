@@ -53,8 +53,8 @@ export class SuccessResponseFormatter {
   ): SingleSuccessResponse<T> {
     const { data, resource } = options;
     return {
-      status_code: HttpStatusCode.CREATED,
-      status: HttpStatusCode[HttpStatusCode.CREATED],
+      status_code: HttpStatusCode.OK,
+      status: HttpStatusCode[HttpStatusCode.OK],
       resource: resource,
       operation: "one",
       data: data,

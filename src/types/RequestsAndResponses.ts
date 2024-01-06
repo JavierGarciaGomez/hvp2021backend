@@ -1,7 +1,7 @@
 import { Request } from "express";
 import { CollaboratorRole } from "../models/Collaborator";
 
-interface AuthenticatedCollaborator {
+export interface AuthenticatedCollaborator {
   uid: string;
   col_code: string;
   role: CollaboratorRole;

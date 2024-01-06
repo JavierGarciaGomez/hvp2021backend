@@ -32,3 +32,7 @@ export interface TimeOffRequest extends Document {
   updatedAt: Date;
   updatedBy: Schema.Types.ObjectId;
 }
+
+type ModifiedTimeOffRequest<T> = {
+  [K in keyof TimeOffRequest]: K extends keyof T ? T[K] : TimeOffRequest[K];
+};

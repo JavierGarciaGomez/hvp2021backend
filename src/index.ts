@@ -1,6 +1,5 @@
 // importations
 import { NextFunction, Request } from "express";
-import timeOffRequestsRoutes from "./routes/timeOffRequestsRoutes";
 import { errorHandler } from "./middlewares/errorHandler";
 import { TimeOffRequestsRoutes } from "./presentation/resources/timeOffRequests/timeOffRequestsRoutes";
 require("dotenv").config();

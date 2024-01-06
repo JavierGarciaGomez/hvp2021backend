@@ -6,8 +6,8 @@ export class PaginationDto {
   ) {}
 
   static create(
-    page: number = 1,
-    limit: number = 10,
+    page: number | undefined = 1,
+    limit: number | undefined = 10,
     all: boolean
   ): [string?, PaginationDto?] {
     if (isNaN(page) || isNaN(limit)) return ["Page and Limit must be numbers"];
