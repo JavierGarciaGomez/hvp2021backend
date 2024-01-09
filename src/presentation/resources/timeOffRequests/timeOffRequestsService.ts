@@ -21,7 +21,7 @@ import {
   getEarliestDate,
 } from "../../../helpers/dateHelpers";
 import { getActiveCollaborators } from "../../../helpers/collaboratorsHelpers";
-import { CollaboratorImeOffOverview } from "../../../types/timeOffTypes";
+import { CollaboratorTimeOffOverview } from "../../../data/types/timeOffTypes";
 
 // import {
 //   CreateCategoryDto,
@@ -116,20 +116,19 @@ export class TimeOffRequestsService {
       createdBy: uid as unknown as ObjectId,
     });
 
-    const firstVacationDate = getEarliestDate(timeOffRequest.requestedDays);
+    const firstTimeOffDate = getEarliestDate(timeOffRequest.requestedDays);
     const vacationsDaysRequested = timeOffRequest.requestedDays.length;
 
-    const { remainingVacationDays, vacationsTaken, vacationsRequested } =
-      await getCollaboratorTimeOffOverviewDetails(uid, firstVacationDate);
-    const pendingOrTakenVacations = vacationsTaken.concat(vacationsRequested);
+    const { remainingVacationDays, dateTimeOffRequests } =
+      await getCollaboratorTimeOffOverviewDetails(uid, firstTimeOffDate);
 
     // TODO: Check if dates were already requested
     for (const date of timeOffRequest.requestedDays) {
       const dateOnly = formatDateWithoutTime(date);
 
-      const pendingDatesWithoutTime = pendingOrTakenVacations.map(
-        formatDateWithoutTime
-      );
+      const pendingDatesWithoutTime = dateTimeOffRequests
+        .map((dateTimeOffRequest) => dateTimeOffRequest.date)
+        .map(formatDateWithoutTime);
 
       if (pendingDatesWithoutTime.includes(dateOnly)) {
         throw BaseError.badRequest(
@@ -144,7 +143,7 @@ export class TimeOffRequestsService {
       remainingVacationDays < vacationsDaysRequested
     ) {
       throw BaseError.badRequest(
-        `The collaborator has ${remainingVacationDays} vacations days for the ${firstVacationDate.toISOString()}.`
+        `The collaborator has ${remainingVacationDays} vacations days for the ${firstTimeOffDate.toISOString()}.`
       );
     }
     const savedTimeOffRequest = await timeOffRequest.save();
@@ -238,7 +237,7 @@ export class TimeOffRequestsService {
     );
 
     const response =
-      SuccessResponseFormatter.formatGetOneResponse<CollaboratorImeOffOverview>(
+      SuccessResponseFormatter.formatGetOneResponse<CollaboratorTimeOffOverview>(
         {
           data: overview,
           resource: "CollaboratorTimeOffOverview",
@@ -250,7 +249,7 @@ export class TimeOffRequestsService {
   async getCollaboratorsTimeOffOverview(paginationDto: PaginationDto) {
     const { all, page, limit } = paginationDto;
     const activeCollaborators = await getActiveCollaborators();
-    const collaboratorsOverview: CollaboratorImeOffOverview[] = [];
+    const collaboratorsOverview: CollaboratorTimeOffOverview[] = [];
     for (const collaborator of activeCollaborators) {
       const collaboratorId = collaborator._id; // Adjust this based on your collaborator data structure
 
@@ -263,7 +262,7 @@ export class TimeOffRequestsService {
       collaboratorsOverview.push(overview);
     }
     const response =
-      SuccessResponseFormatter.formatListResponse<CollaboratorImeOffOverview>({
+      SuccessResponseFormatter.formatListResponse<CollaboratorTimeOffOverview>({
         data: collaboratorsOverview,
         page,
         limit,

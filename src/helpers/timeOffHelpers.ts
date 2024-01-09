@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
 
-import {
-  CollaboratorImeOffOverview,
-  TimeOffRequest,
-} from "../types/timeOffTypes";
 import duration from "dayjs/plugin/duration";
 import dayjs from "../config/dayjsConfig";
 
 import CollaboratorModel from "../models/Collaborator";
-import { TimeOffStatus, TimeOffType } from "../data/types/timeOffTypes";
+import {
+  CollaboratorTimeOffOverview,
+  DateTimeOffRequest,
+  TimeOffRequest,
+  TimeOffStatus,
+  TimeOffType,
+} from "../data/types/timeOffTypes";
 import TimeOffRequestModel from "../data/models/TimeOffRequestModel";
 
 /*
@@ -68,53 +70,40 @@ export const getCollaboratorTimeOffOverviewDetails = async (
     collaboratorTimeOffRequests
   );
 
-  const partialPermissions: Date[] = getNotRejectedTimeOffsByType(
-    collaboratorTimeOffRequests,
-    TimeOffType.partialPermission
-  );
+  const dateTimeOffRequests: DateTimeOffRequest[] = [];
 
-  const simulatedAbsences: Date[] = getNotRejectedTimeOffsByType(
-    collaboratorTimeOffRequests,
-    TimeOffType.simulatedAbsence
-  );
-
-  const sickLeavesIMSSUnpaid: Date[] = getNotRejectedTimeOffsByType(
-    collaboratorTimeOffRequests,
-    TimeOffType.sickLeaveIMSSUnpaid
-  );
-
-  const sickLeavesIMSSPaid: Date[] = getNotRejectedTimeOffsByType(
-    collaboratorTimeOffRequests,
-    TimeOffType.sickLeaveIMSSPaid
-  );
-
-  const sickLeavesJustifiedByCompany: Date[] = getNotRejectedTimeOffsByType(
-    collaboratorTimeOffRequests,
-    TimeOffType.sickLeaveJustifiedByCompany
-  );
-
-  const dayLeaves: Date[] = getNotRejectedTimeOffsByType(
-    collaboratorTimeOffRequests,
-    TimeOffType.dayLeave
-  );
+  collaboratorTimeOffRequests
+    .filter(
+      (collaboratorTimeOffRequest) =>
+        collaboratorTimeOffRequest.status !== TimeOffStatus.rejected
+    )
+    .forEach((collaboratorTimeOffRequest) => {
+      const { collaborator, timeOffType, status } = collaboratorTimeOffRequest;
+      collaboratorTimeOffRequest.requestedDays.forEach((date) => {
+        dateTimeOffRequests.push({
+          date,
+          id: `${collaboratorTimeOffRequest._id}-${date
+            .getTime()
+            .toString()}-${collaborator}}`,
+          timeOffType,
+          status,
+          collaborator,
+        });
+      });
+    });
 
   const remainingVacationDays =
     totalVacationDays -
     vacationsTaken.length -
     vacationsRequested.length -
     (collaborator?.vacationsTakenBefore2021 ?? 0);
-  const data: CollaboratorImeOffOverview = {
+  const data: CollaboratorTimeOffOverview = {
     collaboratorId,
     totalVacationDays,
     vacationsTaken,
     vacationsRequested: vacationsRequested,
     remainingVacationDays,
-    partialPermissions,
-    simulatedAbsences,
-    sickLeavesIMSSUnpaid,
-    sickLeavesIMSSPaid,
-    sickLeavesJustifiedByCompany,
-    dayLeaves,
+    dateTimeOffRequests,
   };
 
   return data;

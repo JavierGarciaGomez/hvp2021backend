@@ -36,3 +36,20 @@ export interface TimeOffRequest extends Document {
 type ModifiedTimeOffRequest<T> = {
   [K in keyof TimeOffRequest]: K extends keyof T ? T[K] : TimeOffRequest[K];
 };
+
+export interface CollaboratorTimeOffOverview {
+  collaboratorId: string;
+  totalVacationDays: number; // a) The number of vacation days the collaborator has a right to take
+  vacationsTaken: Date[]; // b) Vacations taken by the collaborator (an array of dates)
+  vacationsRequested: Date[]; // c) Vacations requested but not approved (an array of dates)
+  remainingVacationDays: number; // d) Number of vacation days left for the collaborator
+  dateTimeOffRequests: DateTimeOffRequest[];
+}
+
+export interface DateTimeOffRequest {
+  date: Date;
+  id: string;
+  timeOffType: TimeOffType;
+  status: TimeOffStatus;
+  collaborator: Schema.Types.ObjectId;
+}
