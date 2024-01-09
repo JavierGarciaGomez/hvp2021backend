@@ -6,6 +6,7 @@ import { PaginationDto } from "../../../domain";
 import { TimeOffRequestsService } from "./timeOffRequestsService";
 import { TimeOffRequestDto } from "../../../domain/dtos/timeOffRequests/TimeOffRequestDto";
 import { BaseError } from "../../../domain/errors/BaseError";
+import { TimeOffRequest } from "../../../data/types/timeOffTypes";
 
 export class TimeOffRequestController {
   constructor(
@@ -159,7 +160,19 @@ export class TimeOffRequestController {
     req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
-  ) => {};
+  ) => {
+    try {
+      const id = req.params.id;
+      const { approvedBy, managerNote, status } =
+        req.body as Partial<TimeOffRequest>;
+
+      const response = await this.timeOffRequestsService.approveTimeOffRequest(
+        { approvedBy, managerNote, status },
+        id
+      );
+      res.status(response.status_code).json(response);
+    } catch (error) {}
+  };
   public deleteTimeOffRequest = async (
     req: RequestWithAuthCollaborator,
     res: Response,

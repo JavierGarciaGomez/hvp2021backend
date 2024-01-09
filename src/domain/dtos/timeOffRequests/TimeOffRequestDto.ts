@@ -3,6 +3,7 @@ import { TimeOffStatus, TimeOffType } from "../../../data/types/timeOffTypes";
 
 interface Options {
   approvalDate?: Date;
+  approvedBy?: string;
   collaborator: string;
   createdAt?: Date;
   createdBy?: string;

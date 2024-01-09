@@ -1,11 +1,18 @@
 import { Document, Schema, model } from "mongoose";
 
-import { TimeOffRequest } from "../types/timeOffTypes";
-import { TimeOffStatus, TimeOffType } from "../data/types/timeOffTypes";
+import {
+  TimeOffRequest,
+  TimeOffStatus,
+  TimeOffType,
+} from "../data/types/timeOffTypes";
 
 const timeOffRequestSchema = new Schema<TimeOffRequest>(
   {
-    approvalDate: { type: Date },
+    approvedAt: { type: Date },
+    approvedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "Collaborator",
+    },
     collaborator: {
       type: Schema.Types.ObjectId,
       ref: "Collaborator",

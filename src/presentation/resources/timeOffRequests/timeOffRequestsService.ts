@@ -213,13 +213,6 @@ export class TimeOffRequestsService {
       { new: true }
     );
 
-    console.log({ updatedResource });
-
-    // const timeOffRequest = new TimeOffRequestModel({
-    //   ...timeOffRequestDto,
-    //   createdBy: uid as unknown as ObjectId,
-    // });
-
     const response =
       SuccessResponseFormatter.formatUpdateResponse<TimeOffRequest>({
         data: updatedResource!,
@@ -228,7 +221,29 @@ export class TimeOffRequestsService {
 
     return response;
   }
-  async approveTimeOffRequest() {}
+  async approveTimeOffRequest(
+    { approvedBy, managerNote, status }: Partial<TimeOffRequest>,
+    id: string
+  ) {
+    const updatedResource = await TimeOffRequestModel.findByIdAndUpdate(
+      id,
+      {
+        approvedBy,
+        managerNote,
+        status,
+        approvedAt: new Date(),
+        updatedAt: new Date(),
+      },
+      { new: true }
+    );
+    const response =
+      SuccessResponseFormatter.formatUpdateResponse<TimeOffRequest>({
+        data: updatedResource!,
+        resource,
+      });
+
+    return response;
+  }
   async deleteTimeOffRequest() {}
   async getCollaboratorTimeOffOverview(collaboratorId: string, endDate: Date) {
     const overview = await getCollaboratorTimeOffOverviewDetails(

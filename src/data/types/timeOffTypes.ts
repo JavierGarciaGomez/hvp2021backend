@@ -19,7 +19,8 @@ export enum TimeOffStatus {
 
 export interface TimeOffRequest extends Document {
   _id?: Schema.Types.ObjectId;
-  approvalDate?: Date;
+  approvedAt?: Date;
+  approvedBy?: Schema.Types.ObjectId;
   collaborator: Schema.Types.ObjectId;
   createdAt: Date;
   createdBy: Schema.Types.ObjectId;
