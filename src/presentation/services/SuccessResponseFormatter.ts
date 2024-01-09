@@ -26,6 +26,7 @@ export class SuccessResponseFormatter {
 
     return {
       status_code: HttpStatusCode.OK,
+      ok: true,
       status: HttpStatusCode[HttpStatusCode.OK],
       resource: resource,
       operation: "all",
@@ -53,6 +54,7 @@ export class SuccessResponseFormatter {
   ): SingleSuccessResponse<T> {
     const { data, resource } = options;
     return {
+      ok: true,
       status_code: HttpStatusCode.OK,
       status: HttpStatusCode[HttpStatusCode.OK],
       resource: resource,
@@ -66,6 +68,7 @@ export class SuccessResponseFormatter {
   ): SingleSuccessResponse<T> {
     const { data, resource } = options;
     return {
+      ok: true,
       status_code: HttpStatusCode.CREATED,
       status: HttpStatusCode[HttpStatusCode.CREATED],
       resource: resource,
@@ -79,6 +82,7 @@ export class SuccessResponseFormatter {
   ): SingleSuccessResponse<T> {
     const { data, resource } = options;
     return {
+      ok: true,
       status_code: HttpStatusCode.OK,
       status: HttpStatusCode[HttpStatusCode.OK],
       resource: resource,
@@ -91,6 +95,7 @@ export class SuccessResponseFormatter {
   ): SingleSuccessResponse<T> {
     const { data, resource } = options;
     return {
+      ok: true,
       status_code: HttpStatusCode.OK,
       status: HttpStatusCode[HttpStatusCode.OK],
       resource: resource,

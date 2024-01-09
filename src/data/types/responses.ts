@@ -4,6 +4,7 @@ export interface CommonSuccessResponse<T> {
   resource: string;
   operation: string;
   data: T;
+  ok: boolean;
 }
 
 export interface ListSuccessResponse<T> extends CommonSuccessResponse<T[]> {

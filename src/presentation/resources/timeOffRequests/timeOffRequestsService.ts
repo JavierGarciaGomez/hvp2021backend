@@ -5,6 +5,7 @@ import { ListSuccessResponse } from "../../../data/types/responses";
 import {
   TimeOffRequest,
   TimeOffStatus,
+  TimeOffType,
 } from "../../../data/types/timeOffTypes";
 import { PaginationDto } from "../../../domain";
 import { BaseError } from "../../../domain/errors/BaseError";
@@ -138,7 +139,10 @@ export class TimeOffRequestsService {
     }
     // Todo check if he has enough days
 
-    if (remainingVacationDays < vacationsDaysRequested) {
+    if (
+      timeOffRequest.timeOffType === TimeOffType.vacation &&
+      remainingVacationDays < vacationsDaysRequested
+    ) {
       throw BaseError.badRequest(
         `The collaborator has ${remainingVacationDays} vacations days for the ${firstVacationDate.toISOString()}.`
       );
@@ -227,9 +231,10 @@ export class TimeOffRequestsService {
   }
   async approveTimeOffRequest() {}
   async deleteTimeOffRequest() {}
-  async getCollaboratorTimeOffOverview(collaboratorId: string) {
+  async getCollaboratorTimeOffOverview(collaboratorId: string, endDate: Date) {
     const overview = await getCollaboratorTimeOffOverviewDetails(
-      collaboratorId
+      collaboratorId,
+      endDate
     );
 
     const response =

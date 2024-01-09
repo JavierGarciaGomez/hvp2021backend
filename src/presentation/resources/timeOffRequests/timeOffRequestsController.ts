@@ -171,11 +171,15 @@ export class TimeOffRequestController {
     next: NextFunction
   ) => {
     try {
+      const endDateParam = req.query.endDate?.toString();
+      const endDate = endDateParam ? new Date(endDateParam) : new Date();
+
       const collaboratorId = req.params.collaboratorId;
 
       const response =
         await this.timeOffRequestsService.getCollaboratorTimeOffOverview(
-          collaboratorId
+          collaboratorId,
+          new Date(endDate)
         );
       res.status(response.status_code).json(response);
     } catch (error) {
