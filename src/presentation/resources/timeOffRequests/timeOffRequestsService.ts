@@ -244,7 +244,26 @@ export class TimeOffRequestsService {
 
     return response;
   }
-  async deleteTimeOffRequest() {}
+  async deleteTimeOffRequest(id: string) {
+    const timeOffRequest = await TimeOffRequestModel.findById(id);
+    if (!timeOffRequest)
+      throw BaseError.notFound(`${resource} not found with id ${id}`);
+
+    if (timeOffRequest.status !== TimeOffStatus.pending) {
+      throw BaseError.badRequest(
+        `The time off request has already been approved/rejected.`
+      );
+    }
+
+    const deletedResource = await TimeOffRequestModel.findByIdAndDelete(id);
+    const response =
+      SuccessResponseFormatter.formatDeleteResponse<TimeOffRequest>({
+        data: deletedResource!,
+        resource,
+      });
+
+    return response;
+  }
   async getCollaboratorTimeOffOverview(collaboratorId: string, endDate: Date) {
     const overview = await getCollaboratorTimeOffOverviewDetails(
       collaboratorId,

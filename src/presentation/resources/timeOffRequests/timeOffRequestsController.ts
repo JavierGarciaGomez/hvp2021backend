@@ -177,7 +177,17 @@ export class TimeOffRequestController {
     req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
-  ) => {};
+  ) => {
+    try {
+      const id = req.params.id;
+      const response = await this.timeOffRequestsService.deleteTimeOffRequest(
+        id
+      );
+      res.status(response.status_code).json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
   public getCollaboratorTimeOffOverview = async (
     req: RequestWithAuthCollaborator,
     res: Response,
