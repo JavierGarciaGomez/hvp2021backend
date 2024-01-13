@@ -1,3 +1,4 @@
+import TaskModel from "../data/models/TaskModel";
 import TimeOffRequestModel from "../data/models/TimeOffRequestModel";
 import CollaboratorModel from "../models/Collaborator";
 
@@ -14,6 +15,11 @@ export const getResource = async (
     switch (baseUrl) {
       case "/api/time-off-requests":
         return (await TimeOffRequestModel.findById(
+          resourceId
+        )) as ResourceWithCollaborator;
+
+      case "/api/tasks":
+        return (await TaskModel.findById(
           resourceId
         )) as ResourceWithCollaborator;
 

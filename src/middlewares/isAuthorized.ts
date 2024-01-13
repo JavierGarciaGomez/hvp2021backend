@@ -30,7 +30,8 @@ const isAuthorized =
 
     const hasAllowedRole = allowedRoles.includes(collaboratorRole);
 
-    const isCollaborator = resource!.collaborator.toString() === uid;
+    const isCollaborator =
+      collaboratorCanUpdate && resource!.collaborator.toString() === uid;
 
     if (hasAllowedRole || (isCollaborator && collaboratorCanUpdate)) {
       next();

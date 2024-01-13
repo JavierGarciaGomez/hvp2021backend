@@ -21,21 +21,17 @@ export class TasksController {
     res: Response,
     next: NextFunction
   ) => {
-    // try {
-    //   const { page = 1, limit = 10, all } = req.query;
-    //   const isAll =
-    //     all === "true" || all === "" || (page === 1 && limit === 10);
-    //   const [error, paginationDto] = PaginationDto.create(+page, +limit, isAll);
-    //   if (error) this.handleError(error, res, next);
-    //   const timeOffRequestsResponse = await this.taskService.getTimeOffRequests(
-    //     paginationDto!
-    //   );
-    //   res
-    //     .status(timeOffRequestsResponse.status_code)
-    //     .json(timeOffRequestsResponse);
-    // } catch (error) {
-    //   this.handleError(error, res, next);
-    // }
+    try {
+      const { page = 1, limit = 10, all } = req.query;
+      const isAll =
+        all === "true" || all === "" || (page === 1 && limit === 10);
+      const [error, paginationDto] = PaginationDto.create(+page, +limit, isAll);
+      if (error) this.handleError(error, res, next);
+      const response = await this.taskService.getTasks(paginationDto!);
+      res.status(response.status_code).json(response);
+    } catch (error) {
+      this.handleError(error, res, next);
+    }
   };
 
   public getTasksByCollaborator = async (
@@ -73,7 +69,7 @@ export class TasksController {
     const id = req.params.id;
     try {
       const response = await this.taskService.getTaskById(id);
-      // res.status(response.status_code).json(response);
+      res.status(response.status_code).json(response);
     } catch (error) {
       this.handleError(error, res, next);
     }
@@ -109,13 +105,12 @@ export class TasksController {
       const id = req.params.id;
       const { authenticatedCollaborator } = req;
       const body = req.body;
-      const [error, timeOffRequestDto] = TaskDto.update(body);
-      if (error)
-        throw BaseError.badRequest("Invalid time off request data", error);
+      const [error, dto] = TaskDto.update(body);
+      if (error) throw BaseError.badRequest("Invalid request data", error);
 
       const response = await this.taskService.updateTask(
         id,
-        timeOffRequestDto!,
+        dto!,
         authenticatedCollaborator!
       );
       res.status(response.status_code).json(response);
@@ -136,44 +131,6 @@ export class TasksController {
     } catch (error) {
       next(error);
     }
-  };
-  public getCollaboratorTaskOverview = async (
-    req: RequestWithAuthCollaborator,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const endDateParam = req.query.endDate?.toString();
-      const endDate = endDateParam ? new Date(endDateParam) : new Date();
-
-      const collaboratorId = req.params.collaboratorId;
-
-      const response = await this.taskService.getCollaboratorTaskOverview(
-        collaboratorId,
-        new Date(endDate)
-      );
-      res.status(response.status_code).json(response);
-    } catch (error) {
-      next(error);
-    }
-  };
-  public getCollaboratorsTasksOverview = async (
-    req: RequestWithAuthCollaborator,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const { page = 1, limit = 10, all } = req.query;
-      const isAll =
-        all === "true" || all === "" || (page === 1 && limit === 10);
-      const [error, paginationDto] = PaginationDto.create(+page, +limit, isAll);
-      if (error) this.handleError(error, res, next);
-
-      const response = await this.taskService.getCollaboratorsTaskOverview(
-        paginationDto!
-      );
-      res.status(response.status_code).json(response);
-    } catch (error) {}
   };
 }
 

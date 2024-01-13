@@ -1,6 +1,4 @@
 import { ResourceQuery } from "../../../data/types/Queries";
-import TimeOffRequestModel from "../../../data/models/TimeOffRequestModel";
-
 import { ListSuccessResponse } from "../../../data/types/responses";
 import {
   TimeOffRequest,
@@ -11,7 +9,7 @@ import { BaseError } from "../../../domain/errors/BaseError";
 import { SuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
 
 import { AuthenticatedCollaborator } from "../../../types/RequestsAndResponses";
-import { ObjectId } from "mongoose";
+import { ObjectId, Schema } from "mongoose";
 import { CollaboratorRole } from "../../../models/Collaborator";
 import { getCollaboratorTimeOffOverviewDetails } from "../../../helpers/timeOffHelpers";
 import { getEarliestDate } from "../../../helpers/dateHelpers";
@@ -23,15 +21,15 @@ import TaskModel from "../../../data/models/TaskModel";
 import { Task, TaskActivity } from "../../../data/types/taskTypes";
 import TaskActivityModel from "../../../data/models/TaskActivityModel";
 
-const commonPath = "/api/time-off-requests";
-const resource = "TimeOffRequests";
+const commonPath = "/api/tasks";
+const resourceName = "Tasks";
 export class TasksService {
   // DI
   constructor() {}
 
   async getTasks(
     paginationDto: PaginationDto
-  ): Promise<ListSuccessResponse<TimeOffRequest>> {
+  ): Promise<ListSuccessResponse<Task>> {
     const { all } = paginationDto;
     return this.fetchLists({}, paginationDto, all);
   }
@@ -39,13 +37,24 @@ export class TasksService {
   async getTaksByCollaborator(
     paginationDto: PaginationDto,
     collaboratorId: string
-  ): Promise<ListSuccessResponse<TimeOffRequest>> {
+  ): Promise<ListSuccessResponse<Task>> {
     const { all } = paginationDto;
-    const query = { collaborator: collaboratorId };
+    const query = { assignees: collaboratorId };
     return this.fetchLists(query, paginationDto, all);
   }
 
-  async getTaskById(id: string) {}
+  async getTaskById(id: string) {
+    const resource = await TaskModel.findById(id);
+    if (!resource)
+      throw BaseError.notFound(`${resource} not found with id ${id}`);
+
+    const response = SuccessResponseFormatter.formatGetOneResponse<Task>({
+      data: resource,
+      resource: resourceName,
+    });
+
+    return response;
+  }
 
   async createTask(
     taskDto: TaskDto,
@@ -53,23 +62,13 @@ export class TasksService {
   ) {
     const { uid } = authenticatedCollaborator;
 
-    const activityIds = taskDto.data.activities?.map(
-      (activity: TaskActivity) => {
-        const newActivity = new TaskActivityModel(activity);
-        newActivity.save();
-        return newActivity._id;
-      }
-    );
-
-    console.log({ taskdto: taskDto.data, activityIds });
+    const activityIds = await this.createOrUpdateActivities(taskDto);
 
     const task = new TaskModel({
       ...taskDto.data,
       activities: activityIds,
       createdBy: uid as unknown as ObjectId,
     });
-
-    console.log({ task });
 
     const savedTask = await task.save();
     const populatedTask = await TaskModel.populate(savedTask, {
@@ -78,7 +77,7 @@ export class TasksService {
 
     const response = SuccessResponseFormatter.fortmatCreateResponse<Task>({
       data: populatedTask,
-      resource,
+      resource: resourceName,
     });
 
     return response;
@@ -86,121 +85,90 @@ export class TasksService {
 
   async updateTask(
     id: string,
-    timeOffRequestDto: TaskDto,
+    dto: TaskDto,
     authenticatedCollaborator: AuthenticatedCollaborator
   ) {
-    const { uid, role } = authenticatedCollaborator;
+    const { uid } = authenticatedCollaborator;
 
-    const timeOffRequest = await TimeOffRequestModel.findById(id);
-    if (!timeOffRequest)
-      throw BaseError.notFound(`${resource} not found with id ${id}`);
+    const activityIds = await this.createOrUpdateActivities(dto);
 
-    if (
-      timeOffRequest.status !== TimeOffStatus.pending &&
-      role !== CollaboratorRole.admin &&
-      role !== CollaboratorRole.manager
-    ) {
-      throw BaseError.unauthorized(
-        "The time off request has already been approved."
-      );
-    }
+    const resourceToUpdate = await TaskModel.findById(id);
+    if (!resourceToUpdate)
+      throw BaseError.notFound(`${resourceName} not found with id ${id}`);
 
-    const firstVacationDate = getEarliestDate(timeOffRequest.requestedDays);
-    const vacationsDaysRequested = timeOffRequest.requestedDays.length;
-
-    const { remainingVacationDays, vacationsTaken, vacationsRequested } =
-      await getCollaboratorTimeOffOverviewDetails(uid, firstVacationDate, id);
-    const pendingOrTakenVacations = vacationsTaken.concat(vacationsRequested);
-
-    if (remainingVacationDays < vacationsDaysRequested) {
-      throw BaseError.badRequest(
-        `The collaborator has ${remainingVacationDays} vacations days for the ${firstVacationDate.toISOString()}.`
-      );
-    }
-
-    const updatedResource = await TimeOffRequestModel.findByIdAndUpdate(
+    const updatedResource = await TaskModel.findByIdAndUpdate(
       id,
-      { ...timeOffRequestDto.data, updatedAt: new Date(), updatedBy: uid },
+      {
+        ...dto.data,
+        activities: activityIds,
+        updatedAt: new Date(),
+        updatedBy: uid,
+      },
       { new: true }
     );
 
-    const response =
-      SuccessResponseFormatter.formatUpdateResponse<TimeOffRequest>({
-        data: updatedResource!,
-        resource,
-      });
+    const populatedResource = await TaskModel.populate(updatedResource, {
+      path: "activities",
+    });
+
+    const response = SuccessResponseFormatter.formatUpdateResponse<Task>({
+      data: populatedResource!,
+      resource: resourceName,
+    });
 
     return response;
   }
 
   async deleteTask(id: string) {
-    const timeOffRequest = await TimeOffRequestModel.findById(id);
-    if (!timeOffRequest)
-      throw BaseError.notFound(`${resource} not found with id ${id}`);
+    const resource = await TaskModel.findById(id);
+    if (!resource)
+      throw BaseError.notFound(`${resourceName} not found with id ${id}`);
 
-    if (timeOffRequest.status !== TimeOffStatus.pending) {
-      throw BaseError.badRequest(
-        `The time off request has already been approved/rejected.`
-      );
-    }
-
-    const deletedResource = await TimeOffRequestModel.findByIdAndDelete(id);
-    const response =
-      SuccessResponseFormatter.formatDeleteResponse<TimeOffRequest>({
-        data: deletedResource!,
-        resource,
-      });
+    const deletedResource = await TaskModel.findByIdAndDelete(id);
+    const response = SuccessResponseFormatter.formatDeleteResponse<Task>({
+      data: deletedResource!,
+      resource: resourceName,
+    });
 
     return response;
   }
-  async getCollaboratorTaskOverview(collaboratorId: string, endDate: Date) {
-    const overview = await getCollaboratorTimeOffOverviewDetails(
-      collaboratorId,
-      endDate
-    );
 
-    const response =
-      SuccessResponseFormatter.formatGetOneResponse<CollaboratorTimeOffOverview>(
-        {
-          data: overview,
-          resource: "CollaboratorTimeOffOverview",
+  private async createOrUpdateActivities(
+    taskDto: TaskDto
+  ): Promise<Schema.Types.ObjectId[] | undefined> {
+    const activityIds: Schema.Types.ObjectId[] = [];
+
+    if (taskDto.data.activities) {
+      for (const activity of taskDto.data.activities) {
+        let existingActivity = null;
+
+        // Check if the activity already exists based on some criteria, for example, using _id
+        if (activity._id) {
+          existingActivity = await TaskActivityModel.findById(activity._id);
         }
-      );
 
-    return response;
-  }
-  async getCollaboratorsTaskOverview(paginationDto: PaginationDto) {
-    const { all, page, limit } = paginationDto;
-    const activeCollaborators = await getActiveCollaborators();
-    const collaboratorsOverview: CollaboratorTimeOffOverview[] = [];
-    for (const collaborator of activeCollaborators) {
-      const collaboratorId = collaborator._id; // Adjust this based on your collaborator data structure
-
-      // Use the getCollaboratorTimeOffOverview function to get the time-off overview for the current collaborator
-      const overview = await getCollaboratorTimeOffOverviewDetails(
-        collaboratorId
-      );
-
-      // Add the collaborator's time-off overview to the array
-      collaboratorsOverview.push(overview);
+        if (existingActivity) {
+          // If activity exists, update it
+          existingActivity.set(activity);
+          await existingActivity.save();
+          activityIds.push(existingActivity._id);
+        } else {
+          // If activity doesn't exist, save it
+          const newActivity = new TaskActivityModel(activity);
+          await newActivity.save();
+          activityIds.push(newActivity._id);
+        }
+      }
     }
-    const response =
-      SuccessResponseFormatter.formatListResponse<CollaboratorTimeOffOverview>({
-        data: collaboratorsOverview,
-        page,
-        limit,
-        total: collaboratorsOverview.length,
-        path: `${commonPath}${TasksPaths.collaboratorsOverview}`,
-        resource: "CollaboratorsTimeOffOverview",
-      });
-    return response;
+
+    return activityIds.length > 0 ? activityIds : undefined;
   }
 
   private async fetchLists(
-    query: ResourceQuery<TimeOffRequest>,
+    query: ResourceQuery<Task>,
     paginationDto: PaginationDto,
     all: boolean
-  ): Promise<ListSuccessResponse<TimeOffRequest>> {
+  ): Promise<ListSuccessResponse<Task>> {
     const { page, limit } = paginationDto;
 
     try {
@@ -208,12 +176,12 @@ export class TasksService {
 
       if (all) {
         // If 'all' is present, fetch all resources without pagination
-        data = await TimeOffRequestModel.find(query);
+        data = await TaskModel.find(query);
       } else {
         // Fetch paginated time-off requests
         const [total, paginatedData] = await Promise.all([
-          TimeOffRequestModel.countDocuments(query),
-          TimeOffRequestModel.find(query)
+          TaskModel.countDocuments(query),
+          TaskModel.find(query)
             .skip((page - 1) * limit)
             .limit(limit),
         ]);
@@ -221,15 +189,14 @@ export class TasksService {
         data = paginatedData;
       }
 
-      const response =
-        SuccessResponseFormatter.formatListResponse<TimeOffRequest>({
-          data,
-          page,
-          limit,
-          total: data.length,
-          path: `${commonPath}${TasksPaths.all}`,
-          resource: "TimeOffRequests",
-        });
+      const response = SuccessResponseFormatter.formatListResponse<Task>({
+        data,
+        page,
+        limit,
+        total: data.length,
+        path: `${commonPath}${TasksPaths.all}`,
+        resource: "TimeOffRequests",
+      });
 
       return response;
     } catch (error) {

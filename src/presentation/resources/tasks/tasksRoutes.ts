@@ -12,8 +12,6 @@ export enum TasksPaths {
   all = "/",
   byCollaborator = "/collaborator/:collaboratorId",
   byId = "/:id",
-  collaboratorsOverview = "/collaborators/task-overview",
-  collaboratorOverview = "/collaborators/task-overview/:collaboratorId",
   create = "/",
   update = "/:id",
   approve = "/:id/approve",
@@ -35,24 +33,12 @@ export class TasksRoutes {
     router.get(TasksPaths.byId, controller.getTasksById);
 
     router.post(TasksPaths.create, controller.createTask);
-    router.put(
-      TasksPaths.update,
-      isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager], true),
-      controller.updateTask
-    );
+    router.put(TasksPaths.update, controller.updateTask);
 
     router.delete(
       TasksPaths.delete,
-      isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager], true),
+      isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager]),
       controller.deleteTask
-    );
-    router.get(
-      TasksPaths.collaboratorsOverview,
-      controller.getCollaboratorsTasksOverview
-    );
-    router.get(
-      TasksPaths.collaboratorOverview,
-      controller.getCollaboratorTaskOverview
     );
 
     // router.post("/", [AuthMiddleware.validateJWT], controller.createCategory);
