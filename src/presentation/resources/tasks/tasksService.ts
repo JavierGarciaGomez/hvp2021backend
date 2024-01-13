@@ -59,6 +59,7 @@ export class TasksService {
       ...taskDto.data,
       activities: activityIds,
       createdBy: uid as unknown as ObjectId,
+      updatedBy: uid as unknown as ObjectId,
     });
 
     const savedTask = await task.save();
