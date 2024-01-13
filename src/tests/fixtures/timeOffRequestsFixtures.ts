@@ -1,9 +1,5 @@
 import { Schema } from "mongoose";
-import {
-  TimeOffStatus,
-  TimeOffType,
-} from "../../constants/AttendanceConstants";
-import { TimeOffRequest } from "../../types/timeOffTypes";
+import { TimeOffStatus, TimeOffType } from "../../data/types/timeOffTypes";
 
 interface TimeOffRequestFixture {
   _id?: Schema.Types.ObjectId;

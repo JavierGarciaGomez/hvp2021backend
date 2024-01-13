@@ -6,7 +6,7 @@ import { TimeOffRequestController } from "./timeOffRequestsController";
 import { TimeOffRequestsService } from "./timeOffRequestsService";
 import { CollaboratorRole } from "../../../models/Collaborator";
 import isAuthorized from "../../../middlewares/isAuthorized";
-const { validateJwt } = require("../../../middlewares/validateJwt");
+import { validateJwt } from "../../../middlewares/validateJwt";
 
 export enum TimeOffRequestsRoutePaths {
   all = "/",

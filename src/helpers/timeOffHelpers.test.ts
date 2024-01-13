@@ -1,6 +1,10 @@
-import { TimeOffStatus, TimeOffType } from "../constants/AttendanceConstants";
+import {
+  TimeOffRequest,
+  TimeOffStatus,
+  TimeOffType,
+} from "../data/types/timeOffTypes";
 import timeOffRequestsFixture from "../tests/fixtures/timeOffRequestsFixtures";
-import { TimeOffRequest } from "../types/timeOffTypes";
+
 import {
   calculateTotalVacationDays,
   calculateVacationDaysBefore2023,
@@ -62,13 +66,11 @@ describe("timeOffHelpers", () => {
     test("returns an empty array for no pending vacation requests", () => {
       const timeOffRequests = [
         {
-          id: "1",
           timeOffType: TimeOffType.vacation,
           status: TimeOffStatus.approved,
           requestedDays: [new Date("2023-01-01")],
         },
         {
-          id: "2",
           timeOffType: TimeOffType.dayLeave,
           status: TimeOffStatus.rejected,
           requestedDays: [new Date("2023-02-01")],

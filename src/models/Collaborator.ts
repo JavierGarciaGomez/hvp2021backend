@@ -1,6 +1,5 @@
 // 339
 import { Schema, model, Document } from "mongoose";
-const { roles } = require("../types/types");
 
 export enum CollaboratorRole {
   admin = "Administrador",
@@ -46,8 +45,8 @@ const CollaboratorSchema = new Schema<Collaborator>({
   },
   role: {
     type: String,
-    enum: roles,
-    default: roles[2],
+    enum: CollaboratorRole,
+    default: CollaboratorRole.collaborator,
   },
   col_code: {
     type: String,

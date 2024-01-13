@@ -483,9 +483,9 @@ const createFcmPackage = async (req, res = response) => {
 
     data.creator = uid;
 
-    const package = new FcmPackage({ ...data });
+    const myPackage = new FcmPackage({ ...data });
 
-    const saved = await package.save();
+    const saved = await myPackage.save();
     // save it in the user package
     const user = await User.findById(uid);
     // just if is a user create fcmPartners
@@ -550,8 +550,8 @@ const updateFcmPackage = async (req, res = response) => {
     console.log("este es el puto id", id);
 
     // get the original data
-    let package = await FcmPackage.findById(id);
-    if (!package) {
+    let myPackage = await FcmPackage.findById(id);
+    if (!myPackage) {
       return res.status(404).json({
         ok: false,
         msg: "No existe data con ese ese id",
@@ -560,7 +560,7 @@ const updateFcmPackage = async (req, res = response) => {
 
     // get the new data and add the creator
     const updateData = { ...req.body };
-    updateData.creator = package.creator;
+    updateData.creator = myPackage.creator;
     console.log("esta es la updateddata", updateData);
 
     // Save the update
@@ -582,9 +582,9 @@ const deleteFcmPackage = async (req, res = response) => {
   try {
     // get the id
     const id = req.params.id;
-    let package = await FcmPackage.findById(id);
+    let myPackage = await FcmPackage.findById(id);
 
-    if (!package) {
+    if (!myPackage) {
       return res.status(404).json({
         ok: false,
         msg: "No existe data con ese ese id",
