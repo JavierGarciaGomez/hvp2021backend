@@ -1,7 +1,5 @@
 import { Router } from "express";
 
-// import { AuthMiddleware } from "../middlewares/auth.middleware";
-// import { CategoryService } from "../services/category.service";
 import { TasksController } from "./tasksController";
 import { TasksService } from "./tasksService";
 import { CollaboratorRole } from "../../../models/Collaborator";
@@ -40,8 +38,6 @@ export class TasksRoutes {
       isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager]),
       controller.deleteTask
     );
-
-    // router.post("/", [AuthMiddleware.validateJWT], controller.createCategory);
 
     return router;
   }

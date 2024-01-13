@@ -1,21 +1,17 @@
 import { Response, Request, NextFunction } from "express";
-// import { CreateCategoryDto, CustomError, PaginationDto } from "../../domain";
-
 import { RequestWithAuthCollaborator } from "../../../types/RequestsAndResponses";
 import { PaginationDto } from "../../../domain";
 import { TasksService } from "./tasksService";
 import { TaskDto } from "../../../domain/dtos/tasks/TaskDto";
 import { BaseError } from "../../../domain/errors/BaseError";
-import { TimeOffRequest } from "../../../data/types/timeOffTypes";
 
 export class TasksController {
   constructor(private readonly taskService: TasksService) {}
 
-  // TODO This need to throw error to next so its catched by handleErrorMiddleware
   private handleError = (error: unknown, res: Response, next: NextFunction) => {
     next(error);
   };
-  // Todo review
+
   public getTasks = async (
     req: RequestWithAuthCollaborator,
     res: Response,
@@ -132,11 +128,4 @@ export class TasksController {
       next(error);
     }
   };
-}
-
-interface HandleRequestParams {
-  req: RequestWithAuthCollaborator;
-  res: Response;
-  query: any;
-  operation: string;
 }

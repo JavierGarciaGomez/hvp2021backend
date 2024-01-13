@@ -1,24 +1,15 @@
 import { ResourceQuery } from "../../../data/types/Queries";
 import { ListSuccessResponse } from "../../../data/types/responses";
-import {
-  TimeOffRequest,
-  TimeOffStatus,
-} from "../../../data/types/timeOffTypes";
 import { PaginationDto } from "../../../domain";
 import { BaseError } from "../../../domain/errors/BaseError";
 import { SuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
 
 import { AuthenticatedCollaborator } from "../../../types/RequestsAndResponses";
 import { ObjectId, Schema } from "mongoose";
-import { CollaboratorRole } from "../../../models/Collaborator";
-import { getCollaboratorTimeOffOverviewDetails } from "../../../helpers/timeOffHelpers";
-import { getEarliestDate } from "../../../helpers/dateHelpers";
-import { getActiveCollaborators } from "../../../helpers/collaboratorsHelpers";
-import { CollaboratorTimeOffOverview } from "../../../data/types/timeOffTypes";
 import { TasksPaths } from "./tasksRoutes";
 import { TaskDto } from "../../../domain/dtos/tasks/TaskDto";
 import TaskModel from "../../../data/models/TaskModel";
-import { Task, TaskActivity } from "../../../data/types/taskTypes";
+import { Task } from "../../../data/types/taskTypes";
 import TaskActivityModel from "../../../data/models/TaskActivityModel";
 
 const commonPath = "/api/tasks";
