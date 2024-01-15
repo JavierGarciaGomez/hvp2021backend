@@ -28,7 +28,7 @@ export interface TaskActivity {
   createdAt?: Date;
   createdBy?: Schema.Types.ObjectId;
   updatedAt?: Date;
-  updatedBy?: Date;
+  updatedBy?: Schema.Types.ObjectId;
   content: string;
   registeredAt: Date;
   author: Schema.Types.ObjectId;

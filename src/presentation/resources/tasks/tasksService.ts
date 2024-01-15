@@ -168,7 +168,7 @@ export class TasksService {
 
       if (all) {
         // If 'all' is present, fetch all resources without pagination
-        data = await TaskModel.find(query);
+        data = await TaskModel.find(query).populate("activities");
       } else {
         // Fetch paginated time-off requests
         const [total, paginatedData] = await Promise.all([

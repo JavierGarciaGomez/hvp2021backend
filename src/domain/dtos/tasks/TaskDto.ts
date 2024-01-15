@@ -1,11 +1,9 @@
-import { ResourceOptions } from "../../../data/types/Options";
 import {
   TaskActivity,
   TaskPriority,
   TaskStatus,
   TaskTag,
 } from "../../../data/types/taskTypes";
-import { TimeOffStatus, TimeOffType } from "../../../data/types/timeOffTypes";
 
 interface Options {
   _id?: string;
