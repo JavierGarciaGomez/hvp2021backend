@@ -66,4 +66,5 @@ export enum TaskTag {
   WebApp = "Web app",
   Qvet = "Qvet",
   General = "General",
+  FileManagement = "File management",
 }

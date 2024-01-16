@@ -41,13 +41,7 @@ export class TaskDto {
     const validationError = this.validateOptions(data);
     if (validationError) return [validationError];
 
-    const { status, activities } = data;
-
-    return [undefined, new TaskDto({ ...data, status, activities })];
-  }
-
-  private static validateOptions(data: Options): string | undefined {
-    let { status, activities } = data;
+    let { status, activities, completedAt } = data;
 
     if (activities) {
       for (const activity of activities) {
@@ -57,6 +51,14 @@ export class TaskDto {
 
     status = status ? status : TaskStatus.Backlog;
 
+    if (completedAt) {
+      status = TaskStatus.Completed;
+    }
+
+    return [undefined, new TaskDto({ ...data, status, activities })];
+  }
+
+  private static validateOptions(data: Options): string | undefined {
     return undefined;
   }
 }

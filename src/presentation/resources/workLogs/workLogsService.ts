@@ -13,7 +13,8 @@ import TaskActivityModel from "../../../data/models/TaskActivityModel";
 import WorkLogModel from "../../../data/models/WorkLogModel";
 import { WorkLog, WorkLogActivity } from "../../../data/types/workLogsTypes";
 import TaskModel from "../../../data/models/TaskModel";
-import { TaskActivity } from "../../../data/types/taskTypes";
+import { TaskActivity, TaskStatus } from "../../../data/types/taskTypes";
+import { getTaskStatus } from "../../../helpers/taskHelpers";
 
 const commonPath = "/api/work-logs";
 const resourceName = "WorkLogs";
@@ -183,9 +184,11 @@ export class WorkLogsService {
               }
             }
 
+            const taskStatus = getTaskStatus(task.status);
+
             await TaskModel.findOneAndUpdate(
               { _id: activity.relatedTask },
-              { activities: task.activities },
+              { activities: task.activities, status: taskStatus },
               { new: true }
             );
           }
