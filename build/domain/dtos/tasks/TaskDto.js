@@ -16,17 +16,19 @@ class TaskDto {
         const validationError = this.validateOptions(data);
         if (validationError)
             return [validationError];
-        const { status, activities } = data;
-        return [undefined, new TaskDto(Object.assign(Object.assign({}, data), { status, activities }))];
-    }
-    static validateOptions(data) {
-        let { status, activities } = data;
+        let { status, activities, completedAt } = data;
         if (activities) {
             for (const activity of activities) {
                 activity.registeredAt = new Date(activity.registeredAt);
             }
         }
         status = status ? status : taskTypes_1.TaskStatus.Backlog;
+        if (completedAt) {
+            status = taskTypes_1.TaskStatus.Completed;
+        }
+        return [undefined, new TaskDto(Object.assign(Object.assign({}, data), { status, activities }))];
+    }
+    static validateOptions(data) {
         return undefined;
     }
 }

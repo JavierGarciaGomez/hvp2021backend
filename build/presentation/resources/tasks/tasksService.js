@@ -129,7 +129,7 @@ class TasksService {
                 let data;
                 if (all) {
                     // If 'all' is present, fetch all resources without pagination
-                    data = yield TaskModel_1.default.find(query);
+                    data = yield TaskModel_1.default.find(query).populate("activities");
                 }
                 else {
                     // Fetch paginated time-off requests

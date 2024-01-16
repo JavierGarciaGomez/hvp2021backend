@@ -34,4 +34,5 @@ var TaskTag;
     TaskTag["WebApp"] = "Web app";
     TaskTag["Qvet"] = "Qvet";
     TaskTag["General"] = "General";
+    TaskTag["FileManagement"] = "File management";
 })(TaskTag || (exports.TaskTag = TaskTag = {}));

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const errorHandler_1 = require("./middlewares/errorHandler");
 const timeOffRequestsRoutes_1 = require("./presentation/resources/timeOffRequests/timeOffRequestsRoutes");
 const tasksRoutes_1 = require("./presentation/resources/tasks/tasksRoutes");
+const workLogsRoutes_1 = require("./presentation/resources/workLogs/workLogsRoutes");
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
@@ -109,6 +110,7 @@ app.use("/api/userClient", userClientRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/time-off-requests", timeOffRequestsRoutes_1.TimeOffRequestsRoutes.routes);
 app.use("/api/tasks", tasksRoutes_1.TasksRoutes.routes);
+app.use("/api/work-logs", workLogsRoutes_1.WorkLogsRoutes.routes);
 app.use(errorHandler_1.errorHandler);
 app.listen(process.env.PORT || 4000, () => {
     console.log("Server running in port " + process.env.PORT);
