@@ -53,7 +53,7 @@ export class TasksService {
   ) {
     const { uid } = authenticatedCollaborator;
 
-    const activityIds = await this.createOrUpdateActivities(taskDto);
+    const activityIds = await this.createOrUpdateActivities(taskDto, uid);
 
     const task = new TaskModel({
       ...taskDto.data,
@@ -82,7 +82,7 @@ export class TasksService {
   ) {
     const { uid } = authenticatedCollaborator;
 
-    const activityIds = await this.createOrUpdateActivities(dto);
+    const activityIds = await this.createOrUpdateActivities(dto, uid);
 
     const resourceToUpdate = await TaskModel.findById(id);
     if (!resourceToUpdate)
@@ -126,7 +126,8 @@ export class TasksService {
   }
 
   private async createOrUpdateActivities(
-    taskDto: TaskDto
+    taskDto: TaskDto,
+    uid: string
   ): Promise<Schema.Types.ObjectId[] | undefined> {
     const activityIds: Schema.Types.ObjectId[] = [];
 
@@ -141,12 +142,20 @@ export class TasksService {
 
         if (existingActivity) {
           // If activity exists, update it
-          existingActivity.set(activity);
+          existingActivity.set({ ...activity, createdBy: uid, updatedBy: uid });
           await existingActivity.save();
           activityIds.push(existingActivity._id);
         } else {
           // If activity doesn't exist, save it
-          const newActivity = new TaskActivityModel(activity);
+          const newActivity = new TaskActivityModel({
+            ...activity,
+            createdBy:
+              (activity.createdBy as unknown as string) !== ""
+                ? activity.createdBy
+                : uid,
+            updatedBy: uid,
+            updatedAt: new Date(),
+          });
           await newActivity.save();
           activityIds.push(newActivity._id);
         }
