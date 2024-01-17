@@ -74,7 +74,7 @@ const getDailyCleanUpsAndGenerate = async (req, res = response) => {
     const date = dayjs().utc(true).startOf("day");
 
     // create registers for the last seven days if they doesn't exist
-    for (i = 0; i < 7; i++) {
+    for (let i = 0; i < 7; i++) {
       const newDate = date.subtract(i, "day");
       // console.log("branch", branch, i);
 
