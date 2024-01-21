@@ -11,6 +11,7 @@ import { TaskDto } from "../../../domain/dtos/tasks/TaskDto";
 import TaskModel from "../../../data/models/TaskModel";
 import { Task } from "../../../data/types/taskTypes";
 import TaskActivityModel from "../../../data/models/TaskActivityModel";
+import { isManagerOrAdmin } from "../../../helpers/authorizationHelpers";
 
 const commonPath = "/api/tasks";
 const resourceName = "Tasks";
@@ -19,10 +20,17 @@ export class TasksService {
   constructor() {}
 
   async getTasks(
-    paginationDto: PaginationDto
+    paginationDto: PaginationDto,
+    authenticatedCollaborator: AuthenticatedCollaborator
   ): Promise<ListSuccessResponse<Task>> {
+    const { role } = authenticatedCollaborator;
+    const hasAccessRole = isManagerOrAdmin(role);
+    const query: ResourceQuery<Task> = {};
+    if (!hasAccessRole) {
+      query["isRestrictedView"] = false;
+    }
     const { all } = paginationDto;
-    return this.fetchLists({}, paginationDto, all);
+    return this.fetchLists(query, paginationDto, all);
   }
 
   async getTaksByCollaborator(

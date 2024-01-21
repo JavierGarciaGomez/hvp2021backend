@@ -12,6 +12,7 @@ export interface Task extends Document {
   createdBy?: Schema.Types.ObjectId;
   description?: string;
   dueDate?: Date;
+  isRestrictedView: boolean;
   notes?: string;
   number?: number;
   priority: TaskPriority;

@@ -13,11 +13,14 @@ const taskSchema = new Schema<Task>(
     author: { type: Schema.Types.ObjectId, ref: "Collaborator" },
     completedAt: { type: Date },
     completionCriteria: [{ type: String }],
-
     createdAt: { type: Date, default: Date.now },
     createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
     description: { type: String },
     dueDate: { type: Date },
+    isRestrictedView: {
+      type: Boolean,
+      default: false,
+    },
     notes: { type: String },
     number: { type: Number },
     priority: {

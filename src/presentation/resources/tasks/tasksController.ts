@@ -18,12 +18,16 @@ export class TasksController {
     next: NextFunction
   ) => {
     try {
+      const { authenticatedCollaborator } = req;
       const { page = 1, limit = 10, all } = req.query;
       const isAll =
         all === "true" || all === "" || (page === 1 && limit === 10);
       const [error, paginationDto] = PaginationDto.create(+page, +limit, isAll);
       if (error) this.handleError(error, res, next);
-      const response = await this.taskService.getTasks(paginationDto!);
+      const response = await this.taskService.getTasks(
+        paginationDto!,
+        authenticatedCollaborator!
+      );
       res.status(response.status_code).json(response);
     } catch (error) {
       this.handleError(error, res, next);

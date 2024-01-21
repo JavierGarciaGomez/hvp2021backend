@@ -4,6 +4,7 @@ import { errorHandler } from "./middlewares/errorHandler";
 import { TimeOffRequestsRoutes } from "./presentation/resources/timeOffRequests/timeOffRequestsRoutes";
 import { TasksRoutes } from "./presentation/resources/tasks/tasksRoutes";
 import { WorkLogsRoutes } from "./presentation/resources/workLogs/workLogsRoutes";
+import TaskModel from "./data/models/TaskModel";
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
@@ -106,7 +107,6 @@ app.use(function (req, res, next) {
 //   })
 // );
 
-// Public directory
 app.use(express.static(path.join(__dirname, "/public")));
 
 // 334 reading and parsing
