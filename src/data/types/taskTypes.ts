@@ -56,6 +56,7 @@ export enum TaskTag {
   Advertising = "Advertising",
   Billing = "Billing",
   Customers = "Customers",
+  Equipment = "Equipment",
   Events = "Events",
   FileManagement = "File management",
   General = "General",

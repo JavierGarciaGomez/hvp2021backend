@@ -52,7 +52,7 @@ export class TaskDto {
     status = status ? status : TaskStatus.Backlog;
 
     if (completedAt) {
-      status = TaskStatus.Completed;
+      if (status !== TaskStatus.Canceled) status = TaskStatus.Completed;
     }
 
     return [undefined, new TaskDto({ ...data, status, activities })];
