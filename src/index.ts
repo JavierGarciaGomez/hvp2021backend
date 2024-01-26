@@ -48,11 +48,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // dbConnection
 dbConnection();
 
-console.log("review url", process.env.CLIENT_URL);
 // CORS
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: [process.env.CLIENT_URL, process.env.CLIENT_URL2],
     methods: "GET,POST,PUT,DELETE, PATCH",
     credentials: true,
     maxAge: 3600,
