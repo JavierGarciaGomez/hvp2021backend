@@ -57,6 +57,7 @@ export enum TaskTag {
   Advertising = "Advertising",
   Billing = "Billing",
   Customers = "Customers",
+  Documentation = "Documentation",
   Equipment = "Equipment",
   Events = "Events",
   FileManagement = "File management",
@@ -68,6 +69,8 @@ export enum TaskTag {
   Qvet = "Qvet",
   Reports = "Reports",
   SocialMedia = "Social media",
+  SocialSecurity = "Social security",
   Suppliers = "Suppliers",
+  Taxes = "Taxes",
   WebApp = "Web app",
 }

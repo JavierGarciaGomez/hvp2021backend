@@ -10,7 +10,7 @@ interface Options {
   activities?: TaskActivity[];
   assignees?: string[];
   author: string;
-  completedAt?: string;
+  completedAt?: string | null;
   completionCriteria?: string[];
   createdAt?: string;
   createdBy?: string;
@@ -55,7 +55,10 @@ export class TaskDto {
       if (status !== TaskStatus.Canceled) status = TaskStatus.Completed;
     }
 
-    return [undefined, new TaskDto({ ...data, status, activities })];
+    return [
+      undefined,
+      new TaskDto({ ...data, status, activities, completedAt }),
+    ];
   }
 
   private static validateOptions(data: Options): string | undefined {
