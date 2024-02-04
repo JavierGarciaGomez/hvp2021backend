@@ -184,11 +184,11 @@ export class WorkLogsService {
               }
             }
 
-            const taskStatus = getTaskStatus(task.status);
+            // const taskStatus = getTaskStatus(task.status);
 
             await TaskModel.findOneAndUpdate(
               { _id: activity.relatedTask },
-              { activities: task.activities, status: taskStatus },
+              { activities: task.activities },
               { new: true }
             );
           }
