@@ -104,7 +104,7 @@ export const getCollaboratorTimeOffOverviewDetails = async (
     totalVacationDays - takenOrRequestedVacationDays;
   0;
 
-  const remainingLegalVacationDays = Math.min(
+  const remainingLegalVacationDays = Math.max(
     legalVacationDays - takenOrRequestedVacationDays,
     0
   );
