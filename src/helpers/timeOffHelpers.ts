@@ -102,11 +102,19 @@ export const getCollaboratorTimeOffOverviewDetails = async (
 
   const remainingVacationDays =
     totalVacationDays - takenOrRequestedVacationDays;
+  0;
 
-  const remainingLegalVacationDays =
-    legalVacationDays - takenOrRequestedVacationDays;
+  const remainingLegalVacationDays = Math.min(
+    legalVacationDays - takenOrRequestedVacationDays,
+    0
+  );
+
+  const thisYearVacationDays = totalVacationDays - legalVacationDays;
+  0;
+
   const remainingcurrentYearVacationDays =
-    totalVacationDays - remainingLegalVacationDays;
+    thisYearVacationDays -
+    Math.min(0, legalVacationDays - takenOrRequestedVacationDays);
 
   const data: CollaboratorTimeOffOverview = {
     collaboratorId,
