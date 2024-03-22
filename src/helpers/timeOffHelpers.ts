@@ -57,10 +57,15 @@ export const getCollaboratorTimeOffOverviewDetails = async (
 
   const collaborator = await CollaboratorModel.findById(collaboratorId);
 
-  const totalVacationDays = calculateTotalVacationDays(
-    collaborator?.startDate!,
-    endDate
+  const { startDate } = collaborator!;
+  const lastAnniversaryDate = getLastAnniversaryDate(startDate ?? new Date());
+
+  const legalVacationDays = calculateTotalVacationDays(
+    startDate!,
+    lastAnniversaryDate
   );
+
+  const totalVacationDays = calculateTotalVacationDays(startDate!, endDate);
 
   const vacationsTaken: Date[] = getApprovedVacations(
     collaboratorTimeOffRequests
@@ -92,11 +97,17 @@ export const getCollaboratorTimeOffOverviewDetails = async (
       });
     });
 
+  const takenOrRequestedVacationDays =
+    vacationsRequested.length + vacationsTaken.length;
+
   const remainingVacationDays =
-    totalVacationDays -
-    vacationsTaken.length -
-    vacationsRequested.length -
-    (collaborator?.vacationsTakenBefore2021 ?? 0);
+    totalVacationDays - takenOrRequestedVacationDays;
+
+  const remainingLegalVacationDays =
+    legalVacationDays - takenOrRequestedVacationDays;
+  const remainingcurrentYearVacationDays =
+    totalVacationDays - remainingLegalVacationDays;
+
   const data: CollaboratorTimeOffOverview = {
     collaboratorId,
     totalVacationDays,
@@ -104,6 +115,10 @@ export const getCollaboratorTimeOffOverviewDetails = async (
     vacationsRequested: vacationsRequested,
     remainingVacationDays,
     dateTimeOffRequests,
+    lastAnniversaryDate,
+    legalVacationDays,
+    remainingLegalVacationDays,
+    remainingcurrentYearVacationDays,
   };
 
   return data;
@@ -186,20 +201,36 @@ export const calculateVacationDaysBefore2023 = (
   employmentStartDate: Date,
   endDate = new Date()
 ): number => {
-  const isStartDateBefore2023 = dayjs(employmentStartDate).isAfter(
+  const isStartDateAfter2023 = dayjs(employmentStartDate).isAfter(
     dayjs("2022-12-31")
   );
 
-  if (isStartDateBefore2023) {
+  // started after 2023
+  if (isStartDateAfter2023) {
     return 0;
   }
 
-  const itEndsAtDec2022 = dayjs(endDate).isSame(dayjs("2022-12-31"), "day");
+  const itEndsBefore2023 = dayjs(endDate).isBefore(dayjs("2023-01-01"), "day");
 
-  const workedYears = Math.floor(
-    calculateYears(employmentStartDate, new Date("2022-12-31"), itEndsAtDec2022)
-  );
-  return calculateVacationsForFullYearsBefore2023(workedYears);
+  if (itEndsBefore2023) {
+    const fullWorkedYears = calculateFullYears(employmentStartDate, endDate);
+    const vacationDaysForFullYears =
+      calculateVacationsForFullYearsBefore2023(fullWorkedYears);
+    const remainingVacationDays = calculateRemainingDaysBefore2023(
+      employmentStartDate,
+      endDate
+    );
+    return vacationDaysForFullYears + remainingVacationDays;
+  } else {
+    const fullWorkedYears = calculateFullYears(
+      employmentStartDate,
+      new Date("2022-12-31")
+    );
+    const vacationDaysForFullYears =
+      calculateVacationsForFullYearsBefore2023(fullWorkedYears);
+    // ended after 2023
+    return vacationDaysForFullYears;
+  }
 };
 
 export const calculateVacationsForFullYearsBefore2023 = (
@@ -218,30 +249,55 @@ export const calculateVacationsForFullYearsBefore2023 = (
   return totalDays;
 };
 
+export const calculateRemainingDaysBefore2023 = (
+  employmentStartDate: Date,
+  endDate: Date
+) => {
+  // Step 1: Get the years when the employmentStartDate and endDate fall
+  const employmentStartYear = employmentStartDate.getFullYear();
+
+  // Step 2: Calculate the number of full years between employmentStartDate and endDate
+  const fullYears = calculateFullYears(employmentStartDate, endDate, true);
+
+  // Step 3: Calculate the start date of the year following the last full year
+  const nextYearStartDate = new Date(
+    employmentStartYear + fullYears,
+    employmentStartDate.getMonth(),
+    employmentStartDate.getDate()
+  );
+
+  // Step 4: Calculate the remaining days from nextYearStartDate until endDate
+  const remainingWorkedDays = Math.ceil(
+    (endDate.getTime() - nextYearStartDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  const yearlyVacationDaysForLastYear = calculateVacationDaysForYearBefore2023(
+    fullYears + 1
+  );
+
+  const remainingVacationDays =
+    (remainingWorkedDays / 365) * yearlyVacationDaysForLastYear;
+
+  return Math.floor(remainingVacationDays);
+};
+
 export const calculateVacationDaysForYearBefore2023 = (
   yearsOfWorking: number
 ): number => {
-  if (yearsOfWorking >= 1 && yearsOfWorking < 6) {
-    // 1 to 5 years
+  if (yearsOfWorking >= 1 && yearsOfWorking < 5) {
     return 6 + (yearsOfWorking - 1) * 2;
-  } else if (yearsOfWorking >= 6 && yearsOfWorking <= 10) {
-    // 6 to 10 years
+  } else if (yearsOfWorking >= 5 && yearsOfWorking <= 9) {
+    return 14;
+  } else if (yearsOfWorking >= 10 && yearsOfWorking <= 14) {
     return 16;
-  } else if (yearsOfWorking >= 11 && yearsOfWorking <= 15) {
-    // 11 to 15 years
+  } else if (yearsOfWorking >= 15 && yearsOfWorking <= 19) {
     return 18;
-  } else if (yearsOfWorking >= 16 && yearsOfWorking <= 20) {
-    // 16 to 20 years
+  } else if (yearsOfWorking >= 20 && yearsOfWorking <= 24) {
     return 20;
-  } else if (yearsOfWorking >= 21 && yearsOfWorking <= 25) {
-    // 21 to 25 years
+  } else if (yearsOfWorking >= 25 && yearsOfWorking <= 29) {
     return 22;
-  } else if (yearsOfWorking >= 26 && yearsOfWorking <= 30) {
-    // 26 to 30 years
-    return 24;
   } else {
-    // Default case for other values
-    return 0; // You may want to handle this case differently based on your requirements
+    return 0;
   }
 };
 
@@ -339,7 +395,7 @@ export const calculateVacationsForYearAfter2022 = (
 export const calculateYears = (
   startDate: Date,
   endDate = new Date(),
-  includeEndDate = true
+  includeEndDate = false
 ): number => {
   const newEndDate = includeEndDate
     ? dayjs(endDate).add(1, "day")
@@ -347,5 +403,30 @@ export const calculateYears = (
   if (startDate > endDate) return 0;
 
   const years = newEndDate.diff(dayjs(startDate), "year", true);
+
   return years;
+};
+
+export const calculateFullYears = (
+  startDate: Date,
+  endDate = new Date(),
+  includeEndDate = true
+): number => {
+  const years = calculateYears(startDate, endDate);
+  return Math.floor(years);
+};
+
+export const getLastAnniversaryDate = (startDate: Date): Date => {
+  const start = dayjs(startDate);
+  const current = dayjs();
+
+  // Calculate the last anniversary date in the previous year
+  let lastAnniversaryDate = start.add(current.year() - start.year(), "year");
+
+  // If the last anniversary date is after the current date, subtract one more year
+  if (lastAnniversaryDate.isAfter(current)) {
+    lastAnniversaryDate = lastAnniversaryDate.subtract(1, "year");
+  }
+
+  return lastAnniversaryDate.toDate();
 };

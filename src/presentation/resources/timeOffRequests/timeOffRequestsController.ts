@@ -142,6 +142,7 @@ export class TimeOffRequestController {
       const { authenticatedCollaborator } = req;
       const body = req.body;
       const [error, timeOffRequestDto] = TimeOffRequestDto.update(body);
+
       if (error)
         throw BaseError.badRequest("Invalid time off request data", error);
 

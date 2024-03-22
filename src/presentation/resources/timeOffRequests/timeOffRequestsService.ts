@@ -156,10 +156,16 @@ export class TimeOffRequestsService {
 
     const firstVacationDate = getEarliestDate(timeOffRequest.requestedDays);
     const vacationsDaysRequested = timeOffRequest.requestedDays.length;
+    const collaboratorId = timeOffRequest.collaborator as unknown as string;
 
     const { remainingVacationDays, vacationsTaken, vacationsRequested } =
-      await getCollaboratorTimeOffOverviewDetails(uid, firstVacationDate, id);
+      await getCollaboratorTimeOffOverviewDetails(
+        collaboratorId,
+        firstVacationDate,
+        id
+      );
     const pendingOrTakenVacations = vacationsTaken.concat(vacationsRequested);
+    console.log({ pendingOrTakenVacations });
 
     // TODO: Check if dates were already requested
     for (const date of timeOffRequestDto.data.requestedDays) {

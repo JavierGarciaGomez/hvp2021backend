@@ -15,6 +15,7 @@ export enum TimeOffStatus {
   pending = "Pending",
   approved = "Approved",
   rejected = "Rejected",
+  canceled = "Canceled",
 }
 
 export interface TimeOffRequest extends Document {
@@ -45,6 +46,10 @@ export interface CollaboratorTimeOffOverview {
   vacationsRequested: Date[]; // c) Vacations requested but not approved (an array of dates)
   remainingVacationDays: number; // d) Number of vacation days left for the collaborator
   dateTimeOffRequests: DateTimeOffRequest[];
+  lastAnniversaryDate: Date; // e) The last anniversary date of the collaborator
+  legalVacationDays: number; // f) The number of legal vacation days the collaborator has a right to take
+  remainingLegalVacationDays: number;
+  remainingcurrentYearVacationDays: number;
 }
 
 export interface DateTimeOffRequest {
