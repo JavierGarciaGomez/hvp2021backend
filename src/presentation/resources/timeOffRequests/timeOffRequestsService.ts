@@ -98,11 +98,16 @@ export class TimeOffRequestsService {
     const { remainingVacationDays, dateTimeOffRequests } =
       await getCollaboratorTimeOffOverviewDetails(uid, firstTimeOffDate);
 
+    const notCancelledTimeOffRequests = dateTimeOffRequests.filter(
+      (dateTimeOffRequest) =>
+        dateTimeOffRequest.status !== TimeOffStatus.canceled
+    );
+
     // TODO: Check if dates were already requested
     for (const date of timeOffRequest.requestedDays) {
       const dateOnly = formatDateWithoutTime(date);
 
-      const pendingDatesWithoutTime = dateTimeOffRequests
+      const pendingDatesWithoutTime = notCancelledTimeOffRequests
         .map((dateTimeOffRequest) => dateTimeOffRequest.date)
         .map(formatDateWithoutTime);
 
