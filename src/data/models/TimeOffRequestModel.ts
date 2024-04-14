@@ -8,6 +8,11 @@ import {
 const timeOffRequestSchema = new Schema<TimeOffRequest>(
   {
     approvedAt: { type: Date },
+    approvedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "Collaborator",
+      required: true,
+    },
     collaborator: {
       type: Schema.Types.ObjectId,
       ref: "Collaborator",
