@@ -141,10 +141,11 @@ const updateDailyCleanUp = async (req, res = response) => {
     }
 
     const collaborator = await CollaboratorModel.findById(uid);
+    console.log({ dailyCleanUp });
 
     switch (action) {
       case cleanUpActions.addCleaner:
-        for (element of dailyCleanUp.cleaners) {
+        for (const element of dailyCleanUp.cleaners) {
           if (element.cleaner._id.toString() === uid) {
             return res.status(404).json({
               ok: false,
@@ -157,7 +158,7 @@ const updateDailyCleanUp = async (req, res = response) => {
         break;
 
       case cleanUpActions.addSupervisor:
-        for (element of dailyCleanUp.supervisors) {
+        for (const element of dailyCleanUp.supervisors) {
           if (element.supervisor._id.toString() === uid) {
             return res.status(404).json({
               ok: false,
@@ -196,7 +197,7 @@ const updateDailyCleanUp = async (req, res = response) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      ok: "false",
+      ok: false,
       msg: "Por favor, hable con el administrador",
       error,
     });
