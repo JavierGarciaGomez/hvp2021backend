@@ -133,7 +133,7 @@ const updateDailyCleanUp = async (req, res = response) => {
     }
 
     const currentDate = dayjs();
-    if (!validateMaxDays(dailyCleanUp.date, currentDate, 2)) {
+    if (!validateMaxDays(dailyCleanUp.date, currentDate, 4)) {
       return res.status(404).json({
         ok: false,
         msg: "No puedes actualizar un registro antiguo",
