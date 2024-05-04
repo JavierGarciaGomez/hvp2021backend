@@ -6,12 +6,14 @@ import {
   TimeOffType,
 } from "../data/types/timeOffTypes";
 
+// TODO: DELETE? This is repaeted with other model
 const timeOffRequestSchema = new Schema<TimeOffRequest>(
   {
     approvedAt: { type: Date },
     approvedBy: {
       type: Schema.Types.ObjectId,
       ref: "Collaborator",
+      required: false,
     },
     collaborator: {
       type: Schema.Types.ObjectId,

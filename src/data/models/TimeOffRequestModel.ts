@@ -11,7 +11,7 @@ const timeOffRequestSchema = new Schema<TimeOffRequest>(
     approvedBy: {
       type: Schema.Types.ObjectId,
       ref: "Collaborator",
-      required: true,
+      required: false,
     },
     collaborator: {
       type: Schema.Types.ObjectId,
