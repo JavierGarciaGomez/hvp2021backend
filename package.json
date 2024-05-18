@@ -37,7 +37,8 @@
     "dev": "tsnd --respawn --clear src/index.ts",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "seed": "tsc && node build/scripts/attendanceRecordSeed.js"
   },
   "repository": "git+https://github.com/JavierGarciaGomez/hvp2021backend.git",
   "keywords": [],

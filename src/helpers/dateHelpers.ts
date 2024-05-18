@@ -7,3 +7,21 @@ export const getEarliestDate = (dates: Date[]) => {
 
 export const formatDateWithoutTime = (date: Date): string =>
   `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+
+export const isValidDate = (dateString: string): boolean => {
+  const date = new Date(dateString);
+  return !isNaN(date.getTime());
+};
+
+export const isValidDateString = (dateString: string): boolean => {
+  const regex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!regex.test(dateString)) {
+    return false;
+  }
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return false;
+  }
+  // Ensure the date string matches the ISO format to avoid invalid months or days
+  return date.toISOString().slice(0, 10) === dateString;
+};

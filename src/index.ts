@@ -5,7 +5,10 @@ import { TimeOffRequestsRoutes } from "./presentation/resources/timeOffRequests/
 import { TasksRoutes } from "./presentation/resources/tasks/tasksRoutes";
 import { WorkLogsRoutes } from "./presentation/resources/workLogs/workLogsRoutes";
 import TaskModel from "./data/models/TaskModel";
+import { AttendanceRecordsRoutes } from "./presentation/resources/attendanceRecords/attendanceRecordsRoutes";
+import { mainRoutes } from "./mainRoutes";
 require("dotenv").config();
+
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
@@ -68,65 +71,28 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-/*
-app.use(function (req, res, next) {
-  // Website you wish to allow to connect
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    "https://www.hospitalveterinariopeninsular.com"
-  );
-
-  // Request methods you wish to allow
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-  );
-
-  // Request headers you wish to allow
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-Requested-With,content-type"
-  );
-
-  // Set to true if you need the website to include cookies in the requests sent
-  // to the API (e.g. in case you use sessions)
-  res.setHeader("Access-Control-Allow-Credentials", true);
-
-  // Pass to next layer of middleware
-  next();
-});
-*/
-
-// app.options(
-//   "*",
-//   cors({
-//     origin: true,
-//     methods: "GET,POST,PUT,DELETE, PATCH",
-//     credentials: true,
-//   })
-// );
-
 app.use(express.static(path.join(__dirname, "/public")));
 
 // 334 reading and parsing
 app.use(express.json());
 
 // routes
-app.use("/api/auth", authRoutes);
-app.use("/api/collaborators", collaboratorsRoutes);
-app.use("/api/cleanups", cleanUpsRoutes);
-app.use("/api/rfc", rfcRoutes);
-app.use("/api/collaboratorLog", collaboratorLogRoutes);
-app.use("/api/userLog", userLogRoutes);
-app.use("/api/activityRegister", activityRegisterRoutes);
-app.use("/api/misc", miscRoutes);
-app.use("/api/documentation", documentationRoutes);
-app.use("/api/fcm", fcmRoutes);
-app.use("/api/userClient", userClientRoutes);
-app.use("/api/users", usersRoutes);
-app.use("/api/time-off-requests", TimeOffRequestsRoutes.routes);
-app.use("/api/tasks", TasksRoutes.routes);
-app.use("/api/work-logs", WorkLogsRoutes.routes);
+app.use(mainRoutes.auth, authRoutes);
+app.use(mainRoutes.collaborators, collaboratorsRoutes);
+app.use(mainRoutes.cleanUps, cleanUpsRoutes);
+app.use(mainRoutes.rfc, rfcRoutes);
+app.use(mainRoutes.collaboratorLog, collaboratorLogRoutes);
+app.use(mainRoutes.userLog, userLogRoutes);
+app.use(mainRoutes.activityRegister, activityRegisterRoutes);
+app.use(mainRoutes.misc, miscRoutes);
+app.use(mainRoutes.documentation, documentationRoutes);
+app.use(mainRoutes.fcm, fcmRoutes);
+app.use(mainRoutes.userClient, userClientRoutes);
+app.use(mainRoutes.users, usersRoutes);
+app.use(mainRoutes.timeOffRequests, TimeOffRequestsRoutes.routes);
+app.use(mainRoutes.tasks, TasksRoutes.routes);
+app.use(mainRoutes.workLogs, WorkLogsRoutes.routes);
+app.use(mainRoutes.attendanceRecords, AttendanceRecordsRoutes.routes);
 
 app.use(errorHandler);
 

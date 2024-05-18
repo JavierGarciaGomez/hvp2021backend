@@ -1,5 +1,4 @@
 import { Schema } from "mongoose";
-import { AttendanceType } from "./attendanceTypes";
 
 export interface WorkLog extends Document {
   _id?: Schema.Types.ObjectId;
