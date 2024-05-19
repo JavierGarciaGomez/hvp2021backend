@@ -12,6 +12,7 @@ interface Options {
   createdBy?: string;
   updatedAt?: string;
   updatedBy?: string;
+  action?: "clock_in" | "clock_out";
 }
 export class AttendanceRecordDto {
   private constructor(public readonly data: Readonly<Options>) {}
@@ -29,6 +30,13 @@ export class AttendanceRecordDto {
   ): [string?, AttendanceRecordDto?] {
     const validationError = this.validateOptions(data);
     if (validationError) return [validationError];
+    const { action } = data;
+    if (action && action === "clock_in") {
+      data.startTime = new Date().toISOString();
+    }
+    if (action && action === "clock_out") {
+      data.endTime = new Date().toISOString();
+    }
 
     return [undefined, new AttendanceRecordDto({ ...data })];
   }
@@ -40,14 +48,6 @@ export class AttendanceRecordDto {
     }
     if (!isValidDateString(shiftDate)) {
       return "Shift date is not valid";
-    }
-
-    if (!isValidDate(startTime)) {
-      return "Start time is not valid";
-    }
-
-    if (endTime && !isValidDate(endTime)) {
-      return "End time is not valid";
     }
 
     if (data) return undefined;

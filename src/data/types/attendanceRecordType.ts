@@ -5,7 +5,8 @@ export interface AttendanceRecord extends Document {
   shiftDate: string;
   startTime: Date;
   endTime: Date;
-  branch: Branch;
+  clockInBranch: Branch;
+  clockOutBranch?: Branch;
   collaborator: Schema.Types.ObjectId;
   createdAt?: Date;
   createdBy?: Schema.Types.ObjectId;

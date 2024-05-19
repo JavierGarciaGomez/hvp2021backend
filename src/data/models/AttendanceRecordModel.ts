@@ -20,12 +20,17 @@ const attendanceRecordSchema = new Schema<AttendanceRecord>(
         message: (props: any) => `${props.value} is not a valid date format`,
       },
     },
-    startTime: { type: Date, required: true },
+    startTime: { type: Date, default: Date.now },
     endTime: { type: Date, required: false },
-    branch: {
+    clockInBranch: {
       type: String,
       enum: Object.values(Branch),
       required: true,
+    },
+    clockOutBranch: {
+      type: String,
+      enum: Object.values(Branch),
+      required: false,
     },
     createdAt: { type: Date, default: Date.now },
     createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },

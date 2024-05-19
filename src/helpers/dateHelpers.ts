@@ -25,3 +25,14 @@ export const isValidDateString = (dateString: string): boolean => {
   // Ensure the date string matches the ISO format to avoid invalid months or days
   return date.toISOString().slice(0, 10) === dateString;
 };
+
+export const getCurrentMexicanDate = () => {
+  const options = {
+    year: "numeric" as const,
+    month: "2-digit" as const,
+    day: "2-digit" as const,
+  };
+  const date = new Date().toLocaleDateString("es-MX", options);
+  const [day, month, year] = date.split("/");
+  return `${year}-${month}-${day}`;
+};

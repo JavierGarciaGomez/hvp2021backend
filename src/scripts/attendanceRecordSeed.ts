@@ -18,67 +18,68 @@ async function seedAttendanceRecords() {
     const attendanceRecords = new Set();
 
     // Create 10 records for today with at least 5 having no endTime
-    let todayRecordsCount = 0;
-    let noEndTimeCount = 0;
+    const todayDate = new Date().toISOString().split("T")[0];
+    const todayRecords = [];
 
-    while (todayRecordsCount < 10) {
+    while (todayRecords.length < 10) {
       const collaborator =
         collaborators[Math.floor(Math.random() * collaborators.length)]._id;
-      const shiftDate = new Date().toISOString().split("T")[0];
       const startTime = getRandomTimeToday();
-      const endTime =
-        noEndTimeCount < 5
-          ? undefined
-          : new Date(
-              startTime.getTime() +
-                Math.floor(Math.random() * 8 + 1) * 60 * 60 * 1000
-            ); // Add 1 to 8 hours to startTime if endTime is not null
-      const branch = branches[Math.floor(Math.random() * branches.length)];
+      const noEndTime: boolean = todayRecords.length < 5 && Math.random() < 0.5; // Randomly determine if there should be no endTime
+      const endTime: Date | undefined = noEndTime
+        ? undefined
+        : new Date(
+            startTime.getTime() +
+              Math.floor(Math.random() * 8 + 1) * 60 * 60 * 1000
+          ); // Add 1 to 8 hours to startTime if endTime is not null
+      const clockInBranch =
+        branches[Math.floor(Math.random() * branches.length)];
+      const clockOutBranch: Branch | undefined = endTime
+        ? branches[Math.floor(Math.random() * branches.length)]
+        : undefined;
 
-      const uniqueKey = `${collaborator}_${shiftDate}`;
-      if (attendanceRecords.has(uniqueKey)) continue;
-
-      attendanceRecords.add(uniqueKey);
-
-      const newRecord = new AttendanceRecordModel({
-        shiftDate,
-        startTime,
-        endTime,
-        branch,
-        collaborator,
-      });
-
-      await newRecord.save();
-      todayRecordsCount++;
-      if (!endTime) noEndTimeCount++;
+      const uniqueKey = `${collaborator}_${todayDate}`;
+      if (!attendanceRecords.has(uniqueKey)) {
+        attendanceRecords.add(uniqueKey);
+        todayRecords.push({
+          collaborator,
+          startTime,
+          endTime,
+          clockInBranch,
+          clockOutBranch,
+          shiftDate: todayDate,
+        });
+      }
     }
 
     // Create additional 40 records with random dates
+    const pastMonth = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // One month ago
     for (let i = 0; i < 40; i++) {
       const collaborator =
         collaborators[Math.floor(Math.random() * collaborators.length)]._id;
-      const shiftDate = getRandomDate().toISOString().split("T")[0];
-      const startTime = getRandomDate();
+      const shiftDate = getRandomDate(pastMonth).toISOString().split("T")[0];
+      const startTime = getRandomDate(pastMonth);
       const endTime = new Date(
         startTime.getTime() + Math.floor(Math.random() * 8 + 1) * 60 * 60 * 1000
       ); // Add 1 to 8 hours to startTime
       const branch = branches[Math.floor(Math.random() * branches.length)];
 
       const uniqueKey = `${collaborator}_${shiftDate}`;
-      if (attendanceRecords.has(uniqueKey)) continue;
-
-      attendanceRecords.add(uniqueKey);
-
-      const newRecord = new AttendanceRecordModel({
-        shiftDate,
-        startTime,
-        endTime,
-        branch,
-        collaborator,
-      });
-
-      await newRecord.save();
+      if (!attendanceRecords.has(uniqueKey)) {
+        attendanceRecords.add(uniqueKey);
+        todayRecords.push({
+          collaborator,
+          startTime,
+          endTime,
+          clockInBranch: branch,
+          clockOutBranch: branch,
+          shiftDate,
+        });
+      }
     }
+
+    // Save all records
+    await AttendanceRecordModel.insertMany(todayRecords);
 
     console.log("Seed completed successfully");
     await mongoose.disconnect();
@@ -88,11 +89,9 @@ async function seedAttendanceRecords() {
   }
 }
 
-function getRandomDate() {
-  const now = new Date();
-  const pastMonth = new Date(now.setMonth(now.getMonth() - 1));
+function getRandomDate(startDate: Date) {
   return new Date(
-    pastMonth.getTime() + Math.random() * (Date.now() - pastMonth.getTime())
+    startDate.getTime() + Math.random() * (Date.now() - startDate.getTime())
   );
 }
 

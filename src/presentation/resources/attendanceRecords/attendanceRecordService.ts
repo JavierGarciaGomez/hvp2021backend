@@ -18,6 +18,7 @@ import TaskModel from "../../../data/models/TaskModel";
 import AttendanceRecordModel from "../../../data/models/AttendanceRecordModel";
 import { AttendanceRecordDto } from "../../../domain/dtos/attendanceRecords/AttendanceRecordDto";
 import { AttendanceRecord } from "../../../data/types/attendanceRecordType";
+import { getCurrentMexicanDate } from "../../../helpers/dateHelpers";
 
 const commonPath = mainRoutes.attendanceRecords;
 const resourceName = "AttendanceRecords";
@@ -43,13 +44,9 @@ export class AttendanceRecordsService {
 
   async getCurrentAttendanceRecords(paginationDto: PaginationDto) {
     const { all } = paginationDto;
-    const twentyFourHoursAgo = new Date(
-      Date.now() - 24 * 60 * 60 * 1000
-    ).toISOString();
-
+    const todayDate = getCurrentMexicanDate();
     const query = {
-      startTime: { $gt: twentyFourHoursAgo },
-      endTime: { $exists: false },
+      shiftDate: todayDate,
     };
     return this.fetchLists(query, paginationDto, all);
   }
@@ -91,6 +88,18 @@ export class AttendanceRecordsService {
     authenticatedCollaborator: AuthenticatedCollaborator
   ) {
     const { uid } = authenticatedCollaborator;
+
+    // todo review if the collaborator has already an attendance record for the same day
+    const existingAttendanceRecord = await AttendanceRecordModel.findOne({
+      collaborator: uid,
+      shiftDate: dto.data.shiftDate,
+    });
+
+    if (existingAttendanceRecord) {
+      throw BaseError.badRequest(
+        `Attendance record already exists for collaborator ${uid} and date ${dto.data.shiftDate}`
+      );
+    }
 
     // const activities = await this.createOrUpdateActivities(dto, uid);
 
