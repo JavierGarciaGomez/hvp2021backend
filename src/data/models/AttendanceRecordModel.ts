@@ -1,10 +1,4 @@
 import { Schema, model } from "mongoose";
-import {
-  TimeOffRequest,
-  TimeOffStatus,
-  TimeOffType,
-} from "../types/timeOffTypes";
-import { Task, TaskPriority, TaskStatus, TaskTag } from "../types/taskTypes";
 import { Branch, AttendanceRecord } from "../types/attendanceRecordType";
 
 const attendanceRecordSchema = new Schema<AttendanceRecord>(
@@ -36,6 +30,10 @@ const attendanceRecordSchema = new Schema<AttendanceRecord>(
     createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
     updatedAt: { type: Date, default: Date.now },
     updatedBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
+    startLatitude: { type: Number, required: false },
+    startLongitude: { type: Number, required: false },
+    endLatitude: { type: Number, required: false },
+    endLongitude: { type: Number, required: false },
   },
   { timestamps: true }
 );

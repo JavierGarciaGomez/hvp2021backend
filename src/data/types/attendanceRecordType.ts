@@ -12,6 +12,10 @@ export interface AttendanceRecord extends Document {
   createdBy?: Schema.Types.ObjectId;
   updatedAt?: Date;
   updatedBy?: Date;
+  startLatitude?: number;
+  startLongitude?: number;
+  endLatitude?: number;
+  endLongitude?: number;
 }
 
 export enum Branch {
