@@ -6,7 +6,7 @@ const { validateJwt } = require("../../../middlewares/validateJwt");
 
 const baseRoutes = {
   CUSTOMER_RFCS: "/customer-rfcs",
-  BILLS: "/bills",
+  BILL_CREATION_INFO: "/bill-creation-info",
   INVOICE_USAGES: "/invoice-usages",
   FISCAL_REGIME: "/fiscal-regimes",
 };
@@ -20,13 +20,14 @@ export const routes = {
     update: `${baseRoutes.CUSTOMER_RFCS}/:id`,
     delete: `${baseRoutes.CUSTOMER_RFCS}/:id`,
   },
-  bills: {
-    base: baseRoutes.BILLS,
-    one: `${baseRoutes.BILLS}/`,
-    byId: `${baseRoutes.BILLS}/:id`,
-    create: `${baseRoutes.BILLS}/`,
-    update: `${baseRoutes.BILLS}/:id`,
-    delete: `${baseRoutes.BILLS}/:id`,
+  billCreationInfo: {
+    base: baseRoutes.BILL_CREATION_INFO,
+    all: `${baseRoutes.BILL_CREATION_INFO}/`,
+    one: `${baseRoutes.BILL_CREATION_INFO}/`,
+    byId: `${baseRoutes.BILL_CREATION_INFO}/:id`,
+    create: `${baseRoutes.BILL_CREATION_INFO}/`,
+    update: `${baseRoutes.BILL_CREATION_INFO}/:id`,
+    delete: `${baseRoutes.BILL_CREATION_INFO}/:id`,
   },
   invoiceUsages: {
     base: baseRoutes.INVOICE_USAGES,
@@ -58,6 +59,24 @@ export class BillingRoutes {
     router.delete(routes.customerRFCs.delete, controller.deleteCustomerRFC);
     router.get(routes.invoiceUsages.all, controller.getInvoiceUsages);
     router.get(routes.fiscalRegime.all, controller.getFiscalRegimes);
+
+    router.post(
+      routes.billCreationInfo.create,
+      controller.createBillCreationInfo
+    );
+    router.get(routes.billCreationInfo.all, controller.getBillCreationInfoList);
+    router.get(
+      routes.billCreationInfo.byId,
+      controller.getBillCreationInfoById
+    );
+    router.patch(
+      routes.billCreationInfo.update,
+      controller.updateBillCreationInfo
+    );
+    router.delete(
+      routes.billCreationInfo.delete,
+      controller.deleteBillCreationInfo
+    );
 
     return router;
   }

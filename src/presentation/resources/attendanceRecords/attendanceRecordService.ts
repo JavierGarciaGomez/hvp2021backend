@@ -17,8 +17,9 @@ import { WorkLogActivity } from "../../../data/types/workLogsTypes";
 import TaskModel from "../../../data/models/TaskModel";
 import AttendanceRecordModel from "../../../data/models/AttendanceRecordModel";
 import { AttendanceRecordDto } from "../../../domain/dtos/attendanceRecords/AttendanceRecordDto";
-import { AttendanceRecord } from "../../../data/types/attendanceRecordType";
+
 import { getCurrentMexicanDate } from "../../../helpers/dateHelpers";
+import { AttendanceRecord } from "../../../data/types";
 
 const commonPath = mainRoutes.attendanceRecords;
 const resourceName = "AttendanceRecords";

@@ -1,5 +1,4 @@
 import { Schema, model } from "mongoose";
-import { Branch, AttendanceRecord } from "../types/attendanceRecordType";
 import { CustomerRFC } from "../types/billingTypes";
 
 const customerRFCSchema = new Schema<CustomerRFC>(

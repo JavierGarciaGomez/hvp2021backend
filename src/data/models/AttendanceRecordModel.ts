@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { Branch, AttendanceRecord } from "../types/attendanceRecordType";
+import { Branch, AttendanceRecord } from "../types/";
 
 const attendanceRecordSchema = new Schema<AttendanceRecord>(
   {

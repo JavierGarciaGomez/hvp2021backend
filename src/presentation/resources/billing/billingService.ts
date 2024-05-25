@@ -1,14 +1,20 @@
+import mongoose from "mongoose";
 import { mainRoutes } from "../../../mainRoutes";
 import { ResourceQuery } from "../../../data/types/Queries";
 import { ListSuccessResponse } from "../../../data/types/responses";
-import { PaginationDto } from "../../../domain";
+import {
+  BillCreationInfoDTO,
+  CustomerRFCDTO,
+  PaginationDto,
+} from "../../../domain";
 import { BaseError } from "../../../domain/errors/BaseError";
 import { SuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
 import { AuthenticatedCollaborator } from "../../../types/RequestsAndResponses";
 import { routes } from "./billingRoutes";
-import { CustomerRFCDTO } from "../../../domain/dtos/customerRFCs/customerRFCSsDto";
 import CustomerRFCModel from "../../../data/models/CustomerRFCModel";
+import billCreationInfoModel from "../../../data/models/BillCreationInfoModel";
 import {
+  BillCreationInfo,
   CustomerRFC,
   FiscalRegime,
   InvoiceUsage,
@@ -20,6 +26,7 @@ import {
 
 const commonPath = mainRoutes.attendanceRecords;
 const customerRRFCResourceName = "Customer RFCs";
+const billCreationInfoResourceName = "Bill Creation Info";
 export class CustomerRFCsService {
   // DI
   constructor() {}
@@ -28,29 +35,14 @@ export class CustomerRFCsService {
     paginationDto: PaginationDto
   ): Promise<ListSuccessResponse<CustomerRFC>> {
     const { all } = paginationDto;
-    return this.fetchLists(
-      {},
+    return this.fetchLists({
+      model: CustomerRFCModel,
+      query: {},
       paginationDto,
       all,
-      `${commonPath}${routes.customerRFCs.all}`
-    );
-  }
-
-  async getLastAttendanceRecordByCollaborator(collaboratorId: string) {
-    const query = { collaborator: collaboratorId };
-    const resource = await CustomerRFCModel.findOne(query).sort("-shiftDate");
-    if (!resource)
-      throw BaseError.notFound(
-        `${customerRRFCResourceName} not found for collaborator ${collaboratorId}`
-      );
-    const response = SuccessResponseFormatter.formatGetOneResponse<CustomerRFC>(
-      {
-        data: resource,
-        resource: customerRRFCResourceName,
-      }
-    );
-
-    return response;
+      path: `${commonPath}${routes.customerRFCs}`,
+      resourceName: customerRRFCResourceName,
+    });
   }
 
   async getRecordById(id: string) {
@@ -68,7 +60,7 @@ export class CustomerRFCsService {
     return response;
   }
 
-  async createRecord(
+  async createCustomerRFC(
     dto: CustomerRFCDTO,
     authenticatedCollaborator: AuthenticatedCollaborator
   ) {
@@ -99,7 +91,7 @@ export class CustomerRFCsService {
     return response;
   }
 
-  async updateRecord(
+  async updateCustomerRFC(
     id: string,
     dto: CustomerRFCDTO,
     authenticatedCollaborator: AuthenticatedCollaborator
@@ -192,46 +184,150 @@ export class CustomerRFCsService {
     return response;
   }
 
-  private async fetchLists(
-    query: ResourceQuery<CustomerRFC>,
-    paginationDto: PaginationDto,
-    all: boolean,
-    path: string
-  ): Promise<ListSuccessResponse<CustomerRFC>> {
+  async createBillCreationInfo(
+    dto: BillCreationInfoDTO,
+    authenticatedCollaborator: AuthenticatedCollaborator
+  ) {
+    const { uid } = authenticatedCollaborator;
+    const resource = new billCreationInfoModel({
+      ...dto.data,
+      createdBy: uid,
+      updatedBy: uid,
+    });
+
+    const savedResource = await resource.save();
+
+    const response =
+      SuccessResponseFormatter.fortmatCreateResponse<BillCreationInfo>({
+        data: savedResource,
+        resource: customerRRFCResourceName,
+      });
+
+    return response;
+  }
+
+  async getBillCreationInfoList(
+    paginationDto: PaginationDto
+  ): Promise<ListSuccessResponse<BillCreationInfo>> {
+    const { all } = paginationDto;
+    return this.fetchLists({
+      model: billCreationInfoModel,
+      query: {},
+      paginationDto,
+      all,
+      path: `${commonPath}${routes.billCreationInfo.all}`,
+      resourceName: billCreationInfoResourceName,
+    });
+  }
+
+  async getBillCreationInfoById(id: string) {
+    const resource = await billCreationInfoModel.findById(id);
+    if (!resource)
+      throw BaseError.notFound(
+        `${billCreationInfoResourceName} not found with id ${id}`
+      );
+
+    const response =
+      SuccessResponseFormatter.formatGetOneResponse<BillCreationInfo>({
+        data: resource,
+        resource: billCreationInfoResourceName,
+      });
+
+    return response;
+  }
+
+  async updateBillCreationInfo(
+    id: string,
+    dto: BillCreationInfoDTO,
+    authenticatedCollaborator: AuthenticatedCollaborator
+  ) {
+    const { uid } = authenticatedCollaborator;
+    const resourceToUpdate = await billCreationInfoModel.findById(id);
+    if (!resourceToUpdate)
+      throw BaseError.notFound(
+        `${billCreationInfoResourceName} not found with id ${id}`
+      );
+
+    const updatedResource = await billCreationInfoModel.findByIdAndUpdate(
+      id,
+      {
+        ...dto.data,
+        updatedAt: new Date(),
+        updatedBy: uid,
+      },
+      { new: true }
+    );
+
+    const response =
+      SuccessResponseFormatter.formatUpdateResponse<BillCreationInfo>({
+        data: updatedResource!,
+        resource: billCreationInfoResourceName,
+      });
+
+    return response;
+  }
+
+  async deleteBillCreationInfo(id: string) {
+    const resource = await billCreationInfoModel.findById(id);
+    if (!resource)
+      throw BaseError.notFound(
+        `${billCreationInfoResourceName} not found with id ${id}`
+      );
+
+    const deletedResource = await billCreationInfoModel.findByIdAndDelete(id);
+    const response =
+      SuccessResponseFormatter.formatDeleteResponse<BillCreationInfo>({
+        data: deletedResource!,
+        resource: billCreationInfoResourceName,
+      });
+
+    return response;
+  }
+
+  private async fetchLists<T>(
+    params: FetchListsParams<T>
+  ): Promise<ListSuccessResponse<T>> {
+    const { model, query, paginationDto, all, path, resourceName } = params;
     const { page, limit } = paginationDto;
 
     try {
       let data;
+      let total;
 
       if (all) {
         // If 'all' is present, fetch all resources without pagination
-        data = await CustomerRFCModel.find(query);
+        data = await model.find(query);
+        total = data.length;
       } else {
-        // Fetch paginated time-off requests
-        const [total, paginatedData] = await Promise.all([
-          CustomerRFCModel.countDocuments(query),
-          CustomerRFCModel.find(query)
-            .skip((page - 1) * limit)
-            .limit(limit),
-        ]);
-
-        data = paginatedData;
+        // Fetch paginated data
+        total = await model.countDocuments(query);
+        data = await model
+          .find(query)
+          .skip((page - 1) * limit)
+          .limit(limit);
       }
 
-      const response = SuccessResponseFormatter.formatListResponse<CustomerRFC>(
-        {
-          data,
-          page,
-          limit,
-          total: data.length,
-          path: path,
-          resource: customerRRFCResourceName,
-        }
-      );
+      const response = SuccessResponseFormatter.formatListResponse<T>({
+        data,
+        page,
+        limit,
+        total,
+        path,
+        resource: resourceName,
+      });
 
       return response;
     } catch (error) {
       throw BaseError.internalServer("Internal Server Error");
     }
   }
+}
+
+interface FetchListsParams<T> {
+  model: mongoose.Model<T>;
+  query: ResourceQuery<T>;
+  paginationDto: PaginationDto;
+  all: boolean;
+  path: string;
+  resourceName: string;
 }

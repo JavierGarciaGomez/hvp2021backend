@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-
+import { Branch } from "./";
 export interface AttendanceRecord extends Document {
   _id?: Schema.Types.ObjectId;
   shiftDate: string;
@@ -16,10 +16,4 @@ export interface AttendanceRecord extends Document {
   startLongitude?: number;
   endLatitude?: number;
   endLongitude?: number;
-}
-
-export enum Branch {
-  Urban = "Urban",
-  Harbor = "Harbor",
-  Montejo = "Montejo",
 }
