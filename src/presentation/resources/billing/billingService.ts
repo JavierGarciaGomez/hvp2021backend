@@ -19,7 +19,7 @@ import {
 } from "../../../data/constants/billingConstants";
 
 const commonPath = mainRoutes.attendanceRecords;
-const resourceName = "AttendanceRecords";
+const customerRRFCResourceName = "Customer RFCs";
 export class CustomerRFCsService {
   // DI
   constructor() {}
@@ -41,12 +41,12 @@ export class CustomerRFCsService {
     const resource = await CustomerRFCModel.findOne(query).sort("-shiftDate");
     if (!resource)
       throw BaseError.notFound(
-        `${resourceName} not found for collaborator ${collaboratorId}`
+        `${customerRRFCResourceName} not found for collaborator ${collaboratorId}`
       );
     const response = SuccessResponseFormatter.formatGetOneResponse<CustomerRFC>(
       {
         data: resource,
-        resource: resourceName,
+        resource: customerRRFCResourceName,
       }
     );
 
@@ -61,7 +61,7 @@ export class CustomerRFCsService {
     const response = SuccessResponseFormatter.formatGetOneResponse<CustomerRFC>(
       {
         data: resource,
-        resource: resourceName,
+        resource: customerRRFCResourceName,
       }
     );
 
@@ -93,7 +93,7 @@ export class CustomerRFCsService {
     const response =
       SuccessResponseFormatter.fortmatCreateResponse<CustomerRFC>({
         data: savedResource,
-        resource: resourceName,
+        resource: customerRRFCResourceName,
       });
 
     return response;
@@ -109,7 +109,9 @@ export class CustomerRFCsService {
     // Check if the resource to update exists
     const resourceToUpdate = await CustomerRFCModel.findById(id);
     if (!resourceToUpdate)
-      throw BaseError.notFound(`${resourceName} not found with id ${id}`);
+      throw BaseError.notFound(
+        `${customerRRFCResourceName} not found with id ${id}`
+      );
 
     // Check for existing RFC conflict
     const existingResource = await CustomerRFCModel.findOne({
@@ -137,7 +139,7 @@ export class CustomerRFCsService {
     const response = SuccessResponseFormatter.formatUpdateResponse<CustomerRFC>(
       {
         data: updatedResource!,
-        resource: resourceName,
+        resource: customerRRFCResourceName,
       }
     );
 
@@ -147,13 +149,15 @@ export class CustomerRFCsService {
   async deleteRecord(id: string) {
     const resource = await CustomerRFCModel.findById(id);
     if (!resource)
-      throw BaseError.notFound(`${resourceName} not found with id ${id}`);
+      throw BaseError.notFound(
+        `${customerRRFCResourceName} not found with id ${id}`
+      );
 
     const deletedResource = await CustomerRFCModel.findByIdAndDelete(id);
     const response = SuccessResponseFormatter.formatDeleteResponse<CustomerRFC>(
       {
         data: deletedResource!,
-        resource: resourceName,
+        resource: customerRRFCResourceName,
       }
     );
 
@@ -221,7 +225,7 @@ export class CustomerRFCsService {
           limit,
           total: data.length,
           path: path,
-          resource: resourceName,
+          resource: customerRRFCResourceName,
         }
       );
 
