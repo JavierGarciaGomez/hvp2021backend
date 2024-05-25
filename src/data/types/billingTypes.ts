@@ -13,3 +13,19 @@ export interface CustomerRFC extends Document {
   updatedAt?: string;
   updatedBy?: Schema.Types.ObjectId;
 }
+
+export interface InvoiceUsage {
+  id: string;
+  name: string;
+  value: string;
+  moral: boolean;
+  natural: boolean;
+}
+
+export interface FiscalRegime {
+  id: string;
+  name: string;
+  value: string;
+  moral: boolean;
+  natural: boolean;
+}

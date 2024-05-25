@@ -66,7 +66,7 @@ export class BillingController {
     }
   };
 
-  public updateRecord = async (
+  public updateCustomerRFC = async (
     req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
@@ -89,7 +89,7 @@ export class BillingController {
     }
   };
 
-  public deleteRecord = async (
+  public deleteCustomerRFC = async (
     req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
@@ -100,6 +100,31 @@ export class BillingController {
       res.status(response.status_code).json(response);
     } catch (error) {
       next(error);
+    }
+  };
+
+  public getFiscalRegimes = async (
+    req: RequestWithAuthCollaborator,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const response = await this.service.getFiscalRegimes();
+      res.status(response.status_code).json(response);
+    } catch (error) {
+      this.handleError(error, res, next);
+    }
+  };
+  public getInvoiceUsages = async (
+    req: RequestWithAuthCollaborator,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const response = await this.service.getInvoiceUsages();
+      res.status(response.status_code).json(response);
+    } catch (error) {
+      this.handleError(error, res, next);
     }
   };
 }

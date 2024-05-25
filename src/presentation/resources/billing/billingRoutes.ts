@@ -54,8 +54,10 @@ export class BillingRoutes {
     router.get(routes.customerRFCs.all, controller.getCustomerRFCs);
     router.get(routes.customerRFCs.one, controller.getRecordById);
     router.post(routes.customerRFCs.create, controller.createCustomerRFC);
-    router.patch(routes.customerRFCs.update, controller.updateRecord);
-    router.delete(routes.customerRFCs.delete, controller.deleteRecord);
+    router.patch(routes.customerRFCs.update, controller.updateCustomerRFC);
+    router.delete(routes.customerRFCs.delete, controller.deleteCustomerRFC);
+    router.get(routes.invoiceUsages.all, controller.getInvoiceUsages);
+    router.get(routes.fiscalRegime.all, controller.getFiscalRegimes);
 
     return router;
   }

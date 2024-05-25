@@ -8,7 +8,15 @@ import { AuthenticatedCollaborator } from "../../../types/RequestsAndResponses";
 import { routes } from "./billingRoutes";
 import { CustomerRFCDTO } from "../../../domain/dtos/customerRFCs/customerRFCSsDto";
 import CustomerRFCModel from "../../../data/models/CustomerRFCModel";
-import { CustomerRFC } from "../../../data/types/billingTypes";
+import {
+  CustomerRFC,
+  FiscalRegime,
+  InvoiceUsage,
+} from "../../../data/types/billingTypes";
+import {
+  CFDI_USES,
+  FISCAL_REGIMES,
+} from "../../../data/constants/billingConstants";
 
 const commonPath = mainRoutes.attendanceRecords;
 const resourceName = "AttendanceRecords";
@@ -148,6 +156,34 @@ export class CustomerRFCsService {
         resource: resourceName,
       }
     );
+
+    return response;
+  }
+
+  async getFiscalRegimes() {
+    const data = FISCAL_REGIMES;
+    const response = SuccessResponseFormatter.formatListResponse<FiscalRegime>({
+      data,
+      page: 1,
+      limit: data.length,
+      total: data.length,
+      path: "",
+      resource: "Fiscal Regimes",
+    });
+
+    return response;
+  }
+
+  async getInvoiceUsages() {
+    const data = CFDI_USES;
+    const response = SuccessResponseFormatter.formatListResponse<InvoiceUsage>({
+      data,
+      page: 1,
+      limit: data.length,
+      total: data.length,
+      path: "",
+      resource: "Invoice Usages",
+    });
 
     return response;
   }
