@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import AttendanceRecordModel from "../data/models/AttendanceRecordModel";
 import { Branch } from "../data/types/attendanceRecordType";
 import CollaboratorModel from "../models/Collaborator";
+
 require("dotenv").config();
 
 const { dbConnection } = require("../database/config");
@@ -12,7 +13,7 @@ async function seedAttendanceRecords() {
 
     // Clear existing records
     await AttendanceRecordModel.deleteMany({});
-    // throw new Error("Seed failed");
+    // throw new Error("Shoeed failed");
     const collaborators = await CollaboratorModel.find().select("_id").exec();
     const branches = Object.values(Branch);
     const attendanceRecords = new Set();

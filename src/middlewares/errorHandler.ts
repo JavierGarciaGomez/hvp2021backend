@@ -25,7 +25,7 @@ export const errorHandler = (
     res.status(500).json({
       statusCode: 500,
       typeName: "InternalServerError",
-      message: "Internal Server Error",
+      message: err.message || "Something went wrong",
       detail: "Something went wrong",
       error: "INTERNAL_SERVER_ERROR",
       isOperational: false,

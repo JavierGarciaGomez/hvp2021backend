@@ -15,4 +15,5 @@ export const mainRoutes = {
   tasks: "/api/tasks",
   workLogs: "/api/work-logs",
   attendanceRecords: "/api/attendance-records",
+  billing: "/api/billing",
 };

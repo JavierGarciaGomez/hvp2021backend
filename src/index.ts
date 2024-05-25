@@ -4,9 +4,9 @@ import { errorHandler } from "./middlewares/errorHandler";
 import { TimeOffRequestsRoutes } from "./presentation/resources/timeOffRequests/timeOffRequestsRoutes";
 import { TasksRoutes } from "./presentation/resources/tasks/tasksRoutes";
 import { WorkLogsRoutes } from "./presentation/resources/workLogs/workLogsRoutes";
-import TaskModel from "./data/models/TaskModel";
 import { AttendanceRecordsRoutes } from "./presentation/resources/attendanceRecords/attendanceRecordsRoutes";
 import { mainRoutes } from "./mainRoutes";
+import { BillingRoutes } from "./presentation/resources/billing/billingRoutes";
 require("dotenv").config();
 
 const express = require("express");
@@ -93,6 +93,8 @@ app.use(mainRoutes.timeOffRequests, TimeOffRequestsRoutes.routes);
 app.use(mainRoutes.tasks, TasksRoutes.routes);
 app.use(mainRoutes.workLogs, WorkLogsRoutes.routes);
 app.use(mainRoutes.attendanceRecords, AttendanceRecordsRoutes.routes);
+app.use(mainRoutes.billing, BillingRoutes.routes);
+// app.use(mainRoutes.bills, bills);
 
 app.use(errorHandler);
 
