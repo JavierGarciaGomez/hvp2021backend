@@ -1,14 +1,16 @@
 import { BillCreationInfoStatus } from "../../../data/types";
-import { isValidBranch } from "../../../helpers";
+import { isValidBranch, isValidPaymentMethod } from "../../../helpers";
 
 interface Options {
   _id?: string;
+  bill_date: string;
   customer_rfc: string;
   branch: string;
   document_number: string;
   status: BillCreationInfoStatus;
   total: number;
   is_documented: boolean;
+  payment_method: string;
   createdAt?: string;
   createdBy?: string;
   updatedAt?: string;
@@ -42,7 +44,17 @@ export class BillCreationInfoDTO {
   }
 
   private static validateOptions(data: Options): string | undefined {
-    const { customer_rfc, branch, document_number: docNumber } = data;
+    const {
+      customer_rfc,
+      branch,
+      document_number: docNumber,
+      payment_method,
+      bill_date,
+    } = data;
+
+    if (!bill_date || isNaN(new Date(bill_date).getTime())) {
+      return "Bill date is required and must be a valid date";
+    }
 
     if (!customer_rfc) {
       return "Customer RFC is required";
@@ -52,6 +64,9 @@ export class BillCreationInfoDTO {
     }
     if (!docNumber) {
       return "Document number is required";
+    }
+    if (!payment_method || !isValidPaymentMethod(payment_method)) {
+      return "Payment method is required";
     }
 
     if (data) return undefined;

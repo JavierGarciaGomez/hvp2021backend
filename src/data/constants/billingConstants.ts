@@ -311,3 +311,116 @@ export const CFDI_USES = [
     id: "D10",
   },
 ];
+
+export const PAYMENT_METHODS = [
+  {
+    name: "Efectivo",
+    value: "01",
+    id: "01",
+  },
+  {
+    name: "Cheque nominativo",
+    value: "02",
+    id: "02",
+  },
+  {
+    name: "Transferencia electrónica de fondos",
+    value: "03",
+    id: "03",
+  },
+  {
+    name: "Tarjeta de crédito",
+    value: "04",
+    id: "04",
+  },
+  {
+    name: "Monedero electrónico",
+    value: "05",
+    id: "05",
+  },
+  {
+    name: "Dinero electrónico",
+    value: "06",
+    id: "06",
+  },
+  {
+    name: "Vales de despensa",
+    value: "08",
+    id: "08",
+  },
+  {
+    name: "Dación en pago",
+    value: "12",
+    id: "12",
+  },
+  {
+    name: "Pago por subrogación",
+    value: "13",
+    id: "13",
+  },
+  {
+    name: "Pago por consignación",
+    value: "14",
+    id: "14",
+  },
+  {
+    name: "Condonación",
+    value: "15",
+    id: "15",
+  },
+  {
+    name: "Compensación",
+    value: "17",
+    id: "17",
+  },
+  {
+    name: "Novación",
+    value: "23",
+    id: "23",
+  },
+  {
+    name: "Confusión",
+    value: "24",
+    id: "24",
+  },
+  {
+    name: "Remisión de deuda",
+    value: "25",
+    id: "25",
+  },
+  {
+    name: "Prescripción o caducidad",
+    value: "26",
+    id: "26",
+  },
+  {
+    name: "A satisfacción del acreedor",
+    value: "27",
+    id: "27",
+  },
+  {
+    name: "Tarjeta de débito",
+    value: "28",
+    id: "28",
+  },
+  {
+    name: "Tarjeta de servicios",
+    value: "29",
+    id: "29",
+  },
+  {
+    name: "Aplicación de anticipos",
+    value: "30",
+    id: "30",
+  },
+  {
+    name: "Intermediarios",
+    value: "31",
+    id: "31",
+  },
+  {
+    name: "Por definir",
+    value: "99",
+    id: "99",
+  },
+];

@@ -3,6 +3,7 @@ import { BillCreationInfo, Branch } from "../types/";
 
 const billCreationInfoSchema = new Schema<BillCreationInfo>(
   {
+    bill_date: { type: Date, required: true },
     customer_rfc: { type: Schema.Types.ObjectId, ref: "CustomerRFC" },
     branch: {
       type: String,
@@ -13,6 +14,7 @@ const billCreationInfoSchema = new Schema<BillCreationInfo>(
     status: { type: String, required: true },
     total: { type: Number, required: true },
     is_documented: { type: Boolean, default: false },
+    payment_method: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
     createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
     updatedAt: { type: Date, default: Date.now },

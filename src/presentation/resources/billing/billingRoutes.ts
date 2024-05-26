@@ -9,6 +9,7 @@ const baseRoutes = {
   BILL_CREATION_INFO: "/bill-creation-info",
   INVOICE_USAGES: "/invoice-usages",
   FISCAL_REGIME: "/fiscal-regimes",
+  PAYMENT_METHODS: "/payment-methods",
 };
 
 export const routes = {
@@ -41,6 +42,10 @@ export const routes = {
     update: `${baseRoutes.FISCAL_REGIME}/:id`,
     delete: `${baseRoutes.FISCAL_REGIME}/:id`,
   },
+  paymentMethods: {
+    base: baseRoutes.PAYMENT_METHODS,
+    all: `${baseRoutes.PAYMENT_METHODS}/`,
+  },
 };
 
 export class BillingRoutes {
@@ -57,8 +62,10 @@ export class BillingRoutes {
     router.post(routes.customerRFCs.create, controller.createCustomerRFC);
     router.patch(routes.customerRFCs.update, controller.updateCustomerRFC);
     router.delete(routes.customerRFCs.delete, controller.deleteCustomerRFC);
+
     router.get(routes.invoiceUsages.all, controller.getInvoiceUsages);
     router.get(routes.fiscalRegime.all, controller.getFiscalRegimes);
+    router.get(routes.paymentMethods.all, controller.getPaymentMethods);
 
     router.post(
       routes.billCreationInfo.create,

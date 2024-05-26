@@ -22,6 +22,7 @@ import {
 import {
   CFDI_USES,
   FISCAL_REGIMES,
+  PAYMENT_METHODS,
 } from "../../../data/constants/billingConstants";
 
 const commonPath = mainRoutes.attendanceRecords;
@@ -179,6 +180,20 @@ export class CustomerRFCsService {
       total: data.length,
       path: "",
       resource: "Invoice Usages",
+    });
+
+    return response;
+  }
+
+  async getPaymentMethods() {
+    const data = PAYMENT_METHODS;
+    const response = SuccessResponseFormatter.formatListResponse({
+      data,
+      page: 1,
+      limit: data.length,
+      total: data.length,
+      path: "",
+      resource: "Payment Methods",
     });
 
     return response;

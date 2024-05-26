@@ -131,6 +131,19 @@ export class BillingController {
     }
   };
 
+  public getPaymentMethods = async (
+    req: RequestWithAuthCollaborator,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const response = await this.service.getPaymentMethods();
+      res.status(response.status_code).json(response);
+    } catch (error) {
+      this.handleError(error, res, next);
+    }
+  };
+
   public createBillCreationInfo = async (
     req: RequestWithAuthCollaborator,
     res: Response,

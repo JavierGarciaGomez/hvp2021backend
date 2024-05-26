@@ -2,6 +2,7 @@ import { ObjectId } from "mongodb";
 import { isValidDate, isValidDateString } from "../../../helpers/dateHelpers";
 import {
   isFiscalRegimeValidForMoralPerson,
+  isFiscalRegimeValidForPhysicalPerson,
   isInvoiceUsageValidForMoralPerson,
   isInvoiceUsageValidForPhysicalPerson,
   isRFCFromMoralPerson,
@@ -17,6 +18,8 @@ interface Options {
   invoice_usage: string;
   fiscal_regime: string;
   postal_code: string;
+  email: string;
+  phone_number: string;
   isValidated: boolean;
   createdAt?: string;
   createdBy?: string;
@@ -60,7 +63,7 @@ export class CustomerRFCDTO {
       if (!isInvoiceUsageValidForPhysicalPerson(invoice_usage)) {
         return "Invoice usage is not valid for physical person";
       }
-      if (!isInvoiceUsageValidForPhysicalPerson(fiscal_regime)) {
+      if (!isFiscalRegimeValidForPhysicalPerson(fiscal_regime)) {
         return "Fiscal regime is not valid for physical person";
       }
     }
@@ -71,6 +74,14 @@ export class CustomerRFCDTO {
 
     if (!name) {
       return "Name is required";
+    }
+
+    if (!data.email) {
+      return "Email is required";
+    }
+
+    if (!data.phone_number) {
+      return "Phone number is required";
     }
 
     if (data) return undefined;

@@ -8,6 +8,8 @@ const customerRFCSchema = new Schema<CustomerRFC>(
     invoice_usage: { type: String, required: true },
     fiscal_regime: { type: String, required: true },
     postal_code: { type: String, required: true },
+    email: { type: String, required: true },
+    phone_number: { type: String, required: true },
     isValidated: { type: Boolean, required: true, default: false },
     createdAt: { type: Date, default: Date.now },
     createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },

@@ -1,4 +1,8 @@
-import { CFDI_USES, FISCAL_REGIMES } from "../data/constants/billingConstants";
+import {
+  CFDI_USES,
+  FISCAL_REGIMES,
+  PAYMENT_METHODS,
+} from "../data/constants/billingConstants";
 
 export const isValidRFC = (rfc: string): boolean => {
   const regex = /^[A-ZÑ&]{3,4}\d{6}[A-V1-9][A-Z1-9][0-9A]$/;
@@ -47,4 +51,9 @@ export const isInvoiceUsageValidForPhysicalPerson = (
     (use) => use.value
   );
   return validInvoiceUsages.includes(invoiceUsage);
+};
+
+export const isValidPaymentMethod = (paymentMethod: string): boolean => {
+  const validPaymentMethods = PAYMENT_METHODS.map((method) => method.value);
+  return validPaymentMethods.includes(paymentMethod);
 };
