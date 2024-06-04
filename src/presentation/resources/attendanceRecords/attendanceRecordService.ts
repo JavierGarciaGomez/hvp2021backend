@@ -20,6 +20,7 @@ import { AttendanceRecordDto } from "../../../domain/dtos/attendanceRecords/Atte
 
 import { getCurrentMexicanDate } from "../../../helpers/dateHelpers";
 import { AttendanceRecord } from "../../../data/types";
+import { fetchList } from "../../../helpers";
 
 const commonPath = mainRoutes.attendanceRecords;
 const resourceName = "AttendanceRecords";
@@ -30,26 +31,41 @@ export class AttendanceRecordsService {
   async getAttendanceRecords(
     paginationDto: PaginationDto
   ): Promise<ListSuccessResponse<AttendanceRecord>> {
-    const { all } = paginationDto;
-    return this.fetchLists({}, paginationDto, all);
+    return fetchList({
+      model: AttendanceRecordModel,
+      query: {},
+      paginationDto,
+      path: `${commonPath}`,
+      resourceName: "AttendanceRecords",
+    });
   }
 
   async getAttendanceRecordsByCollaborator(
     paginationDto: PaginationDto,
     collaboratorId: string
   ): Promise<ListSuccessResponse<AttendanceRecord>> {
-    const { all } = paginationDto;
     const query = { collaborator: collaboratorId };
-    return this.fetchLists(query, paginationDto, all);
+    return fetchList({
+      model: AttendanceRecordModel,
+      query,
+      paginationDto,
+      path: `${commonPath}`,
+      resourceName: "AttendanceRecords",
+    });
   }
 
   async getCurrentAttendanceRecords(paginationDto: PaginationDto) {
-    const { all } = paginationDto;
     const todayDate = getCurrentMexicanDate();
     const query = {
       shiftDate: todayDate,
     };
-    return this.fetchLists(query, paginationDto, all);
+    return fetchList({
+      model: AttendanceRecordModel,
+      query,
+      paginationDto,
+      path: `${commonPath}`,
+      resourceName: "AttendanceRecords",
+    });
   }
 
   async getLastAttendanceRecordByCollaborator(collaboratorId: string) {
@@ -239,46 +255,5 @@ export class AttendanceRecordsService {
     }
 
     return activities;
-  }
-
-  private async fetchLists(
-    query: ResourceQuery<AttendanceRecord>,
-    paginationDto: PaginationDto,
-    all: boolean
-  ): Promise<ListSuccessResponse<AttendanceRecord>> {
-    const { page, limit } = paginationDto;
-
-    try {
-      let data;
-
-      if (all) {
-        // If 'all' is present, fetch all resources without pagination
-        data = await AttendanceRecordModel.find(query);
-      } else {
-        // Fetch paginated time-off requests
-        const [total, paginatedData] = await Promise.all([
-          AttendanceRecordModel.countDocuments(query),
-          AttendanceRecordModel.find(query)
-            .skip((page - 1) * limit)
-            .limit(limit),
-        ]);
-
-        data = paginatedData;
-      }
-
-      const response =
-        SuccessResponseFormatter.formatListResponse<AttendanceRecord>({
-          data,
-          page,
-          limit,
-          total: data.length,
-          path: `${commonPath}${AttendanceRecordsPaths.all}`,
-          resource: "TimeOffRequests",
-        });
-
-      return response;
-    } catch (error) {
-      throw BaseError.internalServer("Internal Server Error");
-    }
   }
 }

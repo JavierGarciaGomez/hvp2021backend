@@ -8,3 +8,5 @@ export * from "./responses";
 export * from "./taskTypes";
 export * from "./timeOffTypes";
 export * from "./workLogsTypes";
+export * from "./authTypes";
+export * from "./authActivityTypes";

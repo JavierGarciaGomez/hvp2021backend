@@ -22,11 +22,9 @@ export class BillingController {
     next: NextFunction
   ) => {
     try {
-      const { page = 1, limit = 10, all } = req.query;
-      const isAll =
-        all === "true" || all === "" || (page === 1 && limit === 10);
-      const [error, paginationDto] = PaginationDto.create(+page, +limit, isAll);
-      if (error) this.handleError(error, res, next);
+      const { page, limit } = req.query;
+      const paginationDto = PaginationDto.create(Number(page), Number(limit));
+
       const response = await this.service.getCustomerRFCs(paginationDto!);
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -112,7 +110,10 @@ export class BillingController {
     next: NextFunction
   ) => {
     try {
-      const response = await this.service.getFiscalRegimes();
+      const { page, limit } = req.query;
+      const paginationDto = PaginationDto.create(Number(page), Number(limit));
+
+      const response = await this.service.getFiscalRegimes(paginationDto);
       res.status(response.status_code).json(response);
     } catch (error) {
       this.handleError(error, res, next);
@@ -124,7 +125,9 @@ export class BillingController {
     next: NextFunction
   ) => {
     try {
-      const response = await this.service.getInvoiceUsages();
+      const { page, limit } = req.query;
+      const paginationDto = PaginationDto.create(Number(page), Number(limit));
+      const response = await this.service.getInvoiceUsages(paginationDto);
       res.status(response.status_code).json(response);
     } catch (error) {
       this.handleError(error, res, next);
@@ -137,7 +140,9 @@ export class BillingController {
     next: NextFunction
   ) => {
     try {
-      const response = await this.service.getPaymentMethods();
+      const { page, limit } = req.query;
+      const paginationDto = PaginationDto.create(Number(page), Number(limit));
+      const response = await this.service.getPaymentMethods(paginationDto);
       res.status(response.status_code).json(response);
     } catch (error) {
       this.handleError(error, res, next);
@@ -171,11 +176,8 @@ export class BillingController {
     next: NextFunction
   ) => {
     try {
-      const { page = 1, limit = 10, all } = req.query;
-      const isAll =
-        all === "true" || all === "" || (page === 1 && limit === 10);
-      const [error, paginationDto] = PaginationDto.create(+page, +limit, isAll);
-      if (error) this.handleError(error, res, next);
+      const { page, limit } = req.query;
+      const paginationDto = PaginationDto.create(Number(page), Number(limit));
       const response = await this.service.getBillCreationInfoList(
         paginationDto!
       );

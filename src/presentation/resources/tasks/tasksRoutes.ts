@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { TasksController } from "./tasksController";
 import { TasksService } from "./tasksService";
-import { CollaboratorRole } from "../../../models/Collaborator";
+import { CollaboratorRole } from "../../../data/models/CollaboratorModel";
 import isAuthorized from "../../../middlewares/isAuthorized";
 const { validateJwt } = require("../../../middlewares/validateJwt");
 

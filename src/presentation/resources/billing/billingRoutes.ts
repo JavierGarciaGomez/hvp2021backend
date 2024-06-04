@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { BillingController } from "./billingController";
 import { CustomerRFCsService as billingService } from "./billingService";
+import { AuthMiddleware } from "../../../middlewares/auth.middleware";
 
 const { validateJwt } = require("../../../middlewares/validateJwt");
 
@@ -55,7 +56,7 @@ export class BillingRoutes {
     const service = new billingService();
     const controller = new BillingController(service);
 
-    router.use(validateJwt);
+    router.use(AuthMiddleware.validateJWT);
 
     router.get(routes.customerRFCs.all, controller.getCustomerRFCs);
     router.get(routes.customerRFCs.one, controller.getRecordById);

@@ -1,6 +1,6 @@
 import TaskModel from "../data/models/TaskModel";
 import TimeOffRequestModel from "../data/models/TimeOffRequestModel";
-import CollaboratorModel from "../models/Collaborator";
+import CollaboratorModel from "../data/models/CollaboratorModel";
 
 export interface ResourceWithCollaborator {
   createdBy: string; // Change the type of createdBy according to your actual data type

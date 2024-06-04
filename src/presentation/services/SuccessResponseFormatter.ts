@@ -1,3 +1,4 @@
+import { envs } from "../../config";
 import {
   SingleSuccessResponse,
   ListSuccessResponse,
@@ -23,6 +24,7 @@ export class SuccessResponseFormatter {
     options: FormatListResponseParams<T>
   ): ListSuccessResponse<T> {
     const { data, page, limit, total, path, resource } = options;
+    const fullPath = envs.BASE_URL + path;
 
     return {
       status_code: HttpStatusCode.OK,
@@ -40,11 +42,13 @@ export class SuccessResponseFormatter {
       links: {
         next:
           page * limit < total
-            ? `${path}?page=${page + 1}&limit=${limit}`
+            ? `${fullPath}?page=${page + 1}&limit=${limit}`
             : undefined,
         prev:
-          page - 1 > 0 ? `${path}?page=${page - 1}&limit=${limit}` : undefined,
-        current: `${path}?page=${page}&limit=${limit}`,
+          page - 1 > 0
+            ? `${fullPath}?page=${page - 1}&limit=${limit}`
+            : undefined,
+        current: `${fullPath}?page=${page}&limit=${limit}`,
       },
     };
   }

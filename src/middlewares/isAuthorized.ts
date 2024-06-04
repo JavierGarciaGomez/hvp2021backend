@@ -1,6 +1,6 @@
 import { RequestWithAuthCollaborator } from "../types/RequestsAndResponses";
 import { Response, NextFunction } from "express";
-import { CollaboratorRole } from "../models/Collaborator";
+import { CollaboratorRole } from "../data/models/CollaboratorModel";
 import { ResourceWithCollaborator, getResource } from "../helpers/fetchHelpers";
 import { errorHandler } from "./errorHandler";
 import { BaseError } from "../domain/errors/BaseError";

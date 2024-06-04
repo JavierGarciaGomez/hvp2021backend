@@ -15,7 +15,9 @@ const {
 } = require("../helpers/utilities");
 
 const ActivityRegister = require("../models/ActivityRegister");
-const { default: CollaboratorModel } = require("../models/Collaborator");
+const {
+  default: CollaboratorModel,
+} = require("../data/models/CollaboratorModel");
 
 // create new activity register
 // todo: don't create if there is an open one of the same user

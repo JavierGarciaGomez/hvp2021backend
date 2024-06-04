@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import duration from "dayjs/plugin/duration";
 import dayjs from "../config/dayjsConfig";
 
-import CollaboratorModel from "../models/Collaborator";
+import CollaboratorModel from "../data/models/CollaboratorModel";
 import {
   CollaboratorTimeOffOverview,
   DateTimeOffRequest,

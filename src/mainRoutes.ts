@@ -16,4 +16,5 @@ export const mainRoutes = {
   workLogs: "/api/work-logs",
   attendanceRecords: "/api/attendance-records",
   billing: "/api/billing",
+  authActivities: "/api/auth-activities",
 };

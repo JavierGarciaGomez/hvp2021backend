@@ -1,4 +1,4 @@
-// importations
+import express from "express";
 import { NextFunction, Request } from "express";
 import { errorHandler } from "./middlewares/errorHandler";
 import { TimeOffRequestsRoutes } from "./presentation/resources/timeOffRequests/timeOffRequestsRoutes";
@@ -7,14 +7,17 @@ import { WorkLogsRoutes } from "./presentation/resources/workLogs/workLogsRoutes
 import { AttendanceRecordsRoutes } from "./presentation/resources/attendanceRecords/attendanceRecordsRoutes";
 import { mainRoutes } from "./mainRoutes";
 import { BillingRoutes } from "./presentation/resources/billing/billingRoutes";
-require("dotenv").config();
+import { AuthRoutes } from "./presentation/resources/auth/authRoutes";
+import { PrintRouteMiddleware } from "./middlewares/printRoute.middleware";
+import { AuthActivitiesRoutes } from "./presentation/resources/authActivities/authActivitiesRoutes";
+import { AttachBaseUrlMiddleware } from "./middlewares";
+import { PassportAdapter } from "./config/passport.adapter";
+import { envs } from "./config";
+import path from "path";
+import cors from "cors";
 
-const express = require("express");
-const path = require("path");
-const cors = require("cors");
 const { dbConnection } = require("./database/config");
-const passport = require("passport");
-const passportSetup = require("./config/passportSetup");
+
 const cleanUpsRoutes = require("./routes/cleanUpsRoutes");
 const collaboratorsRoutes = require("./routes/collaboratorsRoutes");
 const authRoutes = require("./routes/authRoutes");
@@ -43,10 +46,8 @@ app.use(
 );
 
 // My middleware to console log
-app.use((req: Request, res: Response, next: NextFunction) => {
-  console.log(`Requested path: ${req.path}`);
-  next();
-});
+app.use(PrintRouteMiddleware.print);
+app.use(AttachBaseUrlMiddleware.attachBaseUrl);
 
 // dbConnection
 dbConnection();
@@ -54,7 +55,7 @@ dbConnection();
 // CORS
 app.use(
   cors({
-    origin: [process.env.CLIENT_URL, process.env.CLIENT_URL2],
+    origin: [envs.CLIENT_URL],
     methods: "GET,POST,PUT,DELETE, PATCH",
     credentials: true,
     maxAge: 3600,
@@ -68,16 +69,16 @@ app.use(
   })
 );
 
+const passportAdapter = new PassportAdapter();
+const passport = passportAdapter.getPassport();
+
 app.use(passport.initialize());
 app.use(passport.session());
-
 app.use(express.static(path.join(__dirname, "/public")));
-
-// 334 reading and parsing
 app.use(express.json());
 
 // routes
-app.use(mainRoutes.auth, authRoutes);
+// app.use(mainRoutes.auth, authRoutes);
 app.use(mainRoutes.collaborators, collaboratorsRoutes);
 app.use(mainRoutes.cleanUps, cleanUpsRoutes);
 app.use(mainRoutes.rfc, rfcRoutes);
@@ -94,10 +95,13 @@ app.use(mainRoutes.tasks, TasksRoutes.routes);
 app.use(mainRoutes.workLogs, WorkLogsRoutes.routes);
 app.use(mainRoutes.attendanceRecords, AttendanceRecordsRoutes.routes);
 app.use(mainRoutes.billing, BillingRoutes.routes);
+app.use(mainRoutes.auth, AuthRoutes.routes);
+app.use(mainRoutes.authActivities, AuthActivitiesRoutes.routes);
 // app.use(mainRoutes.bills, bills);
 
 app.use(errorHandler);
 
-app.listen(process.env.PORT || 4000, () => {
+app.listen(envs.PORT || 4000, () => {
   console.log("Server running in port " + process.env.PORT);
 });
+export { passport };

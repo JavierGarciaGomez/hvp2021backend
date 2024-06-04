@@ -1,6 +1,6 @@
 const { response } = require("express");
 const bcrypt = require("bcryptjs");
-const Collaborator = require("../models/Collaborator");
+const Collaborator = require("../data/models/CollaboratorModel");
 const User = require("../models/User");
 
 const { generateJWT } = require("../helpers/jwt");
@@ -16,7 +16,9 @@ const {
   registerLog,
 } = require("../helpers/utilities");
 const AuthLog = require("../models/CollaboratorLog");
-const { default: CollaboratorModel } = require("../models/Collaborator");
+const {
+  default: CollaboratorModel,
+} = require("../data/models/CollaboratorModel");
 
 const createUser = async (req, res = response) => {
   try {

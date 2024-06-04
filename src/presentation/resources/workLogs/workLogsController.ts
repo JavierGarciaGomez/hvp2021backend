@@ -19,11 +19,9 @@ export class WorkLogsController {
     next: NextFunction
   ) => {
     try {
-      const { page = 1, limit = 10, all } = req.query;
-      const isAll =
-        all === "true" || all === "" || (page === 1 && limit === 10);
-      const [error, paginationDto] = PaginationDto.create(+page, +limit, isAll);
-      if (error) this.handleError(error, res, next);
+      const { page, limit } = req.query;
+      const paginationDto = PaginationDto.create(Number(page), Number(limit));
+
       const response = await this.workLogService.getWorkLogs(paginationDto!);
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -37,11 +35,8 @@ export class WorkLogsController {
     next: NextFunction
   ) => {
     try {
-      const { page = 1, limit = 10, all } = req.query;
-      const isAll =
-        all === "true" || all === "" || (page === 1 && limit === 10);
-      const [error, paginationDto] = PaginationDto.create(+page, +limit, isAll);
-      if (error) this.handleError(error, res, next);
+      const { page, limit } = req.query;
+      const paginationDto = PaginationDto.create(Number(page), Number(limit));
 
       const collaboratorId = req.params.collaboratorId;
 

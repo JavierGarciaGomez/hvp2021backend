@@ -5,3 +5,4 @@ export { default as WorkLogModel } from "./WorkLogModel";
 export { default as BillCreationInfoModel } from "./BillCreationInfoModel";
 export { default as TaskActivityModel } from "./TaskActivityModel";
 export { default as CustomerRFCModel } from "./CustomerRFCModel";
+export { default as AuthActivityModel } from "./AuthActivityModel";

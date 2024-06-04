@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import CollaboratorModel from "../models/Collaborator";
+import CollaboratorModel from "../data/models/CollaboratorModel";
 import CustomerRFCModel from "../data/models/CustomerRFCModel";
 require("dotenv").config();
 

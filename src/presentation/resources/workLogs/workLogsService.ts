@@ -15,6 +15,7 @@ import { WorkLog, WorkLogActivity } from "../../../data/types/workLogsTypes";
 import TaskModel from "../../../data/models/TaskModel";
 import { TaskActivity, TaskStatus } from "../../../data/types/taskTypes";
 import { getTaskStatus } from "../../../helpers/taskHelpers";
+import { fetchList } from "../../../helpers";
 
 const commonPath = "/api/work-logs";
 const resourceName = "WorkLogs";
@@ -25,17 +26,27 @@ export class WorkLogsService {
   async getWorkLogs(
     paginationDto: PaginationDto
   ): Promise<ListSuccessResponse<WorkLog>> {
-    const { all } = paginationDto;
-    return this.fetchLists({}, paginationDto, all);
+    return fetchList({
+      model: WorkLogModel,
+      query: {},
+      paginationDto,
+      path: `${commonPath}`,
+      resourceName: "WorkLogs",
+    });
   }
 
   async getWorkLogsByCollaborator(
     paginationDto: PaginationDto,
     collaboratorId: string
   ): Promise<ListSuccessResponse<WorkLog>> {
-    const { all } = paginationDto;
     const query = { createdBy: collaboratorId };
-    return this.fetchLists(query, paginationDto, all);
+    return fetchList({
+      model: WorkLogModel,
+      query,
+      paginationDto,
+      path: `${commonPath}/collaborator/${collaboratorId}`,
+      resourceName: "WorkLogs",
+    });
   }
 
   async getWorkLogById(id: string) {
@@ -202,45 +213,5 @@ export class WorkLogsService {
     }
 
     return activities;
-  }
-
-  private async fetchLists(
-    query: ResourceQuery<WorkLog>,
-    paginationDto: PaginationDto,
-    all: boolean
-  ): Promise<ListSuccessResponse<WorkLog>> {
-    const { page, limit } = paginationDto;
-
-    try {
-      let data;
-
-      if (all) {
-        // If 'all' is present, fetch all resources without pagination
-        data = await WorkLogModel.find(query).populate("activities");
-      } else {
-        // Fetch paginated time-off requests
-        const [total, paginatedData] = await Promise.all([
-          WorkLogModel.countDocuments(query),
-          WorkLogModel.find(query)
-            .skip((page - 1) * limit)
-            .limit(limit),
-        ]);
-
-        data = paginatedData;
-      }
-
-      const response = SuccessResponseFormatter.formatListResponse<WorkLog>({
-        data,
-        page,
-        limit,
-        total: data.length,
-        path: `${commonPath}${WorkLogsPaths.all}`,
-        resource: "TimeOffRequests",
-      });
-
-      return response;
-    } catch (error) {
-      throw BaseError.internalServer("Internal Server Error");
-    }
   }
 }

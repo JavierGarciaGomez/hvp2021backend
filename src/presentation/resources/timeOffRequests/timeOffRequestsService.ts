@@ -14,7 +14,7 @@ import { TimeOffRequestsRoutePaths } from "./timeOffRequestsRoutes";
 import { TimeOffRequestDto } from "../../../domain/dtos/timeOffRequests/TimeOffRequestDto";
 import { AuthenticatedCollaborator } from "../../../types/RequestsAndResponses";
 import { ObjectId } from "mongoose";
-import { CollaboratorRole } from "../../../models/Collaborator";
+import { CollaboratorRole } from "../../../data/models/CollaboratorModel";
 import { getCollaboratorTimeOffOverviewDetails } from "../../../helpers/timeOffHelpers";
 import {
   formatDateWithoutTime,
@@ -39,7 +39,8 @@ export class TimeOffRequestsService {
   async getTimeOffRequests(
     paginationDto: PaginationDto
   ): Promise<ListSuccessResponse<TimeOffRequest>> {
-    const { all } = paginationDto;
+    // todo change this
+    const all = true;
     return this.fetchTimeOffRequestsLists({}, paginationDto, all);
   }
 
@@ -47,7 +48,8 @@ export class TimeOffRequestsService {
     paginationDto: PaginationDto,
     collaboratorId: string
   ): Promise<ListSuccessResponse<TimeOffRequest>> {
-    const { all } = paginationDto;
+    // todo change this
+    const all = true;
     const query = { collaborator: collaboratorId };
     return this.fetchTimeOffRequestsLists(query, paginationDto, all);
   }
@@ -56,7 +58,8 @@ export class TimeOffRequestsService {
     paginationDto: PaginationDto,
     year: number
   ): Promise<ListSuccessResponse<TimeOffRequest>> {
-    const { all } = paginationDto;
+    // todo change this
+    const all = true;
     const query = {
       requestedDays: {
         $gte: new Date(`${year}-01-01`),
@@ -268,7 +271,7 @@ export class TimeOffRequestsService {
     return response;
   }
   async getCollaboratorsTimeOffOverview(paginationDto: PaginationDto) {
-    const { all, page, limit } = paginationDto;
+    const { page, limit } = paginationDto;
     const activeCollaborators = await getActiveCollaborators();
     const collaboratorsOverview: CollaboratorTimeOffOverview[] = [];
     for (const collaborator of activeCollaborators) {
@@ -285,8 +288,8 @@ export class TimeOffRequestsService {
     const response =
       SuccessResponseFormatter.formatListResponse<CollaboratorTimeOffOverview>({
         data: collaboratorsOverview,
-        page,
-        limit,
+        page: 1,
+        limit: collaboratorsOverview.length,
         total: collaboratorsOverview.length,
         path: `${commonPath}${TimeOffRequestsRoutePaths.collaboratorsOverview}`,
         resource: "CollaboratorsTimeOffOverview",
@@ -304,7 +307,7 @@ export class TimeOffRequestsService {
     try {
       let data;
 
-      if (all) {
+      if (all || page === undefined || limit === undefined) {
         // If 'all' is present, fetch all resources without pagination
         data = await TimeOffRequestModel.find(query);
       } else {
@@ -322,8 +325,8 @@ export class TimeOffRequestsService {
       const response =
         SuccessResponseFormatter.formatListResponse<TimeOffRequest>({
           data,
-          page,
-          limit,
+          page: 1,
+          limit: data.length,
           total: data.length,
           path: `${commonPath}${TimeOffRequestsRoutePaths.all}`,
           resource: "TimeOffRequests",

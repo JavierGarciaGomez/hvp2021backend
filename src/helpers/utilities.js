@@ -4,7 +4,9 @@ const CollaboratorLog = require("../models/CollaboratorLog");
 const User = require("../models/User");
 const UserLog = require("../models/UserLog");
 const { roleTypes } = require("../types/types");
-const { default: CollaboratorModel } = require("../models/Collaborator");
+const {
+  default: CollaboratorModel,
+} = require("../data/models/CollaboratorModel");
 
 const getDateWithoutTime = (date = new Date()) => {
   return convertDateToUTC(

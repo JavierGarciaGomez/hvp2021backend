@@ -4,7 +4,7 @@ import { Router } from "express";
 // import { CategoryService } from "../services/category.service";
 import { TimeOffRequestController } from "./timeOffRequestsController";
 import { TimeOffRequestsService } from "./timeOffRequestsService";
-import { CollaboratorRole } from "../../../models/Collaborator";
+import { CollaboratorRole } from "../../../data/models/CollaboratorModel";
 import isAuthorized from "../../../middlewares/isAuthorized";
 import { validateJwt } from "../../../middlewares/validateJwt";
 

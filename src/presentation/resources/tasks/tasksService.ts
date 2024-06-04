@@ -12,6 +12,7 @@ import TaskModel from "../../../data/models/TaskModel";
 import { Task } from "../../../data/types/taskTypes";
 import TaskActivityModel from "../../../data/models/TaskActivityModel";
 import { isManagerOrAdmin } from "../../../helpers/authorizationHelpers";
+import { fetchList } from "../../../helpers";
 
 const commonPath = "/api/tasks";
 const resourceName = "Tasks";
@@ -29,17 +30,28 @@ export class TasksService {
     if (!hasAccessRole) {
       query["isRestrictedView"] = false;
     }
-    const { all } = paginationDto;
-    return this.fetchLists(query, paginationDto, all);
+
+    return fetchList({
+      model: TaskModel,
+      query,
+      paginationDto,
+      path: `${commonPath}`,
+      resourceName: "Tasks",
+    });
   }
 
   async getTaksByCollaborator(
     paginationDto: PaginationDto,
     collaboratorId: string
   ): Promise<ListSuccessResponse<Task>> {
-    const { all } = paginationDto;
     const query = { assignees: collaboratorId };
-    return this.fetchLists(query, paginationDto, all);
+    return fetchList({
+      model: TaskModel,
+      query,
+      paginationDto,
+      path: `${commonPath}/collaborator/${collaboratorId}`,
+      resourceName: "Tasks",
+    });
   }
 
   async getTaskById(id: string) {
@@ -171,45 +183,5 @@ export class TasksService {
     }
 
     return activityIds.length > 0 ? activityIds : undefined;
-  }
-
-  private async fetchLists(
-    query: ResourceQuery<Task>,
-    paginationDto: PaginationDto,
-    all: boolean
-  ): Promise<ListSuccessResponse<Task>> {
-    const { page, limit } = paginationDto;
-
-    try {
-      let data;
-
-      if (all) {
-        // If 'all' is present, fetch all resources without pagination
-        data = await TaskModel.find(query).populate("activities");
-      } else {
-        // Fetch paginated time-off requests
-        const [total, paginatedData] = await Promise.all([
-          TaskModel.countDocuments(query),
-          TaskModel.find(query)
-            .skip((page - 1) * limit)
-            .limit(limit),
-        ]);
-
-        data = paginatedData;
-      }
-
-      const response = SuccessResponseFormatter.formatListResponse<Task>({
-        data,
-        page,
-        limit,
-        total: data.length,
-        path: `${commonPath}${TasksPaths.all}`,
-        resource: "TimeOffRequests",
-      });
-
-      return response;
-    } catch (error) {
-      throw BaseError.internalServer("Internal Server Error");
-    }
   }
 }

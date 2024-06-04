@@ -1,7 +1,7 @@
 import { RequestWithAuthCollaborator } from "../types/RequestsAndResponses";
 
 import { Request, Response } from "express";
-import CollaboratorModel from "../models/Collaborator";
+import CollaboratorModel from "../data/models/CollaboratorModel";
 const { response } = require("express");
 const bcrypt = require("bcryptjs");
 

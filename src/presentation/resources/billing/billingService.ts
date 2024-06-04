@@ -1,6 +1,4 @@
-import mongoose from "mongoose";
 import { mainRoutes } from "../../../mainRoutes";
-import { ResourceQuery } from "../../../data/types/Queries";
 import { ListSuccessResponse } from "../../../data/types/responses";
 import {
   BillCreationInfoDTO,
@@ -16,16 +14,15 @@ import billCreationInfoModel from "../../../data/models/BillCreationInfoModel";
 import {
   BillCreationInfo,
   CustomerRFC,
-  FiscalRegime,
-  InvoiceUsage,
 } from "../../../data/types/billingTypes";
 import {
   CFDI_USES,
   FISCAL_REGIMES,
   PAYMENT_METHODS,
 } from "../../../data/constants/billingConstants";
+import { fetchList, fetchStaticList } from "../../../helpers";
 
-const commonPath = mainRoutes.attendanceRecords;
+const commonPath = mainRoutes.billing;
 const customerRRFCResourceName = "Customer RFCs";
 const billCreationInfoResourceName = "Bill Creation Info";
 export class CustomerRFCsService {
@@ -35,13 +32,12 @@ export class CustomerRFCsService {
   async getCustomerRFCs(
     paginationDto: PaginationDto
   ): Promise<ListSuccessResponse<CustomerRFC>> {
-    const { all } = paginationDto;
-    return this.fetchLists({
+    return fetchList({
       model: CustomerRFCModel,
       query: {},
       paginationDto,
-      all,
-      path: `${commonPath}${routes.customerRFCs}`,
+
+      path: `${commonPath}${routes.customerRFCs.all}`,
       resourceName: customerRRFCResourceName,
     });
   }
@@ -157,46 +153,31 @@ export class CustomerRFCsService {
     return response;
   }
 
-  async getFiscalRegimes() {
-    const data = FISCAL_REGIMES;
-    const response = SuccessResponseFormatter.formatListResponse<FiscalRegime>({
-      data,
-      page: 1,
-      limit: data.length,
-      total: data.length,
-      path: "",
-      resource: "Fiscal Regimes",
+  async getFiscalRegimes(paginationDto: PaginationDto) {
+    return fetchStaticList({
+      data: FISCAL_REGIMES,
+      paginationDto,
+      path: `${commonPath}${routes.fiscalRegime.all}`,
+      resourceName: "Fiscal Regimes",
     });
-
-    return response;
   }
 
-  async getInvoiceUsages() {
-    const data = CFDI_USES;
-    const response = SuccessResponseFormatter.formatListResponse<InvoiceUsage>({
-      data,
-      page: 1,
-      limit: data.length,
-      total: data.length,
-      path: "",
-      resource: "Invoice Usages",
+  async getInvoiceUsages(paginationDto: PaginationDto) {
+    return fetchStaticList({
+      data: CFDI_USES,
+      paginationDto,
+      path: `${commonPath}${routes.invoiceUsages.all}`,
+      resourceName: "Invoice Usages",
     });
-
-    return response;
   }
 
-  async getPaymentMethods() {
-    const data = PAYMENT_METHODS;
-    const response = SuccessResponseFormatter.formatListResponse({
-      data,
-      page: 1,
-      limit: data.length,
-      total: data.length,
-      path: "",
-      resource: "Payment Methods",
+  async getPaymentMethods(paginationDto: PaginationDto) {
+    return fetchStaticList({
+      data: PAYMENT_METHODS,
+      paginationDto,
+      path: `${commonPath}${routes.paymentMethods.all}`,
+      resourceName: "Payment Methods",
     });
-
-    return response;
   }
 
   async createBillCreationInfo(
@@ -224,12 +205,11 @@ export class CustomerRFCsService {
   async getBillCreationInfoList(
     paginationDto: PaginationDto
   ): Promise<ListSuccessResponse<BillCreationInfo>> {
-    const { all } = paginationDto;
-    return this.fetchLists({
+    return fetchList({
       model: billCreationInfoModel,
       query: {},
       paginationDto,
-      all,
+
       path: `${commonPath}${routes.billCreationInfo.all}`,
       resourceName: billCreationInfoResourceName,
     });
@@ -298,51 +278,4 @@ export class CustomerRFCsService {
 
     return response;
   }
-
-  private async fetchLists<T>(
-    params: FetchListsParams<T>
-  ): Promise<ListSuccessResponse<T>> {
-    const { model, query, paginationDto, all, path, resourceName } = params;
-    const { page, limit } = paginationDto;
-
-    try {
-      let data;
-      let total;
-
-      if (all) {
-        // If 'all' is present, fetch all resources without pagination
-        data = await model.find(query);
-        total = data.length;
-      } else {
-        // Fetch paginated data
-        total = await model.countDocuments(query);
-        data = await model
-          .find(query)
-          .skip((page - 1) * limit)
-          .limit(limit);
-      }
-
-      const response = SuccessResponseFormatter.formatListResponse<T>({
-        data,
-        page,
-        limit,
-        total,
-        path,
-        resource: resourceName,
-      });
-
-      return response;
-    } catch (error) {
-      throw BaseError.internalServer("Internal Server Error");
-    }
-  }
-}
-
-interface FetchListsParams<T> {
-  model: mongoose.Model<T>;
-  query: ResourceQuery<T>;
-  paginationDto: PaginationDto;
-  all: boolean;
-  path: string;
-  resourceName: string;
 }

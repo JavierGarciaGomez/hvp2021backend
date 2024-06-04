@@ -12,3 +12,4 @@ coverage/
 
 # Build directory
 build/
+yarn.lock

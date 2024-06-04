@@ -1,6 +1,6 @@
 const { response } = require("express");
 const bcrypt = require("bcryptjs");
-const Collaborator = require("../models/Collaborator");
+const Collaborator = require("../data/models/CollaboratorModel");
 // const Usuario = require("../models/Usuario");
 const { generateJWT } = require("../helpers/jwt");
 const { body } = require("express-validator");
@@ -16,7 +16,9 @@ const { getCollaboratorById } = require("./collaboratorsController");
 const DeepCleanUp = require("../models/DeepCleanUp");
 const OperatingRoomCleanUp = require("../models/OperatingRoomCleanUp");
 const { uncatchedError } = require("../helpers/const");
-const { default: CollaboratorModel } = require("../models/Collaborator");
+const {
+  default: CollaboratorModel,
+} = require("../data/models/CollaboratorModel");
 dayjs.extend(utc);
 
 const getAllCleanUpsFromLastMonth = async (req, res = response) => {
