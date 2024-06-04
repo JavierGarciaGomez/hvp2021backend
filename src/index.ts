@@ -55,7 +55,7 @@ dbConnection();
 // CORS
 app.use(
   cors({
-    origin: [envs.CLIENT_URL],
+    origin: [envs.CLIENT_URL, envs.CLIENT_URL2],
     methods: "GET,POST,PUT,DELETE, PATCH",
     credentials: true,
     maxAge: 3600,

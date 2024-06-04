@@ -6,6 +6,7 @@ export const envs = {
   GOOGLE_CLIENT_ID: get("GOOGLE_CLIENT_ID").required().asString(),
   GOOGLE_CLIENT_SECRET: get("GOOGLE_CLIENT_SECRET").required().asString(),
   CLIENT_URL: get("CLIENT_URL").required().asString(),
+  CLIENT_URL2: get("CLIENT_URL2").required().asString(),
   DB_CNN: get("DB_CNN").required().asString(),
   SECRET_JWT_SEED: get("SECRET_JWT_SEED").required().asString(),
 
