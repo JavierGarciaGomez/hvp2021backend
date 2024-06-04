@@ -26,13 +26,22 @@ interface FetchListParams<T> {
   all?: boolean;
   path: string;
   resourceName: string;
+  populateOptions?: mongoose.PopulateOptions[];
 }
 
 export const fetchList = async <T>(
   params: FetchListParams<T>
 ): Promise<ListSuccessResponse<T>> => {
-  const { model, query, paginationDto, all, path, resourceName, sortingDto } =
-    params;
+  const {
+    model,
+    query,
+    paginationDto,
+    all,
+    path,
+    resourceName,
+    sortingDto,
+    populateOptions = [],
+  } = params;
   const { page, limit } = paginationDto;
 
   try {
@@ -57,7 +66,8 @@ export const fetchList = async <T>(
         .find(query)
         .sort(sortOptions)
         .skip((page - 1) * limit)
-        .limit(limit);
+        .limit(limit)
+        .populate(populateOptions);
     }
 
     const response = SuccessResponseFormatter.formatListResponse<T>({

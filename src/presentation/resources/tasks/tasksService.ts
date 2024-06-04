@@ -37,6 +37,7 @@ export class TasksService {
       paginationDto,
       path: `${commonPath}`,
       resourceName: "Tasks",
+      populateOptions: [{ path: "activities" }],
     });
   }
 

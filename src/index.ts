@@ -36,6 +36,10 @@ const cookieSession = require("cookie-session");
 
 const app = express();
 
+console.log({ envs });
+console.log("Client URL 1:", envs.CLIENT_URL);
+console.log("Client URL 2:", envs.CLIENT_URL2);
+
 app.use(
   cookieSession({
     name: "session",
