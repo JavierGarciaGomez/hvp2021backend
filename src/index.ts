@@ -101,7 +101,7 @@ app.use(mainRoutes.authActivities, AuthActivitiesRoutes.routes);
 
 app.use(errorHandler);
 
-app.listen(envs.PORT || 4000, () => {
+app.listen(process.env.PORT || 4000, () => {
   console.log("Server running in port " + process.env.PORT);
 });
 export { passport };
