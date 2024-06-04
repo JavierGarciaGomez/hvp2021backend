@@ -1,5 +1,5 @@
+import { envs } from "./config";
 import express from "express";
-import { NextFunction, Request } from "express";
 import { errorHandler } from "./middlewares/errorHandler";
 import { TimeOffRequestsRoutes } from "./presentation/resources/timeOffRequests/timeOffRequestsRoutes";
 import { TasksRoutes } from "./presentation/resources/tasks/tasksRoutes";
@@ -12,7 +12,6 @@ import { PrintRouteMiddleware } from "./middlewares/printRoute.middleware";
 import { AuthActivitiesRoutes } from "./presentation/resources/authActivities/authActivitiesRoutes";
 import { AttachBaseUrlMiddleware } from "./middlewares";
 import { PassportAdapter } from "./config/passport.adapter";
-import { envs } from "./config";
 import path from "path";
 import cors from "cors";
 
