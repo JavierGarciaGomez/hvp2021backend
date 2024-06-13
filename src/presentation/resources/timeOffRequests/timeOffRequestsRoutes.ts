@@ -7,6 +7,7 @@ import { TimeOffRequestsService } from "./timeOffRequestsService";
 import { CollaboratorRole } from "../../../data/models/CollaboratorModel";
 import isAuthorized from "../../../middlewares/isAuthorized";
 import { validateJwt } from "../../../middlewares/validateJwt";
+import { AuthMiddleware } from "../../../middlewares";
 
 export enum TimeOffRequestsRoutePaths {
   all = "/",
@@ -27,7 +28,7 @@ export class TimeOffRequestsRoutes {
     const service = new TimeOffRequestsService();
     const controller = new TimeOffRequestController(service);
 
-    router.use(validateJwt);
+    router.use(AuthMiddleware.validateJWT);
 
     // Definir las rutas
     router.get(TimeOffRequestsRoutePaths.all, controller.getTimeOffRequests);

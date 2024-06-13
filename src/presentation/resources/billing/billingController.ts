@@ -71,7 +71,7 @@ export class BillingController {
   ) => {
     try {
       const id = req.params.id;
-      const { authenticatedCollaborator } = req;
+      const { authUser } = req;
       const body = req.body;
       const [error, dto] = CustomerRFCDTO.update(body);
       if (error) throw BaseError.badRequest("Invalid request data", error);
@@ -79,7 +79,7 @@ export class BillingController {
       const response = await this.service.updateCustomerRFC(
         id,
         dto!,
-        authenticatedCollaborator!
+        authUser!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -152,14 +152,14 @@ export class BillingController {
     next: NextFunction
   ) => {
     try {
-      const { authenticatedCollaborator } = req;
+      const { authUser } = req;
       const body = req.body;
       const [error, dto] = BillCreationInfoDTO.create(body);
       if (error) throw BaseError.badRequest("Invalid data", error);
 
       const response = await this.service.createBillCreationInfo(
         dto!,
-        authenticatedCollaborator!
+        authUser!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -205,7 +205,7 @@ export class BillingController {
   ) => {
     const id = req.params.id;
     try {
-      const { authenticatedCollaborator } = req;
+      const { authUser } = req;
       const body = req.body;
       const [error, dto] = BillCreationInfoDTO.update(body);
       if (error) throw BaseError.badRequest("Invalid request data", error);
@@ -213,7 +213,7 @@ export class BillingController {
       const response = await this.service.updateBillCreationInfo(
         id,
         dto!,
-        authenticatedCollaborator!
+        authUser!
       );
       res.status(response.status_code).json(response);
     } catch (error) {

@@ -18,13 +18,13 @@ export class TasksController {
     next: NextFunction
   ) => {
     try {
-      const { authenticatedCollaborator } = req;
+      const { authUser } = req;
       const { page, limit } = req.query;
       const paginationDto = PaginationDto.create(Number(page), Number(limit));
 
       const response = await this.taskService.getTasks(
         paginationDto!,
-        authenticatedCollaborator!
+        authUser!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -76,14 +76,14 @@ export class TasksController {
     next: NextFunction
   ) => {
     try {
-      const { authenticatedCollaborator } = req;
+      const { authUser } = req;
       const body = req.body;
       const [error, createTimeOffRequestDto] = TaskDto.create(body);
       if (error) throw BaseError.badRequest("Invalid Task data", error);
 
       const response = await this.taskService.createTask(
         createTimeOffRequestDto!,
-        authenticatedCollaborator!
+        authUser!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -98,16 +98,12 @@ export class TasksController {
   ) => {
     try {
       const id = req.params.id;
-      const { authenticatedCollaborator } = req;
+      const { authUser } = req;
       const body = req.body;
       const [error, dto] = TaskDto.update(body);
       if (error) throw BaseError.badRequest("Invalid request data", error);
 
-      const response = await this.taskService.updateTask(
-        id,
-        dto!,
-        authenticatedCollaborator!
-      );
+      const response = await this.taskService.updateTask(id, dto!, authUser!);
       res.status(response.status_code).json(response);
     } catch (error) {
       next(error);

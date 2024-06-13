@@ -4,7 +4,7 @@ import { TasksController } from "./tasksController";
 import { TasksService } from "./tasksService";
 import { CollaboratorRole } from "../../../data/models/CollaboratorModel";
 import isAuthorized from "../../../middlewares/isAuthorized";
-const { validateJwt } = require("../../../middlewares/validateJwt");
+import { AuthMiddleware } from "../../../middlewares";
 
 export enum TasksPaths {
   all = "/",
@@ -22,7 +22,7 @@ export class TasksRoutes {
     const service = new TasksService();
     const controller = new TasksController(service);
 
-    router.use(validateJwt);
+    router.use(AuthMiddleware.validateJWT);
 
     // Definir las rutas
     router.get(TasksPaths.all, controller.getTasks);

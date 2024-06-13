@@ -107,7 +107,7 @@ export class TimeOffRequestController {
     next: NextFunction
   ) => {
     try {
-      const { authenticatedCollaborator } = req;
+      const { authUser } = req;
       const body = req.body;
       const [error, createTimeOffRequestDto] = TimeOffRequestDto.create(body);
       if (error)
@@ -115,7 +115,7 @@ export class TimeOffRequestController {
 
       const response = await this.timeOffRequestsService.createTimeOffRequest(
         createTimeOffRequestDto!,
-        authenticatedCollaborator!
+        authUser!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -130,7 +130,7 @@ export class TimeOffRequestController {
   ) => {
     try {
       const id = req.params.id;
-      const { authenticatedCollaborator } = req;
+      const { authUser } = req;
       const body = req.body;
       const [error, timeOffRequestDto] = TimeOffRequestDto.update(body);
 
@@ -140,7 +140,7 @@ export class TimeOffRequestController {
       const response = await this.timeOffRequestsService.updateTimeOffRequest(
         id,
         timeOffRequestDto!,
-        authenticatedCollaborator!
+        authUser!
       );
       res.status(response.status_code).json(response);
     } catch (error) {

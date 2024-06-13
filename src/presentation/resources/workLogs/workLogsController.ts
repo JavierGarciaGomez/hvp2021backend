@@ -73,15 +73,12 @@ export class WorkLogsController {
     next: NextFunction
   ) => {
     try {
-      const { authenticatedCollaborator } = req;
+      const { authUser } = req;
       const body = req.body;
       const [error, dto] = WorkLogDto.create(body);
       if (error) throw BaseError.badRequest("Invalid WorkLog data", error);
 
-      const response = await this.workLogService.createWorkLog(
-        dto!,
-        authenticatedCollaborator!
-      );
+      const response = await this.workLogService.createWorkLog(dto!, authUser!);
       res.status(response.status_code).json(response);
     } catch (error) {
       next(error);
@@ -95,7 +92,7 @@ export class WorkLogsController {
   ) => {
     try {
       const id = req.params.id;
-      const { authenticatedCollaborator } = req;
+      const { authUser } = req;
       const body = req.body;
       const [error, dto] = WorkLogDto.update(body);
       if (error) throw BaseError.badRequest("Invalid request data", error);
@@ -103,7 +100,7 @@ export class WorkLogsController {
       const response = await this.workLogService.updateWorkLog(
         id,
         dto!,
-        authenticatedCollaborator!
+        authUser!
       );
       res.status(response.status_code).json(response);
     } catch (error) {

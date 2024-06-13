@@ -114,14 +114,14 @@ export class AttendanceRecordsController {
     next: NextFunction
   ) => {
     try {
-      const { authenticatedCollaborator } = req;
+      const { authUser } = req;
       const body = req.body;
       const [error, dto] = AttendanceRecordDto.create(body);
       if (error) throw BaseError.badRequest("Invalid data", error);
 
       const response = await this.timeAttendanceService.createAttendanceRecord(
         dto!,
-        authenticatedCollaborator!
+        authUser!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -136,7 +136,7 @@ export class AttendanceRecordsController {
   ) => {
     try {
       const id = req.params.id;
-      const { authenticatedCollaborator } = req;
+      const { authUser } = req;
       const body = req.body;
       const [error, dto] = AttendanceRecordDto.update(body);
       if (error) throw BaseError.badRequest("Invalid request data", error);
@@ -144,7 +144,7 @@ export class AttendanceRecordsController {
       const response = await this.timeAttendanceService.updateAttendanceRecord(
         id,
         dto!,
-        authenticatedCollaborator!
+        authUser!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
