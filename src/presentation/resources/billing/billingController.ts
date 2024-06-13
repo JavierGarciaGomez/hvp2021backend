@@ -52,15 +52,12 @@ export class BillingController {
     next: NextFunction
   ) => {
     try {
-      const { authenticatedCollaborator } = req;
+      const { authUser } = req;
       const body = req.body;
       const [error, dto] = CustomerRFCDTO.create(body);
       if (error) throw BaseError.badRequest("Invalid data", error);
 
-      const response = await this.service.createCustomerRFC(
-        dto!,
-        authenticatedCollaborator!
-      );
+      const response = await this.service.createCustomerRFC(dto!, authUser!);
       res.status(response.status_code).json(response);
     } catch (error) {
       this.handleError(error, res, next);
