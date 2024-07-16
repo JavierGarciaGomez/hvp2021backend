@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { BillingController } from "./billingController";
-import { CustomerRFCsService as billingService } from "./billingService";
+import { BillingService as billingService } from "./billingService";
 import { AuthMiddleware } from "../../../middlewares/auth.middleware";
 
 const { validateJwt } = require("../../../middlewares/validateJwt");

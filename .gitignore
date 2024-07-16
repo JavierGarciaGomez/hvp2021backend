@@ -12,4 +12,6 @@ coverage/
 
 # Build directory
 build/
-yarn.lock
+/yarn.lock
+mongo
+mongo-test

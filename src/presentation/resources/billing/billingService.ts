@@ -25,7 +25,7 @@ import { fetchList, fetchStaticList } from "../../../helpers";
 const commonPath = mainRoutes.billing;
 const customerRRFCResourceName = "Customer RFCs";
 const billCreationInfoResourceName = "Bill Creation Info";
-export class CustomerRFCsService {
+export class BillingService {
   // DI
   constructor() {}
 

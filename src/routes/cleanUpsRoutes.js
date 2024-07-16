@@ -20,27 +20,37 @@ const { validateJwt } = require("../middlewares/validateJwt");
 // const { fieldValidator } = require("../middlewares/fieldValidator");
 // const { validarJWT } = require("../middlewares/validar-jwt");
 
-const router = Router();
+export const cleanupsRouter = Router();
 
-router.get("/allLastMonth", validateJwt, getAllCleanUpsFromLastMonth);
-router.get("/daily/:branch", validateJwt, getDailyCleanUpsAndGenerate);
-router.patch("/daily/:branch/:dailyCleanUpId", validateJwt, updateDailyCleanUp);
+cleanupsRouter.get("/allLastMonth", validateJwt, getAllCleanUpsFromLastMonth);
+cleanupsRouter.get("/daily/:branch", validateJwt, getDailyCleanUpsAndGenerate);
+cleanupsRouter.patch(
+  "/daily/:branch/:dailyCleanUpId",
+  validateJwt,
+  updateDailyCleanUp
+);
 
-router.post("/deep/createNew", validateJwt, createDeepCleanUp);
-router.get("/deep/:branch", validateJwt, getDeepCleanUps);
-router.get("/deep/:branch/:deepCleanUpId", validateJwt, getDeepCleanUp);
-router.put("/deep/:branch/:deepCleanUpId", validateJwt, updateDeepCleanUp);
+cleanupsRouter.post("/deep/createNew", validateJwt, createDeepCleanUp);
+cleanupsRouter.get("/deep/:branch", validateJwt, getDeepCleanUps);
+cleanupsRouter.get("/deep/:branch/:deepCleanUpId", validateJwt, getDeepCleanUp);
+cleanupsRouter.put(
+  "/deep/:branch/:deepCleanUpId",
+  validateJwt,
+  updateDeepCleanUp
+);
 
-router.post(
+cleanupsRouter.post(
   "/operatingRoom/:branch/createNew",
   validateJwt,
   createOperatingRoomCleanUp
 );
-router.get("/operatingRoom/:branch", validateJwt, getOperatingRoomCleanUps);
-router.patch(
+cleanupsRouter.get(
+  "/operatingRoom/:branch",
+  validateJwt,
+  getOperatingRoomCleanUps
+);
+cleanupsRouter.patch(
   "/operatingRoom/:branch/:operatingRoomCleanUpId",
   validateJwt,
   updateOperatingRoomCleanUp
 );
-
-module.exports = router;

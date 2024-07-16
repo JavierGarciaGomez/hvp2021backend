@@ -7,10 +7,10 @@ import {
 } from "../../../domain";
 import { BaseError } from "../../../domain/errors/BaseError";
 
-import { CustomerRFCsService } from "./billingService";
+import { BillingService } from "./billingService";
 
 export class BillingController {
-  constructor(private readonly service: CustomerRFCsService) {}
+  constructor(private readonly service: BillingService) {}
 
   private handleError = (error: unknown, res: Response, next: NextFunction) => {
     next(error);

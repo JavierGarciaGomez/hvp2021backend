@@ -21,3 +21,31 @@ src
     presentation
         resources
         services
+
+## new structure
+src/
+├── application/
+│   ├── commands/
+│   ├── queries/
+│   └── handlers/
+├── domain/
+│   ├── models/
+│   │   ├── entities/           # Domain entities
+│   │   └── dtos/               # DTOs for domain entities, including shared DTOs
+│   ├── services/
+│   └── repositories/
+├── infrastructure/
+│   ├── database/
+│   │   └── DatabaseService.ts  # Database connection and operations
+│   ├── messaging/
+│   └── adapters/   
+├── presentation/
+│   ├── tasks/
+│   │   ├── tasksController.ts
+│   │   └── tasksRoutes.ts
+│   ├── auth/
+│   │   ├── authController.ts
+│   │   └── authRoutes.ts
+│   └── middlewares/
+└── config/
+    └── env.ts                 # Environment configurations

@@ -6,8 +6,9 @@ import { BaseError } from "../../../domain/errors/BaseError";
 import { RequestWithAuthCollaborator } from "../../../types/RequestsAndResponses";
 import { EmailService } from "../../services/EmailService";
 import { handleError } from "../../../helpers";
-import { passport } from "../../..";
+
 import { JwtAdapter } from "../../../config";
+import { passportAdapter } from "../../../config/passport.adapter";
 
 export class AuthController {
   constructor(private readonly service: AuthService) {}
@@ -118,7 +119,7 @@ export class AuthController {
     res: Response,
     next: NextFunction
   ) => {
-    passport.authenticate("google", { scope: ["profile", "email"] })(
+    passportAdapter.authenticate("google", { scope: ["profile", "email"] })(
       req,
       res,
       next
@@ -130,31 +131,34 @@ export class AuthController {
     res: Response,
     next: NextFunction
   ) => {
-    passport.authenticate("google", async (err: Error | null, user: any) => {
-      console.log("Error:", err); // Log any errors
-      console.log("User:", user); // Log the user object
-      if (err) {
-        return next(err);
+    passportAdapter.authenticate(
+      "google",
+      async (err: Error | null, user: any) => {
+        console.log("Error:", err); // Log any errors
+        console.log("User:", user); // Log the user object
+        if (err) {
+          return next(err);
+        }
+        if (!user) {
+          return res.redirect("/login");
+        }
+        try {
+          const token = await JwtAdapter.generateToken({
+            uid: user._id,
+            col_code: user.col_code,
+            role: user.role,
+            imgUrl: user.imgUrl,
+          });
+          // const response = await this.service.collaboratorGoogleLogin(user);
+          // res.status(200).json(response);
+          res.redirect(
+            // `${process.env.CLIENT_URL}#/auth?token=${response.token || ""}`
+            `${process.env.CLIENT_URL}#/auth?token=${token}`
+          );
+        } catch (error) {
+          next(error);
+        }
       }
-      if (!user) {
-        return res.redirect("/login");
-      }
-      try {
-        const token = await JwtAdapter.generateToken({
-          uid: user._id,
-          col_code: user.col_code,
-          role: user.role,
-          imgUrl: user.imgUrl,
-        });
-        // const response = await this.service.collaboratorGoogleLogin(user);
-        // res.status(200).json(response);
-        res.redirect(
-          // `${process.env.CLIENT_URL}#/auth?token=${response.token || ""}`
-          `${process.env.CLIENT_URL}#/auth?token=${token}`
-        );
-      } catch (error) {
-        next(error);
-      }
-    })(req, res, next);
+    )(req, res, next);
   };
 }

@@ -10,3 +10,4 @@ export * from "./timeOffTypes";
 export * from "./workLogsTypes";
 export * from "./authTypes";
 export * from "./authActivityTypes";
+export * from "./notificationTypes";
