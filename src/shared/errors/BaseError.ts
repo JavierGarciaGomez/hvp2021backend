@@ -66,6 +66,14 @@ export class BaseError extends Error {
     return BaseError.createError(HttpStatusCode.NOT_FOUND, message, detail);
   }
 
+  static notImplemented(message: string, detail?: ErrorDetail) {
+    return BaseError.createError(HttpStatusCode.INTERNAL_SERVER, message);
+  }
+
+  static conflict(message: string, detail?: ErrorDetail) {
+    return BaseError.createError(HttpStatusCode.CONFLICT, message, detail);
+  }
+
   static internalServer(message: string, detail?: ErrorDetail) {
     return BaseError.createError(
       HttpStatusCode.INTERNAL_SERVER,

@@ -1,12 +1,10 @@
 import { Response, Request, NextFunction } from "express";
-// import { CreateCategoryDto, CustomError, PaginationDto } from "../../domain";
-
-import { RequestWithAuthCollaborator } from "../../../types/RequestsAndResponses";
+import { AuthenticatedRequest } from "../../../shared/interfaces/RequestsAndResponses";
 import { PaginationDto } from "../../../domain";
 import { TimeOffRequestsService } from "./timeOffRequestsService";
 import { TimeOffRequestDto } from "../../../domain/dtos/timeOffRequests/TimeOffRequestDto";
-import { BaseError } from "../../../domain/errors/BaseError";
-import { TimeOffRequest } from "../../../data/types/timeOffTypes";
+import { BaseError } from "../../../shared/errors/BaseError";
+import { TimeOffRequest } from "../../../shared";
 
 export class TimeOffRequestController {
   constructor(
@@ -19,7 +17,7 @@ export class TimeOffRequestController {
   };
   // Todo review
   public getTimeOffRequests = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -38,7 +36,7 @@ export class TimeOffRequestController {
   };
 
   public getTimeOffRequestsByCollaborator = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -62,7 +60,7 @@ export class TimeOffRequestController {
   };
 
   public getTimeOffRequestsByYear = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -86,7 +84,7 @@ export class TimeOffRequestController {
   };
 
   public getTimeOffRequestById = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -102,7 +100,7 @@ export class TimeOffRequestController {
   };
 
   public createTimeOffRequest = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -124,7 +122,7 @@ export class TimeOffRequestController {
   };
 
   public updateTimeOffRequest = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -149,7 +147,7 @@ export class TimeOffRequestController {
   };
 
   public approveTimeOffRequest = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -166,7 +164,7 @@ export class TimeOffRequestController {
     } catch (error) {}
   };
   public deleteTimeOffRequest = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -181,7 +179,7 @@ export class TimeOffRequestController {
     }
   };
   public getCollaboratorTimeOffOverview = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -202,7 +200,7 @@ export class TimeOffRequestController {
     }
   };
   public getCollaboratorsTimeOffOverview = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -220,7 +218,7 @@ export class TimeOffRequestController {
 }
 
 interface HandleRequestParams {
-  req: RequestWithAuthCollaborator;
+  req: AuthenticatedRequest;
   res: Response;
   query: any;
   operation: string;

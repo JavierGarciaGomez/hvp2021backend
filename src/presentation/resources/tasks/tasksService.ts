@@ -1,24 +1,29 @@
-import { ResourceQuery } from "../../../data/types/Queries";
-import { ListSuccessResponse } from "../../../data/types/responses";
-import { PaginationDto } from "../../../domain";
-import { BaseError } from "../../../domain/errors/BaseError";
-import { SuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
+import {
+  NotificationActionType,
+  NotificationReferenceType,
+  PaginationDto,
+} from "../../../domain";
+import { BaseError } from "../../../shared/errors/BaseError";
+import { OldSuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
 
-import { AuthenticatedCollaborator } from "../../../types/RequestsAndResponses";
+import { AuthenticatedCollaborator } from "../../../shared/interfaces/RequestsAndResponses";
 import { ObjectId, Schema } from "mongoose";
-import { TasksPaths } from "./tasksRoutes";
+
 import { TaskDto } from "../../../domain/dtos/tasks/TaskDto";
-import TaskModel from "../../../data/models/TaskModel";
-import { Task } from "../../../data/types/taskTypes";
-import TaskActivityModel from "../../../data/models/TaskActivityModel";
-import { isManagerOrAdmin } from "../../../helpers/authorizationHelpers";
-import { fetchList } from "../../../helpers";
+import TaskModel from "../../../infrastructure/db/mongo/models/TaskModel";
+
+import TaskActivityModel from "../../../infrastructure/db/mongo/models/TaskActivityModel";
+import { isManagerOrAdmin } from "../../../shared/helpers/authorizationHelpers";
+
+import { NotificationService } from "../../../application";
+import { ListSuccessResponse, ResourceQuery, Task } from "../../../shared";
+import { fetchList } from "../../../shared/helpers";
 
 const commonPath = "/api/tasks";
 const resourceName = "Tasks";
 export class TasksService {
   // DI
-  constructor() {}
+  constructor(private readonly notificationService: NotificationService) {}
 
   async getTasks(
     paginationDto: PaginationDto,
@@ -60,7 +65,7 @@ export class TasksService {
     if (!resource)
       throw BaseError.notFound(`${resource} not found with id ${id}`);
 
-    const response = SuccessResponseFormatter.formatGetOneResponse<Task>({
+    const response = OldSuccessResponseFormatter.formatGetOneResponse<Task>({
       data: resource,
       resource: resourceName,
     });
@@ -84,11 +89,23 @@ export class TasksService {
     });
 
     const savedTask = await task.save();
+
+    // Notify assignees
+    const assignees = taskDto.data.assignees as string[];
+
+    this.notificationService.notifyCollaborators({
+      message: "You have been assigned a task",
+      referenceId: savedTask._id.toString(),
+      referenceType: NotificationReferenceType.TASK,
+      actionType: NotificationActionType.ASSIGNED,
+      collaboratorIds: assignees,
+    });
+
     const populatedTask = await TaskModel.populate(savedTask, {
       path: "activities",
     });
 
-    const response = SuccessResponseFormatter.fortmatCreateResponse<Task>({
+    const response = OldSuccessResponseFormatter.fortmatCreateResponse<Task>({
       data: populatedTask,
       resource: resourceName,
     });
@@ -124,7 +141,7 @@ export class TasksService {
       path: "activities",
     });
 
-    const response = SuccessResponseFormatter.formatUpdateResponse<Task>({
+    const response = OldSuccessResponseFormatter.formatUpdateResponse<Task>({
       data: populatedResource!,
       resource: resourceName,
     });
@@ -138,7 +155,7 @@ export class TasksService {
       throw BaseError.notFound(`${resourceName} not found with id ${id}`);
 
     const deletedResource = await TaskModel.findByIdAndDelete(id);
-    const response = SuccessResponseFormatter.formatDeleteResponse<Task>({
+    const response = OldSuccessResponseFormatter.formatDeleteResponse<Task>({
       data: deletedResource!,
       resource: resourceName,
     });

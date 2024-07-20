@@ -2,13 +2,13 @@ import { CollaboratorRegisterDto } from "./../../../domain/dtos/collaboratorAuth
 import { NextFunction, Request, Response } from "express";
 import { CollaboratorLoginDto } from "../../../domain/dtos/collaboratorAuth/collaboratorLoginDto";
 import { AuthService } from "./authService";
-import { BaseError } from "../../../domain/errors/BaseError";
-import { RequestWithAuthCollaborator } from "../../../types/RequestsAndResponses";
+import { BaseError } from "../../../shared/errors/BaseError";
+import { AuthenticatedRequest } from "../../../shared/interfaces/RequestsAndResponses";
 import { EmailService } from "../../services/EmailService";
-import { handleError } from "../../../helpers";
+import { handleError } from "../../../shared/helpers";
 
-import { JwtAdapter } from "../../../config";
-import { passportAdapter } from "../../../config/passport.adapter";
+import { passportAdapter } from "../../../infrastructure/adapters/passport.adapter";
+import { JwtAdapter } from "../../../infrastructure/adapters";
 
 export class AuthController {
   constructor(private readonly service: AuthService) {}
@@ -28,8 +28,25 @@ export class AuthController {
     }
   };
 
+  public collaboratorSimplifiedLogin = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { collaboratorId } = req.body;
+      const response = await this.service.collaboratorSimplifiedLogin(
+        collaboratorId
+      );
+
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public collaboratorRefreshToken = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -43,7 +60,7 @@ export class AuthController {
   };
 
   public collaboratorLogout = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -95,7 +112,7 @@ export class AuthController {
   };
 
   public collaboratorChangePassword = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {

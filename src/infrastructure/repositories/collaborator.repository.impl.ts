@@ -1,23 +1,24 @@
-import { CreateCollaboratorDto } from "../../application/dtos";
 import { CollaboratorDatasource } from "../../domain/datasources/collaborator.datasource";
-import { CollaboratorEntity } from "../../domain/entities";
+import { CollaboratorEntity, PublicCollaborator } from "../../domain/entities";
 import { CollaboratorRepository } from "../../domain/repositories";
+import { CustomQueryOptions } from "../../shared/interfaces";
+import { BaseRepositoryImpl } from "./base.repository.imp";
 
-export class CollaboratorRepositoryImpl implements CollaboratorRepository {
-  constructor(private readonly datasource: CollaboratorDatasource) {}
-  getById(id: string): Promise<CollaboratorEntity> {
-    return this.datasource.getById(id);
+export class CollaboratorRepositoryImpl
+  extends BaseRepositoryImpl<CollaboratorEntity>
+  implements CollaboratorRepository
+{
+  constructor(protected readonly datasource: CollaboratorDatasource) {
+    super(datasource);
   }
-  getAll(): Promise<CollaboratorEntity[]> {
-    return this.datasource.getAll();
+  async register(
+    collaborator: Partial<CollaboratorEntity>
+  ): Promise<CollaboratorEntity> {
+    return await this.datasource.register(collaborator);
   }
-  create(collaborator: CreateCollaboratorDto): Promise<CollaboratorEntity> {
-    return this.datasource.create(new CollaboratorEntity(collaborator));
-  }
-  update(collaborator: CollaboratorEntity): Promise<CollaboratorEntity> {
-    return this.datasource.update(collaborator);
-  }
-  delete(id: string): Promise<string> {
-    return this.datasource.delete(id);
+  async getAllForWeb(
+    options: CustomQueryOptions
+  ): Promise<PublicCollaborator[]> {
+    return await this.datasource.getAllForWeb(options);
   }
 }

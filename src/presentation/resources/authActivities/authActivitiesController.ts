@@ -1,15 +1,16 @@
 import { NextFunction, Response } from "express";
-import { RequestWithAuthCollaborator } from "../../../types/RequestsAndResponses";
+import { AuthenticatedRequest } from "../../../shared/interfaces/RequestsAndResponses";
 import { AuthActivitiesService } from "./authActivitiesService";
 import { PaginationDto } from "../../../domain";
-import { handleError } from "../../../helpers";
-import { SortingDto } from "../../../domain/dtos/shared/sorting.dto";
+
+import { SortingDto } from "../../../application/dtos/shared/sorting.dto";
+import { handleError } from "../../../shared/helpers";
 
 export class AuthActivitiesController {
   constructor(private readonly service: AuthActivitiesService) {}
 
   public list = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -33,7 +34,7 @@ export class AuthActivitiesController {
   };
 
   public byUserId = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -62,7 +63,7 @@ export class AuthActivitiesController {
   };
 
   public byId = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {

@@ -1,10 +1,14 @@
 import { Router } from "express";
-
 import { TasksController } from "./tasksController";
 import { TasksService } from "./tasksService";
-import { CollaboratorRole } from "../../../data/models/CollaboratorModel";
-import isAuthorized from "../../../middlewares/isAuthorized";
-import { AuthMiddleware } from "../../../middlewares";
+import { NotificationService } from "../../../application";
+import {
+  NotificationDataSourceMongoImp,
+  NotificationRepositoryImpl,
+} from "../../../infrastructure";
+import { CollaboratorRole } from "../../../domain";
+import { AuthMiddleware } from "../../middlewares";
+import isAuthorized from "../../middlewares/isAuthorized";
 
 export enum TasksPaths {
   all = "/",
@@ -19,7 +23,14 @@ export enum TasksPaths {
 export class TasksRoutes {
   static get routes(): Router {
     const router = Router();
-    const service = new TasksService();
+
+    const notificationDatasource = new NotificationDataSourceMongoImp();
+    const notificationRepository = new NotificationRepositoryImpl(
+      notificationDatasource
+    );
+    const notificationService = new NotificationService(notificationRepository);
+    const service = new TasksService(notificationService);
+
     const controller = new TasksController(service);
 
     router.use(AuthMiddleware.validateJWT);

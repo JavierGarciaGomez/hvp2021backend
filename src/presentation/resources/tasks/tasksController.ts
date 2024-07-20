@@ -1,9 +1,9 @@
 import { Response, Request, NextFunction } from "express";
-import { RequestWithAuthCollaborator } from "../../../types/RequestsAndResponses";
+import { AuthenticatedRequest } from "../../../shared/interfaces/RequestsAndResponses";
 import { PaginationDto } from "../../../domain";
 import { TasksService } from "./tasksService";
 import { TaskDto } from "../../../domain/dtos/tasks/TaskDto";
-import { BaseError } from "../../../domain/errors/BaseError";
+import { BaseError } from "../../../shared/errors/BaseError";
 
 export class TasksController {
   constructor(private readonly taskService: TasksService) {}
@@ -13,7 +13,7 @@ export class TasksController {
   };
 
   public getTasks = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -33,7 +33,7 @@ export class TasksController {
   };
 
   public getTasksByCollaborator = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -57,7 +57,7 @@ export class TasksController {
   };
 
   public getTasksById = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -71,7 +71,7 @@ export class TasksController {
   };
 
   public createTask = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -92,7 +92,7 @@ export class TasksController {
   };
 
   public updateTask = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -111,7 +111,7 @@ export class TasksController {
   };
 
   public deleteTask = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {

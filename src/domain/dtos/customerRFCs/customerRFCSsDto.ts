@@ -1,5 +1,8 @@
 import { ObjectId } from "mongodb";
-import { isValidDate, isValidDateString } from "../../../helpers/dateHelpers";
+import {
+  isValidDate,
+  isValidDateString,
+} from "../../../shared/helpers/dateHelpers";
 import {
   isFiscalRegimeValidForMoralPerson,
   isFiscalRegimeValidForPhysicalPerson,
@@ -8,8 +11,8 @@ import {
   isRFCFromMoralPerson,
   isRFCFromPhysicalPerson,
   isValidRFC,
-} from "../../../helpers/billingHelpers";
-import { isValidPostalCode } from "../../../helpers/addressesHelpers";
+} from "../../../shared/helpers/billingHelpers";
+import { isValidPostalCode } from "../../../shared/helpers/addressesHelpers";
 
 interface Options {
   _id?: string;

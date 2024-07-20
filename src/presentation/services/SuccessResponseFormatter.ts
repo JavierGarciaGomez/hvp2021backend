@@ -1,9 +1,9 @@
-import { envs } from "../../config";
+import { envsPlugin } from "../../infrastructure/adapters";
 import {
-  SingleSuccessResponse,
+  HttpStatusCode,
   ListSuccessResponse,
-} from "../../data/types/responses";
-import { HttpStatusCode } from "../../domain/errors/BaseError";
+  SingleSuccessResponse,
+} from "../../shared";
 
 interface FormatListResponseParams<T> {
   data: T[];
@@ -19,12 +19,12 @@ interface FormatSingleResponseParams<T> {
   resource: string;
 }
 
-export class SuccessResponseFormatter {
+export class OldSuccessResponseFormatter {
   static formatListResponse<T>(
     options: FormatListResponseParams<T>
   ): ListSuccessResponse<T> {
     const { data, page, limit, total, path, resource } = options;
-    const fullPath = envs.BASE_URL + path;
+    const fullPath = envsPlugin.BASE_URL + path;
 
     return {
       status_code: HttpStatusCode.OK,

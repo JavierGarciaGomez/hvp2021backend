@@ -1,11 +1,11 @@
 import { Response, Request, NextFunction } from "express";
-import { RequestWithAuthCollaborator } from "../../../types/RequestsAndResponses";
+import { AuthenticatedRequest } from "../../../shared/interfaces/RequestsAndResponses";
 import {
   BillCreationInfoDTO,
   CustomerRFCDTO,
   PaginationDto,
 } from "../../../domain";
-import { BaseError } from "../../../domain/errors/BaseError";
+import { BaseError } from "../../../shared/errors/BaseError";
 
 import { BillingService } from "./billingService";
 
@@ -17,7 +17,7 @@ export class BillingController {
   };
 
   public getCustomerRFCs = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -33,7 +33,7 @@ export class BillingController {
   };
 
   public getRecordById = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -47,7 +47,7 @@ export class BillingController {
   };
 
   public createCustomerRFC = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -65,7 +65,7 @@ export class BillingController {
   };
 
   public updateCustomerRFC = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -88,7 +88,7 @@ export class BillingController {
   };
 
   public deleteCustomerRFC = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -102,7 +102,7 @@ export class BillingController {
   };
 
   public getFiscalRegimes = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -117,7 +117,7 @@ export class BillingController {
     }
   };
   public getInvoiceUsages = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -132,7 +132,7 @@ export class BillingController {
   };
 
   public getPaymentMethods = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -147,7 +147,7 @@ export class BillingController {
   };
 
   public createBillCreationInfo = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -168,7 +168,7 @@ export class BillingController {
   };
 
   public getBillCreationInfoList = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -185,7 +185,7 @@ export class BillingController {
   };
 
   public getBillCreationInfoById = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -199,7 +199,7 @@ export class BillingController {
   };
 
   public updateBillCreationInfo = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -222,7 +222,7 @@ export class BillingController {
   };
 
   public deleteBillCreationInfo = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {

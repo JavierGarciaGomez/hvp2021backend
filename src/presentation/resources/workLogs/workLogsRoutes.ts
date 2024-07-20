@@ -1,11 +1,9 @@
 import { Router } from "express";
-
 import { WorkLogsController } from "./workLogsController";
 import { WorkLogsService } from "./workLogsService";
-import { CollaboratorRole } from "../../../data/models/CollaboratorModel";
-import isAuthorized from "../../../middlewares/isAuthorized";
-import { AuthMiddleware } from "../../../middlewares";
-const { validateJwt } = require("../../../middlewares/validateJwt");
+import { CollaboratorRole } from "../../../domain";
+import { AuthMiddleware } from "../../middlewares";
+import isAuthorized from "../../middlewares/isAuthorized";
 
 export enum WorkLogsPaths {
   all = "/",

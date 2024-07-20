@@ -1,26 +1,28 @@
 import { mainRoutes } from "../../../mainRoutes";
-import { ListSuccessResponse } from "../../../data/types/responses";
+
 import {
   BillCreationInfoDTO,
   CustomerRFCDTO,
   PaginationDto,
 } from "../../../domain";
-import { BaseError } from "../../../domain/errors/BaseError";
-import { SuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
-import { AuthenticatedCollaborator } from "../../../types/RequestsAndResponses";
+import { BaseError } from "../../../shared/errors/BaseError";
+import { OldSuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
+import { AuthenticatedCollaborator } from "../../../shared/interfaces/RequestsAndResponses";
 import { routes } from "./billingRoutes";
-import CustomerRFCModel from "../../../data/models/CustomerRFCModel";
-import billCreationInfoModel from "../../../data/models/BillCreationInfoModel";
-import {
-  BillCreationInfo,
-  CustomerRFC,
-} from "../../../data/types/billingTypes";
+import CustomerRFCModel from "../../../infrastructure/db/mongo/models/CustomerRFCModel";
+import billCreationInfoModel from "../../../infrastructure/db/mongo/models/BillCreationInfoModel";
+
 import {
   CFDI_USES,
   FISCAL_REGIMES,
   PAYMENT_METHODS,
-} from "../../../data/constants/billingConstants";
-import { fetchList, fetchStaticList } from "../../../helpers";
+} from "../../../shared/constants/billingConstants";
+import {
+  BillCreationInfo,
+  CustomerRFC,
+  ListSuccessResponse,
+} from "../../../shared";
+import { fetchList, fetchStaticList } from "../../../shared/helpers";
 
 const commonPath = mainRoutes.billing;
 const customerRRFCResourceName = "Customer RFCs";
@@ -47,12 +49,11 @@ export class BillingService {
     if (!resource)
       throw BaseError.notFound(`${resource} not found with id ${id}`);
 
-    const response = SuccessResponseFormatter.formatGetOneResponse<CustomerRFC>(
-      {
+    const response =
+      OldSuccessResponseFormatter.formatGetOneResponse<CustomerRFC>({
         data: resource,
         resource: customerRRFCResourceName,
-      }
-    );
+      });
 
     return response;
   }
@@ -80,7 +81,7 @@ export class BillingService {
     const savedResource = await resource.save();
 
     const response =
-      SuccessResponseFormatter.fortmatCreateResponse<CustomerRFC>({
+      OldSuccessResponseFormatter.fortmatCreateResponse<CustomerRFC>({
         data: savedResource,
         resource: customerRRFCResourceName,
       });
@@ -125,12 +126,11 @@ export class BillingService {
       { new: true }
     );
 
-    const response = SuccessResponseFormatter.formatUpdateResponse<CustomerRFC>(
-      {
+    const response =
+      OldSuccessResponseFormatter.formatUpdateResponse<CustomerRFC>({
         data: updatedResource!,
         resource: customerRRFCResourceName,
-      }
-    );
+      });
 
     return response;
   }
@@ -143,12 +143,11 @@ export class BillingService {
       );
 
     const deletedResource = await CustomerRFCModel.findByIdAndDelete(id);
-    const response = SuccessResponseFormatter.formatDeleteResponse<CustomerRFC>(
-      {
+    const response =
+      OldSuccessResponseFormatter.formatDeleteResponse<CustomerRFC>({
         data: deletedResource!,
         resource: customerRRFCResourceName,
-      }
-    );
+      });
 
     return response;
   }
@@ -194,7 +193,7 @@ export class BillingService {
     const savedResource = await resource.save();
 
     const response =
-      SuccessResponseFormatter.fortmatCreateResponse<BillCreationInfo>({
+      OldSuccessResponseFormatter.fortmatCreateResponse<BillCreationInfo>({
         data: savedResource,
         resource: customerRRFCResourceName,
       });
@@ -223,7 +222,7 @@ export class BillingService {
       );
 
     const response =
-      SuccessResponseFormatter.formatGetOneResponse<BillCreationInfo>({
+      OldSuccessResponseFormatter.formatGetOneResponse<BillCreationInfo>({
         data: resource,
         resource: billCreationInfoResourceName,
       });
@@ -254,7 +253,7 @@ export class BillingService {
     );
 
     const response =
-      SuccessResponseFormatter.formatUpdateResponse<BillCreationInfo>({
+      OldSuccessResponseFormatter.formatUpdateResponse<BillCreationInfo>({
         data: updatedResource!,
         resource: billCreationInfoResourceName,
       });
@@ -271,7 +270,7 @@ export class BillingService {
 
     const deletedResource = await billCreationInfoModel.findByIdAndDelete(id);
     const response =
-      SuccessResponseFormatter.formatDeleteResponse<BillCreationInfo>({
+      OldSuccessResponseFormatter.formatDeleteResponse<BillCreationInfo>({
         data: deletedResource!,
         resource: billCreationInfoResourceName,
       });

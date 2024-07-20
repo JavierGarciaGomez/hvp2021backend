@@ -31,6 +31,7 @@ export const envsPlugin = {
 
   // Environment: Common
   PORT: env.get("PORT").required().asPortNumber(),
+  BASE_URL: env.get("BASE_URL").required().asString(),
   MAILER_EMAIL: env.get("MAILER_EMAIL").required().asEmailString(),
   MAILER_SECRET_KEY: env.get("MAILER_SECRET_KEY").required().asString(),
   MAILER_SERVICE: env.get("MAILER_SERVICE").required().asString(),
@@ -41,6 +42,7 @@ export const envsPlugin = {
 };
 
 export const commonEnvs = {
+  BASE_URL: envsPlugin.BASE_URL,
   PORT: envsPlugin.PORT,
   MAILER_EMAIL: envsPlugin.MAILER_EMAIL,
   MAILER_SECRET_KEY: envsPlugin.MAILER_SECRET_KEY,

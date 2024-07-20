@@ -1,13 +1,9 @@
 import { Router } from "express";
-
-// import { AuthMiddleware } from "../middlewares/auth.middleware";
-// import { CategoryService } from "../services/category.service";
 import { TimeOffRequestController } from "./timeOffRequestsController";
 import { TimeOffRequestsService } from "./timeOffRequestsService";
-import { CollaboratorRole } from "../../../data/models/CollaboratorModel";
-import isAuthorized from "../../../middlewares/isAuthorized";
-import { validateJwt } from "../../../middlewares/validateJwt";
-import { AuthMiddleware } from "../../../middlewares";
+import { CollaboratorRole } from "../../../domain";
+import { AuthMiddleware } from "../../middlewares";
+import isAuthorized from "../../middlewares/isAuthorized";
 
 export enum TimeOffRequestsRoutePaths {
   all = "/",

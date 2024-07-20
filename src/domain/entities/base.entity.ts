@@ -1,17 +1,12 @@
-import { Document } from "mongoose";
-
-interface Options {
+export interface BaseEntity {
   id?: string;
   createdAt?: Date;
-  updatedAt?: Date;
   createdBy?: string;
+  updatedAt?: Date;
   updatedBy?: string;
 }
 
-export abstract class BaseEntity {
-  public id?: string;
-  public createdAt?: Date;
-  public updatedAt?: Date;
-  public createdBy?: string;
-  public updatedBy?: string;
+export interface BaseEntityConstructor<T extends BaseEntity> {
+  new (data: any): T; // Add constructor signature
+  fromDocument(data: any): T;
 }

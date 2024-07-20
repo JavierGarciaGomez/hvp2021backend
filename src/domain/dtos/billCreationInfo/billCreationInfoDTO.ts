@@ -1,5 +1,5 @@
-import { BillCreationInfoStatus } from "../../../data/types";
-import { isValidBranch, isValidPaymentMethod } from "../../../helpers";
+import { BillCreationInfoStatus } from "../../../shared";
+import { isValidBranch, isValidPaymentMethod } from "../../../shared/helpers";
 
 interface Options {
   _id?: string;

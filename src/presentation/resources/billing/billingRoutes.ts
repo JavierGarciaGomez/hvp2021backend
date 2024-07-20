@@ -1,9 +1,7 @@
 import { Router } from "express";
 import { BillingController } from "./billingController";
 import { BillingService as billingService } from "./billingService";
-import { AuthMiddleware } from "../../../middlewares/auth.middleware";
-
-const { validateJwt } = require("../../../middlewares/validateJwt");
+import { AuthMiddleware } from "../../middlewares";
 
 const baseRoutes = {
   CUSTOMER_RFCS: "/customer-rfcs",

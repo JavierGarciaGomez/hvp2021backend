@@ -1,9 +1,9 @@
 import { Response, Request, NextFunction } from "express";
-import { RequestWithAuthCollaborator } from "../../../types/RequestsAndResponses";
+import { AuthenticatedRequest } from "../../../shared/interfaces/RequestsAndResponses";
 import { PaginationDto } from "../../../domain";
 import { AttendanceRecordsService } from "./attendanceRecordService";
 
-import { BaseError } from "../../../domain/errors/BaseError";
+import { BaseError } from "../../../shared/errors/BaseError";
 import { WorkLogDto } from "../../../domain/dtos/workLogs/WorkLogDto";
 import { AttendanceRecordDto } from "../../../domain/dtos/attendanceRecords/AttendanceRecordDto";
 
@@ -17,7 +17,7 @@ export class AttendanceRecordsController {
   };
 
   public getAttendanceRecords = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -35,7 +35,7 @@ export class AttendanceRecordsController {
   };
 
   public getAttendanceRecordsByCollaborator = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -57,7 +57,7 @@ export class AttendanceRecordsController {
   };
 
   public getCurrentAttendanceRecords = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -76,7 +76,7 @@ export class AttendanceRecordsController {
   };
 
   public getLastAttendanceRecordByCollaborator = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -93,7 +93,7 @@ export class AttendanceRecordsController {
   };
 
   public getAttendanceRecordById = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -109,7 +109,7 @@ export class AttendanceRecordsController {
   };
 
   public createAttendanceRecord = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -130,7 +130,7 @@ export class AttendanceRecordsController {
   };
 
   public updateAttendanceRecord = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -153,7 +153,7 @@ export class AttendanceRecordsController {
   };
 
   public deleteAttendanceRecord = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {

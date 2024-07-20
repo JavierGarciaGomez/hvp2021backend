@@ -4,7 +4,7 @@ import {
   NotificationReferenceType,
 } from "./../../../data/types/notificationTypes";
 import notificationModel from "../../../data/models/NotificationModel";
-import { BaseError } from "../../../domain/errors/BaseError";
+import { BaseError } from "../../../shared/errors/BaseError";
 import { handleUnknownError } from "../../../helpers";
 
 export class NotificationService {

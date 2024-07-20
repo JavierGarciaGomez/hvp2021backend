@@ -1,8 +1,7 @@
 import { Router } from "express";
 import { AttendanceRecordsService } from "./attendanceRecordService";
 import { AttendanceRecordsController } from "./attendanceRecordsController";
-import { AuthMiddleware } from "../../../middlewares";
-const { validateJwt } = require("../../../middlewares/validateJwt");
+import { AuthMiddleware } from "../../middlewares";
 
 export enum AttendanceRecordsPaths {
   all = "/",

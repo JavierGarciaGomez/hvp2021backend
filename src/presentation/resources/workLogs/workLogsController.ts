@@ -1,9 +1,9 @@
 import { Response, Request, NextFunction } from "express";
-import { RequestWithAuthCollaborator } from "../../../types/RequestsAndResponses";
+import { AuthenticatedRequest } from "../../../shared/interfaces/RequestsAndResponses";
 import { PaginationDto } from "../../../domain";
 import { WorkLogsService } from "./workLogsService";
 
-import { BaseError } from "../../../domain/errors/BaseError";
+import { BaseError } from "../../../shared/errors/BaseError";
 import { WorkLogDto } from "../../../domain/dtos/workLogs/WorkLogDto";
 
 export class WorkLogsController {
@@ -14,7 +14,7 @@ export class WorkLogsController {
   };
 
   public getWorkLogs = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -30,7 +30,7 @@ export class WorkLogsController {
   };
 
   public getWorkLogsByCollaborator = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -54,7 +54,7 @@ export class WorkLogsController {
   };
 
   public getWorkLogById = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -68,7 +68,7 @@ export class WorkLogsController {
   };
 
   public createWorkLog = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -86,7 +86,7 @@ export class WorkLogsController {
   };
 
   public updateWorkLog = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -109,7 +109,7 @@ export class WorkLogsController {
   };
 
   public deleteWorkLog = async (
-    req: RequestWithAuthCollaborator,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
