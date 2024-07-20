@@ -1,8 +1,5 @@
 import { ObjectId } from "mongodb";
-import {
-  isValidDate,
-  isValidDateString,
-} from "../../../shared/helpers/dateHelpers";
+import { isValidDateString } from "../../../shared";
 
 interface Options {
   _id?: string;

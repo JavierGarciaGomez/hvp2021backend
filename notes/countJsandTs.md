@@ -1,7 +1,7 @@
-javier@javier-machine:~/code/projects/hvp2021/hvp2021backend/src$ find . -type f -name "_.js" | wc -l
+find . -type f -name "\*.js" | wc -l
 53
-javier@javier-machine:~/code/projects/hvp2021/hvp2021backend/src$ find . -type f -name "_.ts" | wc -l
-173
+javier@javier-machine:~/code/projects/hvp2021/hvp2021backend/src$ find . -type f -name "\_.ts" | wc -l
+179
 
 ./presentation/middlewares/fieldValidator.js
 ./presentation/middlewares/validateAuthorization.js
