@@ -1,0 +1,26 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.usersRoutes = exports.userLogRoutes = exports.userClientRoutes = exports.rfcRoutes = exports.miscRoutes = exports.fcmRoutes = exports.documentationRoutes = exports.cleanupsRouter = exports.collaboratorLogRoutes = exports.activityRegisterRoutes = void 0;
+const activityRegisterRoutes_1 = __importDefault(require("./activityRegisterRoutes"));
+exports.activityRegisterRoutes = activityRegisterRoutes_1.default;
+const collaboratorLogRoutes_1 = __importDefault(require("./collaboratorLogRoutes"));
+exports.collaboratorLogRoutes = collaboratorLogRoutes_1.default;
+const cleanUpsRoutes_1 = require("./cleanUpsRoutes");
+Object.defineProperty(exports, "cleanupsRouter", { enumerable: true, get: function () { return cleanUpsRoutes_1.cleanupsRouter; } });
+const documentationRoutes_1 = __importDefault(require("./documentationRoutes"));
+exports.documentationRoutes = documentationRoutes_1.default;
+const fcmRoutes_1 = __importDefault(require("./fcmRoutes"));
+exports.fcmRoutes = fcmRoutes_1.default;
+const miscRoutes_1 = __importDefault(require("./miscRoutes"));
+exports.miscRoutes = miscRoutes_1.default;
+const rfcRoutes_1 = __importDefault(require("./rfcRoutes"));
+exports.rfcRoutes = rfcRoutes_1.default;
+const userClientRoutes_1 = __importDefault(require("./userClientRoutes"));
+exports.userClientRoutes = userClientRoutes_1.default;
+const userLogRoutes_1 = __importDefault(require("./userLogRoutes"));
+exports.userLogRoutes = userLogRoutes_1.default;
+const usersRoutes_1 = __importDefault(require("./usersRoutes"));
+exports.usersRoutes = usersRoutes_1.default;

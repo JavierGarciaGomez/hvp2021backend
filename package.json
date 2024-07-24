@@ -2,7 +2,7 @@
   "name": "hvp2021backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "dependencies": {
     "@types/faker": "^6.6.9",
     "bcrypt": "^5.0.1",
@@ -42,7 +42,7 @@
   },
   "scripts": {
     "start": "node dist/app.js",
-    "build": "rimraf ./dist && tsc",
+    "build": "tsc",
     "heroku-postbuild": "yarn build",
     "postinstall": "yarn build",
     "dev": "tsnd --respawn --clear src/app.ts",
