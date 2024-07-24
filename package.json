@@ -43,8 +43,8 @@
     "typescript": "^5.3.3"
   },
   "scripts": {
-    "start": "yarn build && node dist/app.js",
-    "build": "rimraf ./dist && yarn tsc",
+    "start": "npm run build && node dist/app.js",
+    "build": "rimraf ./dist && npx tsc",
     "dev": "tsnd --respawn --clear src/app.ts",
     "docker:test": "docker compose -f docker-compose.test.yml --env-file .env.test up -d",
     "test": "yarn docker:test && jest",
