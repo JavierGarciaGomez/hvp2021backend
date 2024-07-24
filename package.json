@@ -44,7 +44,7 @@
     "typescript": "^5.3.3"
   },
   "scripts": {
-    "start": "npm run build && node dist/app.js",
+    "start": "yarn run build && node dist/app.js",
     "build": "rimraf ./dist && npx tsc",
     "dev": "tsnd --respawn --clear src/app.ts",
     "docker:test": "docker compose -f docker-compose.test.yml --env-file .env.test up -d",
