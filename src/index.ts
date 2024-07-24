@@ -3,7 +3,7 @@ import { MongoDatabase } from "./infrastructure/db/mongo";
 import { AppRoutes } from "./presentation/appRoutes";
 import { Server } from "./presentation/server";
 
-import { getEnvsByEnvironment } from "./shared/helpers/";
+import { getEnvsByEnvironment } from "./shared/helpers";
 (async () => {
   main();
 })();
