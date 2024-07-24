@@ -49,7 +49,7 @@
     "seed:attendanceRecords": "tsc && node build/scripts/attendanceRecordSeed.js",
     "seed:customerRFCs": "tsc && node build/scripts/customerRFCSeed.js",
     "seed:customSeed": "tsc && node build/scripts/customSeed.js",
-    "preinstall": "npx add typescript tsc",
+    "preinstall": "npm install -g typescript",
     "docker:test": "docker compose -f docker-compose.test.yml --env-file .env.test up -d",
     "test": "npm run docker:test && jest",
     "test:watch": "npm run docker:test && jest --watch",
