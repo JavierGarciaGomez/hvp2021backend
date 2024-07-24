@@ -53,7 +53,8 @@
     "seed:attendanceRecords": "tsc && node build/scripts/attendanceRecordSeed.js",
     "seed:customerRFCs": "tsc && node build/scripts/customerRFCSeed.js",
     "seed:customSeed": "tsc && node build/scripts/customSeed.js",
-    "seed:notifications": "tsnd src/scripts/notificationSeed.ts"
+    "seed:notifications": "tsnd src/scripts/notificationSeed.ts",
+    "postinstall": "tsc"
   },
   "repository": "git+https://github.com/JavierGarciaGomez/hvp2021backend.git",
   "keywords": [],
