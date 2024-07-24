@@ -55,8 +55,9 @@
     "test:watch": "npm run docker:test && jest --watch",
     "test:coverage": "npm run docker:test && jest --coverage",
     "seed:notifications": "tsnd src/scripts/notificationSeed.ts",
-    "postinstall": "npm install tsc && run tsc",
-    "deploy": "git add . && git commit -m Heroku && git push heroku master"
+    "postinstall": "npm run tsc",
+    "deploy": "git add . && git commit -m Heroku && git push heroku master",
+    "tsc": "tsc"
   },
   "repository": "git+https://github.com/JavierGarciaGomez/hvp2021backend.git",
   "keywords": [],
