@@ -54,7 +54,7 @@
     "seed:customerRFCs": "tsc && node build/scripts/customerRFCSeed.js",
     "seed:customSeed": "tsc && node build/scripts/customSeed.js",
     "seed:notifications": "tsnd src/scripts/notificationSeed.ts",
-    "postinstall": "npm install typescript && npx tsc",
+    "postinstall": "tsc",
     "deploy": "git add . && git commit -m Heroku && git push heroku master"
   },
   "repository": "git+https://github.com/JavierGarciaGomez/hvp2021backend.git",
