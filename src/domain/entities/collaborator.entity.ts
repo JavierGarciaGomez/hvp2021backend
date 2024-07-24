@@ -1,4 +1,3 @@
-// import { ICollaborator } from "../../infra/db/mongo/models/collaborator.model";
 import { CollaboratorDocument } from "../../infrastructure/db/mongo/models/collaborator.model";
 import { CollaboratorAuth } from "../../shared";
 import { CollaboratorRole } from "../enums";

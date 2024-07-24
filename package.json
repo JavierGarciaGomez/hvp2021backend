@@ -43,7 +43,7 @@
   },
   "scripts": {
     "start": "node build/index.js",
-    "build": "tsc",
+    "build": "rimraf build && tsc",
     "dev": "tsnd --respawn --clear src/index.ts",
     "test": "jest",
     "test:watch": "jest --watch",
