@@ -43,7 +43,7 @@
     "typescript": "^5.3.3"
   },
   "scripts": {
-    "start": "node build/app.js",
+    "start": "npm install typescript && node build/app.js",
     "build": "tsc",
     "dev": "tsnd --respawn --clear src/app.ts",
     "docker:test": "docker compose -f docker-compose.test.yml --env-file .env.test up -d",
