@@ -11,7 +11,5 @@ coverage/
 .env.test
 
 # Build directory
-build/
-/yarn.lock
 mongo
 mongo-test
