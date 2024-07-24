@@ -44,7 +44,7 @@
   },
   "scripts": {
     "start": "node build/app.js",
-    "build": "npx --package=typescript -- tsc",
+    "build": "tsc",
     "dev": "tsnd --respawn --clear src/app.ts",
     "docker:test": "docker compose -f docker-compose.test.yml --env-file .env.test up -d",
     "test": "npm run docker:test && jest",
@@ -54,7 +54,7 @@
     "seed:customerRFCs": "tsc && node build/scripts/customerRFCSeed.js",
     "seed:customSeed": "tsc && node build/scripts/customSeed.js",
     "seed:notifications": "tsnd src/scripts/notificationSeed.ts",
-    "postinstall": "npx --package=typescript -- tsc",
+    "postinstall": "npm install typescript && npx tsc",
     "deploy": "git add . && git commit -m Heroku && git push heroku master"
   },
   "repository": "git+https://github.com/JavierGarciaGomez/hvp2021backend.git",
