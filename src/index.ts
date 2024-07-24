@@ -15,6 +15,8 @@ import { PassportAdapter } from "./config/passport.adapter";
 import { envs } from "./config";
 import path from "path";
 import cors from "cors";
+import { MongoDatabase } from "./infrastructure/db/mongo/mongo-database";
+import { getEnvsByEnvironment } from "./shared/helpers/envHelpers";
 
 const { dbConnection } = require("./database/config");
 
@@ -32,6 +34,25 @@ const fcmRoutes = require("./routes/fcmRoutes");
 const usersRoutes = require("./routes/usersRoutes");
 
 const cookieSession = require("cookie-session");
+
+(async () => {
+  main();
+})();
+
+async function main() {
+  const { MONGO_URL, MONGO_DB_NAME } = getEnvsByEnvironment();
+  // const { MONGO_URL, MONGO_DB_NAME } = getEnvsByEnvironment();
+  await MongoDatabase.connect({
+    mongoUrl: MONGO_URL,
+    dbName: MONGO_DB_NAME,
+  });
+  // const server = new Server({
+  //   port: envsPlugin.PORT,
+  //   public_path: envsPlugin.PUBLIC_PATH,
+  //   routes: AppRoutes.routes,
+  // });
+  // server.start();
+}
 
 // Create express server
 
