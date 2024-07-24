@@ -45,7 +45,7 @@
   },
   "scripts": {
     "start": "yarn run build && node dist/app.js",
-    "build": "rimraf ./dist && npx tsc",
+    "build": "yarn tsc",
     "dev": "tsnd --respawn --clear src/app.ts",
     "docker:test": "docker compose -f docker-compose.test.yml --env-file .env.test up -d",
     "test": "yarn docker:test && jest",
