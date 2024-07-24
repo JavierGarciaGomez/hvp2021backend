@@ -102,7 +102,7 @@ export class CollaboratorDTO implements BaseDTO {
   }
 
   private static commonValidation(data: Partial<CollaboratorProps>): string[] {
-    const errors = [];
+    const errors: string[] = [];
     if (data.role && !isValidEnum(CollaboratorRole, data.role)) {
       errors.push("Role must be of type CollaboratorRole");
     }

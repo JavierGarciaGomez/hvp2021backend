@@ -4,7 +4,7 @@ export const isBoolean = (value: any): boolean => {
 
 export const isValidEnum = (
   enumType: { [key: string]: string },
-  value: string
+  value: any
 ): boolean => {
   return Object.values(enumType).includes(value);
 };
