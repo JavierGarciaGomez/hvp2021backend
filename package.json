@@ -44,7 +44,7 @@
   },
   "scripts": {
     "start": "npm install typescript && node build/app.js",
-    "build": "tsc",
+    "build": "npx --package=typescript -- tsc",
     "dev": "tsnd --respawn --clear src/app.ts",
     "docker:test": "docker compose -f docker-compose.test.yml --env-file .env.test up -d",
     "test": "npm run docker:test && jest",
