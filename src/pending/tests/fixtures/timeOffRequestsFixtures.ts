@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import { TimeOffStatus, TimeOffType } from "../../data/types/timeOffTypes";
+import { TimeOffStatus, TimeOffType } from "../../../shared";
 
 interface TimeOffRequestFixture {
   _id?: Schema.Types.ObjectId;

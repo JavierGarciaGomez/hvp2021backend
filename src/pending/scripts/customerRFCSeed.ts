@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import CollaboratorModel from "../infrastructure/db/mongo/models/CollaboratorModel";
-import CustomerRFCModel from "../infrastructure/db/mongo/models/CustomerRFCModel";
+import { CollaboratorModel, CustomerRFCModel } from "../../infrastructure";
+
 require("dotenv").config();
 
 const { dbConnection } = require("../database/config");

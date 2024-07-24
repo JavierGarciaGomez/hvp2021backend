@@ -1,13 +1,11 @@
-import { envsPlugin } from "../infrastructure/adapters";
-
 import mongoose from "mongoose";
-import { getEnvsByEnvironment } from "../shared/helpers";
-import { MongoDatabase } from "../infrastructure/db/mongo";
+import { envsPlugin } from "../../infrastructure/adapters";
+import { getEnvsByEnvironment } from "../../shared";
+import { MongoDatabase, NotificationModel } from "../../infrastructure";
 import {
   NotificationActionType,
   NotificationReferenceType,
-} from "../domain/enums";
-import { NotificationModel } from "../infrastructure/db/mongo/models/notification.model";
+} from "../../domain";
 
 const MONGO_URI = "your_mongo_db_connection_string";
 
