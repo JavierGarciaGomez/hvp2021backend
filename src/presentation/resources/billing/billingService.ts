@@ -3,6 +3,8 @@ import { mainRoutes } from "../../../mainRoutes";
 import {
   BillCreationInfoDTO,
   CustomerRFCDTO,
+  NotificationActionType,
+  NotificationReferenceType,
   PaginationDto,
 } from "../../../domain";
 import { BaseError } from "../../../shared/errors/BaseError";
@@ -19,17 +21,22 @@ import {
 } from "../../../shared/constants/billingConstants";
 import {
   BillCreationInfo,
+  BillCreationInfoStatus,
   CustomerRFC,
   ListSuccessResponse,
 } from "../../../shared";
 import { fetchList, fetchStaticList } from "../../../shared/helpers";
+import {
+  NotificationService,
+  createCollaboratorService,
+} from "../../../application";
 
 const commonPath = mainRoutes.billing;
 const customerRRFCResourceName = "Customer RFCs";
 const billCreationInfoResourceName = "Bill Creation Info";
 export class BillingService {
   // DI
-  constructor() {}
+  constructor(private readonly notificationService: NotificationService) {}
 
   async getCustomerRFCs(
     paginationDto: PaginationDto
@@ -198,6 +205,14 @@ export class BillingService {
         resource: customerRRFCResourceName,
       });
 
+    await this.notificationService.notifyManagers({
+      message: `Bill Creation Info created by ${uid}`,
+      referenceId: savedResource._id.toString(),
+      referenceType: NotificationReferenceType.BILL_CREATION_INFO,
+      actionType: NotificationActionType.AWAITING_APPROVAL,
+      title: "Bill Creation Info created",
+    });
+
     return response;
   }
 
@@ -257,6 +272,18 @@ export class BillingService {
         data: updatedResource!,
         resource: billCreationInfoResourceName,
       });
+
+    if (updatedResource!.status === BillCreationInfoStatus.DONE) {
+      const collaboratorService = createCollaboratorService();
+      const collaborator = await collaboratorService.getById(uid);
+      await this.notificationService.notifyManagers({
+        message: `Bill Creation Info approved by ${collaborator.col_code}`,
+        referenceId: updatedResource!._id.toString(),
+        referenceType: NotificationReferenceType.BILL_CREATION_INFO,
+        actionType: NotificationActionType.AWAITING_APPROVAL,
+        title: "Bill Creation Info updated",
+      });
+    }
 
     return response;
   }

@@ -23,14 +23,14 @@ export const getAllHelper = async <T>(
   const { paginationDto, filteringDto, sortingDto } = queryOptions;
   const sortField = sortingDto.sort_by || "updated_at";
   const sortDirection = sortingDto.direction === "asc" ? 1 : -1;
-  const page = paginationDto.page || 0;
-  const limit = paginationDto.limit;
+  const page = paginationDto.page || 1; // Default to 1 if page is not provided
+  const limit = paginationDto.limit ?? 0;
 
   const result = await model
     .find(filteringDto as any)
     .sort({ [sortField]: sortDirection })
-    .skip(page * (limit ?? 0))
-    .limit(limit ?? 0);
+    .skip((page - 1) * limit) // Correct skip calculation
+    .limit(limit);
 
   return result;
 };

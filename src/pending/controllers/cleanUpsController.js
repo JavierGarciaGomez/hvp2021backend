@@ -9,8 +9,9 @@ const DeepCleanUp = require("../models/DeepCleanUp");
 const OperatingRoomCleanUp = require("../models/OperatingRoomCleanUp");
 
 const { CollaboratorModel } = require("../../infrastructure");
-const DailyCleanUp = require("../models/DailyCleanUp");
+
 const { uncatchedError } = require("../helpers/const");
+const DailyCleanUp = require("../models/DailyCleanUp");
 dayjs.extend(utc);
 
 const getAllCleanUpsFromLastMonth = async (req, res = response) => {
@@ -72,9 +73,9 @@ const getDailyCleanUpsAndGenerate = async (req, res = response) => {
       const newDate = date.subtract(i, "day");
       // console.log("branch", branch, i);
 
-      let dailyCleanUp = await DailyCleanup.findOne({ date: newDate, branch });
+      let dailyCleanUp = await DailyCleanUp.findOne({ date: newDate, branch });
       if (!dailyCleanUp) {
-        dailyCleanUp = new DailyCleanup({
+        dailyCleanUp = new DailyCleanUp({
           date: newDate,
           branch,
         });
@@ -86,7 +87,7 @@ const getDailyCleanUpsAndGenerate = async (req, res = response) => {
     const utcDateEnd = dayjs(date).utc(true).endOf("day");
     const utcDateStart = utcDateEnd.subtract(7, "day");
 
-    let dailyCleanUps = await DailyCleanup.find({
+    let dailyCleanUps = await DailyCleanUp.find({
       date: {
         $gte: new Date(utcDateStart),
         $lt: new Date(utcDateEnd),
@@ -117,7 +118,7 @@ const updateDailyCleanUp = async (req, res = response) => {
     const { action, comment } = req.body;
     const { uid } = req;
 
-    let dailyCleanUp = await DailyCleanup.findById(dailyCleanUpId);
+    let dailyCleanUp = await DailyCleanUp.findById(dailyCleanUpId);
 
     if (!dailyCleanUp) {
       return res.status(404).json({
@@ -177,7 +178,7 @@ const updateDailyCleanUp = async (req, res = response) => {
 
     dailyCleanUp.hasBeenUsed = true;
     // update it
-    const updatedDailyCleanUp = await DailyCleanup.findByIdAndUpdate(
+    const updatedDailyCleanUp = await DailyCleanUp.findByIdAndUpdate(
       dailyCleanUpId,
       dailyCleanUp,
       { new: true }

@@ -1,8 +1,15 @@
-// 344
-const { response } = require("express");
-const jwt = require("jsonwebtoken");
+import { JwtAdapter } from "../../infrastructure/adapters";
+import {
+  AuthenticatedCollaborator,
+  AuthenticatedRequest,
+} from "./../../shared/interfaces/RequestsAndResponses";
+import { NextFunction, Response } from "express";
 
-export const validateJwt = (req: any, res = response, next: any) => {
+export const validateJwt = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // x-token headers
     const token = req.header("x-token");
@@ -13,9 +20,9 @@ export const validateJwt = (req: any, res = response, next: any) => {
         msg: "No hay token en la petición",
       });
     }
-    console.log(process.env.SECRET_JWT_SEED);
-    const payload = jwt.verify(token, process.env.SECRET_JWT_SEED);
-    console.log({ payload });
+    const payload = await JwtAdapter.verifyToken<AuthenticatedCollaborator>(
+      token
+    );
 
     const { uid, col_code, role, imgUrl } = payload;
 
@@ -26,10 +33,10 @@ export const validateJwt = (req: any, res = response, next: any) => {
       imgUrl,
     };
 
-    req.uid = uid;
-    req.col_code = col_code;
-    req.role = role;
-    req.imgUrl = imgUrl;
+    // req.uid = uid;
+    // req.col_code = col_code;
+    // req.role = role;
+    // req.imgUrl = imgUrl;
   } catch (error) {
     // console.log("ERROR", error.message);
     return res.status(401).json({

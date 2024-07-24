@@ -4,7 +4,7 @@ import { CollaboratorLoginDto } from "../../../domain/dtos/collaboratorAuth/coll
 import { AuthService } from "./authService";
 import { BaseError } from "../../../shared/errors/BaseError";
 import { AuthenticatedRequest } from "../../../shared/interfaces/RequestsAndResponses";
-import { EmailService } from "../../services/EmailService";
+
 import { handleError } from "../../../shared/helpers";
 
 import { passportAdapter } from "../../../infrastructure/adapters/passport.adapter";

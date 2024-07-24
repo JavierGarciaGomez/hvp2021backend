@@ -65,4 +65,23 @@ export abstract class BaseDatasourceMongoImp<T extends BaseEntity>
     const createdEntities = await this.model.insertMany(entities);
     return createdEntities.map(this.entity.fromDocument);
   }
+
+  async updateMany(entities: T[]): Promise<T[]> {
+    const updatedEntities = await Promise.all(
+      entities.map(async (entity) => {
+        const updatedEntity = await this.model.findByIdAndUpdate(
+          entity.id,
+          entity,
+          {
+            new: true,
+          }
+        );
+        if (!updatedEntity) {
+          throw BaseError.notFound("Entity not found");
+        }
+        return this.entity.fromDocument(updatedEntity);
+      })
+    );
+    return updatedEntities;
+  }
 }

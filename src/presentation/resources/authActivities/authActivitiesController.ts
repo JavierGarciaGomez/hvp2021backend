@@ -19,7 +19,7 @@ export class AuthActivitiesController {
         page = 1,
         limit = 20,
         sort_by = "createdAt",
-        direction = "DESC",
+        direction = "desc",
       } = req.query;
       const paginationDto = PaginationDto.create(Number(page), Number(limit));
       const sortingDto = SortingDto.create(

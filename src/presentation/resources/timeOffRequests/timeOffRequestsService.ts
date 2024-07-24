@@ -1,5 +1,10 @@
 import TimeOffRequestModel from "../../../infrastructure/db/mongo/models/TimeOffRequestModel";
-import { CollaboratorRole, PaginationDto } from "../../../domain";
+import {
+  CollaboratorRole,
+  NotificationActionType,
+  NotificationReferenceType,
+  PaginationDto,
+} from "../../../domain";
 import { BaseError } from "../../../shared/errors/BaseError";
 import { OldSuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
 import { TimeOffRequestsRoutePaths } from "./timeOffRequestsRoutes";
@@ -20,6 +25,10 @@ import {
   TimeOffStatus,
   TimeOffType,
 } from "../../../shared";
+import {
+  NotificationService,
+  createCollaboratorService,
+} from "../../../application";
 
 // import {
 //   CreateCategoryDto,
@@ -32,7 +41,7 @@ const commonPath = "/api/time-off-requests";
 const resource = "TimeOffRequests";
 export class TimeOffRequestsService {
   // DI
-  constructor() {}
+  constructor(private readonly notificationService: NotificationService) {}
 
   async getTimeOffRequests(
     paginationDto: PaginationDto
@@ -82,10 +91,10 @@ export class TimeOffRequestsService {
     return response;
   }
 
-  async createTimeOffRequest(
+  public createTimeOffRequest = async (
     timeOffRequestDto: TimeOffRequestDto,
     authenticatedCollaborator: AuthenticatedCollaborator
-  ) {
+  ) => {
     const { uid } = authenticatedCollaborator;
 
     const timeOffRequest = new TimeOffRequestModel({
@@ -130,6 +139,17 @@ export class TimeOffRequestsService {
     }
     const savedTimeOffRequest = await timeOffRequest.save();
 
+    const collaboratorService = createCollaboratorService();
+    const user = await collaboratorService.getById(uid);
+
+    await this.notificationService.notifyManagers({
+      message: `A new time off request has been created by ${user.col_code}`,
+      referenceId: savedTimeOffRequest._id.toString(),
+      referenceType: NotificationReferenceType.TIME_OFF_REQUEST,
+      actionType: NotificationActionType.AWAITING_APPROVAL,
+      title: "New Time Off Request",
+    });
+
     const response =
       OldSuccessResponseFormatter.fortmatCreateResponse<TimeOffRequest>({
         data: savedTimeOffRequest,
@@ -137,7 +157,7 @@ export class TimeOffRequestsService {
       });
 
     return response;
-  }
+  };
 
   async updateTimeOffRequest(
     id: string,
@@ -230,8 +250,18 @@ export class TimeOffRequestsService {
         resource,
       });
 
+    await this.notificationService.notifyCollaborator({
+      message: `Your time off request has been approved.`,
+      referenceId: id,
+      referenceType: NotificationReferenceType.TIME_OFF_REQUEST,
+      actionType: NotificationActionType.APPROVED,
+      collaboratorId: updatedResource!.collaborator as unknown as string,
+      title: "Time Off Request Approved",
+    });
+
     return response;
   }
+
   async deleteTimeOffRequest(id: string) {
     const timeOffRequest = await TimeOffRequestModel.findById(id);
     if (!timeOffRequest)

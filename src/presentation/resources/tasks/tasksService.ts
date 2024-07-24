@@ -94,7 +94,8 @@ export class TasksService {
     const assignees = taskDto.data.assignees as string[];
 
     this.notificationService.notifyCollaborators({
-      message: "You have been assigned a task",
+      title: "Task assigned",
+      message: task.title,
       referenceId: savedTask._id.toString(),
       referenceType: NotificationReferenceType.TASK,
       actionType: NotificationActionType.ASSIGNED,
@@ -126,6 +127,17 @@ export class TasksService {
     if (!resourceToUpdate)
       throw BaseError.notFound(`${resourceName} not found with id ${id}`);
 
+    const oldAssignees =
+      (resourceToUpdate.assignees as unknown as string[]) || [];
+    const newAssignees = dto.data.assignees as string[];
+
+    const addedAssignees = newAssignees.filter(
+      (assignee) => !oldAssignees.includes(assignee)
+    );
+    const removedAssignees = oldAssignees.filter(
+      (assignee) => !newAssignees.includes(assignee)
+    );
+
     const updatedResource = await TaskModel.findByIdAndUpdate(
       id,
       {
@@ -140,6 +152,30 @@ export class TasksService {
     const populatedResource = await TaskModel.populate(updatedResource, {
       path: "activities",
     });
+
+    // Notify added assignees
+    if (addedAssignees.length > 0) {
+      this.notificationService.notifyCollaborators({
+        title: "Task assigned",
+        message: populatedResource.title,
+        referenceId: populatedResource._id.toString(),
+        referenceType: NotificationReferenceType.TASK,
+        actionType: NotificationActionType.ASSIGNED,
+        collaboratorIds: addedAssignees,
+      });
+    }
+
+    // Notify removed assignees
+    if (removedAssignees.length > 0) {
+      this.notificationService.notifyCollaborators({
+        title: "Task unassigned",
+        message: populatedResource.title,
+        referenceId: populatedResource._id.toString(),
+        referenceType: NotificationReferenceType.TASK,
+        actionType: NotificationActionType.UNASSIGNED,
+        collaboratorIds: removedAssignees,
+      });
+    }
 
     const response = OldSuccessResponseFormatter.formatUpdateResponse<Task>({
       data: populatedResource!,

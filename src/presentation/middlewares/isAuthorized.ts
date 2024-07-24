@@ -10,7 +10,7 @@ const isAuthorized =
     collaboratorCanUpdate: boolean = false
   ) =>
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    const { role: collaboratorRole, uid } = req.authenticatedCollaborator!;
+    const { role: collaboratorRole, uid } = req.authUser!;
     const id = req.params.id;
 
     const resource: ResourceWithCollaborator = await getResource(
