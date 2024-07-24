@@ -1,10 +1,5 @@
 import { Document, Schema, model } from "mongoose";
-
-import {
-  TimeOffRequest,
-  TimeOffStatus,
-  TimeOffType,
-} from "../data/types/timeOffTypes";
+import { TimeOffRequest, TimeOffStatus, TimeOffType } from "../../shared";
 
 // TODO: DELETE? This is repaeted with other model
 const timeOffRequestSchema = new Schema<TimeOffRequest>(

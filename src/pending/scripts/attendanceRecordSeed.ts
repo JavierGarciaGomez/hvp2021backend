@@ -1,8 +1,6 @@
 import mongoose from "mongoose";
-import AttendanceRecordModel from "../infrastructure/db/mongo/models/AttendanceRecordModel";
-
-import CollaboratorModel from "../infrastructure/db/mongo/models/CollaboratorModel";
-import { Branch } from "../data/types";
+import { AttendanceRecordModel, CollaboratorModel } from "../../infrastructure";
+import { Branch } from "../../shared";
 
 require("dotenv").config();
 
