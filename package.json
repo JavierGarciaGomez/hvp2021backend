@@ -44,6 +44,7 @@
     "start": "node dist/app.js",
     "build": "rimraf ./dist && tsc",
     "heroku-postbuild": "yarn build",
+    "postinstall": "yarn build",
     "dev": "tsnd --respawn --clear src/app.ts",
     "docker:test": "docker compose -f docker-compose.test.yml --env-file .env.test up -d",
     "test": "npm run docker:test && jest",
