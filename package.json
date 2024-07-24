@@ -42,6 +42,7 @@
     "typescript": "^5.3.3"
   },
   "scripts": {
+    "prebuild": "rimraf build",
     "start": "node build/index.js",
     "build": "rimraf build && tsc",
     "dev": "tsnd --respawn --clear src/index.ts",
