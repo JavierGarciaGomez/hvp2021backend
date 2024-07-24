@@ -1,4 +1,4 @@
-import { CollaboratorDocument } from "../../infrastructure/db/mongo/models/collaborator.model.ts";
+import { CollaboratorDocument } from "./../../infrastructure/db/mongo/models/";
 import { CollaboratorAuth } from "../../shared";
 import { CollaboratorRole } from "../enums";
 import { BaseEntity } from "./base.entity";

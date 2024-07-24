@@ -48,7 +48,8 @@
     "test:coverage": "jest --coverage",
     "seed:attendanceRecords": "tsc && node build/scripts/attendanceRecordSeed.js",
     "seed:customerRFCs": "tsc && node build/scripts/customerRFCSeed.js",
-    "seed:customSeed": "tsc && node build/scripts/customSeed.js"
+    "seed:customSeed": "tsc && node build/scripts/customSeed.js",
+    "heroku-postbuild": "ls -R ./infrastructure/db/mongo/models"
   },
   "repository": "git+https://github.com/JavierGarciaGomez/hvp2021backend.git",
   "keywords": [],
