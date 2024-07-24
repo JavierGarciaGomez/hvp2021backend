@@ -11,5 +11,7 @@ coverage/
 .env.test
 
 # Build directory
+build/
+
 mongo
 mongo-test
