@@ -22,12 +22,12 @@ export const envsPlugin = {
   PROD_CLIENT_URL2: env.get("PROD_CLIENT_URL2").required().asString(),
 
   // Environment: Test
-  TEST_MONGO_URL: env.get("TEST_MONGO_URL").required().asString(),
-  TEST_MONGO_DB_NAME: env.get("TEST_MONGO_DB_NAME").required().asString(),
-  TEST_MONGO_USER: env.get("TEST_MONGO_USER").required().asString(),
-  TEST_MONGO_PASS: env.get("TEST_MONGO_PASS").required().asString(),
-  TEST_CLIENT_URL: env.get("TEST_CLIENT_URL").required().asString(),
-  TEST_CLIENT_URL2: env.get("TEST_CLIENT_URL2").required().asString(),
+  TEST_MONGO_URL: env.get("TEST_MONGO_URL").asString(),
+  TEST_MONGO_DB_NAME: env.get("TEST_MONGO_DB_NAME").asString(),
+  TEST_MONGO_USER: env.get("TEST_MONGO_USER").asString(),
+  TEST_MONGO_PASS: env.get("TEST_MONGO_PASS").asString(),
+  TEST_CLIENT_URL: env.get("TEST_CLIENT_URL").asString(),
+  TEST_CLIENT_URL2: env.get("TEST_CLIENT_URL2").asString(),
 
   // Environment: Common
   PORT: env.get("PORT").required().asPortNumber(),
