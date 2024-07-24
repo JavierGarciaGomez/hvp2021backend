@@ -1,9 +1,10 @@
+import { validateJwt } from "./../../../middlewares/validateJwt";
 import { Router } from "express";
 import { AuthService } from "./authService";
 import { AuthController } from "./authController";
+import { AuthMiddleware } from "../../../middlewares";
 import { EmailService } from "../../services/EmailService";
-import { envsPlugin } from "../../../infrastructure/adapters";
-import { AuthMiddleware } from "../../middlewares";
+import { envs } from "../../../config";
 
 const baseRoutes = {
   collaborator: "/collaborator",
@@ -14,7 +15,6 @@ export const routes = {
   collaborator: {
     base: baseRoutes.collaborator,
     login: `${baseRoutes.collaborator}/login`,
-    simplifiedLogin: `${baseRoutes.collaborator}/simplified-login`,
     logout: `${baseRoutes.collaborator}/logout`,
     refresh: `${baseRoutes.collaborator}/refresh`,
     forgotPassword: `${baseRoutes.collaborator}/forgot-password`,
@@ -41,19 +41,16 @@ export class AuthRoutes {
   static get routes(): Router {
     const router = Router();
     const emailService = new EmailService(
-      envsPlugin.MAILER_SERVICE,
-      envsPlugin.MAILER_EMAIL,
-      envsPlugin.MAILER_SECRET_KEY
+      envs.MAILER_SERVICE,
+      envs.MAILER_EMAIL,
+      envs.MAILER_SECRET_KEY,
+      envs.SEND_EMAIL
     );
     const service = new AuthService(emailService);
     const controller = new AuthController(service);
 
     // Collaborator routes
     router.post(routes.collaborator.login, controller.collaboratorLogin);
-    router.post(
-      routes.collaborator.simplifiedLogin,
-      controller.collaboratorSimplifiedLogin
-    );
     router.post(
       routes.collaborator.logout,
       AuthMiddleware.validateJWT,

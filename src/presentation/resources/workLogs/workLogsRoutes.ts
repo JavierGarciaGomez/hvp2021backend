@@ -1,9 +1,10 @@
 import { Router } from "express";
+
 import { WorkLogsController } from "./workLogsController";
 import { WorkLogsService } from "./workLogsService";
-import { CollaboratorRole } from "../../../domain";
-import { AuthMiddleware } from "../../middlewares";
-import isAuthorized from "../../middlewares/isAuthorized";
+import { CollaboratorRole } from "../../../data/models/CollaboratorModel";
+import isAuthorized from "../../../middlewares/isAuthorized";
+const { validateJwt } = require("../../../middlewares/validateJwt");
 
 export enum WorkLogsPaths {
   all = "/",
@@ -21,7 +22,7 @@ export class WorkLogsRoutes {
     const service = new WorkLogsService();
     const controller = new WorkLogsController(service);
 
-    router.use(AuthMiddleware.validateJWT);
+    router.use(validateJwt);
 
     // Definir las rutas
     router.get(WorkLogsPaths.all, controller.getWorkLogs);

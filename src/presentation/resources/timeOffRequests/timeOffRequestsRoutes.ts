@@ -1,10 +1,12 @@
 import { Router } from "express";
+
+// import { AuthMiddleware } from "../middlewares/auth.middleware";
+// import { CategoryService } from "../services/category.service";
 import { TimeOffRequestController } from "./timeOffRequestsController";
 import { TimeOffRequestsService } from "./timeOffRequestsService";
-import { CollaboratorRole } from "../../../domain";
-import { AuthMiddleware } from "../../middlewares";
-import isAuthorized from "../../middlewares/isAuthorized";
-import { createNotificationService } from "../../../application";
+import { CollaboratorRole } from "../../../data/models/CollaboratorModel";
+import isAuthorized from "../../../middlewares/isAuthorized";
+import { validateJwt } from "../../../middlewares/validateJwt";
 
 export enum TimeOffRequestsRoutePaths {
   all = "/",
@@ -22,13 +24,10 @@ export enum TimeOffRequestsRoutePaths {
 export class TimeOffRequestsRoutes {
   static get routes(): Router {
     const router = Router();
-
-    const notificationService = createNotificationService();
-
-    const service = new TimeOffRequestsService(notificationService);
+    const service = new TimeOffRequestsService();
     const controller = new TimeOffRequestController(service);
 
-    router.use(AuthMiddleware.validateJWT);
+    router.use(validateJwt);
 
     // Definir las rutas
     router.get(TimeOffRequestsRoutePaths.all, controller.getTimeOffRequests);

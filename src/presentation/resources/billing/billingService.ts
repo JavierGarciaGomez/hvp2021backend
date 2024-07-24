@@ -1,42 +1,33 @@
 import { mainRoutes } from "../../../mainRoutes";
-
+import { ListSuccessResponse } from "../../../data/types/responses";
 import {
   BillCreationInfoDTO,
   CustomerRFCDTO,
-  NotificationActionType,
-  NotificationReferenceType,
   PaginationDto,
 } from "../../../domain";
-import { BaseError } from "../../../shared/errors/BaseError";
-import { OldSuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
-import { AuthenticatedCollaborator } from "../../../shared/interfaces/RequestsAndResponses";
+import { BaseError } from "../../../domain/errors/BaseError";
+import { SuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
+import { AuthenticatedCollaborator } from "../../../types/RequestsAndResponses";
 import { routes } from "./billingRoutes";
-import CustomerRFCModel from "../../../infrastructure/db/mongo/models/CustomerRFCModel";
-import billCreationInfoModel from "../../../infrastructure/db/mongo/models/BillCreationInfoModel";
-
+import CustomerRFCModel from "../../../data/models/CustomerRFCModel";
+import billCreationInfoModel from "../../../data/models/BillCreationInfoModel";
+import {
+  BillCreationInfo,
+  CustomerRFC,
+} from "../../../data/types/billingTypes";
 import {
   CFDI_USES,
   FISCAL_REGIMES,
   PAYMENT_METHODS,
-} from "../../../shared/constants/billingConstants";
-import {
-  BillCreationInfo,
-  BillCreationInfoStatus,
-  CustomerRFC,
-  ListSuccessResponse,
-} from "../../../shared";
-import { fetchList, fetchStaticList } from "../../../shared/helpers";
-import {
-  NotificationService,
-  createCollaboratorService,
-} from "../../../application";
+} from "../../../data/constants/billingConstants";
+import { fetchList, fetchStaticList } from "../../../helpers";
 
 const commonPath = mainRoutes.billing;
 const customerRRFCResourceName = "Customer RFCs";
 const billCreationInfoResourceName = "Bill Creation Info";
 export class BillingService {
   // DI
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor() {}
 
   async getCustomerRFCs(
     paginationDto: PaginationDto
@@ -56,11 +47,12 @@ export class BillingService {
     if (!resource)
       throw BaseError.notFound(`${resource} not found with id ${id}`);
 
-    const response =
-      OldSuccessResponseFormatter.formatGetOneResponse<CustomerRFC>({
+    const response = SuccessResponseFormatter.formatGetOneResponse<CustomerRFC>(
+      {
         data: resource,
         resource: customerRRFCResourceName,
-      });
+      }
+    );
 
     return response;
   }
@@ -88,7 +80,7 @@ export class BillingService {
     const savedResource = await resource.save();
 
     const response =
-      OldSuccessResponseFormatter.fortmatCreateResponse<CustomerRFC>({
+      SuccessResponseFormatter.fortmatCreateResponse<CustomerRFC>({
         data: savedResource,
         resource: customerRRFCResourceName,
       });
@@ -133,11 +125,12 @@ export class BillingService {
       { new: true }
     );
 
-    const response =
-      OldSuccessResponseFormatter.formatUpdateResponse<CustomerRFC>({
+    const response = SuccessResponseFormatter.formatUpdateResponse<CustomerRFC>(
+      {
         data: updatedResource!,
         resource: customerRRFCResourceName,
-      });
+      }
+    );
 
     return response;
   }
@@ -150,11 +143,12 @@ export class BillingService {
       );
 
     const deletedResource = await CustomerRFCModel.findByIdAndDelete(id);
-    const response =
-      OldSuccessResponseFormatter.formatDeleteResponse<CustomerRFC>({
+    const response = SuccessResponseFormatter.formatDeleteResponse<CustomerRFC>(
+      {
         data: deletedResource!,
         resource: customerRRFCResourceName,
-      });
+      }
+    );
 
     return response;
   }
@@ -200,18 +194,10 @@ export class BillingService {
     const savedResource = await resource.save();
 
     const response =
-      OldSuccessResponseFormatter.fortmatCreateResponse<BillCreationInfo>({
+      SuccessResponseFormatter.fortmatCreateResponse<BillCreationInfo>({
         data: savedResource,
         resource: customerRRFCResourceName,
       });
-
-    await this.notificationService.notifyManagers({
-      message: `Bill Creation Info created by ${uid}`,
-      referenceId: savedResource._id.toString(),
-      referenceType: NotificationReferenceType.BILL_CREATION_INFO,
-      actionType: NotificationActionType.AWAITING_APPROVAL,
-      title: "Bill Creation Info created",
-    });
 
     return response;
   }
@@ -237,7 +223,7 @@ export class BillingService {
       );
 
     const response =
-      OldSuccessResponseFormatter.formatGetOneResponse<BillCreationInfo>({
+      SuccessResponseFormatter.formatGetOneResponse<BillCreationInfo>({
         data: resource,
         resource: billCreationInfoResourceName,
       });
@@ -268,22 +254,10 @@ export class BillingService {
     );
 
     const response =
-      OldSuccessResponseFormatter.formatUpdateResponse<BillCreationInfo>({
+      SuccessResponseFormatter.formatUpdateResponse<BillCreationInfo>({
         data: updatedResource!,
         resource: billCreationInfoResourceName,
       });
-
-    if (updatedResource!.status === BillCreationInfoStatus.DONE) {
-      const collaboratorService = createCollaboratorService();
-      const collaborator = await collaboratorService.getById(uid);
-      await this.notificationService.notifyManagers({
-        message: `Bill Creation Info approved by ${collaborator.col_code}`,
-        referenceId: updatedResource!._id.toString(),
-        referenceType: NotificationReferenceType.BILL_CREATION_INFO,
-        actionType: NotificationActionType.AWAITING_APPROVAL,
-        title: "Bill Creation Info updated",
-      });
-    }
 
     return response;
   }
@@ -297,7 +271,7 @@ export class BillingService {
 
     const deletedResource = await billCreationInfoModel.findByIdAndDelete(id);
     const response =
-      OldSuccessResponseFormatter.formatDeleteResponse<BillCreationInfo>({
+      SuccessResponseFormatter.formatDeleteResponse<BillCreationInfo>({
         data: deletedResource!,
         resource: billCreationInfoResourceName,
       });

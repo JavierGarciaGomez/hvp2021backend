@@ -1,9 +1,9 @@
 import { Response, Request, NextFunction } from "express";
-import { AuthenticatedRequest } from "../../../shared/interfaces/RequestsAndResponses";
+import { RequestWithAuthCollaborator } from "../../../types/RequestsAndResponses";
 import { PaginationDto } from "../../../domain";
 import { WorkLogsService } from "./workLogsService";
 
-import { BaseError } from "../../../shared/errors/BaseError";
+import { BaseError } from "../../../domain/errors/BaseError";
 import { WorkLogDto } from "../../../domain/dtos/workLogs/WorkLogDto";
 
 export class WorkLogsController {
@@ -14,7 +14,7 @@ export class WorkLogsController {
   };
 
   public getWorkLogs = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -30,7 +30,7 @@ export class WorkLogsController {
   };
 
   public getWorkLogsByCollaborator = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -54,7 +54,7 @@ export class WorkLogsController {
   };
 
   public getWorkLogById = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -68,17 +68,20 @@ export class WorkLogsController {
   };
 
   public createWorkLog = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const { authUser } = req;
+      const { authenticatedCollaborator } = req;
       const body = req.body;
       const [error, dto] = WorkLogDto.create(body);
       if (error) throw BaseError.badRequest("Invalid WorkLog data", error);
 
-      const response = await this.workLogService.createWorkLog(dto!, authUser!);
+      const response = await this.workLogService.createWorkLog(
+        dto!,
+        authenticatedCollaborator!
+      );
       res.status(response.status_code).json(response);
     } catch (error) {
       next(error);
@@ -86,13 +89,13 @@ export class WorkLogsController {
   };
 
   public updateWorkLog = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
     try {
       const id = req.params.id;
-      const { authUser } = req;
+      const { authenticatedCollaborator } = req;
       const body = req.body;
       const [error, dto] = WorkLogDto.update(body);
       if (error) throw BaseError.badRequest("Invalid request data", error);
@@ -100,7 +103,7 @@ export class WorkLogsController {
       const response = await this.workLogService.updateWorkLog(
         id,
         dto!,
-        authUser!
+        authenticatedCollaborator!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -109,7 +112,7 @@ export class WorkLogsController {
   };
 
   public deleteWorkLog = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {

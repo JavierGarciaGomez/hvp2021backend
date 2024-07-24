@@ -1,4 +1,5 @@
-import { TimeOffStatus, TimeOffType } from "../../../shared";
+import { ResourceOptions } from "../../../data/types/Options";
+import { TimeOffStatus, TimeOffType } from "../../../data/types/timeOffTypes";
 
 interface Options {
   approvalDate?: Date;

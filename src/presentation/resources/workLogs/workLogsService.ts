@@ -1,14 +1,21 @@
+import { ResourceQuery } from "../../../data/types/Queries";
+import { ListSuccessResponse } from "../../../data/types/responses";
 import { PaginationDto } from "../../../domain";
-import { BaseError } from "../../../shared/errors/BaseError";
-import { OldSuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
-import { AuthenticatedCollaborator } from "../../../shared/interfaces/RequestsAndResponses";
+import { BaseError } from "../../../domain/errors/BaseError";
+import { SuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
+
+import { AuthenticatedCollaborator } from "../../../types/RequestsAndResponses";
+import mongoose, { ObjectId, Schema } from "mongoose";
+import { WorkLogsPaths } from "./workLogsRoutes";
 import { WorkLogDto } from "../../../domain/dtos/workLogs/WorkLogDto";
-import TaskActivityModel from "../../../infrastructure/db/mongo/models/TaskActivityModel";
-import WorkLogModel from "../../../infrastructure/db/mongo/models/WorkLogModel";
-import TaskModel from "../../../infrastructure/db/mongo/models/TaskModel";
-import { ListSuccessResponse, WorkLog, WorkLogActivity } from "../../../shared";
-import { fetchList } from "../../../shared/helpers";
-import { ObjectId } from "mongoose";
+
+import TaskActivityModel from "../../../data/models/TaskActivityModel";
+import WorkLogModel from "../../../data/models/WorkLogModel";
+import { WorkLog, WorkLogActivity } from "../../../data/types/workLogsTypes";
+import TaskModel from "../../../data/models/TaskModel";
+import { TaskActivity, TaskStatus } from "../../../data/types/taskTypes";
+import { getTaskStatus } from "../../../helpers/taskHelpers";
+import { fetchList } from "../../../helpers";
 
 const commonPath = "/api/work-logs";
 const resourceName = "WorkLogs";
@@ -47,7 +54,7 @@ export class WorkLogsService {
     if (!resource)
       throw BaseError.notFound(`${resource} not found with id ${id}`);
 
-    const response = OldSuccessResponseFormatter.formatGetOneResponse<WorkLog>({
+    const response = SuccessResponseFormatter.formatGetOneResponse<WorkLog>({
       data: resource,
       resource: resourceName,
     });
@@ -75,12 +82,10 @@ export class WorkLogsService {
       path: "activities",
     });
 
-    const response = OldSuccessResponseFormatter.fortmatCreateResponse<WorkLog>(
-      {
-        data: populatedResource,
-        resource: resourceName,
-      }
-    );
+    const response = SuccessResponseFormatter.fortmatCreateResponse<WorkLog>({
+      data: populatedResource,
+      resource: resourceName,
+    });
 
     return response;
   }
@@ -113,7 +118,7 @@ export class WorkLogsService {
       path: "activities",
     });
 
-    const response = OldSuccessResponseFormatter.formatUpdateResponse<WorkLog>({
+    const response = SuccessResponseFormatter.formatUpdateResponse<WorkLog>({
       data: populatedResource!,
       resource: resourceName,
     });
@@ -127,7 +132,7 @@ export class WorkLogsService {
       throw BaseError.notFound(`${resourceName} not found with id ${id}`);
 
     const deletedResource = await WorkLogModel.findByIdAndDelete(id);
-    const response = OldSuccessResponseFormatter.formatDeleteResponse<WorkLog>({
+    const response = SuccessResponseFormatter.formatDeleteResponse<WorkLog>({
       data: deletedResource!,
       resource: resourceName,
     });

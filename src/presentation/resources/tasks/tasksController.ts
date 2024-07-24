@@ -1,9 +1,9 @@
 import { Response, Request, NextFunction } from "express";
-import { AuthenticatedRequest } from "../../../shared/interfaces/RequestsAndResponses";
+import { RequestWithAuthCollaborator } from "../../../types/RequestsAndResponses";
 import { PaginationDto } from "../../../domain";
 import { TasksService } from "./tasksService";
 import { TaskDto } from "../../../domain/dtos/tasks/TaskDto";
-import { BaseError } from "../../../shared/errors/BaseError";
+import { BaseError } from "../../../domain/errors/BaseError";
 
 export class TasksController {
   constructor(private readonly taskService: TasksService) {}
@@ -13,18 +13,18 @@ export class TasksController {
   };
 
   public getTasks = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const { authUser } = req;
+      const { authenticatedCollaborator } = req;
       const { page, limit } = req.query;
       const paginationDto = PaginationDto.create(Number(page), Number(limit));
 
       const response = await this.taskService.getTasks(
         paginationDto!,
-        authUser!
+        authenticatedCollaborator!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -33,7 +33,7 @@ export class TasksController {
   };
 
   public getTasksByCollaborator = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -57,7 +57,7 @@ export class TasksController {
   };
 
   public getTasksById = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -71,19 +71,19 @@ export class TasksController {
   };
 
   public createTask = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const { authUser } = req;
+      const { authenticatedCollaborator } = req;
       const body = req.body;
       const [error, createTimeOffRequestDto] = TaskDto.create(body);
       if (error) throw BaseError.badRequest("Invalid Task data", error);
 
       const response = await this.taskService.createTask(
         createTimeOffRequestDto!,
-        authUser!
+        authenticatedCollaborator!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -92,18 +92,22 @@ export class TasksController {
   };
 
   public updateTask = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
     try {
       const id = req.params.id;
-      const { authUser } = req;
+      const { authenticatedCollaborator } = req;
       const body = req.body;
       const [error, dto] = TaskDto.update(body);
       if (error) throw BaseError.badRequest("Invalid request data", error);
 
-      const response = await this.taskService.updateTask(id, dto!, authUser!);
+      const response = await this.taskService.updateTask(
+        id,
+        dto!,
+        authenticatedCollaborator!
+      );
       res.status(response.status_code).json(response);
     } catch (error) {
       next(error);
@@ -111,7 +115,7 @@ export class TasksController {
   };
 
   public deleteTask = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {

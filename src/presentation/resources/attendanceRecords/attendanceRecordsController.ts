@@ -1,9 +1,9 @@
 import { Response, Request, NextFunction } from "express";
-import { AuthenticatedRequest } from "../../../shared/interfaces/RequestsAndResponses";
+import { RequestWithAuthCollaborator } from "../../../types/RequestsAndResponses";
 import { PaginationDto } from "../../../domain";
 import { AttendanceRecordsService } from "./attendanceRecordService";
 
-import { BaseError } from "../../../shared/errors/BaseError";
+import { BaseError } from "../../../domain/errors/BaseError";
 import { WorkLogDto } from "../../../domain/dtos/workLogs/WorkLogDto";
 import { AttendanceRecordDto } from "../../../domain/dtos/attendanceRecords/AttendanceRecordDto";
 
@@ -17,7 +17,7 @@ export class AttendanceRecordsController {
   };
 
   public getAttendanceRecords = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -35,7 +35,7 @@ export class AttendanceRecordsController {
   };
 
   public getAttendanceRecordsByCollaborator = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -57,7 +57,7 @@ export class AttendanceRecordsController {
   };
 
   public getCurrentAttendanceRecords = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -76,7 +76,7 @@ export class AttendanceRecordsController {
   };
 
   public getLastAttendanceRecordByCollaborator = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -93,7 +93,7 @@ export class AttendanceRecordsController {
   };
 
   public getAttendanceRecordById = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -109,19 +109,19 @@ export class AttendanceRecordsController {
   };
 
   public createAttendanceRecord = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const { authUser } = req;
+      const { authenticatedCollaborator } = req;
       const body = req.body;
       const [error, dto] = AttendanceRecordDto.create(body);
       if (error) throw BaseError.badRequest("Invalid data", error);
 
       const response = await this.timeAttendanceService.createAttendanceRecord(
         dto!,
-        authUser!
+        authenticatedCollaborator!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -130,13 +130,13 @@ export class AttendanceRecordsController {
   };
 
   public updateAttendanceRecord = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
     try {
       const id = req.params.id;
-      const { authUser } = req;
+      const { authenticatedCollaborator } = req;
       const body = req.body;
       const [error, dto] = AttendanceRecordDto.update(body);
       if (error) throw BaseError.badRequest("Invalid request data", error);
@@ -144,7 +144,7 @@ export class AttendanceRecordsController {
       const response = await this.timeAttendanceService.updateAttendanceRecord(
         id,
         dto!,
-        authUser!
+        authenticatedCollaborator!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -153,7 +153,7 @@ export class AttendanceRecordsController {
   };
 
   public deleteAttendanceRecord = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {

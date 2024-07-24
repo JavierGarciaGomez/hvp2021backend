@@ -17,5 +17,4 @@ export const mainRoutes = {
   attendanceRecords: "/api/attendance-records",
   billing: "/api/billing",
   authActivities: "/api/auth-activities",
-  notifications: "/api/notifications",
 };

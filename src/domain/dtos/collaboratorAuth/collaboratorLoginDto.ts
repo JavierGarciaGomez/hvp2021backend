@@ -1,7 +1,6 @@
 import { register } from "module";
-
-import { BaseError } from "../../../shared/errors/BaseError";
-import { isValidEmail } from "../../../shared/helpers";
+import { isValidEmail } from "../../../helpers";
+import { BaseError } from "../../errors/BaseError";
 
 interface LoginOptions {
   email: string;

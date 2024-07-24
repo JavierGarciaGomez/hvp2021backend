@@ -1,11 +1,12 @@
+import session from "express-session";
 import express, { Router } from "express";
 import path from "path";
 import { corsMiddleware, envsPlugin } from "../infrastructure/adapters";
 import { CookieSessionAdapter } from "../infrastructure/adapters/cookie-session.adapter";
-import { passportAdapter } from "../infrastructure/adapters/passport.adapter";
-import { BaseError, PrintRouteMiddleware } from "../shared";
-import { AttachBaseUrlMiddleware } from "./middlewares";
-import { errorHandler } from "./middlewares/errorHandler";
+import { PrintRouteMiddleware } from "../middlewares/printRoute.middleware";
+import { AttachBaseUrlMiddleware } from "../middlewares";
+import { passportAdapter } from "../config/passport.adapter";
+import { errorHandler } from "../middlewares/errorHandler";
 
 interface Options {
   port: number;
@@ -47,19 +48,11 @@ export class Server {
     this.app.use(this.routes);
 
     //* SPA /^\/(?!api).*/  <== Únicamente si no empieza con la palabra api
-    // this.app.get("*", (req, res) => {
-    //   const indexPath = path.join(
-    //     __dirname + `../../../${this.publicPath}/index.html`
-    //   );
-    //   res.sendFile(indexPath);
-    // });
-
-    // Handle 404 errors
-    // Handle 404 errors
-    this.app.use((req, res, next) => {
-      const error = BaseError.notFound("Resource not found");
-
-      next(error);
+    this.app.get("*", (req, res) => {
+      const indexPath = path.join(
+        __dirname + `../../../${this.publicPath}/index.html`
+      );
+      res.sendFile(indexPath);
     });
 
     this.app.use(errorHandler);

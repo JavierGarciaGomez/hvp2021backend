@@ -1,11 +1,11 @@
 import { Response, Request, NextFunction } from "express";
-import { AuthenticatedRequest } from "../../../shared/interfaces/RequestsAndResponses";
+import { RequestWithAuthCollaborator } from "../../../types/RequestsAndResponses";
 import {
   BillCreationInfoDTO,
   CustomerRFCDTO,
   PaginationDto,
 } from "../../../domain";
-import { BaseError } from "../../../shared/errors/BaseError";
+import { BaseError } from "../../../domain/errors/BaseError";
 
 import { BillingService } from "./billingService";
 
@@ -17,7 +17,7 @@ export class BillingController {
   };
 
   public getCustomerRFCs = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -33,7 +33,7 @@ export class BillingController {
   };
 
   public getRecordById = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -47,7 +47,7 @@ export class BillingController {
   };
 
   public createCustomerRFC = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -65,13 +65,13 @@ export class BillingController {
   };
 
   public updateCustomerRFC = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
     try {
       const id = req.params.id;
-      const { authUser } = req;
+      const { authenticatedCollaborator } = req;
       const body = req.body;
       const [error, dto] = CustomerRFCDTO.update(body);
       if (error) throw BaseError.badRequest("Invalid request data", error);
@@ -79,7 +79,7 @@ export class BillingController {
       const response = await this.service.updateCustomerRFC(
         id,
         dto!,
-        authUser!
+        authenticatedCollaborator!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -88,7 +88,7 @@ export class BillingController {
   };
 
   public deleteCustomerRFC = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -102,7 +102,7 @@ export class BillingController {
   };
 
   public getFiscalRegimes = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -117,7 +117,7 @@ export class BillingController {
     }
   };
   public getInvoiceUsages = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -132,7 +132,7 @@ export class BillingController {
   };
 
   public getPaymentMethods = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -147,19 +147,19 @@ export class BillingController {
   };
 
   public createBillCreationInfo = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const { authUser } = req;
+      const { authenticatedCollaborator } = req;
       const body = req.body;
       const [error, dto] = BillCreationInfoDTO.create(body);
       if (error) throw BaseError.badRequest("Invalid data", error);
 
       const response = await this.service.createBillCreationInfo(
         dto!,
-        authUser!
+        authenticatedCollaborator!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -168,7 +168,7 @@ export class BillingController {
   };
 
   public getBillCreationInfoList = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -185,7 +185,7 @@ export class BillingController {
   };
 
   public getBillCreationInfoById = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -199,13 +199,13 @@ export class BillingController {
   };
 
   public updateBillCreationInfo = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
     const id = req.params.id;
     try {
-      const { authUser } = req;
+      const { authenticatedCollaborator } = req;
       const body = req.body;
       const [error, dto] = BillCreationInfoDTO.update(body);
       if (error) throw BaseError.badRequest("Invalid request data", error);
@@ -213,7 +213,7 @@ export class BillingController {
       const response = await this.service.updateBillCreationInfo(
         id,
         dto!,
-        authUser!
+        authenticatedCollaborator!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -222,7 +222,7 @@ export class BillingController {
   };
 
   public deleteBillCreationInfo = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {

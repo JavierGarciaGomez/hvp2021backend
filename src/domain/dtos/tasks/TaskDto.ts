@@ -3,7 +3,7 @@ import {
   TaskPriority,
   TaskStatus,
   TaskTag,
-} from "../../../shared";
+} from "../../../data/types/taskTypes";
 
 interface Options {
   _id?: string;

@@ -1,29 +1,24 @@
-import {
-  NotificationActionType,
-  NotificationReferenceType,
-  PaginationDto,
-} from "../../../domain";
-import { BaseError } from "../../../shared/errors/BaseError";
-import { OldSuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
+import { ResourceQuery } from "../../../data/types/Queries";
+import { ListSuccessResponse } from "../../../data/types/responses";
+import { PaginationDto } from "../../../domain";
+import { BaseError } from "../../../domain/errors/BaseError";
+import { SuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
 
-import { AuthenticatedCollaborator } from "../../../shared/interfaces/RequestsAndResponses";
+import { AuthenticatedCollaborator } from "../../../types/RequestsAndResponses";
 import { ObjectId, Schema } from "mongoose";
-
+import { TasksPaths } from "./tasksRoutes";
 import { TaskDto } from "../../../domain/dtos/tasks/TaskDto";
-import TaskModel from "../../../infrastructure/db/mongo/models/TaskModel";
-
-import TaskActivityModel from "../../../infrastructure/db/mongo/models/TaskActivityModel";
-import { isManagerOrAdmin } from "../../../shared/helpers/authorizationHelpers";
-
-import { NotificationService } from "../../../application";
-import { ListSuccessResponse, ResourceQuery, Task } from "../../../shared";
-import { fetchList } from "../../../shared/helpers";
+import TaskModel from "../../../data/models/TaskModel";
+import { Task } from "../../../data/types/taskTypes";
+import TaskActivityModel from "../../../data/models/TaskActivityModel";
+import { isManagerOrAdmin } from "../../../helpers/authorizationHelpers";
+import { fetchList } from "../../../helpers";
 
 const commonPath = "/api/tasks";
 const resourceName = "Tasks";
 export class TasksService {
   // DI
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor() {}
 
   async getTasks(
     paginationDto: PaginationDto,
@@ -65,7 +60,7 @@ export class TasksService {
     if (!resource)
       throw BaseError.notFound(`${resource} not found with id ${id}`);
 
-    const response = OldSuccessResponseFormatter.formatGetOneResponse<Task>({
+    const response = SuccessResponseFormatter.formatGetOneResponse<Task>({
       data: resource,
       resource: resourceName,
     });
@@ -89,24 +84,11 @@ export class TasksService {
     });
 
     const savedTask = await task.save();
-
-    // Notify assignees
-    const assignees = taskDto.data.assignees as string[];
-
-    this.notificationService.notifyCollaborators({
-      title: "Task assigned",
-      message: task.title,
-      referenceId: savedTask._id.toString(),
-      referenceType: NotificationReferenceType.TASK,
-      actionType: NotificationActionType.ASSIGNED,
-      collaboratorIds: assignees,
-    });
-
     const populatedTask = await TaskModel.populate(savedTask, {
       path: "activities",
     });
 
-    const response = OldSuccessResponseFormatter.fortmatCreateResponse<Task>({
+    const response = SuccessResponseFormatter.fortmatCreateResponse<Task>({
       data: populatedTask,
       resource: resourceName,
     });
@@ -127,17 +109,6 @@ export class TasksService {
     if (!resourceToUpdate)
       throw BaseError.notFound(`${resourceName} not found with id ${id}`);
 
-    const oldAssignees =
-      (resourceToUpdate.assignees as unknown as string[]) || [];
-    const newAssignees = dto.data.assignees as string[];
-
-    const addedAssignees = newAssignees.filter(
-      (assignee) => !oldAssignees.includes(assignee)
-    );
-    const removedAssignees = oldAssignees.filter(
-      (assignee) => !newAssignees.includes(assignee)
-    );
-
     const updatedResource = await TaskModel.findByIdAndUpdate(
       id,
       {
@@ -153,31 +124,7 @@ export class TasksService {
       path: "activities",
     });
 
-    // Notify added assignees
-    if (addedAssignees.length > 0) {
-      this.notificationService.notifyCollaborators({
-        title: "Task assigned",
-        message: populatedResource.title,
-        referenceId: populatedResource._id.toString(),
-        referenceType: NotificationReferenceType.TASK,
-        actionType: NotificationActionType.ASSIGNED,
-        collaboratorIds: addedAssignees,
-      });
-    }
-
-    // Notify removed assignees
-    if (removedAssignees.length > 0) {
-      this.notificationService.notifyCollaborators({
-        title: "Task unassigned",
-        message: populatedResource.title,
-        referenceId: populatedResource._id.toString(),
-        referenceType: NotificationReferenceType.TASK,
-        actionType: NotificationActionType.UNASSIGNED,
-        collaboratorIds: removedAssignees,
-      });
-    }
-
-    const response = OldSuccessResponseFormatter.formatUpdateResponse<Task>({
+    const response = SuccessResponseFormatter.formatUpdateResponse<Task>({
       data: populatedResource!,
       resource: resourceName,
     });
@@ -191,7 +138,7 @@ export class TasksService {
       throw BaseError.notFound(`${resourceName} not found with id ${id}`);
 
     const deletedResource = await TaskModel.findByIdAndDelete(id);
-    const response = OldSuccessResponseFormatter.formatDeleteResponse<Task>({
+    const response = SuccessResponseFormatter.formatDeleteResponse<Task>({
       data: deletedResource!,
       resource: resourceName,
     });

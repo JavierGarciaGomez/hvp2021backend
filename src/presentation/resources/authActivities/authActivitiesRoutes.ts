@@ -1,8 +1,7 @@
 import { Router } from "express";
-
+import { AuthMiddleware } from "../../../middlewares/auth.middleware";
 import { AuthActivitiesService } from "./authActivitiesService";
 import { AuthActivitiesController } from "./authActivitiesController";
-import { AuthMiddleware } from "../../middlewares";
 
 export const routes = {
   list: "/",

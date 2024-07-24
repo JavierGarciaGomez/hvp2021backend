@@ -1,10 +1,12 @@
 import { Response, Request, NextFunction } from "express";
-import { AuthenticatedRequest } from "../../../shared/interfaces/RequestsAndResponses";
+// import { CreateCategoryDto, CustomError, PaginationDto } from "../../domain";
+
+import { RequestWithAuthCollaborator } from "../../../types/RequestsAndResponses";
 import { PaginationDto } from "../../../domain";
 import { TimeOffRequestsService } from "./timeOffRequestsService";
 import { TimeOffRequestDto } from "../../../domain/dtos/timeOffRequests/TimeOffRequestDto";
-import { BaseError } from "../../../shared/errors/BaseError";
-import { TimeOffRequest } from "../../../shared";
+import { BaseError } from "../../../domain/errors/BaseError";
+import { TimeOffRequest } from "../../../data/types/timeOffTypes";
 
 export class TimeOffRequestController {
   constructor(
@@ -17,7 +19,7 @@ export class TimeOffRequestController {
   };
   // Todo review
   public getTimeOffRequests = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -36,7 +38,7 @@ export class TimeOffRequestController {
   };
 
   public getTimeOffRequestsByCollaborator = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -60,7 +62,7 @@ export class TimeOffRequestController {
   };
 
   public getTimeOffRequestsByYear = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -84,7 +86,7 @@ export class TimeOffRequestController {
   };
 
   public getTimeOffRequestById = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -100,12 +102,12 @@ export class TimeOffRequestController {
   };
 
   public createTimeOffRequest = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const { authUser } = req;
+      const { authenticatedCollaborator } = req;
       const body = req.body;
       const [error, createTimeOffRequestDto] = TimeOffRequestDto.create(body);
       if (error)
@@ -113,7 +115,7 @@ export class TimeOffRequestController {
 
       const response = await this.timeOffRequestsService.createTimeOffRequest(
         createTimeOffRequestDto!,
-        authUser!
+        authenticatedCollaborator!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -122,13 +124,13 @@ export class TimeOffRequestController {
   };
 
   public updateTimeOffRequest = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
     try {
       const id = req.params.id;
-      const { authUser } = req;
+      const { authenticatedCollaborator } = req;
       const body = req.body;
       const [error, timeOffRequestDto] = TimeOffRequestDto.update(body);
 
@@ -138,7 +140,7 @@ export class TimeOffRequestController {
       const response = await this.timeOffRequestsService.updateTimeOffRequest(
         id,
         timeOffRequestDto!,
-        authUser!
+        authenticatedCollaborator!
       );
       res.status(response.status_code).json(response);
     } catch (error) {
@@ -147,7 +149,7 @@ export class TimeOffRequestController {
   };
 
   public approveTimeOffRequest = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -164,7 +166,7 @@ export class TimeOffRequestController {
     } catch (error) {}
   };
   public deleteTimeOffRequest = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -179,7 +181,7 @@ export class TimeOffRequestController {
     }
   };
   public getCollaboratorTimeOffOverview = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -200,7 +202,7 @@ export class TimeOffRequestController {
     }
   };
   public getCollaboratorsTimeOffOverview = async (
-    req: AuthenticatedRequest,
+    req: RequestWithAuthCollaborator,
     res: Response,
     next: NextFunction
   ) => {
@@ -218,7 +220,7 @@ export class TimeOffRequestController {
 }
 
 interface HandleRequestParams {
-  req: AuthenticatedRequest;
+  req: RequestWithAuthCollaborator;
   res: Response;
   query: any;
   operation: string;

@@ -1,4 +1,4 @@
-import { WorkLogActivity } from "../../../shared";
+import { WorkLogActivity } from "../../../data/types/workLogsTypes";
 
 interface Options {
   _id?: string;

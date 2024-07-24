@@ -1,14 +1,14 @@
-import { CustomQueryOptions } from "../../shared/interfaces";
-import { CollaboratorEntity, PublicCollaborator } from "../entities/";
-import { BaseRepository } from "./base.repository";
+import { CreateCollaboratorDto } from "../../application/dtos";
+import { CollaboratorEntity } from "../entities/";
 
-export abstract class CollaboratorRepository extends BaseRepository<CollaboratorEntity> {
-  abstract register(
-    collaborator: Partial<CollaboratorEntity>
+export abstract class CollaboratorRepository {
+  abstract getById(id: string): Promise<CollaboratorEntity>;
+  abstract getAll(): Promise<CollaboratorEntity[]>;
+  abstract create(
+    collaborator: CreateCollaboratorDto
   ): Promise<CollaboratorEntity>;
-  abstract getAllForWeb(
-    options: CustomQueryOptions
-  ): Promise<PublicCollaborator[]>;
+  abstract update(
+    collaborator: CollaboratorEntity
+  ): Promise<CollaboratorEntity>;
   abstract delete(id: string): Promise<string>;
-  abstract count(): Promise<number>;
 }

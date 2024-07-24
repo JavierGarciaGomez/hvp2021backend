@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { BillingController } from "./billingController";
 import { BillingService as billingService } from "./billingService";
-import { AuthMiddleware } from "../../middlewares";
-import { createNotificationService } from "../../../application";
+import { AuthMiddleware } from "../../../middlewares/auth.middleware";
+
+const { validateJwt } = require("../../../middlewares/validateJwt");
 
 const baseRoutes = {
   CUSTOMER_RFCS: "/customer-rfcs",
@@ -52,8 +53,7 @@ export class BillingRoutes {
   static get routes(): Router {
     const router = Router();
 
-    const notificationService = createNotificationService();
-    const service = new billingService(notificationService);
+    const service = new billingService();
     const controller = new BillingController(service);
 
     router.use(AuthMiddleware.validateJWT);

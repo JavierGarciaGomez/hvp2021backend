@@ -1,34 +1,27 @@
-import TimeOffRequestModel from "../../../infrastructure/db/mongo/models/TimeOffRequestModel";
+import { ResourceQuery } from "./../../../data/types/Queries";
+import TimeOffRequestModel from "../../../data/models/TimeOffRequestModel";
+
+import { ListSuccessResponse } from "../../../data/types/responses";
 import {
-  CollaboratorRole,
-  NotificationActionType,
-  NotificationReferenceType,
-  PaginationDto,
-} from "../../../domain";
-import { BaseError } from "../../../shared/errors/BaseError";
-import { OldSuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
-import { TimeOffRequestsRoutePaths } from "./timeOffRequestsRoutes";
-import { TimeOffRequestDto } from "../../../domain/dtos/timeOffRequests/TimeOffRequestDto";
-import { AuthenticatedCollaborator } from "../../../shared/interfaces/RequestsAndResponses";
-import { ObjectId } from "mongoose";
-import { getCollaboratorTimeOffOverviewDetails } from "../../../shared/helpers/timeOffHelpers";
-import {
-  formatDateWithoutTime,
-  getEarliestDate,
-} from "../../../shared/helpers/dateHelpers";
-import { getActiveCollaborators } from "../../../shared/helpers/collaboratorsHelpers";
-import {
-  CollaboratorTimeOffOverview,
-  ListSuccessResponse,
-  ResourceQuery,
   TimeOffRequest,
   TimeOffStatus,
   TimeOffType,
-} from "../../../shared";
+} from "../../../data/types/timeOffTypes";
+import { PaginationDto } from "../../../domain";
+import { BaseError } from "../../../domain/errors/BaseError";
+import { SuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
+import { TimeOffRequestsRoutePaths } from "./timeOffRequestsRoutes";
+import { TimeOffRequestDto } from "../../../domain/dtos/timeOffRequests/TimeOffRequestDto";
+import { AuthenticatedCollaborator } from "../../../types/RequestsAndResponses";
+import { ObjectId } from "mongoose";
+import { CollaboratorRole } from "../../../data/models/CollaboratorModel";
+import { getCollaboratorTimeOffOverviewDetails } from "../../../helpers/timeOffHelpers";
 import {
-  NotificationService,
-  createCollaboratorService,
-} from "../../../application";
+  formatDateWithoutTime,
+  getEarliestDate,
+} from "../../../helpers/dateHelpers";
+import { getActiveCollaborators } from "../../../helpers/collaboratorsHelpers";
+import { CollaboratorTimeOffOverview } from "../../../data/types/timeOffTypes";
 
 // import {
 //   CreateCategoryDto,
@@ -41,7 +34,7 @@ const commonPath = "/api/time-off-requests";
 const resource = "TimeOffRequests";
 export class TimeOffRequestsService {
   // DI
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor() {}
 
   async getTimeOffRequests(
     paginationDto: PaginationDto
@@ -83,7 +76,7 @@ export class TimeOffRequestsService {
       throw BaseError.notFound(`${resource} not found with id ${id}`);
 
     const response =
-      OldSuccessResponseFormatter.formatGetOneResponse<TimeOffRequest>({
+      SuccessResponseFormatter.formatGetOneResponse<TimeOffRequest>({
         data: timeOffRequest,
         resource,
       });
@@ -91,10 +84,10 @@ export class TimeOffRequestsService {
     return response;
   }
 
-  public createTimeOffRequest = async (
+  async createTimeOffRequest(
     timeOffRequestDto: TimeOffRequestDto,
     authenticatedCollaborator: AuthenticatedCollaborator
-  ) => {
+  ) {
     const { uid } = authenticatedCollaborator;
 
     const timeOffRequest = new TimeOffRequestModel({
@@ -139,25 +132,14 @@ export class TimeOffRequestsService {
     }
     const savedTimeOffRequest = await timeOffRequest.save();
 
-    const collaboratorService = createCollaboratorService();
-    const user = await collaboratorService.getById(uid);
-
-    await this.notificationService.notifyManagers({
-      message: `A new time off request has been created by ${user.col_code}`,
-      referenceId: savedTimeOffRequest._id.toString(),
-      referenceType: NotificationReferenceType.TIME_OFF_REQUEST,
-      actionType: NotificationActionType.AWAITING_APPROVAL,
-      title: "New Time Off Request",
-    });
-
     const response =
-      OldSuccessResponseFormatter.fortmatCreateResponse<TimeOffRequest>({
+      SuccessResponseFormatter.fortmatCreateResponse<TimeOffRequest>({
         data: savedTimeOffRequest,
         resource,
       });
 
     return response;
-  };
+  }
 
   async updateTimeOffRequest(
     id: string,
@@ -222,7 +204,7 @@ export class TimeOffRequestsService {
     );
 
     const response =
-      OldSuccessResponseFormatter.formatUpdateResponse<TimeOffRequest>({
+      SuccessResponseFormatter.formatUpdateResponse<TimeOffRequest>({
         data: updatedResource!,
         resource,
       });
@@ -245,23 +227,13 @@ export class TimeOffRequestsService {
       { new: true }
     );
     const response =
-      OldSuccessResponseFormatter.formatUpdateResponse<TimeOffRequest>({
+      SuccessResponseFormatter.formatUpdateResponse<TimeOffRequest>({
         data: updatedResource!,
         resource,
       });
 
-    await this.notificationService.notifyCollaborator({
-      message: `Your time off request has been approved.`,
-      referenceId: id,
-      referenceType: NotificationReferenceType.TIME_OFF_REQUEST,
-      actionType: NotificationActionType.APPROVED,
-      collaboratorId: updatedResource!.collaborator as unknown as string,
-      title: "Time Off Request Approved",
-    });
-
     return response;
   }
-
   async deleteTimeOffRequest(id: string) {
     const timeOffRequest = await TimeOffRequestModel.findById(id);
     if (!timeOffRequest)
@@ -275,7 +247,7 @@ export class TimeOffRequestsService {
 
     const deletedResource = await TimeOffRequestModel.findByIdAndDelete(id);
     const response =
-      OldSuccessResponseFormatter.formatDeleteResponse<TimeOffRequest>({
+      SuccessResponseFormatter.formatDeleteResponse<TimeOffRequest>({
         data: deletedResource!,
         resource,
       });
@@ -289,7 +261,7 @@ export class TimeOffRequestsService {
     );
 
     const response =
-      OldSuccessResponseFormatter.formatGetOneResponse<CollaboratorTimeOffOverview>(
+      SuccessResponseFormatter.formatGetOneResponse<CollaboratorTimeOffOverview>(
         {
           data: overview,
           resource: "CollaboratorTimeOffOverview",
@@ -314,16 +286,14 @@ export class TimeOffRequestsService {
       collaboratorsOverview.push(overview);
     }
     const response =
-      OldSuccessResponseFormatter.formatListResponse<CollaboratorTimeOffOverview>(
-        {
-          data: collaboratorsOverview,
-          page: 1,
-          limit: collaboratorsOverview.length,
-          total: collaboratorsOverview.length,
-          path: `${commonPath}${TimeOffRequestsRoutePaths.collaboratorsOverview}`,
-          resource: "CollaboratorsTimeOffOverview",
-        }
-      );
+      SuccessResponseFormatter.formatListResponse<CollaboratorTimeOffOverview>({
+        data: collaboratorsOverview,
+        page: 1,
+        limit: collaboratorsOverview.length,
+        total: collaboratorsOverview.length,
+        path: `${commonPath}${TimeOffRequestsRoutePaths.collaboratorsOverview}`,
+        resource: "CollaboratorsTimeOffOverview",
+      });
     return response;
   }
 
@@ -353,7 +323,7 @@ export class TimeOffRequestsService {
       }
 
       const response =
-        OldSuccessResponseFormatter.formatListResponse<TimeOffRequest>({
+        SuccessResponseFormatter.formatListResponse<TimeOffRequest>({
           data,
           page: 1,
           limit: data.length,

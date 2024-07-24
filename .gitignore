@@ -1,6 +1,5 @@
 /s04BasesDeNode/salida/*.txt
 node_modules/
-/node_modules
 tokens.txt
 .env
 uploads/productos/**.*
@@ -12,7 +11,7 @@ coverage/
 .env.test
 
 # Build directory
-/build
-
+build/
+/yarn.lock
 mongo
 mongo-test

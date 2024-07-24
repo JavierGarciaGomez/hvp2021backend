@@ -1,25 +1,26 @@
 import { mainRoutes } from "./../../../mainRoutes";
+import { AttendanceRecordsRoutes } from "./attendanceRecordsRoutes";
+import { ResourceQuery } from "../../../data/types/Queries";
+import { ListSuccessResponse } from "../../../data/types/responses";
 import { PaginationDto } from "../../../domain";
-import { BaseError } from "../../../shared/errors/BaseError";
-import { OldSuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
+import { BaseError } from "../../../domain/errors/BaseError";
+import { SuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
 
-import { AuthenticatedCollaborator } from "../../../shared/interfaces/RequestsAndResponses";
+import { AuthenticatedCollaborator } from "../../../types/RequestsAndResponses";
+import mongoose, { ObjectId, Schema } from "mongoose";
+import { AttendanceRecordsPaths } from "./attendanceRecordsRoutes";
 import { WorkLogDto } from "../../../domain/dtos/workLogs/WorkLogDto";
 
-import TaskActivityModel from "../../../infrastructure/db/mongo/models/TaskActivityModel";
+import TaskActivityModel from "../../../data/models/TaskActivityModel";
 
-import TaskModel from "../../../infrastructure/db/mongo/models/TaskModel";
-import AttendanceRecordModel from "../../../infrastructure/db/mongo/models/AttendanceRecordModel";
+import { WorkLogActivity } from "../../../data/types/workLogsTypes";
+import TaskModel from "../../../data/models/TaskModel";
+import AttendanceRecordModel from "../../../data/models/AttendanceRecordModel";
 import { AttendanceRecordDto } from "../../../domain/dtos/attendanceRecords/AttendanceRecordDto";
 
-import { getCurrentMexicanDate } from "../../../shared/helpers/dateHelpers";
-import {
-  AttendanceRecord,
-  ListSuccessResponse,
-  WorkLogActivity,
-} from "../../../shared";
-import { fetchList } from "../../../shared/helpers";
-import { ObjectId } from "mongoose";
+import { getCurrentMexicanDate } from "../../../helpers/dateHelpers";
+import { AttendanceRecord } from "../../../data/types";
+import { fetchList } from "../../../helpers";
 
 const commonPath = mainRoutes.attendanceRecords;
 const resourceName = "AttendanceRecords";
@@ -77,7 +78,7 @@ export class AttendanceRecordsService {
         `${resourceName} not found for collaborator ${collaboratorId}`
       );
     const response =
-      OldSuccessResponseFormatter.formatGetOneResponse<AttendanceRecord>({
+      SuccessResponseFormatter.formatGetOneResponse<AttendanceRecord>({
         data: resource,
         resource: resourceName,
       });
@@ -91,7 +92,7 @@ export class AttendanceRecordsService {
       throw BaseError.notFound(`${resource} not found with id ${id}`);
 
     const response =
-      OldSuccessResponseFormatter.formatGetOneResponse<AttendanceRecord>({
+      SuccessResponseFormatter.formatGetOneResponse<AttendanceRecord>({
         data: resource,
         resource: resourceName,
       });
@@ -128,7 +129,7 @@ export class AttendanceRecordsService {
     const savedResource = await resource.save();
 
     const response =
-      OldSuccessResponseFormatter.fortmatCreateResponse<AttendanceRecord>({
+      SuccessResponseFormatter.fortmatCreateResponse<AttendanceRecord>({
         data: savedResource,
         resource: resourceName,
       });
@@ -158,7 +159,7 @@ export class AttendanceRecordsService {
     );
 
     const response =
-      OldSuccessResponseFormatter.formatUpdateResponse<AttendanceRecord>({
+      SuccessResponseFormatter.formatUpdateResponse<AttendanceRecord>({
         data: updatedResource!,
         resource: resourceName,
       });
@@ -173,7 +174,7 @@ export class AttendanceRecordsService {
 
     const deletedResource = await AttendanceRecordModel.findByIdAndDelete(id);
     const response =
-      OldSuccessResponseFormatter.formatDeleteResponse<AttendanceRecord>({
+      SuccessResponseFormatter.formatDeleteResponse<AttendanceRecord>({
         data: deletedResource!,
         resource: resourceName,
       });

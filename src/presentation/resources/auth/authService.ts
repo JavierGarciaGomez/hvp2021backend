@@ -1,23 +1,21 @@
-import { JwtAdapter } from "../../../infrastructure/adapters/jwt.adapter";
-
-import { CollaboratorRole } from "../../../domain";
-
-import { CollaboratorLoginDto } from "../../../domain/dtos/collaboratorAuth/collaboratorLoginDto";
-import { CollaboratorRegisterDto } from "../../../domain/dtos/collaboratorAuth/collaboratorRegisterDto";
-import { BaseError } from "../../../shared/errors/BaseError";
-import { CollaboratorModel } from "../../../infrastructure";
-import { EmailService } from "../../services/EmailService";
-
-import { OldSuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
-import { AuthActivitiesService } from "../authActivities/authActivitiesService";
-import { bcryptAdapter } from "../../../infrastructure/adapters/bcrypt.adapter";
-import { getEnvsByEnvironment } from "../../../shared/helpers";
+import { bcryptAdapter, envs } from "../../../config";
+import { JwtAdapter } from "../../../config/jwt.adapter";
+import { AuthActivityModel } from "../../../data/models";
+import CollaboratorModel from "../../../data/models/CollaboratorModel";
 import {
   AuthActivityType,
   CollaboratorAuth,
   SuccessAuthResponse,
   SuccessLogoutResponse,
-} from "../../../shared";
+} from "../../../data/types";
+
+import { CollaboratorLoginDto } from "../../../domain/dtos/collaboratorAuth/collaboratorLoginDto";
+import { CollaboratorRegisterDto } from "../../../domain/dtos/collaboratorAuth/collaboratorRegisterDto";
+import { BaseError } from "../../../domain/errors/BaseError";
+import { EmailService } from "../../services/EmailService";
+
+import { SuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
+import { AuthActivitiesService } from "../authActivities/authActivitiesService";
 
 export class AuthService {
   constructor(private readonly emailService: EmailService) {}
@@ -56,42 +54,13 @@ export class AuthService {
       AuthActivityType.LOGIN
     );
 
-    return OldSuccessResponseFormatter.formatGetOneResponse<SuccessAuthResponse>(
-      {
-        resource: "collaborator-auth",
-        data: {
-          token,
-          user: collaboratorAuth,
-        },
-      }
-    );
-  }
-
-  public async collaboratorSimplifiedLogin(collaboratorId: string) {
-    const collaborator = await CollaboratorModel.findById(collaboratorId);
-
-    if (!collaborator) {
-      throw BaseError.notFound("Collaborator not found");
-    }
-
-    const collaboratorAuth: CollaboratorAuth = {
-      uid: collaborator._id,
-      col_code: collaborator.col_code,
-      role: CollaboratorRole.admin,
-      imgUrl: collaborator.imgUrl,
-    };
-
-    const token = await JwtAdapter.generateToken({ ...collaboratorAuth });
-
-    return OldSuccessResponseFormatter.formatGetOneResponse<SuccessAuthResponse>(
-      {
-        resource: "collaborator-auth",
-        data: {
-          token,
-          user: collaboratorAuth,
-        },
-      }
-    );
+    return SuccessResponseFormatter.formatGetOneResponse<SuccessAuthResponse>({
+      resource: "collaborator-auth",
+      data: {
+        token,
+        user: collaboratorAuth,
+      },
+    });
   }
 
   public async collaboratorRefreshToken(authUser: CollaboratorAuth) {
@@ -106,7 +75,7 @@ export class AuthService {
         AuthActivityType.REFRESH_TOKEN
       );
 
-      return OldSuccessResponseFormatter.formatGetOneResponse<SuccessAuthResponse>(
+      return SuccessResponseFormatter.formatGetOneResponse<SuccessAuthResponse>(
         {
           resource: "collaborator-auth",
           data: {
@@ -124,7 +93,7 @@ export class AuthService {
         authUser.uid,
         AuthActivityType.LOGOUT
       );
-      return OldSuccessResponseFormatter.formatGetOneResponse<SuccessLogoutResponse>(
+      return SuccessResponseFormatter.formatGetOneResponse<SuccessLogoutResponse>(
         {
           resource: "collaborator-auth",
           data: {
@@ -147,7 +116,7 @@ export class AuthService {
       throw BaseError.notFound("Collaborator not found");
     }
 
-    const link = `${getEnvsByEnvironment().CLIENT_URL}/#/auth`;
+    const link = `${envs.CLIENT_URL}/#/auth`;
     const htmlBody = `
       <h1>Your new password</h1>
       <p>Your new password is: ${tempPassword}</p>
@@ -170,7 +139,7 @@ export class AuthService {
       AuthActivityType.FORGOT_PASSWORD
     );
 
-    return OldSuccessResponseFormatter.formatGetOneResponse<SuccessLogoutResponse>(
+    return SuccessResponseFormatter.formatGetOneResponse<SuccessLogoutResponse>(
       {
         resource: "collaborator-auth",
         data: {
@@ -212,7 +181,7 @@ export class AuthService {
       AuthActivityType.CHANGE_PASSWORD
     );
 
-    return OldSuccessResponseFormatter.formatGetOneResponse<SuccessLogoutResponse>(
+    return SuccessResponseFormatter.formatGetOneResponse<SuccessLogoutResponse>(
       {
         resource: "collaborator-auth",
         data: {
@@ -263,7 +232,7 @@ export class AuthService {
         AuthActivityType.REGISTER
       );
 
-      return OldSuccessResponseFormatter.formatGetOneResponse<SuccessAuthResponse>(
+      return SuccessResponseFormatter.formatGetOneResponse<SuccessAuthResponse>(
         {
           resource: "collaborator-auth",
           data: {
@@ -284,14 +253,12 @@ export class AuthService {
 
   public async collaboratorGoogleLogin(user: CollaboratorAuth) {
     const token = await JwtAdapter.generateToken(user);
-    return OldSuccessResponseFormatter.formatGetOneResponse<SuccessAuthResponse>(
-      {
-        resource: "collaborator-auth",
-        data: {
-          token,
-          user,
-        },
-      }
-    );
+    return SuccessResponseFormatter.formatGetOneResponse<SuccessAuthResponse>({
+      resource: "collaborator-auth",
+      data: {
+        token,
+        user,
+      },
+    });
   }
 }

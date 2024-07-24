@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { AttendanceRecordsService } from "./attendanceRecordService";
 import { AttendanceRecordsController } from "./attendanceRecordsController";
-import { AuthMiddleware } from "../../middlewares";
+const { validateJwt } = require("../../../middlewares/validateJwt");
 
 export enum AttendanceRecordsPaths {
   all = "/",
@@ -20,7 +20,7 @@ export class AttendanceRecordsRoutes {
     const service = new AttendanceRecordsService();
     const controller = new AttendanceRecordsController(service);
 
-    router.use(AuthMiddleware.validateJWT);
+    router.use(validateJwt);
 
     router.get(AttendanceRecordsPaths.all, controller.getAttendanceRecords);
     router.get(

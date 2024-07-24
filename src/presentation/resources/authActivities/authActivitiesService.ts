@@ -1,16 +1,14 @@
-import { buildRelativePath } from "./../../../shared/helpers/miscHelpers";
-import { PaginationDto, SortingDto } from "../../../domain";
-
-import { mainRoutes } from "../../../mainRoutes";
-import { routes } from "./authActivitiesRoutes";
+import { AuthActivityModel } from "../../../data/models";
 import {
   AuthActivity,
   AuthActivityType,
   ListSuccessResponse,
   SingleSuccessResponse,
-} from "../../../shared";
-import { fetchById, fetchList } from "../../../shared/helpers";
-import { AuthActivityModel } from "../../../infrastructure";
+} from "../../../data/types";
+import { PaginationDto, SortingDto } from "../../../domain";
+import { buildRelativePath, fetchById, fetchList } from "../../../helpers";
+import { mainRoutes } from "../../../mainRoutes";
+import { routes } from "./authActivitiesRoutes";
 
 export class AuthActivitiesService {
   constructor() {}

@@ -1,42 +1,37 @@
-import { CollaboratorEntity, PublicCollaborator } from "../../domain/entities";
+import { CollaboratorEntity } from "../../domain/entities";
 import { CollaboratorRepository } from "../../domain/repositories";
-import { bcryptAdapter } from "../../infrastructure/adapters";
-
-import { CustomQueryOptions } from "../../shared/interfaces";
-
+import { Email } from "../../domain/value-objects/email.value-object";
 import { CollaboratorDTO } from "../dtos";
-import { BaseService } from "./base.service";
+import { CreateCollaborator } from "../use-cases/collaborator/create-collaborator.use-case";
 
-export class CollaboratorService extends BaseService<
-  CollaboratorEntity,
-  CollaboratorDTO
-> {
-  constructor(protected repository: CollaboratorRepository) {
-    super(repository, CollaboratorEntity);
+export class CollaboratorService {
+  constructor(private createCollaboratorUseCase: CreateCollaborator) {}
+
+  async createCollaborator(dto: CollaboratorDTO): Promise<void> {
+    const email = new Email(dto.email);
+    const collaborator = new CollaboratorEntity({
+      name: dto.name,
+      email: email.getValue(),
+      position: dto.position,
+    });
+    await this.createCollaboratorUseCase.execute(collaborator);
   }
 
-  public count = async (): Promise<number> => {
-    return await this.repository.count();
-  };
+  //   async getCollaborator(id: string): Promise<CollaboratorDTO | null> {
+  //     const collaborator = await this.collaboratorRepository.findById(id);
+  //     if (!collaborator) return null;
+  //     return {
+  //       id: collaborator.getId(),
+  //       name: collaborator.getName(),
+  //       email: collaborator.getEmail().getValue(),
+  //     };
+  //   }
 
-  public getAllPublic = async (
-    options: CustomQueryOptions
-  ): Promise<PublicCollaborator[]> => {
-    return await this.repository.getAllForWeb(options);
-  };
-
-  public register = async (
-    dto: Partial<CollaboratorDTO>
-  ): Promise<CollaboratorEntity> => {
-    return await this.repository.register(dto);
-  };
-
-  public update = async (
-    id: string,
-    dto: CollaboratorDTO
-  ): Promise<CollaboratorEntity> => {
-    if (dto.password) dto.password = bcryptAdapter.hash(dto.password);
-    const collaborator = new CollaboratorEntity(dto);
-    return await this.repository.update(id, collaborator);
-  };
+  //   async updateCollaborator(dto: CollaboratorDTO): Promise<void> {
+  //     const collaborator = await this.collaboratorRepository.findById(dto.id);
+  //     if (!collaborator) throw new Error("Collaborator not found");
+  //     collaborator.changeName(dto.name);
+  //     collaborator.changeEmail(new Email(dto.email));
+  //     await this.collaboratorRepository.update(collaborator);
+  //   }
 }
