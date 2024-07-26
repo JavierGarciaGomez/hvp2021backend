@@ -19,4 +19,6 @@ export const mainRoutes = {
   authActivities: "/api/auth-activities",
   notifications: "/api/notifications",
   products: "/api/products",
+  suppliers: "/api/suppliers",
+  controlledPrescriptions: "/api/controlled-prescriptions",
 };

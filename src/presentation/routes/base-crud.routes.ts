@@ -1,5 +1,8 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { AuthMiddleware } from "../middlewares";
+import { BaseController } from "../controllers";
+import { BaseEntity } from "../../domain";
+import { BaseDTO } from "../../application";
 
 export abstract class BaseCRUDRoutes {
   protected router: Router;
@@ -15,7 +18,9 @@ export abstract class BaseCRUDRoutes {
     return this.router;
   }
 
-  protected setupCrudRoutes(controller: any) {
+  protected setupCrudRoutes<T extends BaseEntity, DTO extends BaseDTO>(
+    controller: BaseController<T, DTO>
+  ) {
     this.router.get("/", AuthMiddleware.validateJWT, controller.getAll);
     this.router.get("/:id", AuthMiddleware.validateJWT, controller.getById);
     this.router.post("/", AuthMiddleware.validateJWT, controller.create);

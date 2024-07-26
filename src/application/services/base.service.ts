@@ -3,6 +3,7 @@ import {
   BaseEntityConstructor,
   BaseRepository,
 } from "../../domain";
+import { BaseError } from "../../shared";
 import { CustomQueryOptions } from "../../shared/interfaces";
 
 export abstract class BaseService<T extends BaseEntity, DTO> {
@@ -21,7 +22,11 @@ export abstract class BaseService<T extends BaseEntity, DTO> {
   }
 
   async getById(id: string): Promise<T> {
-    return await this.repository.getById(id);
+    const entity = await this.repository.getById(id);
+    if (!entity) {
+      throw BaseError.notFound(`${this.getResourceName()} not found`);
+    }
+    return entity;
   }
 
   async update(id: string, dto: DTO): Promise<T> {
@@ -36,4 +41,6 @@ export abstract class BaseService<T extends BaseEntity, DTO> {
   async count(): Promise<number> {
     return await this.repository.count();
   }
+
+  protected abstract getResourceName(): string;
 }

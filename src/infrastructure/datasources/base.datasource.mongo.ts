@@ -19,10 +19,10 @@ export abstract class BaseDatasourceMongoImp<T extends BaseEntity>
     return result.map(this.entity.fromDocument);
   }
 
-  async getById(id: string): Promise<T> {
+  async getById(id: string): Promise<T | null> {
     const entity = await this.model.findById(id);
     if (!entity) {
-      throw BaseError.notFound("Entity not found");
+      return null;
     }
     return this.entity.fromDocument(entity);
   }

@@ -1,7 +1,5 @@
-import { NotificationDatasource } from "../../domain";
+import { NotificationDatasource, NotificationRepository } from "../../domain";
 import { NotificationEntity } from "../../domain/entities";
-import { NotificationRepository } from "../../domain/repositories/notification.repository";
-import { CustomQueryOptions } from "../../shared/interfaces";
 import { BaseRepositoryImpl } from "./base.repository.imp";
 
 export class NotificationRepositoryImpl

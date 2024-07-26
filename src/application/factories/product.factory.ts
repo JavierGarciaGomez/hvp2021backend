@@ -4,9 +4,15 @@ import { ProductRepositoryImpl } from "../../infrastructure/repositories/product
 import { ProductService } from "../services";
 
 export const createProductService = () => {
-  const datasource = new ProductDatasourceMongoImp();
-  const repository = new ProductRepositoryImpl(datasource);
+  const repository = createProductRepository();
   const service = new ProductService(repository);
 
   return service;
+};
+
+export const createProductRepository = () => {
+  const datasource = new ProductDatasourceMongoImp();
+  const repository = new ProductRepositoryImpl(datasource);
+
+  return repository;
 };

@@ -6,8 +6,8 @@ export class ProductController extends BaseController<
   ProductEntity,
   ProductDTO
 > {
-  protected resource = "notification";
-  protected path = "/notifications";
+  protected resource = "product";
+  protected path = "/products";
   constructor(protected service: ProductService) {
     super(service, ProductDTO);
   }

@@ -38,7 +38,6 @@ export class ProductEntity implements BaseEntity {
     this.updatedBy = updatedBy;
   }
 
-  // todo
   public static fromDocument(document: ProductDocument) {
     return new ProductEntity({
       id: document.id,

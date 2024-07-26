@@ -7,4 +7,8 @@ export class ProductService extends BaseService<ProductEntity, ProductDTO> {
   constructor(protected readonly repository: ProductRepository) {
     super(repository, ProductEntity);
   }
+
+  protected getResourceName(): string {
+    return "product";
+  }
 }

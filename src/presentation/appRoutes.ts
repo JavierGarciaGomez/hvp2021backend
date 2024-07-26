@@ -23,6 +23,7 @@ import { WorkLogsRoutes } from "./resources/workLogs/workLogsRoutes";
 import { NotificationRoutes } from "./routes/notification.routes";
 import { CollaboratorRoutes } from "./routes/collaborator.routes";
 import { ProductRoutes } from "./routes/product.routes";
+import { ControlledPrescriptionRoutes, SupplierRoutes } from "./routes";
 
 export class AppRoutes {
   static get routes(): Router {
@@ -50,6 +51,11 @@ export class AppRoutes {
     router.use(mainRoutes.userClient, userClientRoutes);
     router.use(mainRoutes.userLog, userLogRoutes);
     router.use(mainRoutes.products, new ProductRoutes().getRoutes());
+    router.use(mainRoutes.suppliers, new SupplierRoutes().getRoutes());
+    router.use(
+      mainRoutes.controlledPrescriptions,
+      new ControlledPrescriptionRoutes().getRoutes()
+    );
 
     return router;
   }

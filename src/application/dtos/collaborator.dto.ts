@@ -1,6 +1,10 @@
 import { CollaboratorProps, CollaboratorRole } from "../../domain";
 import { BaseError } from "../../shared";
-import { isAlphabetical, isValidEnum } from "../../shared/helpers";
+import {
+  checkForErrors,
+  isAlphabetical,
+  isValidEnum,
+} from "../../shared/helpers";
 import { BaseDTO } from "./";
 
 export class CollaboratorDTO implements BaseDTO {
@@ -60,25 +64,19 @@ export class CollaboratorDTO implements BaseDTO {
 
   static create(data: CollaboratorProps): CollaboratorDTO {
     const errors = this.validateCreate(data);
-    if (errors.length > 0) {
-      throw BaseError.badRequest(errors.join(", "));
-    }
+    checkForErrors(errors);
     return new CollaboratorDTO(data);
   }
 
   static update(data: CollaboratorProps): CollaboratorDTO {
     const errors = this.commonValidation(data);
-    if (errors.length > 0) {
-      throw BaseError.badRequest(errors.join(", "));
-    }
+    checkForErrors(errors);
     return new CollaboratorDTO(data);
   }
 
   static register(data: Partial<CollaboratorProps>): Partial<CollaboratorDTO> {
     const errors = this.validateRegister(data);
-    if (errors.length > 0) {
-      throw BaseError.badRequest(errors.join(", "));
-    }
+    checkForErrors(errors);
     return { ...data, isRegistered: true };
   }
 

@@ -9,3 +9,5 @@ export { default as WorkLogModel } from "./WorkLogModel";
 export * from "./collaborator.model";
 export * from "./notification.model";
 export * from "./product.model";
+export * from "./supplier.model";
+export * from "./controlled-prescription-model";

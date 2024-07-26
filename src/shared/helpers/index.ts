@@ -12,3 +12,4 @@ export * from "./regexHelpers";
 export * from "./responseHelpers";
 export * from "./taskHelpers";
 export * from "./validator.helpers";
+export * from "./errors.helpers";

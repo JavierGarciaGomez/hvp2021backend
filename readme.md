@@ -17,3 +17,5 @@ application/services
 presentation/controllers
 application/factories
 presentation/routes
+mainRoutes.ts
+presentation/appRoutes.ts

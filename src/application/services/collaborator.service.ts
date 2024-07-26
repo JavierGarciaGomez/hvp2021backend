@@ -39,4 +39,8 @@ export class CollaboratorService extends BaseService<
     const collaborator = new CollaboratorEntity(dto);
     return await this.repository.update(id, collaborator);
   };
+
+  protected getResourceName(): string {
+    return "collaborator";
+  }
 }

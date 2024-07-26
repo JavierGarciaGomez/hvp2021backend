@@ -1,12 +1,12 @@
 import mongoose, { Schema } from "mongoose";
-import { ProductProps } from "../../../../domain";
+import { SupplierEntity } from "../../../../domain";
 
-export interface ProductDocument extends ProductProps, Document {}
+export interface SupplierDocument extends SupplierEntity, Document {}
 
-const ProductSchema: Schema = new Schema<ProductDocument>(
+const SupplierSchema: Schema = new Schema<SupplierDocument>(
   {
     name: { type: String, required: true },
-    description: { type: String, required: true },
+    legalName: { type: String },
     createdAt: { type: Date, default: Date.now },
     createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
     updatedAt: { type: Date, default: Date.now },
@@ -17,7 +17,7 @@ const ProductSchema: Schema = new Schema<ProductDocument>(
   }
 );
 
-export const ProductModel = mongoose.model<ProductDocument>(
-  "Product",
-  ProductSchema
+export const SupplierModel = mongoose.model<SupplierDocument>(
+  "Supplier",
+  SupplierSchema
 );

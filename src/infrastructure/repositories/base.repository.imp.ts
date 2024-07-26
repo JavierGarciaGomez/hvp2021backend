@@ -16,7 +16,7 @@ export abstract class BaseRepositoryImpl<T extends BaseEntity>
     return await this.datasource.create(entity);
   }
 
-  async getById(id: string): Promise<T> {
+  async getById(id: string): Promise<T | null> {
     return await this.datasource.getById(id);
   }
 
