@@ -18,4 +18,5 @@ export const mainRoutes = {
   billing: "/api/billing",
   authActivities: "/api/auth-activities",
   notifications: "/api/notifications",
+  products: "/api/products",
 };

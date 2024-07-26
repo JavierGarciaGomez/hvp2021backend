@@ -8,3 +8,4 @@ export { default as TimeOffRequestModel } from "./TimeOffRequestModel";
 export { default as WorkLogModel } from "./WorkLogModel";
 export * from "./collaborator.model";
 export * from "./notification.model";
+export * from "./product.model";

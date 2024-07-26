@@ -1,6 +1,7 @@
 Push to heroku
 
 git push heroku ts-migration:master
+git push heroku ts-full-update:main
 
 ## approach for creating new endpoints
 
@@ -14,4 +15,5 @@ infrastructure/datasources
 infrastructure/repositories
 application/services
 presentation/controllers
+application/factories
 presentation/routes

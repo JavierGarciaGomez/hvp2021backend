@@ -22,6 +22,7 @@ import { TimeOffRequestsRoutes } from "./resources/timeOffRequests/timeOffReques
 import { WorkLogsRoutes } from "./resources/workLogs/workLogsRoutes";
 import { NotificationRoutes } from "./routes/notification.routes";
 import { CollaboratorRoutes } from "./routes/collaborator.routes";
+import { ProductRoutes } from "./routes/product.routes";
 
 export class AppRoutes {
   static get routes(): Router {
@@ -48,6 +49,7 @@ export class AppRoutes {
     router.use(mainRoutes.workLogs, WorkLogsRoutes.routes);
     router.use(mainRoutes.userClient, userClientRoutes);
     router.use(mainRoutes.userLog, userLogRoutes);
+    router.use(mainRoutes.products, new ProductRoutes().getRoutes());
 
     return router;
   }
