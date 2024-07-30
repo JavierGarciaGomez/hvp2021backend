@@ -12,12 +12,7 @@ coverage/
 
 # Build directory
 /build
-
-
-
-/mongo-test
-
-# Ignore only the root mongo folder
+yarn.lock
 /mongo
-
-# Do not ignore nested mongo folders
+/mongo-test
+/node_modules
