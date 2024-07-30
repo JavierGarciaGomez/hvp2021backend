@@ -1,13 +1,10 @@
-import { get } from "http";
 import { Router } from "express";
 import { mainRoutes } from "../mainRoutes";
 import { cleanupsRouter } from "../pending/routes/cleanUpsRoutes";
 import {
-  activityRegisterRoutes,
   collaboratorLogRoutes,
   documentationRoutes,
   fcmRoutes,
-  miscRoutes,
   rfcRoutes,
   userClientRoutes,
   userLogRoutes,
@@ -20,10 +17,15 @@ import { BillingRoutes } from "./resources/billing/billingRoutes";
 import { TasksRoutes } from "./resources/tasks/tasksRoutes";
 import { TimeOffRequestsRoutes } from "./resources/timeOffRequests/timeOffRequestsRoutes";
 import { WorkLogsRoutes } from "./resources/workLogs/workLogsRoutes";
-import { NotificationRoutes } from "./routes/notification.routes";
-import { CollaboratorRoutes } from "./routes/collaborator.routes";
-import { ProductRoutes } from "./routes/product.routes";
-import { ControlledPrescriptionRoutes, SupplierRoutes } from "./routes";
+import {
+  ActivityRegisterRoutes,
+  ActivityRegisterTypeRoutes,
+  CollaboratorRoutes,
+  ControlledPrescriptionRoutes,
+  NotificationRoutes,
+  ProductRoutes,
+  SupplierRoutes,
+} from "./routes";
 
 export class AppRoutes {
   static get routes(): Router {
@@ -31,7 +33,7 @@ export class AppRoutes {
 
     // router.use("/api/collaborators", CollaboratorRoutes.routes);
 
-    router.use(mainRoutes.activityRegister, activityRegisterRoutes);
+    // router.use(mainRoutes.activityRegister, activityRegisterRoutes);
     router.use(mainRoutes.attendanceRecords, AttendanceRecordsRoutes.routes);
     router.use(mainRoutes.auth, AuthRoutes.routes);
     router.use(mainRoutes.authActivities, AuthActivitiesRoutes.routes);
@@ -41,7 +43,6 @@ export class AppRoutes {
     router.use(mainRoutes.collaborators, new CollaboratorRoutes().getRoutes());
     router.use(mainRoutes.documentation, documentationRoutes);
     router.use(mainRoutes.fcm, fcmRoutes);
-    router.use(mainRoutes.misc, miscRoutes);
     router.use(mainRoutes.notifications, new NotificationRoutes().getRoutes());
     router.use(mainRoutes.rfc, rfcRoutes);
     router.use(mainRoutes.tasks, TasksRoutes.routes);
@@ -55,6 +56,14 @@ export class AppRoutes {
     router.use(
       mainRoutes.controlledPrescriptions,
       new ControlledPrescriptionRoutes().getRoutes()
+    );
+    router.use(
+      mainRoutes.activityRegisterTypes,
+      new ActivityRegisterTypeRoutes().getRoutes()
+    );
+    router.use(
+      mainRoutes.activityRegister,
+      new ActivityRegisterRoutes().getRoutes()
     );
 
     return router;

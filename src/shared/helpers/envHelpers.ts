@@ -1,10 +1,10 @@
 import {
+  envsPlugin,
   commonEnvs,
   devEnvs,
-  envsPlugin,
   prodEnvs,
   testEnvs,
-} from "../../infrastructure/adapters";
+} from "../../infrastructure/adapters/envs.plugin";
 
 export const getEnvsByEnvironment = () => {
   const environment = envsPlugin.NODE_ENV;

@@ -8,7 +8,7 @@ export class ProductService extends BaseService<ProductEntity, ProductDTO> {
     super(repository, ProductEntity);
   }
 
-  protected getResourceName(): string {
+  public getResourceName(): string {
     return "product";
   }
 }

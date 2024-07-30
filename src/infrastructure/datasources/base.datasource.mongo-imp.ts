@@ -5,6 +5,7 @@ import {
   BaseDatasource,
   BaseEntity,
   BaseEntityConstructor,
+  BaseVO,
 } from "../../domain";
 
 export abstract class BaseDatasourceMongoImp<T extends BaseEntity>
@@ -52,8 +53,10 @@ export abstract class BaseDatasourceMongoImp<T extends BaseEntity>
     return id;
   }
 
-  async count(): Promise<number> {
-    return this.model.countDocuments();
+  async count(queryOptions: CustomQueryOptions): Promise<number> {
+    const { filteringDto } = queryOptions;
+
+    return this.model.countDocuments(filteringDto);
   }
 
   async exists(query: any): Promise<boolean> {

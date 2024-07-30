@@ -8,7 +8,7 @@ export class SupplierService extends BaseService<SupplierEntity, SupplierDTO> {
     super(repository, SupplierEntity);
   }
 
-  protected getResourceName(): string {
+  public getResourceName(): string {
     return "supplier";
   }
 }

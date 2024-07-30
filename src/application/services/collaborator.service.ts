@@ -15,10 +15,6 @@ export class CollaboratorService extends BaseService<
     super(repository, CollaboratorEntity);
   }
 
-  public count = async (): Promise<number> => {
-    return await this.repository.count();
-  };
-
   public getAllPublic = async (
     options: CustomQueryOptions
   ): Promise<PublicCollaborator[]> => {
@@ -40,7 +36,7 @@ export class CollaboratorService extends BaseService<
     return await this.repository.update(id, collaborator);
   };
 
-  protected getResourceName(): string {
+  public getResourceName(): string {
     return "collaborator";
   }
 }

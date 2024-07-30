@@ -114,7 +114,7 @@ export class NotificationService extends BaseService<
     });
   };
 
-  protected getResourceName(): string {
+  public getResourceName(): string {
     return "notification";
   }
 }

@@ -12,7 +12,7 @@ export class ControlledPrescriptionService extends BaseService<
   ControlledPrescriptionEntity,
   ControlledPrescriptionDTO
 > {
-  protected getResourceName(): string {
+  public getResourceName(): string {
     return "ControlledPrescription";
   }
   constructor(protected readonly repository: ControlledPrescriptionRepository) {

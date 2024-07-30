@@ -7,7 +7,7 @@ import { BaseError } from "../../shared";
 import { getAllHelper } from "../../shared/helpers";
 import { CustomQueryOptions } from "../../shared/interfaces";
 import { CollaboratorModel } from "../db";
-import { BaseDatasourceMongoImp } from "./base.datasource.mongo";
+import { BaseDatasourceMongoImp } from "./base.datasource.mongo-imp";
 
 export class CollaboratorDataSourceMongoImp
   extends BaseDatasourceMongoImp<CollaboratorEntity>

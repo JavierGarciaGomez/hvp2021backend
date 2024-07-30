@@ -2,7 +2,7 @@ import { ControlledPrescriptionDatasource } from "../../domain";
 import { ControlledPrescriptionEntity } from "../../domain/entities";
 import { ControlledPrescriptionModel } from "../db";
 
-import { BaseDatasourceMongoImp } from "./base.datasource.mongo";
+import { BaseDatasourceMongoImp } from "./base.datasource.mongo-imp";
 
 export class ControlledPrescriptionDataSourceMongoImp
   extends BaseDatasourceMongoImp<ControlledPrescriptionEntity>

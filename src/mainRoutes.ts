@@ -5,7 +5,6 @@ export const mainRoutes = {
   rfc: "/api/rfc",
   collaboratorLog: "/api/collaboratorLog",
   userLog: "/api/userLog",
-  activityRegister: "/api/activityRegister",
   misc: "/api/misc",
   documentation: "/api/documentation",
   fcm: "/api/fcm",
@@ -21,4 +20,6 @@ export const mainRoutes = {
   products: "/api/products",
   suppliers: "/api/suppliers",
   controlledPrescriptions: "/api/controlled-prescriptions",
+  activityRegisterTypes: "/api/activity-register-types",
+  activityRegister: "/api/activity-register",
 };

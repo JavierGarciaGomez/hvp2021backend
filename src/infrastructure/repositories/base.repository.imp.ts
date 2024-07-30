@@ -28,8 +28,8 @@ export abstract class BaseRepositoryImpl<T extends BaseEntity>
     return await this.datasource.delete(id);
   }
 
-  async count(): Promise<number> {
-    return await this.datasource.count();
+  async count(queryOptions: CustomQueryOptions): Promise<number> {
+    return await this.datasource.count(queryOptions);
   }
 
   async exists(query: any): Promise<boolean> {

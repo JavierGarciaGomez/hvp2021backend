@@ -49,7 +49,7 @@ export abstract class BaseController<
       const query = req.query;
       const options = buildQueryOptions(query);
       const result = await this.service.getAll(options);
-      const count = await this.service.count();
+      const count = await this.service.count(options);
       const response = ResponseFormatterService.formatListResponse({
         data: result,
         page: options.paginationDto.page ?? 1,

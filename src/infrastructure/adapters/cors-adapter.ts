@@ -1,5 +1,5 @@
-import cors from "cors";
 import { getEnvsByEnvironment } from "../../shared/helpers/envHelpers";
+import cors from "cors";
 
 const corsOptions = {
   origin: [

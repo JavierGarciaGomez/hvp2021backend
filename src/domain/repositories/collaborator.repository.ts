@@ -10,5 +10,4 @@ export abstract class CollaboratorRepository extends BaseRepository<Collaborator
     options: CustomQueryOptions
   ): Promise<PublicCollaborator[]>;
   abstract delete(id: string): Promise<string>;
-  abstract count(): Promise<number>;
 }

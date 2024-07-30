@@ -5,3 +5,5 @@ export * from "./notification.service";
 export * from "./product.service";
 export * from "./response-formatter.service";
 export * from "./supplier.service";
+export * from "./activity-register-type.service";
+export * from "./activity-register.service";

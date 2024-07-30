@@ -1,5 +1,6 @@
 import { BaseDTO } from "./base.dto";
 import { SupplierProps } from "../../domain/entities";
+import { checkForErrors } from "../../shared";
 
 export class SupplierDTO implements BaseDTO {
   name: string;
@@ -26,6 +27,14 @@ export class SupplierDTO implements BaseDTO {
   }
 
   static create(data: SupplierProps): SupplierDTO {
+    const { name } = data;
+
+    const errors = [];
+    if (!name) {
+      errors.push("Name is required");
+    }
+
+    checkForErrors(errors);
     return this.validate(data);
   }
 
@@ -34,13 +43,6 @@ export class SupplierDTO implements BaseDTO {
   }
 
   private static validate(data: SupplierProps): SupplierDTO {
-    const { name } = data;
-
-    const errors = [];
-    if (!name) {
-      errors.push("Name is required");
-    }
-
     return new SupplierDTO({ ...data });
   }
 }

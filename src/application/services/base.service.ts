@@ -2,14 +2,19 @@ import {
   BaseEntity,
   BaseEntityConstructor,
   BaseRepository,
+  BaseVO,
+  BaseVOConstructor,
 } from "../../domain";
+
 import { BaseError } from "../../shared";
 import { CustomQueryOptions } from "../../shared/interfaces";
 
-export abstract class BaseService<T extends BaseEntity, DTO> {
+export abstract class BaseService<T extends BaseEntity | BaseVO, DTO> {
   constructor(
     protected readonly repository: BaseRepository<T>,
-    protected readonly entityClass: BaseEntityConstructor<T>
+    protected readonly entityClass:
+      | BaseEntityConstructor<T>
+      | BaseVOConstructor<T>
   ) {}
 
   public create = async (dto: DTO): Promise<T> => {
@@ -38,9 +43,9 @@ export abstract class BaseService<T extends BaseEntity, DTO> {
     return await this.repository.delete(id);
   }
 
-  async count(): Promise<number> {
-    return await this.repository.count();
+  async count(queryOptions: CustomQueryOptions): Promise<number> {
+    return await this.repository.count(queryOptions);
   }
 
-  protected abstract getResourceName(): string;
+  public abstract getResourceName(): string;
 }

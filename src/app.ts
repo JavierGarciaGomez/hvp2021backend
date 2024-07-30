@@ -10,6 +10,7 @@ import { getEnvsByEnvironment } from "./shared/helpers/";
 
 async function main() {
   const { MONGO_URL, MONGO_DB_NAME } = getEnvsByEnvironment();
+
   await MongoDatabase.connect({
     mongoUrl: MONGO_URL,
     dbName: MONGO_DB_NAME,
