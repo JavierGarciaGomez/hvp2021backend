@@ -40,9 +40,6 @@ export class ProductDTO implements BaseDTO {
     if (!name) {
       errors.push("Name is required");
     }
-    if (!description) {
-      errors.push("Description is required");
-    }
 
     if (errors.length) {
       throw new Error(errors.join(", "));

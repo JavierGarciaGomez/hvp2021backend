@@ -56,7 +56,9 @@ export class ActivityRegisterEntity implements BaseEntity {
   public static fromDocument(document: ActivityRegisterDocument) {
     return new ActivityRegisterEntity({
       id: document.id,
-      collaborator: document.collaborator.toString(),
+      collaborator: document.collaborator
+        ? document.collaborator.toString()
+        : "",
       activity: document.activity,
       desc: document.desc,
       startingTime: document.startingTime,
