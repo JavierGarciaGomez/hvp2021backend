@@ -1,3 +1,4 @@
+import { ControlledPrescriptionStatus } from "../enums";
 import { ControlledPrescriptionDocument } from "./../../infrastructure/db/mongo/models/controlled-prescription-model";
 import { BaseEntity } from "./base.entity";
 
@@ -19,6 +20,7 @@ export interface ControlledPrescriptionProps {
   date: Date;
   number: number;
   use: "internal" | "external";
+  status: ControlledPrescriptionStatus;
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
@@ -35,6 +37,7 @@ export class ControlledPrescriptionEntity implements BaseEntity {
   date: Date;
   number: number;
   use: "internal" | "external";
+  status: "pending" | "generated" | "delivered";
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
@@ -47,6 +50,7 @@ export class ControlledPrescriptionEntity implements BaseEntity {
     date,
     number,
     use,
+    status,
     createdAt,
     createdBy,
     updatedAt,
@@ -58,6 +62,7 @@ export class ControlledPrescriptionEntity implements BaseEntity {
     this.date = date;
     this.number = number;
     this.use = use;
+    this.status = status;
     this.createdAt = createdAt;
     this.createdBy = createdBy;
     this.updatedAt = updatedAt;
@@ -82,6 +87,7 @@ export class ControlledPrescriptionEntity implements BaseEntity {
       date: document.date,
       number: document.number,
       use: document.use,
+      status: document.status,
       createdAt: document.createdAt,
       createdBy: document.createdBy,
       updatedAt: document.updatedAt,

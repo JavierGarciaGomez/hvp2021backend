@@ -3,6 +3,8 @@ import {
   ControlledPrescriptionItem,
   ControlledPrescriptionProps,
 } from "../../domain/entities";
+import { ControlledPrescriptionStatus } from "../../domain";
+import { isValidEnum } from "../../shared";
 
 export class ControlledPrescriptionDTO implements BaseDTO {
   id?: string;
@@ -14,6 +16,7 @@ export class ControlledPrescriptionDTO implements BaseDTO {
   date: Date;
   number: number;
   use: "internal" | "external";
+  status: ControlledPrescriptionStatus;
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
@@ -26,6 +29,7 @@ export class ControlledPrescriptionDTO implements BaseDTO {
     date,
     number,
     use,
+    status,
     createdAt,
     createdBy,
     updatedAt,
@@ -37,6 +41,7 @@ export class ControlledPrescriptionDTO implements BaseDTO {
     this.date = date;
     this.number = number;
     this.use = use;
+    this.status = status;
     this.createdAt = createdAt;
     this.createdBy = createdBy;
     this.updatedAt = updatedAt;
@@ -56,6 +61,12 @@ export class ControlledPrescriptionDTO implements BaseDTO {
     data: ControlledPrescriptionProps
   ): ControlledPrescriptionDTO {
     const errors = [];
+    if (!data.status) {
+      data.status = ControlledPrescriptionStatus.Pending;
+    } else if (!isValidEnum(ControlledPrescriptionStatus, data.status)) {
+      errors.push("Invalid status");
+    }
+
     if (!data.supplier) {
       errors.push("Supplier is required");
     }

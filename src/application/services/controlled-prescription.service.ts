@@ -1,12 +1,15 @@
 import { ControlledPrescriptionEntity } from "../../domain/entities";
 import { BaseService } from "./base.service";
-import { ControlledPrescriptionRepository } from "../../domain";
+import {
+  ControlledPrescriptionRepository,
+  ControlledPrescriptionStatus,
+} from "../../domain";
 import { ControlledPrescriptionDTO } from "../dtos";
 import {
   createProductRepository,
   createSupplierRepository,
 } from "../factories";
-import { BaseError } from "../../shared";
+import { BaseError, getOptionFromEnum } from "../../shared";
 
 export class ControlledPrescriptionService extends BaseService<
   ControlledPrescriptionEntity,
@@ -57,5 +60,9 @@ export class ControlledPrescriptionService extends BaseService<
     });
 
     return await this.repository.create(newPrescription);
+  };
+
+  public getStatusOptions = () => {
+    return getOptionFromEnum(ControlledPrescriptionStatus);
   };
 }

@@ -1,5 +1,8 @@
 import mongoose, { Schema } from "mongoose";
-import { ControlledPrescriptionProps } from "../../../../domain";
+import {
+  ControlledPrescriptionProps,
+  ControlledPrescriptionStatus,
+} from "../../../../domain";
 
 export interface ControlledPrescriptionDocument
   extends ControlledPrescriptionProps,
@@ -10,7 +13,7 @@ const ControlledPrescriptionSchema: Schema =
     {
       supplier: {
         id: { type: Schema.Types.ObjectId, ref: "Supplier", required: true },
-        legalName: { type: String, required: true },
+        legalName: { type: String },
       },
       products: [
         {
@@ -24,6 +27,11 @@ const ControlledPrescriptionSchema: Schema =
       date: { type: Date, required: true },
       number: { type: Number, required: true },
       use: { type: String, enum: ["internal", "external"], required: true },
+      status: {
+        type: String,
+        enum: Object.values(ControlledPrescriptionStatus),
+        default: ControlledPrescriptionStatus.Pending,
+      },
       createdAt: { type: Date, default: Date.now },
       createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
       updatedAt: { type: Date, default: Date.now },

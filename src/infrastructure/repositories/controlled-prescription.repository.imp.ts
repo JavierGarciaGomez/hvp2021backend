@@ -3,6 +3,7 @@ import {
   ControlledPrescriptionRepository,
 } from "../../domain";
 import { ControlledPrescriptionEntity } from "../../domain/entities";
+import { IOption } from "../../shared";
 import { BaseRepositoryImpl } from "./base.repository.imp";
 
 export class ControlledPrescriptionRepositoryImpl
