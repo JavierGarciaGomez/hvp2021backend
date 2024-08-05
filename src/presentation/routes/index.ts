@@ -6,3 +6,4 @@ export * from "./controlled-prescription.routes";
 export * from "./notification.routes";
 export * from "./product.routes";
 export * from "./supplier.routes";
+export * from "./missing-product.routes";

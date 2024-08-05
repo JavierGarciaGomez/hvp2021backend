@@ -25,6 +25,7 @@ import {
   NotificationRoutes,
   ProductRoutes,
   SupplierRoutes,
+  MissingProductRoutes,
 } from "./routes";
 
 export class AppRoutes {
@@ -64,6 +65,10 @@ export class AppRoutes {
     router.use(
       mainRoutes.activityRegister,
       new ActivityRegisterRoutes().getRoutes()
+    );
+    router.use(
+      mainRoutes.missingProducts,
+      new MissingProductRoutes().getRoutes()
     );
 
     return router;

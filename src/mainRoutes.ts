@@ -22,4 +22,5 @@ export const mainRoutes = {
   controlledPrescriptions: "/api/controlled-prescriptions",
   activityRegisterTypes: "/api/activity-register-types",
   activityRegister: "/api/activity-register",
+  missingProducts: "/api/missing-products",
 };

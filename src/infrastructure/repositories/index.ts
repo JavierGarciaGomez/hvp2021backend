@@ -6,3 +6,4 @@ export * from "./notification.repository.imp";
 export * from "./product.repository.imp";
 export * from "./supplier.repository.imp";
 export * from "./activity-register.repository.imp";
+export * from "./missing-product.repository.imp";

@@ -19,5 +19,3 @@ application/factories
 presentation/routes
 mainRoutes.ts
 presentation/appRoutes.ts
-activity-register
-ActivityRegister

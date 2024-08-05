@@ -6,3 +6,4 @@ export * from "./controlled-prescription.repository";
 export * from "./notification.repository";
 export * from "./product.repository";
 export * from "./supplier.repository";
+export * from "./missing-product.repository";

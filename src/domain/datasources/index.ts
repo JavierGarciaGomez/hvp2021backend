@@ -6,3 +6,4 @@ export * from "./controlled-prescription.datasource";
 export * from "./notification.datasource";
 export * from "./product.datasource";
 export * from "./supplier.datasource";
+export * from "./missing-product.datasource";

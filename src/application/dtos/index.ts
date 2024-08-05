@@ -6,3 +6,4 @@ export * from "./product.dto";
 export * from "./supplier.dto";
 export * from "./controlled-prescription.dto";
 export * from "./activity-register.dto";
+export * from "./missing-product.dto";

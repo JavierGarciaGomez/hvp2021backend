@@ -13,3 +13,4 @@ export * from "./controlled-prescription-model";
 export * from "./notification.model";
 export * from "./product.model";
 export * from "./supplier.model";
+export * from "./missing-product.model";

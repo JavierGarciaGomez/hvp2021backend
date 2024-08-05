@@ -6,3 +6,4 @@ export * from "./controlled-prescription.controller";
 export * from "./notification.controller";
 export * from "./product.controller";
 export * from "./supplier.controller";
+export * from "./missing-product.controller";

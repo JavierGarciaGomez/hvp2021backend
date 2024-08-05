@@ -7,3 +7,4 @@ export * from "./response-formatter.service";
 export * from "./supplier.service";
 export * from "./activity-register-type.service";
 export * from "./activity-register.service";
+export * from "./missing-product.service";
