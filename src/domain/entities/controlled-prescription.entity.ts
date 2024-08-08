@@ -37,7 +37,7 @@ export class ControlledPrescriptionEntity implements BaseEntity {
   date: Date;
   number: number;
   use: "internal" | "external";
-  status: "pending" | "generated" | "delivered";
+  status: ControlledPrescriptionStatus;
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
