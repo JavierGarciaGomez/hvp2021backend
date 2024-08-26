@@ -225,7 +225,7 @@ export class AuthService {
 
   public async collaboratorRegister(dto: CollaboratorRegisterDto) {
     try {
-      const { email, password, col_code, access_code: access_code } = dto.data;
+      const { email, password, col_code, accessCode: access_code } = dto.data;
       const usedEmail = await CollaboratorModel.findOne({ email });
       if (usedEmail) {
         throw BaseError.badRequest("Email already in use");

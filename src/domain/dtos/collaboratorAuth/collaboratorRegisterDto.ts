@@ -5,13 +5,13 @@ interface Options {
   email: string;
   password: string;
   col_code: string;
-  access_code: string;
+  accessCode: string;
 }
 
 export class CollaboratorRegisterDto {
   private constructor(public readonly data: Readonly<Options>) {}
   static register(data: Options): CollaboratorRegisterDto {
-    const { email, password, col_code, access_code } = data;
+    const { email, password, col_code, accessCode } = data;
     if (!email || !password) {
       throw BaseError.badRequest("Email and password are required");
     }
@@ -21,7 +21,7 @@ export class CollaboratorRegisterDto {
     if (password.length < 5) {
       throw BaseError.badRequest("Password must have at least 5 characters");
     }
-    if (!col_code || !access_code) {
+    if (!col_code || !accessCode) {
       throw BaseError.badRequest(
         "Colaborator code and access code are required"
       );

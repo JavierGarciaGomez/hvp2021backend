@@ -15,9 +15,9 @@ export class CollaboratorRoutes extends BaseCRUDRoutes {
     const service = new CollaboratorService(repository);
     const controller = new CollaboratorController(service);
 
+    this.router.get("/getAllForWeb", controller.getAllPublic);
     this.setupCrudRoutes(controller);
     this.router.patch("/register", controller.register);
-    this.router.get("/getAllForWeb", controller.getAllPublic);
     // todo this should be removed
     this.router.post("/create", AuthMiddleware.validateJWT, controller.create);
   }

@@ -12,6 +12,7 @@ coverage/
 
 # Build directory
 /build
+/dist
 yarn.lock
 /mongo
 /mongo-test
