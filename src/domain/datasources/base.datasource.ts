@@ -8,5 +8,6 @@ export abstract class BaseDatasource<T> {
   abstract delete(id: string): Promise<string>;
   abstract count(queryOptions: CustomQueryOptions): Promise<number>;
   abstract createMany(entities: T[]): Promise<T[]>;
+  abstract updateMany(entities: T[]): Promise<T[]>;
   abstract exists(query: any): Promise<boolean>;
 }

@@ -225,7 +225,7 @@ export class AuthService {
 
   public async collaboratorRegister(dto: CollaboratorRegisterDto) {
     try {
-      const { email, password, col_code, accessCode: access_code } = dto.data;
+      const { email, password, col_code, accessCode } = dto.data;
       const usedEmail = await CollaboratorModel.findOne({ email });
       if (usedEmail) {
         throw BaseError.badRequest("Email already in use");
@@ -234,7 +234,7 @@ export class AuthService {
       if (!collaborator) {
         throw BaseError.notFound("Collaborator not found");
       }
-      if (collaborator.accessCode !== access_code) {
+      if (collaborator.accessCode !== accessCode) {
         throw BaseError.unauthorized("Invalid access code");
       }
       if (collaborator.isRegistered) {

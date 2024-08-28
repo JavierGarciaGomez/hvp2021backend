@@ -39,4 +39,8 @@ export abstract class BaseRepositoryImpl<T extends BaseEntity>
   async createMany(entities: T[]): Promise<T[]> {
     return await this.datasource.createMany(entities);
   }
+
+  async updateMany(entities: T[]): Promise<T[]> {
+    return await this.datasource.updateMany(entities);
+  }
 }
