@@ -26,6 +26,7 @@ interface ListSuccessResponse<T> extends CommonSuccessResponse<T[]> {
 
 interface UpdateManySuccessResponse<T> extends CommonSuccessResponse<T[]> {}
 
+interface CreateManySuccessResponse<T> extends CommonSuccessResponse<T[]> {}
 export interface SingleSuccessResponse<T> extends CommonSuccessResponse<T> {}
 
 interface FormatListResponseParams<T> {
@@ -43,6 +44,11 @@ interface FormatSingleResponseParams<T> {
 }
 
 interface FormatUpdateManyResponseParams<T> {
+  data: T[];
+  resource: string;
+}
+
+interface FormatCreateManyResponseParams<T> {
   data: T[];
   resource: string;
 }
@@ -131,6 +137,20 @@ export class ResponseFormatterService {
       resource: resource,
       operation: "delete",
       data: data,
+    };
+  }
+
+  static formatCreateManyResponse<T>(
+    options: FormatCreateManyResponseParams<T>
+  ): CreateManySuccessResponse<T> {
+    const { data, resource } = options;
+    return {
+      ok: true,
+      status_code: HttpStatusCode.CREATED,
+      status: HttpStatusCode[HttpStatusCode.CREATED],
+      resource: resource,
+      operation: "addMany",
+      data,
     };
   }
 

@@ -121,6 +121,24 @@ export abstract class BaseController<
     }
   };
 
+  public createMany = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> => {
+    try {
+      const body = req.body;
+      const result = await this.service.createMany(body);
+      const response = ResponseFormatterService.formatCreateManyResponse<T>({
+        data: result,
+        resource: this.resource,
+      });
+      return res.status(response.status_code).json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public updateMany = async (
     req: AuthenticatedRequest,
     res: Response,

@@ -51,5 +51,9 @@ export abstract class BaseService<T extends BaseEntity | BaseVO, DTO> {
     return await this.repository.updateMany(entities);
   }
 
+  async createMany(entities: T[]): Promise<T[]> {
+    return await this.repository.createMany(entities);
+  }
+
   public abstract getResourceName(): string;
 }

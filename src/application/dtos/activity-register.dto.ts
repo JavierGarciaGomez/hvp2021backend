@@ -26,6 +26,10 @@ export class ActivityRegisterDTO implements BaseDTO {
     return ActivityRegisterDTO.validate(data);
   }
 
+  static createMany(data: ActivityRegisterProps[]): ActivityRegisterDTO[] {
+    return data.map((item) => this.validate(item));
+  }
+
   private static validate(data: ActivityRegisterProps): ActivityRegisterDTO {
     const errors = ActivityRegisterDTO.getValidationErrors(data);
     checkForErrors(errors);

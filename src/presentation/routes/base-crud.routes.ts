@@ -27,5 +27,10 @@ export abstract class BaseCRUDRoutes {
     this.router.patch("/:id", AuthMiddleware.validateJWT, controller.update);
     this.router.delete("/:id", AuthMiddleware.validateJWT, controller.delete);
     this.router.patch("/", AuthMiddleware.validateJWT, controller.updateMany);
+    this.router.post(
+      "/bulk",
+      AuthMiddleware.validateJWT,
+      controller.createMany
+    );
   }
 }
