@@ -1,5 +1,5 @@
-import { CollaboratorRole } from "../../domain";
+import { WebAppRole } from "../../domain";
 
-export const isManagerOrAdmin = (role: CollaboratorRole) => {
-  return role === CollaboratorRole.manager || role === CollaboratorRole.admin;
+export const isManagerOrAdmin = (role: WebAppRole) => {
+  return role === WebAppRole.manager || role === WebAppRole.admin;
 };

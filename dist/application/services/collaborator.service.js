@@ -17,9 +17,6 @@ class CollaboratorService extends base_service_1.BaseService {
     constructor(repository) {
         super(repository, entities_1.CollaboratorEntity);
         this.repository = repository;
-        this.count = () => __awaiter(this, void 0, void 0, function* () {
-            return yield this.repository.count();
-        });
         this.getAllPublic = (options) => __awaiter(this, void 0, void 0, function* () {
             return yield this.repository.getAllForWeb(options);
         });
@@ -32,6 +29,9 @@ class CollaboratorService extends base_service_1.BaseService {
             const collaborator = new entities_1.CollaboratorEntity(dto);
             return yield this.repository.update(id, collaborator);
         });
+    }
+    getResourceName() {
+        return "collaborator";
     }
 }
 exports.CollaboratorService = CollaboratorService;

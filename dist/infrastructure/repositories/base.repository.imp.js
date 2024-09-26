@@ -39,9 +39,9 @@ class BaseRepositoryImpl {
             return yield this.datasource.delete(id);
         });
     }
-    count() {
+    count(queryOptions) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.datasource.count();
+            return yield this.datasource.count(queryOptions);
         });
     }
     exists(query) {
@@ -52,6 +52,11 @@ class BaseRepositoryImpl {
     createMany(entities) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.datasource.createMany(entities);
+        });
+    }
+    updateMany(entities) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.datasource.updateMany(entities);
         });
     }
 }

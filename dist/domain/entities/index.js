@@ -18,3 +18,8 @@ __exportStar(require("./base.entity"), exports);
 __exportStar(require("./collaborator.entity"), exports);
 __exportStar(require("./user.entity"), exports);
 __exportStar(require("./notification.entity"), exports);
+__exportStar(require("./product.entity"), exports);
+__exportStar(require("./supplier.entity"), exports);
+__exportStar(require("./controlled-prescription.entity"), exports);
+__exportStar(require("./activity-register.entity"), exports);
+__exportStar(require("./missing-product.entity"), exports);

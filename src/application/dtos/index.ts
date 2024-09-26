@@ -7,3 +7,8 @@ export * from "./supplier.dto";
 export * from "./controlled-prescription.dto";
 export * from "./activity-register.dto";
 export * from "./missing-product.dto";
+export * from "./branch.dto";
+export * from "./week-shift.dto";
+export * from "./job.dto";
+export * from "./public-holidays.dto";
+export * from "./salary-data.dto";

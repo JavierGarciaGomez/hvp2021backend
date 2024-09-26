@@ -1,33 +1,15 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
-import { CollaboratorRole } from "../../../../domain/enums";
+import {
+  Degree,
+  Gender,
+  PaymentType,
+  WebAppRole,
+} from "../../../../domain/enums";
+import { AddressSchema, CollaboratorProps } from "../../../../domain";
 
-export interface CollaboratorDocument extends Document {
-  id?: string;
-  first_name: string;
-  last_name: string;
-  role: CollaboratorRole;
-  col_code: string;
-  col_numId?: number;
-  isActive: boolean;
-  gender?: string;
-  imgUrl?: string;
-  accessCode?: string;
-  isRegistered: boolean;
-  email?: string;
-  password?: string;
-  position?: string;
-  isDisplayedWeb: boolean;
-  textPresentation?: string;
-  registeredDate: Date;
-  lastLogin?: Date;
-  startDate?: Date;
-  endDate?: Date;
-  vacationsTakenBefore2021?: number;
-  createdAt?: Date;
-  createdBy?: string;
-  updatedAt?: Date;
-  updatedBy?: string;
-}
+export interface CollaboratorDocument
+  extends Omit<CollaboratorProps, "_id">,
+    Omit<Document, "id"> {}
 
 const CollaboratorSchema: Schema = new Schema<CollaboratorDocument>(
   {
@@ -39,25 +21,50 @@ const CollaboratorSchema: Schema = new Schema<CollaboratorDocument>(
       type: String,
       required: true,
     },
-    role: {
-      type: String,
-      enum: CollaboratorRole,
-      default: CollaboratorRole.collaborator,
-    },
-    col_code: {
-      type: String,
-      required: true,
-    },
-    col_numId: {
-      type: Number,
-    },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
     gender: {
       type: String,
+      enum: Gender,
+      required: false,
     },
+    email: {
+      type: String,
+      required: false,
+    },
+    phoneNumber: {
+      type: String,
+      required: false,
+    },
+    phoneNumber2: {
+      type: String,
+      required: false,
+    },
+    address: AddressSchema,
+    curp: {
+      type: String,
+      required: false,
+    },
+    imssNumber: {
+      type: String,
+      required: false,
+    },
+    rfcCode: {
+      type: String,
+      required: false,
+    },
+    emergencyContact: {
+      type: String,
+      required: false,
+    },
+    emergencyContactPhone: {
+      type: String,
+      required: false,
+    },
+    role: {
+      type: String,
+      enum: WebAppRole,
+      default: WebAppRole.collaborator,
+    },
+
     imgUrl: {
       type: String,
     },
@@ -67,13 +74,7 @@ const CollaboratorSchema: Schema = new Schema<CollaboratorDocument>(
     isRegistered: {
       type: Boolean,
     },
-    email: {
-      type: String,
-    },
     password: {
-      type: String,
-    },
-    position: {
       type: String,
     },
     isDisplayedWeb: {
@@ -92,15 +93,58 @@ const CollaboratorSchema: Schema = new Schema<CollaboratorDocument>(
     lastLogin: {
       type: Date,
     },
-    // VacationDays
+    vacationsTakenBefore2021: {
+      type: Number,
+    },
+    col_code: {
+      type: String,
+      required: true,
+    },
+    col_numId: {
+      type: Number,
+      required: false,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
     startDate: {
       type: Date,
     },
     endDate: {
       type: Date,
     },
-    vacationsTakenBefore2021: {
+    position: {
+      type: String,
+    },
+    coverShift: {
+      type: Boolean,
+    },
+    weeklyHours: {
       type: Number,
+    },
+    jobId: {
+      type: String,
+    },
+    contractDate: {
+      type: Date,
+    },
+    hasIMSS: {
+      type: Boolean,
+    },
+    imssEnrollmentDate: {
+      type: Date,
+    },
+    paymentType: {
+      type: String,
+      enum: PaymentType,
+    },
+    additionalCompensation: {
+      type: Number,
+    },
+    degree: {
+      type: String,
+      enum: Degree,
     },
     createdAt: { type: Date, default: Date.now },
     createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },

@@ -16,5 +16,11 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./base.service"), exports);
 __exportStar(require("./collaborator.service"), exports);
+__exportStar(require("./controlled-prescription.service"), exports);
 __exportStar(require("./notification.service"), exports);
+__exportStar(require("./product.service"), exports);
 __exportStar(require("./response-formatter.service"), exports);
+__exportStar(require("./supplier.service"), exports);
+__exportStar(require("./activity-register-type.service"), exports);
+__exportStar(require("./activity-register.service"), exports);
+__exportStar(require("./missing-product.service"), exports);

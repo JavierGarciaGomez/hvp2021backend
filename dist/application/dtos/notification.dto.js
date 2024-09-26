@@ -45,9 +45,7 @@ class NotificationDto {
             !(0, helpers_1.isValidEnum)(enums_1.NotificationReferenceType, referenceType)) {
             errors.push("ReferenceType must be of type NotificationReferenceType");
         }
-        if (errors.length) {
-            throw new Error(errors.join(", "));
-        }
+        (0, helpers_1.checkForErrors)(errors);
         return new NotificationDto(Object.assign({}, data));
     }
 }

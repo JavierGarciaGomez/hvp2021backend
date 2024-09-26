@@ -1,4 +1,11 @@
-import { CollaboratorProps, CollaboratorRole } from "../../domain";
+import {
+  AddressVO,
+  CollaboratorProps,
+  Degree,
+  Gender,
+  PaymentType,
+  WebAppRole,
+} from "../../domain";
 import { BaseError } from "../../shared";
 import {
   checkForErrors,
@@ -9,26 +16,54 @@ import { BaseDTO } from "./";
 
 export class CollaboratorDTO implements BaseDTO {
   id?: string;
+  _id?: string;
   first_name: string;
   last_name: string;
-  role: CollaboratorRole;
-  col_code: string;
-  col_numId?: number;
-  isActive: boolean;
-  gender?: string;
+  gender?: Gender;
+  email?: string;
+  phoneNumber?: string;
+  phoneNumber2?: string;
+  address?: AddressVO;
+  curp?: string;
+  imssNumber?: string;
+  rfcCode?: string;
+  emergencyContact?: string;
+  emergencyContactPhone?: string;
+
+  // webApp information
+  role: WebAppRole;
   imgUrl?: string;
   accessCode?: string;
   isRegistered: boolean;
-  email?: string;
   password?: string;
-  position?: string;
   isDisplayedWeb: boolean;
   textPresentation?: string;
   registeredDate?: Date;
+  // TODO: remove this
   lastLogin?: Date;
+  vacationsTakenBefore2021?: number;
+
+  // Job information
+  col_code: string;
+  col_numId?: number;
+  // this could be computed
+  isActive: boolean;
   startDate?: Date;
   endDate?: Date;
-  vacationsTakenBefore2021?: number;
+  // TODO: remove this
+  position?: string;
+  coverShift?: boolean;
+  weeklyHours?: number;
+  jobId?: string;
+  contractDate?: Date;
+  hasIMSS?: boolean;
+  imssEnrollmentDate?: Date;
+  // Payroll information
+  // TODO: set in a parameter the value of the compensation
+  paymentType?: PaymentType;
+  additionalCompensation?: number; // based in the hours he goes
+  // TODO: enum
+  degree?: Degree;
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
@@ -101,7 +136,7 @@ export class CollaboratorDTO implements BaseDTO {
 
   private static commonValidation(data: Partial<CollaboratorProps>): string[] {
     const errors: string[] = [];
-    if (data.role && !isValidEnum(CollaboratorRole, data.role)) {
+    if (data.role && !isValidEnum(WebAppRole, data.role)) {
       errors.push("Role must be of type CollaboratorRole");
     }
     if (data.password && data.password.length < 6) {

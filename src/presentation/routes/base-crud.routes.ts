@@ -18,8 +18,8 @@ export abstract class BaseCRUDRoutes {
     return this.router;
   }
 
-  protected setupCrudRoutes<T extends BaseEntity, DTO extends BaseDTO>(
-    controller: BaseController<T, DTO>
+  protected setupCrudRoutes<T extends BaseEntity, DTO extends BaseDTO, R = T>(
+    controller: BaseController<T, DTO, R>
   ) {
     this.router.get("/", AuthMiddleware.validateJWT, controller.getAll);
     this.router.get("/:id", AuthMiddleware.validateJWT, controller.getById);

@@ -14,8 +14,8 @@ const domain_1 = require("../../domain");
 const shared_1 = require("../../shared");
 const helpers_1 = require("../../shared/helpers");
 const db_1 = require("../db");
-const base_datasource_mongo_1 = require("./base.datasource.mongo");
-class CollaboratorDataSourceMongoImp extends base_datasource_mongo_1.BaseDatasourceMongoImp {
+const base_datasource_mongo_imp_1 = require("./base.datasource.mongo-imp");
+class CollaboratorDataSourceMongoImp extends base_datasource_mongo_imp_1.BaseDatasourceMongoImp {
     constructor() {
         super(db_1.CollaboratorModel, domain_1.CollaboratorEntity);
     }

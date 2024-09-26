@@ -39,7 +39,7 @@ class BaseController {
                 const query = req.query;
                 const options = (0, helpers_1.buildQueryOptions)(query);
                 const result = yield this.service.getAll(options);
-                const count = yield this.service.count();
+                const count = yield this.service.count(options);
                 const response = application_1.ResponseFormatterService.formatListResponse({
                     data: result,
                     page: (_a = options.paginationDto.page) !== null && _a !== void 0 ? _a : 1,
@@ -91,6 +91,34 @@ class BaseController {
                 const { id } = req.params;
                 const result = yield this.service.delete(id);
                 const response = application_1.ResponseFormatterService.formatDeleteResponse({
+                    data: result,
+                    resource: this.resource,
+                });
+                return res.status(response.status_code).json(response);
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+        this.createMany = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const body = req.body;
+                const result = yield this.service.createMany(body);
+                const response = application_1.ResponseFormatterService.formatCreateManyResponse({
+                    data: result,
+                    resource: this.resource,
+                });
+                return res.status(response.status_code).json(response);
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+        this.updateMany = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const body = req.body;
+                const result = yield this.service.updateMany(body);
+                const response = application_1.ResponseFormatterService.formatUpdateManyResponse({
                     data: result,
                     resource: this.resource,
                 });

@@ -18,3 +18,8 @@ __exportStar(require("./shared"), exports);
 __exportStar(require("./base.dto"), exports);
 __exportStar(require("./collaborator.dto"), exports);
 __exportStar(require("./notification.dto"), exports);
+__exportStar(require("./product.dto"), exports);
+__exportStar(require("./supplier.dto"), exports);
+__exportStar(require("./controlled-prescription.dto"), exports);
+__exportStar(require("./activity-register.dto"), exports);
+__exportStar(require("./missing-product.dto"), exports);

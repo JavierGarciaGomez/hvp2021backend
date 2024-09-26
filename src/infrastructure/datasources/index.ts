@@ -7,3 +7,8 @@ export * from "./notification.datasource.mongo-imp";
 export * from "./product.datasource.mongo-imp";
 export * from "./supplier.datasource.mongo-imp";
 export * from "./missing-product.datasource.mongo-imp";
+export * from "./branch.datasource.mongo-imp";
+export * from "./public-holidays.datasource.mongo-imp";
+export * from "./salary-data.datasource.mongo-imp";
+export * from "./week-shift.datasource.mongo-imp";
+export * from "./job.datasource.mongo-imp";

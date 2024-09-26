@@ -1,4 +1,3 @@
-import { ProductDocument } from "../../infrastructure";
 import { ActivityRegisterDocument } from "../../infrastructure/db/mongo/models/activity-register.model";
 import { BaseEntity } from "./base.entity";
 

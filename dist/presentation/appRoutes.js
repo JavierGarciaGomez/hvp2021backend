@@ -12,24 +12,22 @@ const billingRoutes_1 = require("./resources/billing/billingRoutes");
 const tasksRoutes_1 = require("./resources/tasks/tasksRoutes");
 const timeOffRequestsRoutes_1 = require("./resources/timeOffRequests/timeOffRequestsRoutes");
 const workLogsRoutes_1 = require("./resources/workLogs/workLogsRoutes");
-const notification_routes_1 = require("./routes/notification.routes");
-const collaborator_routes_1 = require("./routes/collaborator.routes");
+const routes_2 = require("./routes");
 class AppRoutes {
     static get routes() {
         const router = (0, express_1.Router)();
         // router.use("/api/collaborators", CollaboratorRoutes.routes);
-        router.use(mainRoutes_1.mainRoutes.activityRegister, routes_1.activityRegisterRoutes);
+        // router.use(mainRoutes.activityRegister, activityRegisterRoutes);
         router.use(mainRoutes_1.mainRoutes.attendanceRecords, attendanceRecordsRoutes_1.AttendanceRecordsRoutes.routes);
         router.use(mainRoutes_1.mainRoutes.auth, authRoutes_1.AuthRoutes.routes);
         router.use(mainRoutes_1.mainRoutes.authActivities, authActivitiesRoutes_1.AuthActivitiesRoutes.routes);
         router.use(mainRoutes_1.mainRoutes.billing, billingRoutes_1.BillingRoutes.routes);
         router.use(mainRoutes_1.mainRoutes.cleanUps, cleanUpsRoutes_1.cleanupsRouter);
         router.use(mainRoutes_1.mainRoutes.collaboratorLog, routes_1.collaboratorLogRoutes);
-        router.use(mainRoutes_1.mainRoutes.collaborators, new collaborator_routes_1.CollaboratorRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.collaborators, new routes_2.CollaboratorRoutes().getRoutes());
         router.use(mainRoutes_1.mainRoutes.documentation, routes_1.documentationRoutes);
         router.use(mainRoutes_1.mainRoutes.fcm, routes_1.fcmRoutes);
-        router.use(mainRoutes_1.mainRoutes.misc, routes_1.miscRoutes);
-        router.use(mainRoutes_1.mainRoutes.notifications, new notification_routes_1.NotificationRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.notifications, new routes_2.NotificationRoutes().getRoutes());
         router.use(mainRoutes_1.mainRoutes.rfc, routes_1.rfcRoutes);
         router.use(mainRoutes_1.mainRoutes.tasks, tasksRoutes_1.TasksRoutes.routes);
         router.use(mainRoutes_1.mainRoutes.timeOffRequests, timeOffRequestsRoutes_1.TimeOffRequestsRoutes.routes);
@@ -37,6 +35,12 @@ class AppRoutes {
         router.use(mainRoutes_1.mainRoutes.workLogs, workLogsRoutes_1.WorkLogsRoutes.routes);
         router.use(mainRoutes_1.mainRoutes.userClient, routes_1.userClientRoutes);
         router.use(mainRoutes_1.mainRoutes.userLog, routes_1.userLogRoutes);
+        router.use(mainRoutes_1.mainRoutes.products, new routes_2.ProductRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.suppliers, new routes_2.SupplierRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.controlledPrescriptions, new routes_2.ControlledPrescriptionRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.activityRegisterTypes, new routes_2.ActivityRegisterTypeRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.activityRegister, new routes_2.ActivityRegisterRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.missingProducts, new routes_2.MissingProductRoutes().getRoutes());
         return router;
     }
 }

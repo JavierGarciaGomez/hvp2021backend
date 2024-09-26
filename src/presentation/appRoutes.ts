@@ -26,6 +26,11 @@ import {
   ProductRoutes,
   SupplierRoutes,
   MissingProductRoutes,
+  BranchRoutes,
+  WeekShiftRoutes,
+  PublicHolidaysRoutes,
+  SalaryDataRoutes,
+  JobRoutes,
 } from "./routes";
 
 export class AppRoutes {
@@ -70,6 +75,14 @@ export class AppRoutes {
       mainRoutes.missingProducts,
       new MissingProductRoutes().getRoutes()
     );
+    router.use(mainRoutes.branches, new BranchRoutes().getRoutes());
+    router.use(mainRoutes.weekShifts, new WeekShiftRoutes().getRoutes());
+    router.use(
+      mainRoutes.publicHolidays,
+      new PublicHolidaysRoutes().getRoutes()
+    );
+    router.use(mainRoutes.salaryData, new SalaryDataRoutes().getRoutes());
+    router.use(mainRoutes.jobs, new JobRoutes().getRoutes());
 
     return router;
   }

@@ -29,13 +29,13 @@ export const buildQueryOptions = (queryParams: any): CustomQueryOptions => {
 
 export const getAllHelper = async <T>(
   model: Model<T>,
-  queryOptions: CustomQueryOptions
+  queryOptions?: CustomQueryOptions
 ): Promise<T[]> => {
-  const { paginationDto, filteringDto, sortingDto } = queryOptions;
-  const sortField = sortingDto.sort_by || "updated_at";
-  const sortDirection = sortingDto.direction === "desc" ? -1 : 1;
-  const page = paginationDto.page || 1; // Default to 1 if page is not provided
-  const limit = paginationDto.limit ?? 0;
+  const { paginationDto, filteringDto, sortingDto } = queryOptions || {};
+  const sortField = sortingDto?.sort_by || "updated_at";
+  const sortDirection = sortingDto?.direction === "desc" ? -1 : 1;
+  const page = paginationDto?.page || 1; // Default to 1 if page is not provided
+  const limit = paginationDto?.limit ?? 0;
 
   const result = await model
     .find(filteringDto as any)

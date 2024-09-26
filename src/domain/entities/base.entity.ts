@@ -1,3 +1,11 @@
+export interface BaseEntityProps {
+  id?: string;
+  createdAt?: Date;
+  createdBy?: string;
+  updatedAt?: Date;
+  updatedBy?: string;
+}
+
 export interface BaseEntity {
   id?: string;
   createdAt?: Date;

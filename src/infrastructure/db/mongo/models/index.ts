@@ -14,3 +14,8 @@ export * from "./notification.model";
 export * from "./product.model";
 export * from "./supplier.model";
 export * from "./missing-product.model";
+export * from "./branch.model";
+export * from "./public-holidays.model";
+export * from "./salary-data.model";
+export * from "./week-shift.model";
+export * from "./job.model";

@@ -8,7 +8,7 @@ class CollaboratorRegisterDto {
         this.data = data;
     }
     static register(data) {
-        const { email, password, col_code, access_code } = data;
+        const { email, password, col_code, accessCode } = data;
         if (!email || !password) {
             throw BaseError_1.BaseError.badRequest("Email and password are required");
         }
@@ -18,7 +18,7 @@ class CollaboratorRegisterDto {
         if (password.length < 5) {
             throw BaseError_1.BaseError.badRequest("Password must have at least 5 characters");
         }
-        if (!col_code || !access_code) {
+        if (!col_code || !accessCode) {
             throw BaseError_1.BaseError.badRequest("Colaborator code and access code are required");
         }
         return new CollaboratorRegisterDto(data);

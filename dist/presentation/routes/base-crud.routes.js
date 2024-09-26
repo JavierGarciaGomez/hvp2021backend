@@ -17,6 +17,8 @@ class BaseCRUDRoutes {
         this.router.post("/", middlewares_1.AuthMiddleware.validateJWT, controller.create);
         this.router.patch("/:id", middlewares_1.AuthMiddleware.validateJWT, controller.update);
         this.router.delete("/:id", middlewares_1.AuthMiddleware.validateJWT, controller.delete);
+        this.router.patch("/", middlewares_1.AuthMiddleware.validateJWT, controller.updateMany);
+        this.router.post("/bulk", middlewares_1.AuthMiddleware.validateJWT, controller.createMany);
     }
 }
 exports.BaseCRUDRoutes = BaseCRUDRoutes;

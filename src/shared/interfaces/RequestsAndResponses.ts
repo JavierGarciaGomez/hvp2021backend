@@ -1,10 +1,10 @@
 import { Request } from "express";
-import { CollaboratorRole } from "../../domain";
+import { WebAppRole } from "../../domain";
 
 export interface AuthenticatedCollaborator {
   uid: string;
   col_code: string;
-  role: CollaboratorRole;
+  role: WebAppRole;
   imgUrl?: string;
 }
 export interface AuthenticatedRequest extends Request {

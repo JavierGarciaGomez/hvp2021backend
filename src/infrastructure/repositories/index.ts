@@ -7,3 +7,8 @@ export * from "./product.repository.imp";
 export * from "./supplier.repository.imp";
 export * from "./activity-register.repository.imp";
 export * from "./missing-product.repository.imp";
+export * from "./branch.repository.imp";
+export * from "./public-holidays.repository.imp";
+export * from "./salary-data.repository.imp";
+export * from "./week-shift.repository.imp";
+export * from "./job.repository.imp";

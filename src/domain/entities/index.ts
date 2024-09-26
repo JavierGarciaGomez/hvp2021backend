@@ -7,3 +7,8 @@ export * from "./supplier.entity";
 export * from "./controlled-prescription.entity";
 export * from "./activity-register.entity";
 export * from "./missing-product.entity";
+export * from "./branch.entity";
+export * from "./salary-data.entity";
+export * from "./public-holidays.entity";
+export * from "./job.entity";
+export * from "./week-shift.entity";

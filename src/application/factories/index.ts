@@ -6,3 +6,8 @@ export * from "./product.factory";
 export * from "./supplier.factory";
 export * from "./activity-register.factory";
 export * from "./missing-product.factory";
+export * from "./branch.factory";
+export * from "./week-shift.factory";
+export * from "./public-holidays.factory";
+export * from "./salary-data.factory";
+export * from "./job.factory";

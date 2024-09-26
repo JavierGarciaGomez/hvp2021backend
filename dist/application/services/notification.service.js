@@ -66,5 +66,8 @@ class NotificationService extends base_service_1.BaseService {
             yield this.repository.create(notification);
         });
     }
+    getResourceName() {
+        return "notification";
+    }
 }
 exports.NotificationService = NotificationService;

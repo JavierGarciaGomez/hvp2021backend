@@ -8,13 +8,14 @@ import { BaseEntity } from "../../domain";
 
 export abstract class BaseController<
   T extends BaseEntity,
-  DTO extends BaseDTO
+  DTO extends BaseDTO,
+  R = T
 > {
   protected abstract resource: string;
   protected abstract path: string;
 
   constructor(
-    protected readonly service: BaseService<T, DTO>,
+    protected readonly service: BaseService<T, DTO, R>,
     protected readonly dtoClass: BaseDTOConstructor<DTO>
   ) {}
 
@@ -129,7 +130,7 @@ export abstract class BaseController<
     try {
       const body = req.body;
       const result = await this.service.createMany(body);
-      const response = ResponseFormatterService.formatCreateManyResponse<T>({
+      const response = ResponseFormatterService.formatCreateManyResponse<R>({
         data: result,
         resource: this.resource,
       });
@@ -147,7 +148,7 @@ export abstract class BaseController<
     try {
       const body = req.body;
       const result = await this.service.updateMany(body);
-      const response = ResponseFormatterService.formatUpdateManyResponse<T>({
+      const response = ResponseFormatterService.formatUpdateManyResponse<R>({
         data: result,
         resource: this.resource,
       });

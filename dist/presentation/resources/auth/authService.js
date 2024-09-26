@@ -174,7 +174,7 @@ class AuthService {
     collaboratorRegister(dto) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { email, password, col_code, access_code: access_code } = dto.data;
+                const { email, password, col_code, accessCode } = dto.data;
                 const usedEmail = yield infrastructure_1.CollaboratorModel.findOne({ email });
                 if (usedEmail) {
                     throw BaseError_1.BaseError.badRequest("Email already in use");
@@ -183,7 +183,7 @@ class AuthService {
                 if (!collaborator) {
                     throw BaseError_1.BaseError.notFound("Collaborator not found");
                 }
-                if (collaborator.accessCode !== access_code) {
+                if (collaborator.accessCode !== accessCode) {
                     throw BaseError_1.BaseError.unauthorized("Invalid access code");
                 }
                 if (collaborator.isRegistered) {

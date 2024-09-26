@@ -9,11 +9,12 @@ import { buildQueryOptions } from "../../shared/helpers/queryHelpers";
 import { AuthenticatedRequest } from "../../shared/interfaces/RequestsAndResponses";
 import { JwtAdapter } from "../../infrastructure/adapters";
 import { BaseController } from "./base.controller";
-import { CollaboratorEntity } from "../../domain";
+import { CollaboratorEntity, CollaboratorResponse } from "../../domain";
 
 export class CollaboratorController extends BaseController<
   CollaboratorEntity,
-  CollaboratorDTO
+  CollaboratorDTO,
+  CollaboratorResponse
 > {
   protected resource = "collaborator";
   protected path = "/collaborators";

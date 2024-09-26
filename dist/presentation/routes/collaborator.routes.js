@@ -12,9 +12,9 @@ class CollaboratorRoutes extends base_crud_routes_1.BaseCRUDRoutes {
         const repository = new infrastructure_1.CollaboratorRepositoryImpl(datasource);
         const service = new application_1.CollaboratorService(repository);
         const controller = new controllers_1.CollaboratorController(service);
+        this.router.get("/getAllForWeb", controller.getAllPublic);
         this.setupCrudRoutes(controller);
         this.router.patch("/register", controller.register);
-        this.router.get("/getAllForWeb", controller.getAllPublic);
         // todo this should be removed
         this.router.post("/create", middlewares_1.AuthMiddleware.validateJWT, controller.create);
     }

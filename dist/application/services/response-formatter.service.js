@@ -75,5 +75,27 @@ class ResponseFormatterService {
             data: data,
         };
     }
+    static formatCreateManyResponse(options) {
+        const { data, resource } = options;
+        return {
+            ok: true,
+            status_code: enums_1.HttpStatusCode.CREATED,
+            status: enums_1.HttpStatusCode[enums_1.HttpStatusCode.CREATED],
+            resource: resource,
+            operation: "addMany",
+            data,
+        };
+    }
+    static formatUpdateManyResponse(options) {
+        const { data, resource } = options;
+        return {
+            ok: true,
+            status_code: enums_1.HttpStatusCode.OK,
+            status: enums_1.HttpStatusCode[enums_1.HttpStatusCode.OK],
+            resource,
+            operation: "updateMany",
+            data,
+        };
+    }
 }
 exports.ResponseFormatterService = ResponseFormatterService;

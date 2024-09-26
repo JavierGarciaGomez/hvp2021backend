@@ -1,6 +1,6 @@
 import TimeOffRequestModel from "../../../infrastructure/db/mongo/models/TimeOffRequestModel";
 import {
-  CollaboratorRole,
+  WebAppRole,
   NotificationActionType,
   NotificationReferenceType,
   PaginationDto,
@@ -172,8 +172,8 @@ export class TimeOffRequestsService {
 
     if (
       timeOffRequest.status !== TimeOffStatus.pending &&
-      role !== CollaboratorRole.admin &&
-      role !== CollaboratorRole.manager
+      role !== WebAppRole.admin &&
+      role !== WebAppRole.manager
     ) {
       throw BaseError.unauthorized(
         "The time off request has already been approved."

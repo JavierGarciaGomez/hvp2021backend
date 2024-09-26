@@ -17,6 +17,7 @@ const OperatingRoomCleanUp = require("../models/OperatingRoomCleanUp");
 const { CollaboratorModel } = require("../../infrastructure");
 const { uncatchedError } = require("../helpers/const");
 const DailyCleanUp = require("../models/DailyCleanUp");
+const { cleanUpActions } = require("../types/types");
 dayjs.extend(utc);
 const getAllCleanUpsFromLastMonth = (req_1, ...args_1) => __awaiter(void 0, [req_1, ...args_1], void 0, function* (req, res = response) {
     try {
@@ -110,7 +111,7 @@ const updateDailyCleanUp = (req_1, ...args_1) => __awaiter(void 0, [req_1, ...ar
     try {
         const { dailyCleanUpId } = req.params;
         const { action, comment } = req.body;
-        const { uid } = req;
+        const { uid } = req.authenticatedCollaborator;
         let dailyCleanUp = yield DailyCleanUp.findById(dailyCleanUpId);
         if (!dailyCleanUp) {
             return res.status(404).json({
@@ -130,7 +131,9 @@ const updateDailyCleanUp = (req_1, ...args_1) => __awaiter(void 0, [req_1, ...ar
         switch (action) {
             case cleanUpActions.addCleaner:
                 for (const element of dailyCleanUp.cleaners) {
-                    if (element.cleaner._id.toString() === uid) {
+                    if (element.cleaner &&
+                        element.cleaner._id &&
+                        element.cleaner._id.toString() === uid) {
                         return res.status(404).json({
                             ok: false,
                             msg: "Este colaborador ha sido ya registrado",
@@ -172,6 +175,8 @@ const updateDailyCleanUp = (req_1, ...args_1) => __awaiter(void 0, [req_1, ...ar
     }
     catch (error) {
         console.log(error);
+        {
+        }
         res.status(500).json({
             ok: false,
             msg: "Por favor, hable con el administrador",

@@ -8,7 +8,6 @@ exports.mainRoutes = {
     rfc: "/api/rfc",
     collaboratorLog: "/api/collaboratorLog",
     userLog: "/api/userLog",
-    activityRegister: "/api/activityRegister",
     misc: "/api/misc",
     documentation: "/api/documentation",
     fcm: "/api/fcm",
@@ -21,4 +20,10 @@ exports.mainRoutes = {
     billing: "/api/billing",
     authActivities: "/api/auth-activities",
     notifications: "/api/notifications",
+    products: "/api/products",
+    suppliers: "/api/suppliers",
+    controlledPrescriptions: "/api/controlled-prescriptions",
+    activityRegisterTypes: "/api/activity-register-types",
+    activityRegister: "/api/activity-register",
+    missingProducts: "/api/missing-products",
 };

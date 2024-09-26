@@ -43,12 +43,12 @@ exports.envsPlugin = {
     PROD_CLIENT_URL: env.get("PROD_CLIENT_URL").required().asString(),
     PROD_CLIENT_URL2: env.get("PROD_CLIENT_URL2").required().asString(),
     // Environment: Test
-    TEST_MONGO_URL: env.get("TEST_MONGO_URL").required().asString(),
-    TEST_MONGO_DB_NAME: env.get("TEST_MONGO_DB_NAME").required().asString(),
-    TEST_MONGO_USER: env.get("TEST_MONGO_USER").required().asString(),
-    TEST_MONGO_PASS: env.get("TEST_MONGO_PASS").required().asString(),
-    TEST_CLIENT_URL: env.get("TEST_CLIENT_URL").required().asString(),
-    TEST_CLIENT_URL2: env.get("TEST_CLIENT_URL2").required().asString(),
+    // TEST_MONGO_URL: env.get("TEST_MONGO_URL").asString(),
+    // TEST_MONGO_DB_NAME: env.get("TEST_MONGO_DB_NAME").asString(),
+    // TEST_MONGO_USER: env.get("TEST_MONGO_USER").asString(),
+    // TEST_MONGO_PASS: env.get("TEST_MONGO_PASS").asString(),
+    // TEST_CLIENT_URL: env.get("TEST_CLIENT_URL").asString(),
+    // TEST_CLIENT_URL2: env.get("TEST_CLIENT_URL2").asString(),
     // Environment: Common
     PORT: env.get("PORT").required().asPortNumber(),
     BASE_URL: env.get("BASE_URL").required().asString(),
@@ -91,10 +91,10 @@ exports.prodEnvs = {
 };
 exports.testEnvs = {
     NODE_ENV: exports.envsPlugin.NODE_ENV,
-    MONGO_URL: exports.envsPlugin.TEST_MONGO_URL,
-    MONGO_DB_NAME: exports.envsPlugin.TEST_MONGO_DB_NAME,
-    MONGO_USER: exports.envsPlugin.TEST_MONGO_USER,
-    MONGO_PASS: exports.envsPlugin.TEST_MONGO_PASS,
-    CLIENT_URL: exports.envsPlugin.TEST_CLIENT_URL,
-    CLIENT_URL2: exports.envsPlugin.TEST_CLIENT_URL2,
+    MONGO_URL: exports.envsPlugin.DEV_MONGO_URL,
+    MONGO_DB_NAME: exports.envsPlugin.DEV_MONGO_DB_NAME,
+    MONGO_USER: exports.envsPlugin.DEV_MONGO_USER,
+    MONGO_PASS: exports.envsPlugin.DEV_MONGO_PASS,
+    CLIENT_URL: exports.envsPlugin.DEV_CLIENT_URL,
+    CLIENT_URL2: exports.envsPlugin.DEV_CLIENT_URL2,
 };

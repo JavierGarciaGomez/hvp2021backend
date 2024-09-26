@@ -17,3 +17,4 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./filtering.dto"), exports);
 __exportStar(require("./pagination.dto"), exports);
 __exportStar(require("./sorting.dto"), exports);
+__exportStar(require("./calculate-duration.dto"), exports);

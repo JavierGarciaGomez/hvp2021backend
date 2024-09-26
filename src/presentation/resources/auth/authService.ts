@@ -1,6 +1,6 @@
 import { JwtAdapter } from "../../../infrastructure/adapters/jwt.adapter";
 
-import { CollaboratorRole } from "../../../domain";
+import { WebAppRole } from "../../../domain";
 
 import { CollaboratorLoginDto } from "../../../domain/dtos/collaboratorAuth/collaboratorLoginDto";
 import { CollaboratorRegisterDto } from "../../../domain/dtos/collaboratorAuth/collaboratorRegisterDto";
@@ -77,7 +77,7 @@ export class AuthService {
     const collaboratorAuth: CollaboratorAuth = {
       uid: collaborator._id,
       col_code: collaborator.col_code,
-      role: CollaboratorRole.admin,
+      role: WebAppRole.admin,
       imgUrl: collaborator.imgUrl,
     };
 

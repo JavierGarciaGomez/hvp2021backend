@@ -1,7 +1,7 @@
 import { AuthenticatedRequest, BaseError } from "../../shared";
 import { Response, NextFunction } from "express";
 import { BaseService } from "../../application";
-import { BaseEntity, BaseVO, CollaboratorRole } from "../../domain";
+import { BaseEntity, BaseVO, WebAppRole } from "../../domain";
 
 export const ownerOrManagerMiddleware =
   <
@@ -22,10 +22,9 @@ export const ownerOrManagerMiddleware =
       throw BaseError.notFound(`${service.getResourceName()} not found`);
     }
 
-    const isAdminOrManager = [
-      CollaboratorRole.admin,
-      CollaboratorRole.manager,
-    ].includes(req.authUser?.role!);
+    const isAdminOrManager = [WebAppRole.admin, WebAppRole.manager].includes(
+      req.authUser?.role!
+    );
 
     const isOwnerOrCollaborator =
       ("collaborator" in resource && resource.collaborator === userId) ||

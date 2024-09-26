@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BaseService = void 0;
+const shared_1 = require("../../shared");
 class BaseService {
     constructor(repository, entityClass) {
         this.repository = repository;
@@ -26,7 +27,11 @@ class BaseService {
     }
     getById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.repository.getById(id);
+            const entity = yield this.repository.getById(id);
+            if (!entity) {
+                throw shared_1.BaseError.notFound(`${this.getResourceName()} not found`);
+            }
+            return entity;
         });
     }
     update(id, dto) {
@@ -40,9 +45,19 @@ class BaseService {
             return yield this.repository.delete(id);
         });
     }
-    count() {
+    count(queryOptions) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.repository.count();
+            return yield this.repository.count(queryOptions);
+        });
+    }
+    updateMany(entities) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.repository.updateMany(entities);
+        });
+    }
+    createMany(entities) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.repository.createMany(entities);
         });
     }
 }

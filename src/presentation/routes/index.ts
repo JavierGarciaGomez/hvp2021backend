@@ -7,3 +7,8 @@ export * from "./notification.routes";
 export * from "./product.routes";
 export * from "./supplier.routes";
 export * from "./missing-product.routes";
+export * from "./branch.routes";
+export * from "./week-shift.routes";
+export * from "./public-holidays.routes";
+export * from "./salary-data.routes";
+export * from "./job.routes";

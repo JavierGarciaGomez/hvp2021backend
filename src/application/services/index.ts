@@ -8,3 +8,8 @@ export * from "./supplier.service";
 export * from "./activity-register-type.service";
 export * from "./activity-register.service";
 export * from "./missing-product.service";
+export * from "./branch.service";
+export * from "./week-shift.service";
+export * from "./public-holidays.service";
+export * from "./salary-data.service";
+export * from "./job.service";

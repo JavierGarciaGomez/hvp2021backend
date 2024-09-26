@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.corsMiddleware = void 0;
-const cors_1 = __importDefault(require("cors"));
 const envHelpers_1 = require("../../shared/helpers/envHelpers");
+const cors_1 = __importDefault(require("cors"));
 const corsOptions = {
     origin: [
         (0, envHelpers_1.getEnvsByEnvironment)().CLIENT_URL,

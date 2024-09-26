@@ -1,7 +1,6 @@
-import { ProductDocument } from "../../infrastructure";
-import { BaseEntity } from "./base.entity";
+import { BaseEntity, BaseEntityProps } from "./base.entity";
 
-export interface ProductProps {
+export interface ProductProps extends BaseEntityProps {
   id?: string;
   name: string;
   description: string;
@@ -10,6 +9,8 @@ export interface ProductProps {
   updatedAt?: Date;
   updatedBy?: string;
 }
+
+export interface ProductDocument extends ProductProps, Document {}
 
 export class ProductEntity implements BaseEntity {
   id?: string;

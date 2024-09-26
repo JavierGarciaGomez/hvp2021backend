@@ -1,7 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { ProductProps } from "../../../../domain";
-
-export interface ProductDocument extends ProductProps, Document {}
+import { ProductDocument } from "../../../../domain";
 
 const ProductSchema: Schema = new Schema<ProductDocument>(
   {

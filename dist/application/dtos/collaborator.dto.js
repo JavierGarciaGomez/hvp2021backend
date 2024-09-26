@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CollaboratorDTO = void 0;
 const domain_1 = require("../../domain");
-const shared_1 = require("../../shared");
 const helpers_1 = require("../../shared/helpers");
 class CollaboratorDTO {
     constructor(options) {
@@ -34,23 +33,17 @@ class CollaboratorDTO {
     }
     static create(data) {
         const errors = this.validateCreate(data);
-        if (errors.length > 0) {
-            throw shared_1.BaseError.badRequest(errors.join(", "));
-        }
+        (0, helpers_1.checkForErrors)(errors);
         return new CollaboratorDTO(data);
     }
     static update(data) {
         const errors = this.commonValidation(data);
-        if (errors.length > 0) {
-            throw shared_1.BaseError.badRequest(errors.join(", "));
-        }
+        (0, helpers_1.checkForErrors)(errors);
         return new CollaboratorDTO(data);
     }
     static register(data) {
         const errors = this.validateRegister(data);
-        if (errors.length > 0) {
-            throw shared_1.BaseError.badRequest(errors.join(", "));
-        }
+        (0, helpers_1.checkForErrors)(errors);
         return Object.assign(Object.assign({}, data), { isRegistered: true });
     }
     static validateCreate(data) {

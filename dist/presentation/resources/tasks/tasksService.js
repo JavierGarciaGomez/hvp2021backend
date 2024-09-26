@@ -102,7 +102,9 @@ class TasksService {
             const resourceToUpdate = yield TaskModel_1.default.findById(id);
             if (!resourceToUpdate)
                 throw BaseError_1.BaseError.notFound(`${resourceName} not found with id ${id}`);
-            const oldAssignees = resourceToUpdate.assignees || [];
+            const oldAssignees = Array.isArray(resourceToUpdate.assignees)
+                ? resourceToUpdate.assignees.map((assignee) => assignee.toString())
+                : [];
             const newAssignees = dto.data.assignees;
             const addedAssignees = newAssignees.filter((assignee) => !oldAssignees.includes(assignee));
             const removedAssignees = oldAssignees.filter((assignee) => !newAssignees.includes(assignee));
@@ -114,7 +116,7 @@ class TasksService {
             if (addedAssignees.length > 0) {
                 this.notificationService.notifyCollaborators({
                     title: "Task assigned",
-                    message: populatedResource.title,
+                    message: `${populatedResource.number}-${populatedResource.title}`,
                     referenceId: populatedResource._id.toString(),
                     referenceType: domain_1.NotificationReferenceType.TASK,
                     actionType: domain_1.NotificationActionType.ASSIGNED,
@@ -125,11 +127,22 @@ class TasksService {
             if (removedAssignees.length > 0) {
                 this.notificationService.notifyCollaborators({
                     title: "Task unassigned",
-                    message: populatedResource.title,
+                    message: `${populatedResource.number}-${populatedResource.title}`,
                     referenceId: populatedResource._id.toString(),
                     referenceType: domain_1.NotificationReferenceType.TASK,
                     actionType: domain_1.NotificationActionType.UNASSIGNED,
                     collaboratorIds: removedAssignees,
+                });
+            }
+            // Notify all assignees if task status changes
+            if (resourceToUpdate.status !== dto.data.status) {
+                this.notificationService.notifyCollaborators({
+                    title: "Task status changed",
+                    message: `${populatedResource.number}-${populatedResource.title} - New status: ${dto.data.status}`,
+                    referenceId: populatedResource._id.toString(),
+                    referenceType: domain_1.NotificationReferenceType.TASK,
+                    actionType: domain_1.NotificationActionType.STATUS_CHANGED,
+                    collaboratorIds: newAssignees,
                 });
             }
             const response = SuccessResponseFormatter_1.OldSuccessResponseFormatter.formatUpdateResponse({

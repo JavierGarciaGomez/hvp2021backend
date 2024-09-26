@@ -7,3 +7,8 @@ export * from "./notification.datasource";
 export * from "./product.datasource";
 export * from "./supplier.datasource";
 export * from "./missing-product.datasource";
+export * from "./branch.datasource";
+export * from "./job.datasource";
+export * from "./public-holidays.datasource";
+export * from "./salary-data.datasource";
+export * from "./week-shift.datasource";

@@ -14,6 +14,12 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./activity-register-type.datasource"), exports);
+__exportStar(require("./activity-register.datasource"), exports);
 __exportStar(require("./base.datasource"), exports);
-__exportStar(require("./notification.datasource"), exports);
 __exportStar(require("./collaborator.datasource"), exports);
+__exportStar(require("./controlled-prescription.datasource"), exports);
+__exportStar(require("./notification.datasource"), exports);
+__exportStar(require("./product.datasource"), exports);
+__exportStar(require("./supplier.datasource"), exports);
+__exportStar(require("./missing-product.datasource"), exports);

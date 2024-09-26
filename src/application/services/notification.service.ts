@@ -12,7 +12,7 @@ import { CollaboratorService } from "./collaborator.service";
 import { CollaboratorRepositoryImpl } from "../../infrastructure";
 import { createCollaboratorService } from "../factories/create-collaborator-service.factory";
 import { buildQueryOptions } from "../../shared";
-import { CollaboratorRole } from "../../domain";
+import { WebAppRole } from "../../domain";
 
 interface NotifyCollaboratorsProps {
   message: string;
@@ -100,7 +100,7 @@ export class NotificationService extends BaseService<
   }: NotifyManagerProps): Promise<void> => {
     const collaboratorService = createCollaboratorService();
     const options = buildQueryOptions({
-      role: [CollaboratorRole.admin, CollaboratorRole.admin],
+      role: [WebAppRole.admin, WebAppRole.admin],
     });
     const managers = await collaboratorService.getAll(options);
     const managerIds = managers.map((manager) => manager.id as string);

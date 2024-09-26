@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { TimeOffRequestController } from "./timeOffRequestsController";
 import { TimeOffRequestsService } from "./timeOffRequestsService";
-import { CollaboratorRole } from "../../../domain";
+import { WebAppRole } from "../../../domain";
 import { AuthMiddleware } from "../../middlewares";
 import isAuthorized from "../../middlewares/isAuthorized";
 import { createNotificationService } from "../../../application";
@@ -52,17 +52,17 @@ export class TimeOffRequestsRoutes {
     );
     router.put(
       TimeOffRequestsRoutePaths.update,
-      isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager], true),
+      isAuthorized([WebAppRole.admin, WebAppRole.manager], true),
       controller.updateTimeOffRequest
     );
     router.patch(
       TimeOffRequestsRoutePaths.approve,
-      isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager]),
+      isAuthorized([WebAppRole.admin, WebAppRole.manager]),
       controller.approveTimeOffRequest
     );
     router.delete(
       TimeOffRequestsRoutePaths.delete,
-      isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager], true),
+      isAuthorized([WebAppRole.admin, WebAppRole.manager], true),
       controller.deleteTimeOffRequest
     );
     router.get(
