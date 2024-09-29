@@ -23,3 +23,8 @@ __exportStar(require("./supplier.dto"), exports);
 __exportStar(require("./controlled-prescription.dto"), exports);
 __exportStar(require("./activity-register.dto"), exports);
 __exportStar(require("./missing-product.dto"), exports);
+__exportStar(require("./branch.dto"), exports);
+__exportStar(require("./week-shift.dto"), exports);
+__exportStar(require("./job.dto"), exports);
+__exportStar(require("./public-holidays.dto"), exports);
+__exportStar(require("./salary-data.dto"), exports);

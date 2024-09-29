@@ -21,15 +21,15 @@ class CollaboratorController extends base_controller_1.BaseController {
         this.resource = "collaborator";
         this.path = "/collaborators";
         this.getAllPublic = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
+            var _a, _b, _c, _d;
             try {
                 const options = { isActive: true, isDisplayedWeb: true };
                 const newOptions = (0, queryHelpers_1.buildQueryOptions)(options);
                 const result = yield this.service.getAllPublic(newOptions);
                 const response = application_1.ResponseFormatterService.formatListResponse({
                     data: result,
-                    page: (_a = newOptions.paginationDto.page) !== null && _a !== void 0 ? _a : 1,
-                    limit: (_b = newOptions.paginationDto.limit) !== null && _b !== void 0 ? _b : result.length,
+                    page: (_b = (_a = newOptions.paginationDto) === null || _a === void 0 ? void 0 : _a.page) !== null && _b !== void 0 ? _b : 1,
+                    limit: (_d = (_c = newOptions.paginationDto) === null || _c === void 0 ? void 0 : _c.limit) !== null && _d !== void 0 ? _d : result.length,
                     total: result.length,
                     path: this.path,
                     resource: this.resource,

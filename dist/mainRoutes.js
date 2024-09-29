@@ -26,4 +26,10 @@ exports.mainRoutes = {
     activityRegisterTypes: "/api/activity-register-types",
     activityRegister: "/api/activity-register",
     missingProducts: "/api/missing-products",
+    branches: "/api/branches",
+    weekShifts: "/api/week-shifts",
+    publicHolidays: "/api/public-holidays",
+    salaryData: "/api/salary-data",
+    jobs: "/api/jobs",
+    images: "/api/images",
 };

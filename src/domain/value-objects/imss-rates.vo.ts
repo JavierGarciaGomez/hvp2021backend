@@ -14,9 +14,9 @@ export interface ImssRates {
   daycareAndSocialBenefits: {
     daycareAndSocialBenefits: ImssRate;
   };
-  afore: {
-    retirementInsurance: RetiramentInsuranceTable;
-    unemploymentAndOldAge: ImssRate;
+  oldAge: {
+    retirement: ImssRate;
+    oldAge: OldAgeRetirementRate[];
   };
   infonavit: {
     infonavit: ImssRate;
@@ -24,16 +24,12 @@ export interface ImssRates {
 }
 
 interface ImssRate {
-  name: string;
-  description: string;
+  name?: string;
+  description?: string;
   rate: number;
 }
 
-interface RetiramentInsuranceTable {
-  year: RetirementInsuranceEntry[];
-}
-
-interface RetirementInsuranceEntry {
-  umassAmount: number;
+interface OldAgeRetirementRate {
+  umaLimit: number;
   rate: number;
 }

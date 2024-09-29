@@ -3,7 +3,7 @@ import { CollaboratorDocument } from "../../infrastructure/db/mongo/models/colla
 import { CollaboratorAuth } from "../../shared";
 import { Degree, Gender, WebAppRole } from "../enums";
 import { PaymentType } from "../enums/job.enums";
-import { AddressVO } from "../value-objects";
+import { AddressVO, ImageUrl } from "../value-objects";
 import { BaseEntity, BaseEntityProps } from "./base.entity";
 
 export interface CollaboratorProps extends BaseEntityProps {
@@ -26,6 +26,7 @@ export interface CollaboratorProps extends BaseEntityProps {
   // webApp information
   role: WebAppRole;
   imgUrl?: string;
+  images?: ImageUrl[];
   accessCode?: string;
   isRegistered: boolean;
   password?: string;
@@ -61,16 +62,6 @@ export interface CollaboratorProps extends BaseEntityProps {
   // TODO: enum
 }
 
-export interface CollaboratorResponseOld extends CollaboratorProps {
-  baseContributionSalary?: number;
-  dailyAverageSalary: number;
-  accumulatedAnnualIncomeRaisePercent: number;
-  accumulatedAnnualComissionRaisePercent: number;
-  aggregatedMonthlyIncome: number;
-  imssSalaryBase: number;
-  averageDailyIncome: number;
-}
-
 export interface PublicCollaborator extends Partial<CollaboratorProps> {
   id?: string;
   first_name: string;
@@ -78,13 +69,15 @@ export interface PublicCollaborator extends Partial<CollaboratorProps> {
   col_code: string;
   position?: string;
   imgUrl?: string;
+  images?: ImageUrl[];
   textPresentation?: string;
 }
 
 // todo response interface
 
 export class CollaboratorEntity implements BaseEntity {
-  id?: string;
+  // General information
+  // remove this
   _id?: string;
   first_name: string;
   last_name: string;
@@ -102,6 +95,7 @@ export class CollaboratorEntity implements BaseEntity {
   // webApp information
   role: WebAppRole;
   imgUrl?: string;
+  images?: ImageUrl[];
   accessCode?: string;
   isRegistered: boolean;
   password?: string;
@@ -133,15 +127,21 @@ export class CollaboratorEntity implements BaseEntity {
   additionalCompensation?: number; // based in the hours he goes
   // TODO: enum
   degree?: Degree;
+
+  // TODO: enum
+  id?: string;
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
   updatedBy?: string;
 
   constructor(options: CollaboratorProps) {
+    this._id = options._id;
     this.id = options.id;
     this.first_name = options.first_name;
     this.last_name = options.last_name;
+    this.gender = options.gender;
+    this.email = options.email;
     this.phoneNumber = options.phoneNumber;
     this.phoneNumber2 = options.phoneNumber2;
     this.address = options.address;
@@ -150,14 +150,27 @@ export class CollaboratorEntity implements BaseEntity {
     this.rfcCode = options.rfcCode;
     this.emergencyContact = options.emergencyContact;
     this.emergencyContactPhone = options.emergencyContactPhone;
+
     this.role = options.role;
     this.imgUrl = options.imgUrl;
+    this.images = options.images;
     this.accessCode = options.accessCode;
     this.isRegistered = options.isRegistered;
+    this.password = options.password;
     this.isDisplayedWeb = options.isDisplayedWeb;
+    this.textPresentation = options.textPresentation;
+    this.registeredDate = options.registeredDate;
+    this.lastLogin = options.lastLogin;
+    this.vacationsTakenBefore2021 = options.vacationsTakenBefore2021;
+
     this.col_code = options.col_code;
     this.col_numId = options.col_numId;
     this.isActive = options.isActive;
+    this.startDate = options.startDate;
+    this.endDate = options.endDate;
+    this.position = options.position;
+    this.coverShift = options.coverShift;
+    this.weeklyHours = options.weeklyHours;
     this.jobId = options.jobId;
     this.contractDate = options.contractDate;
     this.hasIMSS = options.hasIMSS;
@@ -173,15 +186,12 @@ export class CollaboratorEntity implements BaseEntity {
 
   static fromDocument(document: CollaboratorDocument): CollaboratorEntity {
     return new CollaboratorEntity({
-      _id: document._id,
+      _id: document.id,
       id: document.id,
       first_name: document.first_name,
       last_name: document.last_name,
-      role: document.role,
-      col_code: document.col_code,
-      col_numId: document.col_numId,
-      isActive: document.isActive,
       gender: document.gender,
+      email: document.email,
       phoneNumber: document.phoneNumber,
       phoneNumber2: document.phoneNumber2,
       address: document.address,
@@ -190,19 +200,25 @@ export class CollaboratorEntity implements BaseEntity {
       rfcCode: document.rfcCode,
       emergencyContact: document.emergencyContact,
       emergencyContactPhone: document.emergencyContactPhone,
+      role: document.role,
       imgUrl: document.imgUrl,
+      images: document.images,
       accessCode: document.accessCode,
       isRegistered: document.isRegistered,
+      password: document.password,
       isDisplayedWeb: document.isDisplayedWeb,
       textPresentation: document.textPresentation,
       registeredDate: document.registeredDate,
       lastLogin: document.lastLogin,
+      vacationsTakenBefore2021: document.vacationsTakenBefore2021,
+      col_code: document.col_code,
+      col_numId: document.col_numId,
+      isActive: document.isActive,
       startDate: document.startDate,
       endDate: document.endDate,
-      vacationsTakenBefore2021: document.vacationsTakenBefore2021,
-      createdAt: document.createdAt,
-      createdBy: document.createdBy,
-      updatedAt: document.updatedAt,
+      position: document.position,
+      coverShift: document.coverShift,
+      weeklyHours: document.weeklyHours,
       jobId: document.jobId,
       contractDate: document.contractDate,
       hasIMSS: document.hasIMSS,
@@ -210,7 +226,9 @@ export class CollaboratorEntity implements BaseEntity {
       paymentType: document.paymentType,
       additionalCompensation: document.additionalCompensation,
       degree: document.degree,
-
+      createdAt: document.createdAt,
+      createdBy: document.createdBy,
+      updatedAt: document.updatedAt,
       updatedBy: document.updatedBy,
     });
   }
@@ -223,6 +241,7 @@ export class CollaboratorEntity implements BaseEntity {
       col_code: this.col_code,
       position: this.position,
       imgUrl: this.imgUrl,
+      images: this.images,
       textPresentation: this.textPresentation,
     };
   }
@@ -232,6 +251,7 @@ export class CollaboratorEntity implements BaseEntity {
       uid: this.id!,
       col_code: this.col_code,
       role: this.role,
+      // todo: this should be main image
       imgUrl: this.imgUrl,
     };
   }

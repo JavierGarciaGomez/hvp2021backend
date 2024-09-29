@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CollaboratorService = void 0;
 const entities_1 = require("../../domain/entities");
 const adapters_1 = require("../../infrastructure/adapters");
+const factories_1 = require("../factories");
 const base_service_1 = require("./base.service");
 class CollaboratorService extends base_service_1.BaseService {
     constructor(repository) {
@@ -27,7 +28,13 @@ class CollaboratorService extends base_service_1.BaseService {
             if (dto.password)
                 dto.password = adapters_1.bcryptAdapter.hash(dto.password);
             const collaborator = new entities_1.CollaboratorEntity(dto);
-            return yield this.repository.update(id, collaborator);
+            const result = yield this.repository.update(id, collaborator);
+            return this.transformToResponse(result);
+        });
+        this.transformToResponse = (entity) => __awaiter(this, void 0, void 0, function* () {
+            const productService = (0, factories_1.createProductService)();
+            const collaborator = Object.assign(Object.assign({}, entity), { baseContributionSalary: (yield productService.getAll()), dailyAverageSalary: 10, accumulatedAnnualIncomeRaisePercent: 10, accumulatedAnnualComissionRaisePercent: 10, aggregatedMonthlyIncome: 10, imssSalaryBase: 10, averageDailyIncome: 10 });
+            return collaborator;
         });
     }
     getResourceName() {

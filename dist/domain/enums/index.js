@@ -18,3 +18,4 @@ __exportStar(require("./collaborator.enum"), exports);
 __exportStar(require("./controlled-prescriptions.enum"), exports);
 __exportStar(require("./notification.enums"), exports);
 __exportStar(require("./user.enums"), exports);
+__exportStar(require("./job.enums"), exports);

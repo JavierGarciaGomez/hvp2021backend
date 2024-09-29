@@ -23,3 +23,8 @@ __exportStar(require("./notification.datasource.mongo-imp"), exports);
 __exportStar(require("./product.datasource.mongo-imp"), exports);
 __exportStar(require("./supplier.datasource.mongo-imp"), exports);
 __exportStar(require("./missing-product.datasource.mongo-imp"), exports);
+__exportStar(require("./branch.datasource.mongo-imp"), exports);
+__exportStar(require("./public-holidays.datasource.mongo-imp"), exports);
+__exportStar(require("./salary-data.datasource.mongo-imp"), exports);
+__exportStar(require("./week-shift.datasource.mongo-imp"), exports);
+__exportStar(require("./job.datasource.mongo-imp"), exports);

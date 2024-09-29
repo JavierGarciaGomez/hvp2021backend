@@ -37,7 +37,7 @@ class TasksRoutes {
         router.get(TasksPaths.byId, controller.getTasksById);
         router.post(TasksPaths.create, controller.createTask);
         router.put(TasksPaths.update, controller.updateTask);
-        router.delete(TasksPaths.delete, (0, isAuthorized_1.default)([domain_1.CollaboratorRole.admin, domain_1.CollaboratorRole.manager]), controller.deleteTask);
+        router.delete(TasksPaths.delete, (0, isAuthorized_1.default)([domain_1.WebAppRole.admin, domain_1.WebAppRole.manager]), controller.deleteTask);
         return router;
     }
 }

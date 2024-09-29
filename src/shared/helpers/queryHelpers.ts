@@ -58,10 +58,10 @@ export const getAllByDateRangeHelper = async <T>(
     ...filteringDto,
   };
 
-  if (calculateDurationDto.startDate) {
+  if (calculateDurationDto?.startDate) {
     findQuery[durationFields[0]] = { $gte: calculateDurationDto.startDate };
   }
-  if (calculateDurationDto.endDate) {
+  if (calculateDurationDto?.endDate) {
     findQuery[durationFields[1]] = { $lte: calculateDurationDto.endDate };
   }
   const result = await model.find(findQuery);

@@ -28,4 +28,5 @@ export const mainRoutes = {
   publicHolidays: "/api/public-holidays",
   salaryData: "/api/salary-data",
   jobs: "/api/jobs",
+  images: "/api/images",
 };

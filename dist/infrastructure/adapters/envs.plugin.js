@@ -59,6 +59,9 @@ exports.envsPlugin = {
     GOOGLE_CLIENT_ID: env.get("GOOGLE_CLIENT_ID").required().asString(),
     GOOGLE_CLIENT_SECRET: env.get("GOOGLE_CLIENT_SECRET").required().asString(),
     SECRET_JWT_SEED: env.get("SECRET_JWT_SEED").required().asString(),
+    CLOUDINARY_CLOUD_NAME: env.get("CLOUDINARY_CLOUD_NAME").required().asString(),
+    CLOUDINARY_API_KEY: env.get("CLOUDINARY_API_KEY").required().asString(),
+    CLOUDINARY_API_SECRET: env.get("CLOUDINARY_API_SECRET").required().asString(),
 };
 exports.commonEnvs = {
     BASE_URL: exports.envsPlugin.BASE_URL,
@@ -70,6 +73,9 @@ exports.commonEnvs = {
     GOOGLE_CLIENT_ID: exports.envsPlugin.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: exports.envsPlugin.GOOGLE_CLIENT_SECRET,
     SECRET_JWT_SEED: exports.envsPlugin.SECRET_JWT_SEED,
+    CLOUDINARY_CLOUD_NAME: exports.envsPlugin.CLOUDINARY_CLOUD_NAME,
+    CLOUDINARY_API_KEY: exports.envsPlugin.CLOUDINARY_API_KEY,
+    CLOUDINARY_API_SECRET: exports.envsPlugin.CLOUDINARY_API_SECRET,
 };
 exports.devEnvs = {
     NODE_ENV: exports.envsPlugin.NODE_ENV,

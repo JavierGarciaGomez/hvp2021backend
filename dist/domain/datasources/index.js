@@ -23,3 +23,8 @@ __exportStar(require("./notification.datasource"), exports);
 __exportStar(require("./product.datasource"), exports);
 __exportStar(require("./supplier.datasource"), exports);
 __exportStar(require("./missing-product.datasource"), exports);
+__exportStar(require("./branch.datasource"), exports);
+__exportStar(require("./job.datasource"), exports);
+__exportStar(require("./public-holidays.datasource"), exports);
+__exportStar(require("./salary-data.datasource"), exports);
+__exportStar(require("./week-shift.datasource"), exports);

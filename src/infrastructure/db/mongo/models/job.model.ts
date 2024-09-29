@@ -6,7 +6,7 @@ const JobSchema: Schema = new Schema<JobDocument>(
     active: { type: Boolean, required: true, default: true },
     annualRaisePercent: { type: Number, required: true, default: 0 },
     baseIncome: { type: Number, required: true, default: 0 },
-    description: { type: String, required: true, default: "" },
+    description: { type: String, required: false, default: "" },
     hourlyRate: { type: Number, required: true, default: 0 },
     minimumIncome: { type: Number, required: true, default: 0 },
     paymentType: {

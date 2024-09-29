@@ -74,7 +74,7 @@ class CollaboratorDTO {
     }
     static commonValidation(data) {
         const errors = [];
-        if (data.role && !(0, helpers_1.isValidEnum)(domain_1.CollaboratorRole, data.role)) {
+        if (data.role && !(0, helpers_1.isValidEnum)(domain_1.WebAppRole, data.role)) {
             errors.push("Role must be of type CollaboratorRole");
         }
         if (data.password && data.password.length < 6) {

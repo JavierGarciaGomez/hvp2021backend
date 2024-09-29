@@ -22,7 +22,7 @@ class NotificationService extends base_service_1.BaseService {
         this.notifyManagers = (_a) => __awaiter(this, [_a], void 0, function* ({ message, referenceId, referenceType, actionType, title, }) {
             const collaboratorService = (0, create_collaborator_service_factory_1.createCollaboratorService)();
             const options = (0, shared_1.buildQueryOptions)({
-                role: [domain_1.CollaboratorRole.admin, domain_1.CollaboratorRole.admin],
+                role: [domain_1.WebAppRole.admin, domain_1.WebAppRole.admin],
             });
             const managers = yield collaboratorService.getAll(options);
             const managerIds = managers.map((manager) => manager.id);

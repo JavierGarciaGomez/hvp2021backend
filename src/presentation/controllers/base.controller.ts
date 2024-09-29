@@ -53,8 +53,8 @@ export abstract class BaseController<
       const count = await this.service.count(options);
       const response = ResponseFormatterService.formatListResponse({
         data: result,
-        page: options.paginationDto.page ?? 1,
-        limit: options.paginationDto.limit ?? count,
+        page: options.paginationDto?.page ?? 1,
+        limit: options.paginationDto?.limit ?? count,
         total: count,
         path: this.path,
         resource: this.resource,

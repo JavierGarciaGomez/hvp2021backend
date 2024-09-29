@@ -22,3 +22,8 @@ __exportStar(require("./product.factory"), exports);
 __exportStar(require("./supplier.factory"), exports);
 __exportStar(require("./activity-register.factory"), exports);
 __exportStar(require("./missing-product.factory"), exports);
+__exportStar(require("./branch.factory"), exports);
+__exportStar(require("./week-shift.factory"), exports);
+__exportStar(require("./public-holidays.factory"), exports);
+__exportStar(require("./salary-data.factory"), exports);
+__exportStar(require("./job.factory"), exports);

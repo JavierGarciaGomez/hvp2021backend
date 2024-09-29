@@ -65,7 +65,7 @@ class AuthService {
             const collaboratorAuth = {
                 uid: collaborator._id,
                 col_code: collaborator.col_code,
-                role: domain_1.CollaboratorRole.admin,
+                role: domain_1.WebAppRole.admin,
                 imgUrl: collaborator.imgUrl,
             };
             const token = yield jwt_adapter_1.JwtAdapter.generateToken(Object.assign({}, collaboratorAuth));

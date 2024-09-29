@@ -32,7 +32,7 @@ class WorkLogsRoutes {
         router.get(WorkLogsPaths.byId, controller.getWorkLogById);
         router.post(WorkLogsPaths.create, controller.createWorkLog);
         router.put(WorkLogsPaths.update, controller.updateWorkLog);
-        router.delete(WorkLogsPaths.delete, (0, isAuthorized_1.default)([domain_1.CollaboratorRole.admin, domain_1.CollaboratorRole.manager]), controller.deleteWorkLog);
+        router.delete(WorkLogsPaths.delete, (0, isAuthorized_1.default)([domain_1.WebAppRole.admin, domain_1.WebAppRole.manager]), controller.deleteWorkLog);
         return router;
     }
 }

@@ -33,8 +33,8 @@ export class CollaboratorController extends BaseController<
       const result = await this.service.getAllPublic(newOptions);
       const response = ResponseFormatterService.formatListResponse({
         data: result,
-        page: newOptions.paginationDto.page ?? 1,
-        limit: newOptions.paginationDto.limit ?? result.length,
+        page: newOptions.paginationDto?.page ?? 1,
+        limit: newOptions.paginationDto?.limit ?? result.length,
         total: result.length,
         path: this.path,
         resource: this.resource,

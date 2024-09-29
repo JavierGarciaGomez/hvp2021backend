@@ -23,3 +23,8 @@ __exportStar(require("./product.repository.imp"), exports);
 __exportStar(require("./supplier.repository.imp"), exports);
 __exportStar(require("./activity-register.repository.imp"), exports);
 __exportStar(require("./missing-product.repository.imp"), exports);
+__exportStar(require("./branch.repository.imp"), exports);
+__exportStar(require("./public-holidays.repository.imp"), exports);
+__exportStar(require("./salary-data.repository.imp"), exports);
+__exportStar(require("./week-shift.repository.imp"), exports);
+__exportStar(require("./job.repository.imp"), exports);

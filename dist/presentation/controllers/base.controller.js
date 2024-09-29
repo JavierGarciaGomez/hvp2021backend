@@ -34,7 +34,7 @@ class BaseController {
             }
         });
         this.getAll = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
+            var _a, _b, _c, _d;
             try {
                 const query = req.query;
                 const options = (0, helpers_1.buildQueryOptions)(query);
@@ -42,8 +42,8 @@ class BaseController {
                 const count = yield this.service.count(options);
                 const response = application_1.ResponseFormatterService.formatListResponse({
                     data: result,
-                    page: (_a = options.paginationDto.page) !== null && _a !== void 0 ? _a : 1,
-                    limit: (_b = options.paginationDto.limit) !== null && _b !== void 0 ? _b : count,
+                    page: (_b = (_a = options.paginationDto) === null || _a === void 0 ? void 0 : _a.page) !== null && _b !== void 0 ? _b : 1,
+                    limit: (_d = (_c = options.paginationDto) === null || _c === void 0 ? void 0 : _c.limit) !== null && _d !== void 0 ? _d : count,
                     total: count,
                     path: this.path,
                     resource: this.resource,

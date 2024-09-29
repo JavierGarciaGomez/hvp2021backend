@@ -121,8 +121,8 @@ class TimeOffRequestsService {
             if (!timeOffRequest)
                 throw BaseError_1.BaseError.notFound(`${resource} not found with id ${id}`);
             if (timeOffRequest.status !== shared_1.TimeOffStatus.pending &&
-                role !== domain_1.CollaboratorRole.admin &&
-                role !== domain_1.CollaboratorRole.manager) {
+                role !== domain_1.WebAppRole.admin &&
+                role !== domain_1.WebAppRole.manager) {
                 throw BaseError_1.BaseError.unauthorized("The time off request has already been approved.");
             }
             const firstVacationDate = (0, dateHelpers_1.getEarliestDate)(timeOffRequest.requestedDays);

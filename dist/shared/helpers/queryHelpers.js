@@ -40,11 +40,11 @@ const buildQueryOptions = (queryParams) => {
 exports.buildQueryOptions = buildQueryOptions;
 const getAllHelper = (model, queryOptions) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const { paginationDto, filteringDto, sortingDto } = queryOptions;
-    const sortField = sortingDto.sort_by || "updated_at";
-    const sortDirection = sortingDto.direction === "desc" ? -1 : 1;
-    const page = paginationDto.page || 1; // Default to 1 if page is not provided
-    const limit = (_a = paginationDto.limit) !== null && _a !== void 0 ? _a : 0;
+    const { paginationDto, filteringDto, sortingDto } = queryOptions || {};
+    const sortField = (sortingDto === null || sortingDto === void 0 ? void 0 : sortingDto.sort_by) || "updated_at";
+    const sortDirection = (sortingDto === null || sortingDto === void 0 ? void 0 : sortingDto.direction) === "desc" ? -1 : 1;
+    const page = (paginationDto === null || paginationDto === void 0 ? void 0 : paginationDto.page) || 1; // Default to 1 if page is not provided
+    const limit = (_a = paginationDto === null || paginationDto === void 0 ? void 0 : paginationDto.limit) !== null && _a !== void 0 ? _a : 0;
     const result = yield model
         .find(filteringDto)
         .sort({ [sortField]: sortDirection })
@@ -57,10 +57,10 @@ const getAllByDateRangeHelper = (model, queryOptions, durationFields) => __await
     const { filteringDto, calculateDurationDto } = queryOptions;
     // Add date range filtering to findQuery
     const findQuery = Object.assign({}, filteringDto);
-    if (calculateDurationDto.startDate) {
+    if (calculateDurationDto === null || calculateDurationDto === void 0 ? void 0 : calculateDurationDto.startDate) {
         findQuery[durationFields[0]] = { $gte: calculateDurationDto.startDate };
     }
-    if (calculateDurationDto.endDate) {
+    if (calculateDurationDto === null || calculateDurationDto === void 0 ? void 0 : calculateDurationDto.endDate) {
         findQuery[durationFields[1]] = { $lte: calculateDurationDto.endDate };
     }
     const result = yield model.find(findQuery);

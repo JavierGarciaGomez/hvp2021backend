@@ -12,3 +12,4 @@ export * from "./week-shift.routes";
 export * from "./public-holidays.routes";
 export * from "./salary-data.routes";
 export * from "./job.routes";
+export * from "./images.routes";

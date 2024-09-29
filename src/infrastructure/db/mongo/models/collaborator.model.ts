@@ -68,6 +68,22 @@ const CollaboratorSchema: Schema = new Schema<CollaboratorDocument>(
     imgUrl: {
       type: String,
     },
+    images: [
+      {
+        publicId: {
+          type: String,
+        },
+        url: {
+          type: String,
+        },
+        thumbnailUrl: {
+          type: String,
+        },
+        isMain: {
+          type: Boolean,
+        },
+      },
+    ],
     accessCode: {
       type: String,
     },

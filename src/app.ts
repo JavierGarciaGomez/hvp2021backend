@@ -2,6 +2,7 @@ import { envsPlugin } from "./infrastructure/adapters";
 import { MongoDatabase } from "./infrastructure/db/mongo";
 import { AppRoutes } from "./presentation/appRoutes";
 import { Server } from "./presentation/server";
+// todo move multer elsewhere
 
 import { getEnvsByEnvironment } from "./shared/helpers/";
 (async () => {

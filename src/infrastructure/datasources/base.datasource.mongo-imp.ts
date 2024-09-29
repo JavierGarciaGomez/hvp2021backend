@@ -53,10 +53,10 @@ export abstract class BaseDatasourceMongoImp<T extends BaseEntity>
     return id;
   }
 
-  async count(queryOptions: CustomQueryOptions): Promise<number> {
-    const { filteringDto } = queryOptions;
+  async count(queryOptions?: CustomQueryOptions): Promise<number> {
+    const { filteringDto } = queryOptions || {};
 
-    return this.model.countDocuments(filteringDto);
+    return this.model.countDocuments(filteringDto || {});
   }
 
   async exists(query: any): Promise<boolean> {

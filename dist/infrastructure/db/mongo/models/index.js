@@ -42,3 +42,8 @@ __exportStar(require("./notification.model"), exports);
 __exportStar(require("./product.model"), exports);
 __exportStar(require("./supplier.model"), exports);
 __exportStar(require("./missing-product.model"), exports);
+__exportStar(require("./branch.model"), exports);
+__exportStar(require("./public-holidays.model"), exports);
+__exportStar(require("./salary-data.model"), exports);
+__exportStar(require("./week-shift.model"), exports);
+__exportStar(require("./job.model"), exports);

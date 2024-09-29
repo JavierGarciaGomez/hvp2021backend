@@ -37,9 +37,9 @@ class TimeOffRequestsRoutes {
         router.get(TimeOffRequestsRoutePaths.byYear, controller.getTimeOffRequestsByYear);
         router.get(TimeOffRequestsRoutePaths.byId, controller.getTimeOffRequestById);
         router.post(TimeOffRequestsRoutePaths.create, controller.createTimeOffRequest);
-        router.put(TimeOffRequestsRoutePaths.update, (0, isAuthorized_1.default)([domain_1.CollaboratorRole.admin, domain_1.CollaboratorRole.manager], true), controller.updateTimeOffRequest);
-        router.patch(TimeOffRequestsRoutePaths.approve, (0, isAuthorized_1.default)([domain_1.CollaboratorRole.admin, domain_1.CollaboratorRole.manager]), controller.approveTimeOffRequest);
-        router.delete(TimeOffRequestsRoutePaths.delete, (0, isAuthorized_1.default)([domain_1.CollaboratorRole.admin, domain_1.CollaboratorRole.manager], true), controller.deleteTimeOffRequest);
+        router.put(TimeOffRequestsRoutePaths.update, (0, isAuthorized_1.default)([domain_1.WebAppRole.admin, domain_1.WebAppRole.manager], true), controller.updateTimeOffRequest);
+        router.patch(TimeOffRequestsRoutePaths.approve, (0, isAuthorized_1.default)([domain_1.WebAppRole.admin, domain_1.WebAppRole.manager]), controller.approveTimeOffRequest);
+        router.delete(TimeOffRequestsRoutePaths.delete, (0, isAuthorized_1.default)([domain_1.WebAppRole.admin, domain_1.WebAppRole.manager], true), controller.deleteTimeOffRequest);
         router.get(TimeOffRequestsRoutePaths.collaboratorsOverview, controller.getCollaboratorsTimeOffOverview);
         router.get(TimeOffRequestsRoutePaths.collaboratorOverview, controller.getCollaboratorTimeOffOverview);
         // router.post("/", [AuthMiddleware.validateJWT], controller.createCategory);

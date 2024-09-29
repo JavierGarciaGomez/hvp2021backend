@@ -41,6 +41,12 @@ class AppRoutes {
         router.use(mainRoutes_1.mainRoutes.activityRegisterTypes, new routes_2.ActivityRegisterTypeRoutes().getRoutes());
         router.use(mainRoutes_1.mainRoutes.activityRegister, new routes_2.ActivityRegisterRoutes().getRoutes());
         router.use(mainRoutes_1.mainRoutes.missingProducts, new routes_2.MissingProductRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.branches, new routes_2.BranchRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.weekShifts, new routes_2.WeekShiftRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.publicHolidays, new routes_2.PublicHolidaysRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.salaryData, new routes_2.SalaryDataRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.jobs, new routes_2.JobRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.images, new routes_2.ImagesRoutes().getRoutes());
         return router;
     }
 }

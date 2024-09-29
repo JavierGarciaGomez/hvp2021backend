@@ -23,3 +23,8 @@ __exportStar(require("./supplier.entity"), exports);
 __exportStar(require("./controlled-prescription.entity"), exports);
 __exportStar(require("./activity-register.entity"), exports);
 __exportStar(require("./missing-product.entity"), exports);
+__exportStar(require("./branch.entity"), exports);
+__exportStar(require("./salary-data.entity"), exports);
+__exportStar(require("./public-holidays.entity"), exports);
+__exportStar(require("./job.entity"), exports);
+__exportStar(require("./week-shift.entity"), exports);

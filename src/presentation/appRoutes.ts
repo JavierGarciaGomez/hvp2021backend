@@ -31,6 +31,7 @@ import {
   PublicHolidaysRoutes,
   SalaryDataRoutes,
   JobRoutes,
+  ImagesRoutes,
 } from "./routes";
 
 export class AppRoutes {
@@ -83,6 +84,7 @@ export class AppRoutes {
     );
     router.use(mainRoutes.salaryData, new SalaryDataRoutes().getRoutes());
     router.use(mainRoutes.jobs, new JobRoutes().getRoutes());
+    router.use(mainRoutes.images, new ImagesRoutes().getRoutes());
 
     return router;
   }

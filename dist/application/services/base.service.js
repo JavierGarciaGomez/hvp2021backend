@@ -17,12 +17,17 @@ class BaseService {
         this.entityClass = entityClass;
         this.create = (dto) => __awaiter(this, void 0, void 0, function* () {
             const entity = new this.entityClass(dto);
-            return yield this.repository.create(entity);
+            const result = yield this.repository.create(entity);
+            return this.transformToResponse(result);
+        });
+        this.transformToResponse = (entity) => __awaiter(this, void 0, void 0, function* () {
+            return entity;
         });
     }
     getAll(queryOptions) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.repository.getAll(queryOptions);
+            const data = yield this.repository.getAll(queryOptions);
+            return yield Promise.all(data.map(this.transformToResponse));
         });
     }
     getById(id) {
@@ -31,13 +36,14 @@ class BaseService {
             if (!entity) {
                 throw shared_1.BaseError.notFound(`${this.getResourceName()} not found`);
             }
-            return entity;
+            return this.transformToResponse(entity);
         });
     }
     update(id, dto) {
         return __awaiter(this, void 0, void 0, function* () {
             const entity = new this.entityClass(dto);
-            return yield this.repository.update(id, entity);
+            const result = yield this.repository.update(id, entity);
+            return this.transformToResponse(result);
         });
     }
     delete(id) {
@@ -52,12 +58,14 @@ class BaseService {
     }
     updateMany(entities) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.repository.updateMany(entities);
+            const result = yield this.repository.updateMany(entities);
+            return yield Promise.all(result.map(this.transformToResponse));
         });
     }
     createMany(entities) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.repository.createMany(entities);
+            const result = yield this.repository.createMany(entities);
+            return yield Promise.all(result.map(this.transformToResponse));
         });
     }
 }

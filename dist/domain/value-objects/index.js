@@ -18,3 +18,6 @@ __exportStar(require("./activity-register-type.vo"), exports);
 __exportStar(require("./base-option.vo"), exports);
 __exportStar(require("./base.vo"), exports);
 __exportStar(require("./email.value-object"), exports);
+__exportStar(require("./address.vo"), exports);
+__exportStar(require("./opening-hours.vo"), exports);
+__exportStar(require("./imss-rates.vo"), exports);

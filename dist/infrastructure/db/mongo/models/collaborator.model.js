@@ -26,6 +26,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CollaboratorModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const enums_1 = require("../../../../domain/enums");
+const domain_1 = require("../../../../domain");
 const CollaboratorSchema = new mongoose_1.Schema({
     first_name: {
         type: String,
@@ -35,24 +36,48 @@ const CollaboratorSchema = new mongoose_1.Schema({
         type: String,
         required: true,
     },
-    role: {
-        type: String,
-        enum: enums_1.CollaboratorRole,
-        default: enums_1.CollaboratorRole.collaborator,
-    },
-    col_code: {
-        type: String,
-        required: true,
-    },
-    col_numId: {
-        type: Number,
-    },
-    isActive: {
-        type: Boolean,
-        default: true,
-    },
     gender: {
         type: String,
+        enum: enums_1.Gender,
+        required: false,
+    },
+    email: {
+        type: String,
+        required: false,
+    },
+    phoneNumber: {
+        type: String,
+        required: false,
+    },
+    phoneNumber2: {
+        type: String,
+        required: false,
+    },
+    address: domain_1.AddressSchema,
+    curp: {
+        type: String,
+        required: false,
+    },
+    imssNumber: {
+        type: String,
+        required: false,
+    },
+    rfcCode: {
+        type: String,
+        required: false,
+    },
+    emergencyContact: {
+        type: String,
+        required: false,
+    },
+    emergencyContactPhone: {
+        type: String,
+        required: false,
+    },
+    role: {
+        type: String,
+        enum: enums_1.WebAppRole,
+        default: enums_1.WebAppRole.collaborator,
     },
     imgUrl: {
         type: String,
@@ -63,13 +88,7 @@ const CollaboratorSchema = new mongoose_1.Schema({
     isRegistered: {
         type: Boolean,
     },
-    email: {
-        type: String,
-    },
     password: {
-        type: String,
-    },
-    position: {
         type: String,
     },
     isDisplayedWeb: {
@@ -88,15 +107,58 @@ const CollaboratorSchema = new mongoose_1.Schema({
     lastLogin: {
         type: Date,
     },
-    // VacationDays
+    vacationsTakenBefore2021: {
+        type: Number,
+    },
+    col_code: {
+        type: String,
+        required: true,
+    },
+    col_numId: {
+        type: Number,
+        required: false,
+    },
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
     startDate: {
         type: Date,
     },
     endDate: {
         type: Date,
     },
-    vacationsTakenBefore2021: {
+    position: {
+        type: String,
+    },
+    coverShift: {
+        type: Boolean,
+    },
+    weeklyHours: {
         type: Number,
+    },
+    jobId: {
+        type: String,
+    },
+    contractDate: {
+        type: Date,
+    },
+    hasIMSS: {
+        type: Boolean,
+    },
+    imssEnrollmentDate: {
+        type: Date,
+    },
+    paymentType: {
+        type: String,
+        enum: enums_1.PaymentType,
+    },
+    additionalCompensation: {
+        type: Number,
+    },
+    degree: {
+        type: String,
+        enum: enums_1.Degree,
     },
     createdAt: { type: Date, default: Date.now },
     createdBy: { type: mongoose_1.Schema.Types.ObjectId, ref: "Collaborator" },

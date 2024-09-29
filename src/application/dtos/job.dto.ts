@@ -49,10 +49,10 @@ export class JobDTO implements BaseDTO {
 
     const { annualRaisePercent, baseIncome, paymentType, title } = data;
 
-    if (!annualRaisePercent) {
+    if (annualRaisePercent === undefined) {
       errors.push("Annual raise percent is required");
     }
-    if (!baseIncome) {
+    if (baseIncome === undefined) {
       errors.push("Base income is required");
     }
     if (!paymentType) {

@@ -13,3 +13,4 @@ export * from "./week-shift.service";
 export * from "./public-holidays.service";
 export * from "./salary-data.service";
 export * from "./job.service";
+export * from "./cloudinary.service";

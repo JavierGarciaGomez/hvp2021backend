@@ -8,6 +8,7 @@ import {
 
 export const getEnvsByEnvironment = () => {
   const environment = envsPlugin.NODE_ENV;
+
   switch (environment) {
     case "production":
       return {
