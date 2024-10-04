@@ -7,13 +7,21 @@ import { AddressVO, ImageUrl } from "../value-objects";
 import { BaseEntity, BaseEntityProps } from "./base.entity";
 
 export interface CollaboratorProps extends BaseEntityProps {
-  // General information
-  // remove this
+  // Primary data
+  // todo remove this
   _id?: string;
   first_name: string;
   last_name: string;
-  gender?: Gender;
   email?: string;
+  col_code: string;
+  col_numId?: number;
+  jobId?: string;
+  role: WebAppRole;
+  isActive: boolean;
+  isDisplayedWeb: boolean;
+
+  // General information
+  gender?: Gender;
   phoneNumber?: string;
   phoneNumber2?: string;
   address?: AddressVO;
@@ -24,13 +32,11 @@ export interface CollaboratorProps extends BaseEntityProps {
   emergencyContactPhone?: string;
 
   // webApp information
-  role: WebAppRole;
   imgUrl?: string;
   images?: ImageUrl[];
   accessCode?: string;
   isRegistered: boolean;
   password?: string;
-  isDisplayedWeb: boolean;
   textPresentation?: string;
   registeredDate?: Date;
   // TODO: remove this
@@ -38,17 +44,13 @@ export interface CollaboratorProps extends BaseEntityProps {
   vacationsTakenBefore2021?: number;
 
   // Job information
-  col_code: string;
-  col_numId?: number;
   // this could be computed
-  isActive: boolean;
   startDate?: Date;
   endDate?: Date;
   // TODO: remove this
   position?: string;
   coverShift?: boolean;
   weeklyHours?: number;
-  jobId?: string;
   contractDate?: Date;
   hasIMSS?: boolean;
   imssEnrollmentDate?: Date;

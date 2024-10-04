@@ -5,6 +5,7 @@ import TimeOffRequestModel from "../../infrastructure/db/mongo/models/TimeOffReq
 export interface ResourceWithCollaborator {
   createdBy: string; // Change the type of createdBy according to your actual data type
   collaborator: string;
+  id: string;
 }
 
 export const getResource = async (

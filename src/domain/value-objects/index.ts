@@ -6,3 +6,4 @@ export * from "./address.vo";
 export * from "./opening-hours.vo";
 export * from "./imss-rates.vo";
 export * from "./image-url.vo";
+export * from "./geo-location.vo";

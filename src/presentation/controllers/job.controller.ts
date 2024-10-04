@@ -8,8 +8,8 @@ import { JobEntity } from "../../domain";
 import { Request, Response } from "express";
 
 export class JobController extends BaseController<JobEntity, JobDTO> {
-  protected resource = "branch";
-  protected path = "/branches";
+  protected resource = "jobs";
+  protected path = "/jobs";
   constructor(protected service: JobService) {
     super(service, JobDTO);
   }

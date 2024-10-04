@@ -111,6 +111,7 @@ export abstract class BaseController<
   ): Promise<Response | void> => {
     try {
       const { id } = req.params;
+      throw new Error("Not implemented");
       const result = await this.service.delete(id);
       const response = ResponseFormatterService.formatDeleteResponse({
         data: result,

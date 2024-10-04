@@ -11,6 +11,7 @@ export class JobDTO implements BaseDTO {
   minimumIncome?: number;
   paymentType: PaymentType;
   title: string;
+  sortingOrder: number;
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
@@ -25,6 +26,7 @@ export class JobDTO implements BaseDTO {
     minimumIncome,
     paymentType,
     title,
+    sortingOrder,
     createdAt,
     createdBy,
     updatedAt,
@@ -38,6 +40,7 @@ export class JobDTO implements BaseDTO {
     this.minimumIncome = minimumIncome;
     this.paymentType = paymentType;
     this.title = title;
+    this.sortingOrder = sortingOrder;
     this.createdAt = createdAt;
     this.createdBy = createdBy;
     this.updatedAt = updatedAt;

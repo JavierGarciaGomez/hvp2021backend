@@ -140,7 +140,9 @@ const CollaboratorSchema: Schema = new Schema<CollaboratorDocument>(
       type: Number,
     },
     jobId: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: "Job",
     },
     contractDate: {
       type: Date,

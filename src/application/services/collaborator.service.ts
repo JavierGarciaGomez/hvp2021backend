@@ -21,6 +21,14 @@ export class CollaboratorService extends BaseService<
     super(repository, CollaboratorEntity);
   }
 
+  public create = async (
+    dto: CollaboratorDTO
+  ): Promise<CollaboratorResponse> => {
+    const entity = new CollaboratorEntity(dto);
+    const result = await this.repository.create(entity);
+    return this.transformToResponse(result);
+  };
+
   public getAllPublic = async (
     options: CustomQueryOptions
   ): Promise<PublicCollaborator[]> => {

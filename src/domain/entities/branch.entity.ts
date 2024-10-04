@@ -1,19 +1,19 @@
-import { BranchDocument } from "../../infrastructure/db/mongo/models/branch.model";
+import { GeoLocationVO } from "../value-objects";
 import { AddressVO } from "../value-objects/address.vo";
 import { OpeningHoursVO } from "../value-objects/opening-hours.vo";
-import { BaseEntity } from "./base.entity";
+import { BaseEntity, BaseEntityProps } from "./base.entity";
 
-export interface BranchProps {
-  id?: string;
+export interface BranchProps extends BaseEntityProps {
   name: string;
   address: AddressVO;
   openingDate?: Date;
   openingHours: OpeningHoursVO[];
-  createdAt?: Date;
-  createdBy?: string;
-  updatedAt?: Date;
-  updatedBy?: string;
+  phoneNumber: string;
+  whatsappNumber: string;
+  geoLocation: GeoLocationVO;
 }
+
+export interface BranchDocument extends BranchProps, Document {}
 
 export class BranchEntity implements BaseEntity {
   id?: string;
@@ -21,6 +21,9 @@ export class BranchEntity implements BaseEntity {
   address: AddressVO;
   openingDate?: Date;
   openingHours: OpeningHoursVO[];
+  phoneNumber: string;
+  whatsappNumber: string;
+  geoLocation: GeoLocationVO;
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
@@ -32,6 +35,9 @@ export class BranchEntity implements BaseEntity {
     address,
     openingDate,
     openingHours,
+    phoneNumber,
+    whatsappNumber,
+    geoLocation,
     createdAt,
     createdBy,
     updatedAt,
@@ -42,6 +48,9 @@ export class BranchEntity implements BaseEntity {
     this.address = address;
     this.openingDate = openingDate;
     this.openingHours = openingHours;
+    this.phoneNumber = phoneNumber;
+    this.whatsappNumber = whatsappNumber;
+    this.geoLocation = geoLocation;
     this.createdAt = createdAt;
     this.createdBy = createdBy;
     this.updatedAt = updatedAt;
@@ -55,6 +64,9 @@ export class BranchEntity implements BaseEntity {
       address: document.address,
       openingDate: document.openingDate,
       openingHours: document.openingHours,
+      phoneNumber: document.phoneNumber,
+      whatsappNumber: document.whatsappNumber,
+      geoLocation: document.geoLocation,
       createdAt: document.createdAt,
       createdBy: document.createdBy,
       updatedAt: document.updatedAt,

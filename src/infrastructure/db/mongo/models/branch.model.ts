@@ -1,8 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { BranchProps } from "../../../../domain/entities/branch.entity";
-import { AddressSchema } from "../../../../domain";
-
-export interface BranchDocument extends BranchProps, Document {}
+import {
+  BranchDocument,
+  BranchProps,
+} from "../../../../domain/entities/branch.entity";
+import { AddressSchema, GeoLocationSchema } from "../../../../domain";
 
 const BranchSchema: Schema = new Schema<BranchDocument>(
   {
@@ -16,6 +17,9 @@ const BranchSchema: Schema = new Schema<BranchDocument>(
         close: { type: String, required: false },
       },
     ],
+    phoneNumber: { type: String, required: true },
+    whatsappNumber: { type: String, required: true },
+    geoLocation: GeoLocationSchema,
     createdAt: { type: Date, default: Date.now },
     createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
     updatedAt: { type: Date, default: Date.now },

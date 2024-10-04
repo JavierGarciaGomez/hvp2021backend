@@ -16,8 +16,11 @@ passport.use(
     },
     async (token, tokenSecret, profile, done) => {
       try {
+        const email = profile.emails![0].value;
+        const collaborators = await CollaboratorModel.find();
+        console.log({ collaborators });
         const user = await CollaboratorModel.findOne({
-          email: profile.emails![0].value,
+          email,
         });
         if (!user) {
           const newUser = await CollaboratorModel.create({

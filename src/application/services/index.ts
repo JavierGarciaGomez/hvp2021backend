@@ -14,3 +14,4 @@ export * from "./public-holidays.service";
 export * from "./salary-data.service";
 export * from "./job.service";
 export * from "./cloudinary.service";
+export * from "./authorizationService";

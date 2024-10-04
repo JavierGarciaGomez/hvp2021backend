@@ -5,6 +5,11 @@ const JobSchema: Schema = new Schema<JobDocument>(
   {
     active: { type: Boolean, required: true, default: true },
     annualRaisePercent: { type: Number, required: true, default: 0 },
+    quarterlyComissionRaisePercent: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
     baseIncome: { type: Number, required: true, default: 0 },
     description: { type: String, required: false, default: "" },
     hourlyRate: { type: Number, required: true, default: 0 },
@@ -15,6 +20,7 @@ const JobSchema: Schema = new Schema<JobDocument>(
       default: PaymentType.SALARY,
     },
     title: { type: String, required: true, default: "" },
+    sortingOrder: { type: Number, required: true, default: 0 },
     createdAt: { type: Date, default: Date.now },
     createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
     updatedAt: { type: Date, default: Date.now },

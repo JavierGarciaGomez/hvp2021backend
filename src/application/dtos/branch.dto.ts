@@ -1,12 +1,16 @@
 import { BaseDTO } from "./base.dto";
 import { BranchProps } from "../../domain/entities";
-import { AddressVO, OpeningHoursVO } from "../../domain";
+import { AddressVO, GeoLocationVO, OpeningHoursVO } from "../../domain";
+import { validateRequiredFields } from "../../shared";
 
 export class BranchDTO implements BaseDTO {
   name: string;
   address: AddressVO;
   openingDate?: Date;
   openingHours: OpeningHoursVO[];
+  phoneNumber: string;
+  whatsappNumber: string;
+  geoLocation: GeoLocationVO;
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
@@ -17,6 +21,9 @@ export class BranchDTO implements BaseDTO {
     address,
     openingDate,
     openingHours,
+    phoneNumber,
+    whatsappNumber,
+    geoLocation,
     createdAt,
     createdBy,
     updatedAt,
@@ -26,6 +33,9 @@ export class BranchDTO implements BaseDTO {
     this.address = address;
     this.openingDate = openingDate;
     this.openingHours = openingHours;
+    this.phoneNumber = phoneNumber;
+    this.whatsappNumber = whatsappNumber;
+    this.geoLocation = geoLocation;
     this.createdAt = createdAt;
     this.createdBy = createdBy;
     this.updatedAt = updatedAt;
@@ -33,19 +43,18 @@ export class BranchDTO implements BaseDTO {
   }
 
   static create(data: BranchProps): BranchDTO {
-    const { name, address, openingHours } = data;
+    const {} = data;
 
-    const errors = [];
-    if (!name) {
-      errors.push("Name is required");
-    }
-    if (!address) {
-      errors.push("Address is required");
-    }
+    const errors: string[] = [];
 
-    if (!openingHours) {
-      errors.push("Opening hours is required");
-    }
+    validateRequiredFields(data, [
+      "name",
+      "address",
+      "openingHours",
+      "phoneNumber",
+      "whatsappNumber",
+      "geoLocation",
+    ]);
 
     if (errors.length) {
       throw new Error(errors.join(", "));
