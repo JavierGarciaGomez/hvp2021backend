@@ -48,6 +48,8 @@ export class WeekShiftDTO implements BaseDTO {
     const errors: string[] = [];
 
     const { startingDate, endingDate, shifts } = data;
+    const newStartingDate = new Date(startingDate);
+    const newEndingDate = new Date(endingDate);
 
     if (!startingDate) {
       errors.push("Starting date is required");
@@ -72,15 +74,27 @@ export class WeekShiftDTO implements BaseDTO {
 
     checkForErrors(errors);
 
-    return new WeekShiftDTO({ ...data });
+    return new WeekShiftDTO({
+      ...data,
+      startingDate: newStartingDate,
+      endingDate: newEndingDate,
+    });
   }
 
   static update(data: WeekShiftProps): WeekShiftDTO {
+    const { startingDate, endingDate } = data;
+    const newStartingDate = new Date(startingDate);
+    const newEndingDate = new Date(endingDate);
     const errors: string[] = [];
+
     this.checkOldDate(data.startingDate, errors);
 
     checkForErrors(errors);
-    return new WeekShiftDTO({ ...data });
+    return new WeekShiftDTO({
+      ...data,
+      startingDate: newStartingDate,
+      endingDate: newEndingDate,
+    });
   }
 
   private static checkOldDate = (date: string | Date, errors: string[]) => {
