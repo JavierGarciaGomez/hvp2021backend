@@ -61,8 +61,7 @@ export class CollaboratorService extends BaseService<
     const productService = createProductService();
     const collaborator: CollaboratorResponse = {
       ...entity,
-      baseContributionSalary:
-        (await productService.getAll()) as unknown as number,
+      baseContributionSalary: 10,
       dailyAverageSalary: 10,
       accumulatedAnnualIncomeRaisePercent: 10,
       accumulatedAnnualComissionRaisePercent: 10,

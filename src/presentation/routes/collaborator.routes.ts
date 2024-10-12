@@ -19,6 +19,7 @@ export class CollaboratorRoutes extends BaseCRUDRoutes {
     const controller = new CollaboratorController(service);
 
     this.router.get("/getAllForWeb", controller.getAllPublic);
+    this.router.get("/", AuthMiddleware.validateJWT, controller.getAll);
     this.router.delete(
       "/:id",
       AuthMiddleware.validateJWT,
@@ -28,7 +29,23 @@ export class CollaboratorRoutes extends BaseCRUDRoutes {
       controller.delete
     );
     this.router.patch("/register", controller.register);
-    // todo this should be removed
+    this.router.patch(
+      "/:id",
+      AuthMiddleware.validateJWT,
+      authorizationMiddleware({
+        roles: [WebAppRole.admin, WebAppRole.manager],
+      }),
+      controller.update
+    );
+    this.router.patch(
+      "/",
+      AuthMiddleware.validateJWT,
+      authorizationMiddleware({
+        roles: [WebAppRole.admin],
+      }),
+      controller.updateMany
+    );
+
     this.router.post(
       "/create",
       AuthMiddleware.validateJWT,

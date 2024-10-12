@@ -2,8 +2,8 @@ import { CollaboratorDayShift } from "../value-objects/day-shift.vo";
 import { BaseEntity, BaseEntityProps } from "./base.entity";
 
 export interface WeekShiftProps extends BaseEntityProps {
-  startingDate: string;
-  endingDate: string;
+  startingDate: Date;
+  endingDate: Date;
   shifts: CollaboratorDayShift[];
   isModel?: boolean;
   modelName?: string;
@@ -17,8 +17,8 @@ export class WeekShiftEntity implements BaseEntity {
   createdBy?: string;
   updatedAt?: Date;
   updatedBy?: string;
-  startingDate: string;
-  endingDate: string;
+  startingDate: Date;
+  endingDate: Date;
   shifts: CollaboratorDayShift[];
   isModel?: boolean;
   modelName?: string;

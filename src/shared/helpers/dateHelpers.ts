@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export const getEarliestDate = (dates: Date[]) => {
   const earliestDate = new Date(
     Math.min(...dates.map((date) => date.getTime()))
@@ -36,3 +38,15 @@ export const getCurrentMexicanDate = () => {
   const [day, month, year] = date.split("/");
   return `${year}-${month}-${day}`;
 };
+
+export const validateDateDay = (date: string | Date, day: string): boolean => {
+  const parsedDate = dayjs(date);
+  const dayOfWeek = parsedDate.format("dddd").toLowerCase();
+  return dayOfWeek === day.toLowerCase();
+};
+
+export const checkIsMonday = (date: string | Date): boolean =>
+  validateDateDay(date, "Monday");
+
+export const checkIsSunday = (date: string | Date): boolean =>
+  validateDateDay(date, "Sunday");

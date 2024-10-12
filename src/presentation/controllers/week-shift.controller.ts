@@ -6,8 +6,8 @@ export class WeekShiftController extends BaseController<
   WeekShiftEntity,
   WeekShiftDTO
 > {
-  protected resource = "weeh-shift";
-  protected path = "/weeh-shifts";
+  protected resource = "week-shifts";
+  protected path = "/week-shifts";
   constructor(protected service: WeekShiftService) {
     super(service, WeekShiftDTO);
   }

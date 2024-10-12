@@ -1,13 +1,33 @@
 version: "3.8"
 
 services:
-  mongo-db:
+  mongo-db-dev:
     image: mongo:6.0.6
+    container_name: mongo-db-dev # Unique container name
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DEV_MONGO_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${DEV_MONGO_PASS}
+
     volumes:
+      # For dev profile
       - ./mongo:/data/db
     ports:
+      # For dev profile
       - 27017:27017
+    profiles:
+      - dev
+
+  mongo-db-test:
+    image: mongo:6.0.6
+    restart: always
+    container_name: mongo-db-test # Unique container name
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DEV_MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DEV_MONGO_PASS}
+    volumes:
+      - ./mongo-test:/data/db
+    ports:
+      - 27018:27018
+    profiles:
+      - test

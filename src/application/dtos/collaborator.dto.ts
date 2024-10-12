@@ -3,6 +3,7 @@ import {
   CollaboratorProps,
   Degree,
   Gender,
+  ImageUrl,
   PaymentType,
   WebAppRole,
 } from "../../domain";
@@ -17,11 +18,21 @@ import { BaseDTO } from "./";
 
 export class CollaboratorDTO implements BaseDTO {
   id?: string;
+  // Primary data
+  // todo remove this
   _id?: string;
   first_name: string;
   last_name: string;
-  gender?: Gender;
   email?: string;
+  col_code: string;
+  col_numId?: number;
+  jobId?: string;
+  role: WebAppRole;
+  isActive: boolean;
+  isDisplayedWeb: boolean;
+
+  // General information
+  gender?: Gender;
   phoneNumber?: string;
   phoneNumber2?: string;
   address?: AddressVO;
@@ -32,12 +43,11 @@ export class CollaboratorDTO implements BaseDTO {
   emergencyContactPhone?: string;
 
   // webApp information
-  role: WebAppRole;
   imgUrl?: string;
+  images?: ImageUrl[];
   accessCode?: string;
   isRegistered: boolean;
   password?: string;
-  isDisplayedWeb: boolean;
   textPresentation?: string;
   registeredDate?: Date;
   // TODO: remove this
@@ -45,17 +55,13 @@ export class CollaboratorDTO implements BaseDTO {
   vacationsTakenBefore2021?: number;
 
   // Job information
-  col_code: string;
-  col_numId?: number;
   // this could be computed
-  isActive: boolean;
   startDate?: Date;
   endDate?: Date;
   // TODO: remove this
   position?: string;
   coverShift?: boolean;
   weeklyHours?: number;
-  jobId?: string;
   contractDate?: Date;
   hasIMSS?: boolean;
   imssEnrollmentDate?: Date;
@@ -65,6 +71,8 @@ export class CollaboratorDTO implements BaseDTO {
   additionalCompensation?: number; // based in the hours he goes
   // TODO: enum
   degree?: Degree;
+
+  // TODO: enum
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
@@ -110,6 +118,7 @@ export class CollaboratorDTO implements BaseDTO {
     this.paymentType = options.paymentType;
     this.additionalCompensation = options.additionalCompensation;
     this.degree = options.degree;
+    this.images = options.images;
     this.createdAt = options.createdAt;
     this.createdBy = options.createdBy;
     this.updatedAt = options.updatedAt;
