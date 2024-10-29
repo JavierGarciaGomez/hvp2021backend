@@ -1,4 +1,3 @@
-export { default as AttendanceRecordModel } from "./AttendanceRecordModel";
 export { default as AuthActivityModel } from "./AuthActivityModel";
 export { default as BillCreationInfoModel } from "./BillCreationInfoModel";
 export { default as CustomerRFCModel } from "./CustomerRFCModel";
@@ -19,3 +18,4 @@ export * from "./public-holidays.model";
 export * from "./salary-data.model";
 export * from "./week-shift.model";
 export * from "./job.model";
+export * from "./attendance-record.model";

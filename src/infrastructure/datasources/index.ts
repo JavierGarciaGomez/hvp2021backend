@@ -12,3 +12,4 @@ export * from "./public-holidays.datasource.mongo-imp";
 export * from "./salary-data.datasource.mongo-imp";
 export * from "./week-shift.datasource.mongo-imp";
 export * from "./job.datasource.mongo-imp";
+export * from "./attendance-record.datasource.mongo-imp";

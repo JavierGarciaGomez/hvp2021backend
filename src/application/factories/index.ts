@@ -11,3 +11,4 @@ export * from "./week-shift.factory";
 export * from "./public-holidays.factory";
 export * from "./salary-data.factory";
 export * from "./job.factory";
+export * from "./attendance-record.factory";

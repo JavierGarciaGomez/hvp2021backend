@@ -12,3 +12,4 @@ export * from "./job.datasource";
 export * from "./public-holidays.datasource";
 export * from "./salary-data.datasource";
 export * from "./week-shift.datasource";
+export * from "./attendance-record.datasource";

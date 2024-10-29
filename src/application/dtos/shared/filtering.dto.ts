@@ -2,7 +2,6 @@ import { BaseError } from "../../../shared/errors/BaseError";
 
 export class FilteringDto {
   [key: string]: any;
-  // [key: string]: string | undefined;
 
   static create(params: { [key: string]: string }): FilteringDto {
     const instance = new FilteringDto();
@@ -15,7 +14,6 @@ export class FilteringDto {
           const operator = params[key].substring(0, colonIndex);
           const value = params[key].substring(colonIndex + 1).trim();
 
-          // Parse value based on operator and expected type
           switch (operator) {
             case "$gte":
             case "$lte":
@@ -30,6 +28,27 @@ export class FilteringDto {
                 };
               } else {
                 instance[field] = { ...instance[field], [operator]: value };
+              }
+              break;
+            case "$range":
+              const [startDate, endDate] = value
+                .split("...")
+                .map((dateStr) => dateStr.trim());
+              const parsedStartDate = new Date(startDate);
+              const parsedEndDate = new Date(endDate);
+
+              if (
+                !isNaN(parsedStartDate.getTime()) &&
+                !isNaN(parsedEndDate.getTime())
+              ) {
+                instance[field] = {
+                  $gte: parsedStartDate,
+                  $lte: parsedEndDate,
+                };
+              } else {
+                throw BaseError.badRequest(
+                  `Invalid date range format for ${field}`
+                );
               }
               break;
             case "$regex":

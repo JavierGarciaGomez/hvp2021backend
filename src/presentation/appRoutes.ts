@@ -10,7 +10,7 @@ import {
   userLogRoutes,
   usersRoutes,
 } from "../pending/routes";
-import { AttendanceRecordsRoutes } from "./resources/attendanceRecords/attendanceRecordsRoutes";
+
 import { AuthRoutes } from "./resources/auth/authRoutes";
 import { AuthActivitiesRoutes } from "./resources/authActivities/authActivitiesRoutes";
 import { BillingRoutes } from "./resources/billing/billingRoutes";
@@ -32,6 +32,7 @@ import {
   SalaryDataRoutes,
   JobRoutes,
   ImagesRoutes,
+  AttendanceRecordRoutes,
 } from "./routes";
 
 export class AppRoutes {
@@ -41,7 +42,7 @@ export class AppRoutes {
     // router.use("/api/collaborators", CollaboratorRoutes.routes);
 
     // router.use(mainRoutes.activityRegister, activityRegisterRoutes);
-    router.use(mainRoutes.attendanceRecords, AttendanceRecordsRoutes.routes);
+    // router.use(mainRoutes.attendanceRecords, AttendanceRecordsRoutes.routes);
     router.use(mainRoutes.auth, AuthRoutes.routes);
     router.use(mainRoutes.authActivities, AuthActivitiesRoutes.routes);
     router.use(mainRoutes.billing, BillingRoutes.routes);
@@ -85,6 +86,10 @@ export class AppRoutes {
     router.use(mainRoutes.salaryData, new SalaryDataRoutes().getRoutes());
     router.use(mainRoutes.jobs, new JobRoutes().getRoutes());
     router.use(mainRoutes.images, new ImagesRoutes().getRoutes());
+    router.use(
+      mainRoutes.attendanceRecords,
+      new AttendanceRecordRoutes().getRoutes()
+    );
 
     return router;
   }

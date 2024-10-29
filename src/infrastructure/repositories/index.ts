@@ -12,3 +12,4 @@ export * from "./public-holidays.repository.imp";
 export * from "./salary-data.repository.imp";
 export * from "./week-shift.repository.imp";
 export * from "./job.repository.imp";
+export * from "./attendance-record.repository.imp";

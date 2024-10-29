@@ -14,3 +14,4 @@ export * from "./job.repository";
 export * from "./public-holidays.repository";
 export * from "./salary-data.repository";
 export * from "./week-shift.repository";
+export * from "./attendance-record.repository";

@@ -13,3 +13,4 @@ export * from "./public-holidays.controller";
 export * from "./salary-data.controller";
 export * from "./week-shift.controller";
 export * from "./images.controller";
+export * from "./attendance-record.controller";

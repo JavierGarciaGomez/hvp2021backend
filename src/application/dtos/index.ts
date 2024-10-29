@@ -12,3 +12,6 @@ export * from "./week-shift.dto";
 export * from "./job.dto";
 export * from "./public-holidays.dto";
 export * from "./salary-data.dto";
+export * from "./attendance-record.dto";
+
+// No need for additional export statement, as we're using export * from "./attendance-record.dto"

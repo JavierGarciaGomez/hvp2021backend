@@ -1,4 +1,3 @@
-export * from "./attendanceRecordType";
 export * from "./attendanceTypes";
 export * from "./authActivityTypes";
 export * from "./authTypes";

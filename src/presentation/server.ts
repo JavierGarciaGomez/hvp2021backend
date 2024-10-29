@@ -6,6 +6,7 @@ import { passportAdapter } from "../infrastructure/adapters/passport.adapter";
 import { BaseError, PrintRouteMiddleware } from "../shared";
 import { AttachBaseUrlMiddleware } from "./middlewares";
 import { errorHandler } from "./middlewares/errorHandler";
+import { updateShiftDateField } from "../shared/scripts/upsateShifts";
 
 interface Options {
   port: number;
@@ -63,6 +64,8 @@ export class Server {
     });
 
     this.app.use(errorHandler);
+
+    await updateShiftDateField();
 
     this.serverListener = this.app.listen(this.port, () => {
       console.log(`Server running on port ${this.port}`);

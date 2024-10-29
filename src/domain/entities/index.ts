@@ -12,3 +12,4 @@ export * from "./salary-data.entity";
 export * from "./public-holidays.entity";
 export * from "./job.entity";
 export * from "./week-shift.entity";
+export * from "./attendance-record.entity";

@@ -1,4 +1,3 @@
-export * from "./attendanceRecords/AttendanceRecordDto";
 export * from "./billCreationInfo/billCreationInfoDTO";
 export * from "./collaboratorAuth/collaboratorLoginDto";
 export * from "./customerRFCs/customerRFCSsDto";
