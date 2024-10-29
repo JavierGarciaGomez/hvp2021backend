@@ -65,7 +65,7 @@ export class Server {
 
     this.app.use(errorHandler);
 
-    await updateShiftDateField();
+    // await updateShiftDateField();
 
     this.serverListener = this.app.listen(this.port, () => {
       console.log(`Server running on port ${this.port}`);
