@@ -14,12 +14,7 @@ export class AttendanceRecordRoutes extends BaseCRUDRoutes {
       AuthMiddleware.validateJWT,
       controller.getLastAttendanceRecordByCollaborator
     );
-    this.router.patch(
-      "/:id",
-      AuthMiddleware.validateJWT,
-
-      controller.update
-    );
+    this.router.patch("/:id", AuthMiddleware.validateJWT, controller.update);
 
     this.router.delete(
       "/:id",

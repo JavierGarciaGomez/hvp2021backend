@@ -3,6 +3,7 @@ import { CollaboratorController } from "./../controllers";
 import {
   CollaboratorRepositoryImpl,
   CollaboratorDataSourceMongoImp,
+  CollaboratorModel,
 } from "../../infrastructure";
 import { CollaboratorService } from "../../application";
 import { AuthMiddleware } from "../middlewares";
@@ -32,9 +33,11 @@ export class CollaboratorRoutes extends BaseCRUDRoutes {
     this.router.patch(
       "/:id",
       AuthMiddleware.validateJWT,
-      authorizationMiddleware({
-        roles: [WebAppRole.admin, WebAppRole.manager],
-      }),
+      // authorizationMiddleware({
+      //   roles: [WebAppRole.admin, WebAppRole.manager],
+      //   checkOwnership: true,
+      //   resourceModel: CollaboratorModel,
+      // }),
       controller.update
     );
     this.router.patch(
