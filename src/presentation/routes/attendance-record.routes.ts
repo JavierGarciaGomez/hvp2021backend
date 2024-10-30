@@ -17,9 +17,7 @@ export class AttendanceRecordRoutes extends BaseCRUDRoutes {
     this.router.patch(
       "/:id",
       AuthMiddleware.validateJWT,
-      authorizationMiddleware({
-        roles: [WebAppRole.admin, WebAppRole.manager],
-      }),
+
       controller.update
     );
 
