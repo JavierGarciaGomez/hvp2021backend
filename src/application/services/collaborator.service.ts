@@ -9,7 +9,7 @@ import { bcryptAdapter } from "../../infrastructure/adapters";
 import { CustomQueryOptions } from "../../shared/interfaces";
 
 import { CollaboratorDTO, PaginationDto, SortingDto } from "../dtos";
-import { createProductService } from "../factories";
+import { createJobService, createProductService } from "../factories";
 import { BaseService } from "./base.service";
 
 export class CollaboratorService extends BaseService<
@@ -32,7 +32,22 @@ export class CollaboratorService extends BaseService<
   public getAllPublic = async (
     options: CustomQueryOptions
   ): Promise<PublicCollaborator[]> => {
-    return await this.repository.getAllForWeb(options);
+    const collaborators = await this.repository.getAllForWeb(options);
+    const jobService = createJobService();
+    const enhancedCollaborators = await Promise.all(
+      collaborators.map(async (collab) => {
+        if (collab.jobId) {
+          const job = await jobService.getById(collab.jobId);
+          return {
+            ...collab,
+            jobTitle: job?.title || "Unknown",
+            sortingOrder: job?.sortingOrder || 0,
+          };
+        }
+        return collab;
+      })
+    );
+    return enhancedCollaborators;
   };
 
   public register = async (

@@ -73,6 +73,7 @@ export interface PublicCollaborator extends Partial<CollaboratorProps> {
   imgUrl?: string;
   images?: ImageUrl[];
   textPresentation?: string;
+  jobId?: string;
 }
 
 // todo response interface
@@ -245,6 +246,7 @@ export class CollaboratorEntity implements BaseEntity {
       imgUrl: this.imgUrl,
       images: this.images,
       textPresentation: this.textPresentation,
+      jobId: this.jobId,
     };
   }
 
