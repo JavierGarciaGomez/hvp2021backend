@@ -73,10 +73,10 @@ const AccountSchema: Schema<AccountDocument> = new Schema(
     isActive: { type: Boolean, required: true, default: true },
     fullyQualifiedName: { type: String, required: true },
     currency: { type: String, required: true },
-    parentAccountId: {
-      type: Schema.Types.ObjectId,
-      ref: "Account",
-    },
+    // parentAccountId: {
+    //   type: Schema.Types.ObjectId,
+    //   ref: "Account",
+    // },
     isSubAccount: { type: Boolean, required: true },
     openingBalance: { type: Number, required: true, default: 0 },
     currentBalance: { type: Number, required: true, default: 0 },
