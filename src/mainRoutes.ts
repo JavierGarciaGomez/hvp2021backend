@@ -29,4 +29,9 @@ export const mainRoutes = {
   salaryData: "/api/salary-data",
   jobs: "/api/jobs",
   images: "/api/images",
+  accounts: "/api/accounts",
+  sales: "/api/sales",
+  branchCashReconciliation: "/api/branch-cash-reconciliation",
+  simplifiedBranchCashReconciliation:
+    "/api/simplified-branch-cash-reconciliation",
 };

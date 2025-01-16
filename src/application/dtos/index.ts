@@ -13,5 +13,8 @@ export * from "./job.dto";
 export * from "./public-holidays.dto";
 export * from "./salary-data.dto";
 export * from "./attendance-record.dto";
-
+export * from "./account.dto";
+export * from "./sale.dto";
+export * from "./branch-cash-reconciliation.dto";
+export * from "./simplified-branch-cash-reconciliation.dto";
 // No need for additional export statement, as we're using export * from "./attendance-record.dto"

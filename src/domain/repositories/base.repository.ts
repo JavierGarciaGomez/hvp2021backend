@@ -9,5 +9,6 @@ export abstract class BaseRepository<T> {
   abstract count(queryOptions: CustomQueryOptions): Promise<number>;
   abstract createMany(entities: T[]): Promise<T[]>;
   abstract updateMany(entities: T[]): Promise<T[]>;
+  abstract deleteMany(ids: string[]): Promise<string[]>;
   abstract exists(query: any): Promise<boolean>;
 }

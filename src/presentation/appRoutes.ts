@@ -33,7 +33,11 @@ import {
   JobRoutes,
   ImagesRoutes,
   AttendanceRecordRoutes,
+  SaleRoutes,
+  BranchCashReconciliationRoutes,
 } from "./routes";
+import { AccountRoutes } from "./routes/account.routes";
+import { SimplifiedBranchCashReconciliationRoutes } from "./routes/simplified-branch-cash-reconciliation.routes";
 
 export class AppRoutes {
   static get routes(): Router {
@@ -89,6 +93,16 @@ export class AppRoutes {
     router.use(
       mainRoutes.attendanceRecords,
       new AttendanceRecordRoutes().getRoutes()
+    );
+    router.use(mainRoutes.accounts, new AccountRoutes().getRoutes());
+    router.use(mainRoutes.sales, new SaleRoutes().getRoutes());
+    router.use(
+      mainRoutes.branchCashReconciliation,
+      new BranchCashReconciliationRoutes().getRoutes()
+    );
+    router.use(
+      mainRoutes.simplifiedBranchCashReconciliation,
+      new SimplifiedBranchCashReconciliationRoutes().getRoutes()
     );
 
     return router;

@@ -1,0 +1,50 @@
+- AR
+
+    - Venta por cobrar
+    - Venta cobrada
+    - Factura de venta por cobrar
+    - Factura de venta cobrada
+    - Cobro de venta por cobrar
+    - Anticipo de venta
+- AP
+    - Egreso por pagar
+    - Egreso pagado
+    - Factura de egreso por pagar
+    - Factura de egreso pagada
+    - Pago de egreso por pagar
+    - Anticipo de egreso
+
+
+
+- AR
+    - Venta
+    - Cobro de venta
+    - Anticipo de venta
+    - Factura de venta
+- AP
+    - Egreso
+    - Pago de compra
+    - Anticipo de compra
+    - Factura de compra
+
+
+- Operaciones
+    - Entrada
+        - Venta - Sale
+            - Factura de venta por cobrar - SaleInvoice
+            - Factura complemento de pago - SaleInvoicePayment
+        - Anticipo de venta - SalePrepayment
+        - Cobro de venta - SalePayment
+    - Salida
+        - Compra - Purchase
+            - Factura de compra por pagar - Bill
+            - Factura complemento de pago - BillPayment
+        - Gasto
+            - Factura de gasto - Bill
+            - Factura complemento de pago - BillPayment
+        - Pago de compra/gasto - APPayment
+        - Anticipo de compra - APPrepayment
+
+
+- Hacer un sale con todo lo que se necesita, incluida la transaction
+- Luego hacer los siguientes.

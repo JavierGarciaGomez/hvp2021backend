@@ -5,7 +5,6 @@ import {
   BaseDatasource,
   BaseEntity,
   BaseEntityConstructor,
-  BaseVO,
 } from "../../domain";
 
 export abstract class BaseDatasourceMongoImp<T extends BaseEntity>
@@ -86,5 +85,10 @@ export abstract class BaseDatasourceMongoImp<T extends BaseEntity>
       })
     );
     return updatedEntities;
+  }
+
+  async deleteMany(ids: string[]): Promise<string[]> {
+    const deletedEntities = await this.model.deleteMany({ _id: { $in: ids } });
+    return ids;
   }
 }

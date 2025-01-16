@@ -7,6 +7,7 @@ import { BaseError, PrintRouteMiddleware } from "../shared";
 import { AttachBaseUrlMiddleware } from "./middlewares";
 import { errorHandler } from "./middlewares/errorHandler";
 import { updateShiftDateField } from "../shared/scripts/upsateShifts";
+import { seedSimplifiedBranchCashReconciliation } from "../shared/seeds/simplifiedBranchCashReconciliationSeed";
 
 interface Options {
   port: number;
@@ -46,6 +47,9 @@ export class Server {
 
     //* Routes
     this.app.use(this.routes);
+
+    //* Seeds
+    // await seedSimplifiedBranchCashReconciliation();
 
     //* SPA /^\/(?!api).*/  <== Únicamente si no empieza con la palabra api
     // this.app.get("*", (req, res) => {

@@ -14,3 +14,5 @@ export * from "./salary-data.routes";
 export * from "./job.routes";
 export * from "./images.routes";
 export * from "./attendance-record.routes";
+export * from "./sale.routes";
+export * from "./branch-cash-reconciliation.routes";

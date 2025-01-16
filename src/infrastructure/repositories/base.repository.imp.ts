@@ -43,4 +43,8 @@ export abstract class BaseRepositoryImpl<T extends BaseEntity>
   async updateMany(entities: T[]): Promise<T[]> {
     return await this.datasource.updateMany(entities);
   }
+
+  async deleteMany(ids: string[]): Promise<string[]> {
+    return await this.datasource.deleteMany(ids);
+  }
 }

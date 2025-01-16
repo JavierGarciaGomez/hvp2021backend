@@ -14,3 +14,7 @@ export * from "./salary-data.controller";
 export * from "./week-shift.controller";
 export * from "./images.controller";
 export * from "./attendance-record.controller";
+export * from "./account.controller";
+export * from "./sale.controller";
+export * from "./branch-cash-reconciliation.controller";
+export * from "./simplified-branch-cash-reconciliation.controller";

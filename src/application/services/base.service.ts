@@ -60,6 +60,10 @@ export abstract class BaseService<T extends BaseEntity | BaseVO, DTO, R = T> {
     return await Promise.all(result.map(this.transformToResponse));
   }
 
+  async deleteMany(ids: string[]): Promise<string[]> {
+    return await this.repository.deleteMany(ids);
+  }
+
   public abstract getResourceName(): string;
 
   transformToResponse = async (entity: T): Promise<R> => {
