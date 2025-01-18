@@ -11,14 +11,7 @@ export class SimplifiedBranchCashReconciliationRoutes extends BaseCRUDRoutes {
       service
     );
 
-    this.router.post(
-      "/",
-      AuthMiddleware.validateJWT,
-      authorizationMiddleware({
-        roles: [WebAppRole.admin, WebAppRole.manager],
-      }),
-      controller.create
-    );
+    this.router.post("/", AuthMiddleware.validateJWT, controller.create);
 
     this.router.patch(
       "/:id",
