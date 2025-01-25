@@ -10,6 +10,7 @@ export enum TimeOffRequestsRoutePaths {
   all = "/",
   byCollaborator = "/collaborator/:collaboratorId",
   byYear = "/year/:year",
+  byRequestedDays = "/requested-days",
   byId = "/:id",
   collaboratorsOverview = "/collaborators/time-off-overview",
   collaboratorOverview = "/collaborators/time-off-overview/:collaboratorId",
@@ -32,6 +33,10 @@ export class TimeOffRequestsRoutes {
 
     // Definir las rutas
     router.get(TimeOffRequestsRoutePaths.all, controller.getTimeOffRequests);
+    router.get(
+      TimeOffRequestsRoutePaths.byRequestedDays,
+      controller.getTimeOffRequestsByRequestedDays
+    );
     router.get(
       TimeOffRequestsRoutePaths.byCollaborator,
       controller.getTimeOffRequestsByCollaborator

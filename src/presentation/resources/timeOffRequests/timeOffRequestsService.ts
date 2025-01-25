@@ -367,4 +367,36 @@ export class TimeOffRequestsService {
       throw BaseError.internalServer("Internal Server Error");
     }
   }
+
+  async getTimeOffRequestsByRequestedDays(
+    paginationDto: PaginationDto,
+    startDate: Date,
+    endDate: Date
+  ) {
+    const { page, limit } = paginationDto;
+    const query = {
+      requestedDays: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
+    const [total, paginatedData] = await Promise.all([
+      TimeOffRequestModel.countDocuments(query),
+      TimeOffRequestModel.find(query)
+        .skip((page ?? 1 - 1) * (limit ?? 100))
+        .limit(limit ?? 100),
+    ]);
+
+    const response =
+      OldSuccessResponseFormatter.formatListResponse<TimeOffRequest>({
+        data: paginatedData,
+        page: 1,
+        limit: paginatedData.length,
+        total: total,
+        path: `${commonPath}${TimeOffRequestsRoutePaths.byRequestedDays}`,
+        resource: "TimeOffRequests",
+      });
+
+    return response;
+  }
 }

@@ -215,6 +215,37 @@ export class TimeOffRequestController {
       res.status(response.status_code).json(response);
     } catch (error) {}
   };
+
+  public getTimeOffRequestsByRequestedDays = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { page, limit } = req.query;
+      const paginationDto = PaginationDto.create(Number(page), Number(limit));
+
+      const startDateParam = req.query.startDate?.toString();
+      const endDateParam = req.query.endDate?.toString();
+
+      if (!startDateParam || !endDateParam) {
+        throw BaseError.badRequest("Start date and end date are required");
+      }
+
+      const startDate = new Date(startDateParam);
+      const endDate = new Date(endDateParam);
+
+      const response =
+        await this.timeOffRequestsService.getTimeOffRequestsByRequestedDays(
+          paginationDto!,
+          startDate,
+          endDate
+        );
+      res.status(response.status_code).json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 interface HandleRequestParams {

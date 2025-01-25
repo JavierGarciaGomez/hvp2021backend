@@ -29,7 +29,6 @@ export class PublicHolidaysService extends BaseService<
     id: string,
     dto: PublicHolidaysDTO
   ): Promise<PublicHolidaysDTO> => {
-    await this.validateWrite(dto);
     const entity = new PublicHolidaysEntity(dto);
     const result = await this.repository.update(id, entity);
     return this.transformToResponse(result);
