@@ -3,7 +3,7 @@ export { default as BillCreationInfoModel } from "./BillCreationInfoModel";
 export { default as CustomerRFCModel } from "./CustomerRFCModel";
 export { default as TaskActivityModel } from "./TaskActivityModel";
 export { default as TaskModel } from "./TaskModel";
-export { default as TimeOffRequestModel } from "./TimeOffRequestModel";
+export { default as TimeOffRequestModel } from "./time-off-request.model";
 export { default as WorkLogModel } from "./WorkLogModel";
 export * from "./activity-register-type.model";
 export * from "./activity-register.model";

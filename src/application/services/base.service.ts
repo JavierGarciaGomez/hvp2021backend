@@ -7,7 +7,10 @@ import {
 } from "../../domain";
 
 import { BaseError } from "../../shared";
-import { CustomQueryOptions } from "../../shared/interfaces";
+import {
+  AuthenticatedCollaborator,
+  CustomQueryOptions,
+} from "../../shared/interfaces";
 
 export abstract class BaseService<T extends BaseEntity | BaseVO, DTO, R = T> {
   constructor(
@@ -17,7 +20,10 @@ export abstract class BaseService<T extends BaseEntity | BaseVO, DTO, R = T> {
       | BaseVOConstructor<T>
   ) {}
 
-  public create = async (dto: DTO): Promise<R> => {
+  public create = async (
+    dto: DTO,
+    authUser?: AuthenticatedCollaborator
+  ): Promise<R> => {
     const entity = new this.entityClass(dto);
     const result = await this.repository.create(entity);
     return this.transformToResponse(result);
@@ -36,7 +42,11 @@ export abstract class BaseService<T extends BaseEntity | BaseVO, DTO, R = T> {
     return this.transformToResponse(entity);
   }
 
-  async update(id: string, dto: DTO): Promise<R> {
+  async update(
+    id: string,
+    dto: DTO,
+    authUser?: AuthenticatedCollaborator
+  ): Promise<R> {
     const entity = new this.entityClass(dto);
     const result = await this.repository.update(id, entity);
     return this.transformToResponse(result);

@@ -15,7 +15,7 @@ import { AuthRoutes } from "./resources/auth/authRoutes";
 import { AuthActivitiesRoutes } from "./resources/authActivities/authActivitiesRoutes";
 import { BillingRoutes } from "./resources/billing/billingRoutes";
 import { TasksRoutes } from "./resources/tasks/tasksRoutes";
-import { TimeOffRequestsRoutes } from "./resources/timeOffRequests/timeOffRequestsRoutes";
+
 import { WorkLogsRoutes } from "./resources/workLogs/workLogsRoutes";
 import {
   ActivityRegisterRoutes,
@@ -35,6 +35,7 @@ import {
   AttendanceRecordRoutes,
   SaleRoutes,
   BranchCashReconciliationRoutes,
+  TimeOffRequestRoutes,
 } from "./routes";
 import { AccountRoutes } from "./routes/account.routes";
 import { SimplifiedBranchCashReconciliationRoutes } from "./routes/simplified-branch-cash-reconciliation.routes";
@@ -58,7 +59,10 @@ export class AppRoutes {
     router.use(mainRoutes.notifications, new NotificationRoutes().getRoutes());
     router.use(mainRoutes.rfc, rfcRoutes);
     router.use(mainRoutes.tasks, TasksRoutes.routes);
-    router.use(mainRoutes.timeOffRequests, TimeOffRequestsRoutes.routes);
+    router.use(
+      mainRoutes.timeOffRequests,
+      new TimeOffRequestRoutes().getRoutes()
+    );
     router.use(mainRoutes.users, usersRoutes);
     router.use(mainRoutes.workLogs, WorkLogsRoutes.routes);
     router.use(mainRoutes.userClient, userClientRoutes);

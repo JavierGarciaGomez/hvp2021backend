@@ -17,3 +17,4 @@ export * from "./account.datasource.mongo-imp";
 export * from "./sale.datasource.mongo-imp";
 export * from "./branch-cash-reconciliation.datasource.mongo-imp";
 export * from "./simplified-branch-cash-reconciliation.datasource.mongo-imp";
+export * from "./time-off-request.datasource.mongo-imp";

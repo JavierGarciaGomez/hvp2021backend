@@ -1,3 +1,4 @@
+// todo: DELETE THIS
 export enum AttendanceType {
   ordinary = "Ordinary",
   partialPermission = "Permission",

@@ -1,7 +1,12 @@
-import { Document, Schema, model } from "mongoose";
-import { TimeOffRequest, TimeOffStatus, TimeOffType } from "../../../../shared";
+import { Schema, model } from "mongoose";
 
-const timeOffRequestSchema = new Schema<TimeOffRequest>(
+import {
+  TimeOffRequestDocument,
+  TimeOffStatus,
+  TimeOffType,
+} from "../../../../domain";
+
+const timeOffRequestSchema = new Schema<TimeOffRequestDocument>(
   {
     approvedAt: { type: Date },
     approvedBy: {
@@ -14,7 +19,6 @@ const timeOffRequestSchema = new Schema<TimeOffRequest>(
       ref: "Collaborator",
       required: true,
     },
-    createdAt: { type: Date, default: Date.now },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "Collaborator",
@@ -26,23 +30,27 @@ const timeOffRequestSchema = new Schema<TimeOffRequest>(
     status: {
       type: String,
       enum: Object.values(TimeOffStatus),
-      default: TimeOffStatus.pending,
+      default: TimeOffStatus.Pending,
     },
     timeOffType: {
       type: String,
       enum: Object.values(TimeOffType),
       required: true,
     },
-    updatedAt: { type: Date, default: Date.now },
     updatedBy: {
       type: Schema.Types.ObjectId,
       ref: "Collaborator",
     },
   },
-  { timestamps: true }
+  {
+    timestamps: {
+      createdAt: "createdAt",
+      updatedAt: "updatedAt",
+    },
+  }
 );
 
-const TimeOffRequestModel = model<TimeOffRequest>(
+const TimeOffRequestModel = model<TimeOffRequestDocument>(
   "TimeOffRequest",
   timeOffRequestSchema
 );

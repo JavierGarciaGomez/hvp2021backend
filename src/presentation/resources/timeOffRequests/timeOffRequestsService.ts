@@ -1,4 +1,5 @@
-import TimeOffRequestModel from "../../../infrastructure/db/mongo/models/TimeOffRequestModel";
+// todo: DELETE
+import TimeOffRequestModel from "../../../infrastructure/db/mongo/models/time-off-request.model";
 import {
   WebAppRole,
   NotificationActionType,
@@ -91,6 +92,7 @@ export class TimeOffRequestsService {
     return response;
   }
 
+  // TODO: DOING
   public createTimeOffRequest = async (
     timeOffRequestDto: TimeOffRequestDto,
     authenticatedCollaborator: AuthenticatedCollaborator
@@ -110,7 +112,7 @@ export class TimeOffRequestsService {
 
     const notCancelledTimeOffRequests = dateTimeOffRequests.filter(
       (dateTimeOffRequest) =>
-        dateTimeOffRequest.status !== TimeOffStatus.canceled
+        dateTimeOffRequest.status !== TimeOffStatus.Canceled
     );
 
     // TODO: Check if dates were already requested
@@ -130,7 +132,7 @@ export class TimeOffRequestsService {
     // Todo check if he has enough days
 
     if (
-      timeOffRequest.timeOffType === TimeOffType.vacation &&
+      timeOffRequest.timeOffType === TimeOffType.Vacation &&
       remainingVacationDays < vacationsDaysRequested
     ) {
       throw BaseError.badRequest(
@@ -171,7 +173,7 @@ export class TimeOffRequestsService {
       throw BaseError.notFound(`${resource} not found with id ${id}`);
 
     if (
-      timeOffRequest.status !== TimeOffStatus.pending &&
+      timeOffRequest.status !== TimeOffStatus.Pending &&
       role !== WebAppRole.admin &&
       role !== WebAppRole.manager
     ) {
@@ -267,7 +269,7 @@ export class TimeOffRequestsService {
     if (!timeOffRequest)
       throw BaseError.notFound(`${resource} not found with id ${id}`);
 
-    if (timeOffRequest.status !== TimeOffStatus.pending) {
+    if (timeOffRequest.status !== TimeOffStatus.Pending) {
       throw BaseError.badRequest(
         `The time off request has already been approved/rejected.`
       );

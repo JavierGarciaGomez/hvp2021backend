@@ -50,3 +50,12 @@ export const checkIsMonday = (date: string | Date): boolean =>
 
 export const checkIsSunday = (date: string | Date): boolean =>
   validateDateDay(date, "Sunday");
+
+export const sortDates = (dates: Date[]): Date[] => {
+  return dates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+};
+
+export const getLatestDate = (dates: Date[]): Date => {
+  const date = sortDates(dates)[dates.length - 1];
+  return new Date(date);
+};

@@ -17,3 +17,4 @@ export * from "./account.repository.imp";
 export * from "./sale.repository.imp";
 export * from "./branch-cash-reconciliation.repository.imp";
 export * from "./simplified-branch-cash-reconciliation.repository.imp";
+export * from "./time-off-request.repository.imp";

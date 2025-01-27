@@ -30,7 +30,7 @@ export abstract class BaseController<
 
       const dto = this.dtoClass.create(body) as DTO;
 
-      const result = await this.service.create(dto);
+      const result = await this.service.create(dto, req?.authUser);
       const response = ResponseFormatterService.formatCreateResponse({
         data: result,
         resource: this.resource,
@@ -93,7 +93,7 @@ export abstract class BaseController<
       const body = req.body;
       body.updatedBy = req.authUser?.uid;
       const dto = this.dtoClass.update(body) as DTO;
-      const result = await this.service.update(id, dto);
+      const result = await this.service.update(id, dto, req?.authUser);
       const response = ResponseFormatterService.formatUpdateResponse({
         data: result,
         resource: this.resource,

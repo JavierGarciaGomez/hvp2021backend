@@ -19,3 +19,4 @@ export * from "./account.repository";
 export * from "./sale.repository";
 export * from "./branch-cash-reconciliation.repository";
 export * from "./simplified-branch-cash-reconciliation.repository";
+export * from "./time-off-request.repository";
