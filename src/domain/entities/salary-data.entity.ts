@@ -1,69 +1,77 @@
+import { Document, Schema } from "mongoose";
 import { ImssRates } from "../value-objects";
-import { BaseEntity, BaseEntityProps } from "./base.entity";
+import { BaseEntity, BaseEntityProps, newBaseEntityProps } from "./base.entity";
 
-export interface SalaryDataProps extends BaseEntityProps {
+export interface SalaryDataBase extends newBaseEntityProps {
   year: number;
   minimumWage: number;
   uma: number;
   ocupationalRisk: number;
   imssEmployerRates: ImssRates;
   imssEmployeeRates: ImssRates;
+  minimumWageHVP: number;
+  annualIncreasePercentage: number;
+  employmentSubsidyLimit: number;
+  employmentSubsidyAmount: number;
+  maxWorkingHours: number;
+  receptionBonus: number;
+  degreeBonus: number;
+  trainingSupport: number;
+  physicalActivitySupport: number;
+  // vars
+  avgMonthlyOvertimeHours: number;
+  avgMonthlySundayHours: number;
+  avgMonthlyHolidayHours: number;
+}
+export interface SalaryDataProps extends SalaryDataBase {
+  createdBy?: string;
+  updatedBy?: string;
 }
 
-export interface SalaryDataDocument extends SalaryDataProps, Document {}
+export interface SalaryDataDocument extends SalaryDataBase, Document {
+  id: Schema.Types.ObjectId;
+  createdBy?: Schema.Types.ObjectId;
+  updatedBy?: Schema.Types.ObjectId;
+}
 
 export class SalaryDataEntity implements BaseEntity {
   id?: string;
-  year: number;
-  minimumWage: number;
-  uma: number;
-  ocupationalRisk: number;
-  imssEmployerRates: ImssRates;
-  imssEmployeeRates: ImssRates;
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
   updatedBy?: string;
+  year!: number;
+  minimumWage!: number;
+  uma!: number;
+  ocupationalRisk!: number;
+  imssEmployerRates!: ImssRates;
+  imssEmployeeRates!: ImssRates;
+  minimumWageHVP!: number;
+  annualIncreasePercentage!: number;
+  employmentSubsidyLimit!: number;
+  employmentSubsidyAmount!: number;
+  maxWorkingHours: number = 48;
+  receptionBonus: number = 0;
+  degreeBonus: number = 0;
+  trainingSupport: number = 0;
+  physicalActivitySupport: number = 0;
+  // vars
+  avgMonthlyOvertimeHours: number = 0;
+  avgMonthlySundayHours: number = 0;
+  avgMonthlyHolidayHours: number = 0;
 
-  constructor({
-    id,
-    year,
-    minimumWage,
-    uma,
-    ocupationalRisk,
-    imssEmployerRates,
-    imssEmployeeRates,
-    createdAt,
-    createdBy,
-    updatedAt,
-    updatedBy,
-  }: SalaryDataProps) {
-    this.id = id;
-    this.year = year;
-    this.minimumWage = minimumWage;
-    this.uma = uma;
-    this.ocupationalRisk = ocupationalRisk;
-    this.imssEmployerRates = imssEmployerRates;
-    this.imssEmployeeRates = imssEmployeeRates;
-    this.createdAt = createdAt;
-    this.createdBy = createdBy;
-    this.updatedAt = updatedAt;
-    this.updatedBy = updatedBy;
+  constructor(props: SalaryDataProps) {
+    Object.assign(this, props);
   }
 
   public static fromDocument(document: SalaryDataDocument) {
+    const data = document.toObject<SalaryDataDocument>();
+    const { _id, __v, ...rest } = data;
     return new SalaryDataEntity({
-      id: document.id,
-      year: document.year,
-      minimumWage: document.minimumWage,
-      uma: document.uma,
-      ocupationalRisk: document.ocupationalRisk,
-      imssEmployerRates: document.imssEmployerRates,
-      imssEmployeeRates: document.imssEmployeeRates,
-      createdAt: document.createdAt,
-      createdBy: document.createdBy,
-      updatedAt: document.updatedAt,
-      updatedBy: document.updatedBy,
+      ...rest,
+      id: _id.toString(),
+      createdBy: data.createdBy?.toString(),
+      updatedBy: data.updatedBy?.toString(),
     });
   }
 }

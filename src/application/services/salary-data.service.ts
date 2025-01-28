@@ -12,7 +12,7 @@ export class SalaryDataService extends BaseService<
     super(repository, SalaryDataEntity);
   }
 
-  public create = async (dto: SalaryDataDTO): Promise<SalaryDataDTO> => {
+  public create = async (dto: SalaryDataDTO): Promise<SalaryDataEntity> => {
     await this.validateSalaryData(dto);
     const entity = new SalaryDataEntity(dto);
     const result = await this.repository.create(entity);
@@ -22,7 +22,7 @@ export class SalaryDataService extends BaseService<
   public update = async (
     id: string,
     dto: SalaryDataDTO
-  ): Promise<SalaryDataDTO> => {
+  ): Promise<SalaryDataEntity> => {
     await this.validateSalaryData(dto);
     const entity = new SalaryDataEntity(dto);
     const result = await this.repository.update(id, entity);

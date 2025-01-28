@@ -3,39 +3,33 @@ import { SalaryDataProps } from "../../domain/entities";
 import { ImssRates } from "../../domain";
 
 export class SalaryDataDTO implements BaseDTO {
-  year: number;
-  minimumWage: number;
-  uma: number;
-  ocupationalRisk: number;
-  imssEmployerRates: ImssRates;
-  imssEmployeeRates: ImssRates;
+  id?: string;
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
   updatedBy?: string;
+  year!: number;
+  minimumWage!: number;
+  uma!: number;
+  ocupationalRisk!: number;
+  imssEmployerRates!: ImssRates;
+  imssEmployeeRates!: ImssRates;
+  minimumWageHVP!: number;
+  annualIncreasePercentage!: number;
+  employmentSubsidyLimit!: number;
+  employmentSubsidyAmount!: number;
+  maxWorkingHours: number = 0;
+  receptionBonus: number = 0;
+  degreeBonus: number = 0;
+  trainingSupport: number = 0;
+  physicalActivitySupport: number = 0;
+  // vars
+  avgMonthlyOvertimeHours: number = 0;
+  avgMonthlySundayHours: number = 0;
+  avgMonthlyHolidayHours: number = 0;
 
-  constructor({
-    year,
-    minimumWage,
-    uma,
-    ocupationalRisk,
-    imssEmployerRates,
-    imssEmployeeRates,
-    createdAt,
-    createdBy,
-    updatedAt,
-    updatedBy,
-  }: SalaryDataProps) {
-    this.year = year;
-    this.minimumWage = minimumWage;
-    this.uma = uma;
-    this.ocupationalRisk = ocupationalRisk;
-    this.imssEmployerRates = imssEmployerRates;
-    this.imssEmployeeRates = imssEmployeeRates;
-    this.createdAt = createdAt;
-    this.createdBy = createdBy;
-    this.updatedAt = updatedAt;
-    this.updatedBy = updatedBy;
+  constructor({ ...props }: SalaryDataProps) {
+    Object.assign(this, props);
   }
 
   static create(data: SalaryDataProps): SalaryDataDTO {
