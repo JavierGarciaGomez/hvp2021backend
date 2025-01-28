@@ -23,7 +23,7 @@ export class SalaryDataService extends BaseService<
     id: string,
     dto: SalaryDataDTO
   ): Promise<SalaryDataEntity> => {
-    await this.validateSalaryData(dto);
+    // await this.validateSalaryData(dto);
     const entity = new SalaryDataEntity(dto);
     const result = await this.repository.update(id, entity);
     return this.transformToResponse(result);
