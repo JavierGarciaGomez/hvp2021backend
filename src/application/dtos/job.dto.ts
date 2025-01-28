@@ -3,48 +3,27 @@ import { JobProps } from "../../domain/entities";
 import { PaymentType } from "../../domain";
 
 export class JobDTO implements BaseDTO {
-  active: boolean;
-  annualRaisePercent: number;
-  baseIncome?: number;
-  description?: string;
-  hourlyRate?: number;
-  minimumIncome?: number;
-  paymentType: PaymentType;
-  title: string;
-  sortingOrder: number;
+  id?: string;
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
   updatedBy?: string;
+  active!: boolean;
+  annualRaisePercent: number = 0.025;
+  quarterlyComissionRaisePercent: number = 0.05;
+  baseIncome?: number; // fixed perception
+  description?: string;
+  hourlyRate?: number;
+  minimumIncome?: number; // minimum ordinary income
+  paymentType: PaymentType = PaymentType.SALARY;
+  sortingOrder: number = 99;
+  title!: string;
+  proportionalFactor: number = 1;
+  expectedComissionsPercentage: number = 0.4;
+  expectedMinimumIncome: number = 0; // expected minimum ordinary income
 
-  constructor({
-    active,
-    annualRaisePercent,
-    baseIncome,
-    description,
-    hourlyRate,
-    minimumIncome,
-    paymentType,
-    title,
-    sortingOrder,
-    createdAt,
-    createdBy,
-    updatedAt,
-    updatedBy,
-  }: JobProps) {
-    this.active = active;
-    this.annualRaisePercent = annualRaisePercent;
-    this.baseIncome = baseIncome;
-    this.description = description;
-    this.hourlyRate = hourlyRate;
-    this.minimumIncome = minimumIncome;
-    this.paymentType = paymentType;
-    this.title = title;
-    this.sortingOrder = sortingOrder;
-    this.createdAt = createdAt;
-    this.createdBy = createdBy;
-    this.updatedAt = updatedAt;
-    this.updatedBy = updatedBy;
+  constructor({ ...props }: JobProps) {
+    Object.assign(this, props);
   }
 
   static create(data: JobProps): JobDTO {

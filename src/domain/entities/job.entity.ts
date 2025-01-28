@@ -1,89 +1,67 @@
+import { Document, Schema } from "mongoose";
 import { PaymentType } from "./../enums/job.enums";
-import { BaseEntity, BaseEntityProps } from "./base.entity";
+import { BaseEntity, BaseEntityProps, newBaseEntityProps } from "./base.entity";
 
-export interface JobProps extends BaseEntityProps {
+export interface JobPropsBase extends newBaseEntityProps {
   active: boolean;
   annualRaisePercent: number;
   quarterlyComissionRaisePercent: number;
-  baseIncome?: number;
+  baseIncome?: number; // fixed perception
   description?: string;
   hourlyRate?: number;
-  minimumIncome?: number;
+  minimumIncome?: number; // minimum ordinary income
   paymentType: PaymentType;
   sortingOrder: number;
   title: string;
+  proportionalFactor: number;
+  expectedComissionsPercentage: number;
+  expectedMinimumIncome: number; // expected minimum ordinary income
 }
 
-export interface JobDocument extends JobProps, Document {}
+export interface JobProps extends JobPropsBase {
+  id?: string;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+export interface JobDocument extends JobPropsBase, Document {
+  id: Schema.Types.ObjectId;
+  createdBy?: Schema.Types.ObjectId;
+  updatedBy?: Schema.Types.ObjectId;
+}
 
 export class JobEntity implements BaseEntity {
   id?: string;
-  active: boolean;
-  annualRaisePercent: number;
-  quarterlyComissionRaisePercent: number;
-  baseIncome?: number;
-  description?: string;
-  hourlyRate?: number;
-  minimumIncome?: number;
-  paymentType: PaymentType;
-  title: string;
-  sortingOrder: number;
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
   updatedBy?: string;
+  active!: boolean;
+  annualRaisePercent: number = 0.025;
+  quarterlyComissionRaisePercent: number = 0.05;
+  baseIncome?: number; // fixed perception
+  description?: string;
+  hourlyRate?: number;
+  minimumIncome?: number; // minimum ordinary income
+  paymentType: PaymentType = PaymentType.SALARY;
+  sortingOrder: number = 99;
+  title!: string;
+  proportionalFactor: number = 1;
+  expectedComissionsPercentage: number = 0.4;
+  expectedMinimumIncome: number = 0; // expected minimum ordinary income
 
-  constructor({
-    id,
-    active,
-    annualRaisePercent,
-    quarterlyComissionRaisePercent,
-    baseIncome,
-    description,
-    hourlyRate,
-    minimumIncome,
-    paymentType,
-    sortingOrder,
-    title,
-    createdAt,
-    createdBy,
-    updatedAt,
-    updatedBy,
-  }: JobProps) {
-    this.id = id;
-    this.active = active;
-    this.annualRaisePercent = annualRaisePercent;
-    this.quarterlyComissionRaisePercent = quarterlyComissionRaisePercent;
-    this.baseIncome = baseIncome;
-    this.description = description;
-    this.hourlyRate = hourlyRate;
-    this.minimumIncome = minimumIncome;
-    this.paymentType = paymentType;
-    this.title = title;
-    this.sortingOrder = sortingOrder;
-    this.createdAt = createdAt;
-    this.createdBy = createdBy;
-    this.updatedAt = updatedAt;
-    this.updatedBy = updatedBy;
+  constructor(props: JobProps) {
+    Object.assign(this, props);
   }
 
   public static fromDocument(document: JobDocument) {
+    const data = document.toObject<JobDocument>();
+    const { _id, __v, ...rest } = data;
     return new JobEntity({
-      id: document.id,
-      active: document.active,
-      annualRaisePercent: document.annualRaisePercent,
-      quarterlyComissionRaisePercent: document.quarterlyComissionRaisePercent,
-      baseIncome: document.baseIncome,
-      description: document.description,
-      hourlyRate: document.hourlyRate,
-      minimumIncome: document.minimumIncome,
-      paymentType: document.paymentType,
-      title: document.title,
-      sortingOrder: document.sortingOrder,
-      createdAt: document.createdAt,
-      createdBy: document.createdBy,
-      updatedAt: document.updatedAt,
-      updatedBy: document.updatedBy,
+      ...rest,
+      id: _id.toString(),
+      createdBy: data.createdBy?.toString(),
+      updatedBy: data.updatedBy?.toString(),
     });
   }
 }

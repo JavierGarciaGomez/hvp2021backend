@@ -27,6 +27,7 @@ export abstract class BaseController<
     try {
       const body = req.body;
       body.createdBy = req.authUser?.uid;
+      body.updatedBy = req.authUser?.uid;
 
       const dto = this.dtoClass.create(body) as DTO;
 
