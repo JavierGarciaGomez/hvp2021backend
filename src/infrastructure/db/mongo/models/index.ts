@@ -22,3 +22,4 @@ export * from "./attendance-record.model";
 export * from "./sale.model";
 export * from "./branch-cash-reconciliation.model";
 export * from "./simplified-branch-cash-reconciliation.model";
+export * from "./employment.model";

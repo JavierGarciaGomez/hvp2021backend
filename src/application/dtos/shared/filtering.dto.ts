@@ -54,6 +54,24 @@ export class FilteringDto {
             case "$regex":
               instance[field] = { $regex: value, $options: "i" };
               break;
+            case "$in":
+              const parseValue = (v: string) => {
+                const trimmed = v.trim();
+                const num = Number(trimmed);
+                if (!isNaN(num)) return num;
+
+                const date = new Date(trimmed);
+                if (!isNaN(date.getTime())) return date;
+
+                return trimmed;
+              };
+
+              instance[field] = {
+                $in: value.startsWith("[")
+                  ? JSON.parse(value).map(parseValue)
+                  : value.split(",").map(parseValue),
+              };
+              break;
             default:
               throw BaseError.badRequest(`Invalid operator ${operator}`);
           }

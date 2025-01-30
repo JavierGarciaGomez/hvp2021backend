@@ -1,14 +1,5 @@
-import mongoose from "mongoose";
-import duration from "dayjs/plugin/duration";
 import dayjs from "../../infrastructure/adapters/dayjsConfig";
-import TimeOffRequestModel from "../../infrastructure/db/mongo/models/time-off-request.model";
-import { CollaboratorModel } from "../../infrastructure";
-import {
-  CollaboratorTimeOffOverview,
-  DateTimeOffRequest,
-  TimeOffRequest,
-  TimeOffStatus,
-} from "../interfaces";
+import { TimeOffStatus } from "../interfaces";
 import { TimeOffRequestEntity, TimeOffType } from "../../domain";
 
 /*
@@ -130,6 +121,7 @@ A partir del sexto año, el periodo de vacaciones aumentará en dos días por ca
 //   return data;
 // };
 
+// todo: remove? i think it's not used
 export const getNotRejectedTimeOffsByType = (
   timeOffRequests: TimeOffRequestEntity[],
   timeOffType: TimeOffType

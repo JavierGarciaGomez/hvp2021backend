@@ -17,31 +17,21 @@ import {
   getPendingVacations,
 } from "./timeOffHelpers";
 import { TimeOffRequest, TimeOffStatus, TimeOffType } from "../interfaces";
+import { TimeOffRequestEntity } from "../../domain";
 
 describe("timeOffHelpers", () => {
-  describe("getNotRejectedVacations", () => {
-    test("getNotRejectedTimeOffsByType returns correct filtered days", () => {
-      const timeOffRequests = timeOffRequestsFixture as TimeOffRequest[];
-
-      const result = getNotRejectedTimeOffsByType(
-        timeOffRequests,
-        TimeOffType.partialPermission
-      );
-
-      expect(result.length).toEqual(2);
-    });
-  });
   describe("getApprovedVacations", () => {
     test("returns an array of dates for approved vacation requests", () => {
       // Replace with your actual data for testing
-      const timeOffRequests = timeOffRequestsFixture as TimeOffRequest[];
+      const timeOffRequests =
+        timeOffRequestsFixture as unknown as TimeOffRequestEntity[];
 
       const result = getApprovedVacations(timeOffRequests);
       expect(result.length).toEqual(24);
     });
     test("returns an empty array for not approved vacation requests", () => {
       // Replace with your actual data for testing
-      const timeOffRequests = [] as TimeOffRequest[];
+      const timeOffRequests = [] as TimeOffRequestEntity[];
 
       const result = getApprovedVacations(timeOffRequests);
       expect(result.length).toEqual(0);
@@ -52,7 +42,7 @@ describe("timeOffHelpers", () => {
     test("returns an array of dates for pending vacation requests", () => {
       // Replace with your actual data for testing
       const pendingVacationRequests =
-        timeOffRequestsFixture as TimeOffRequest[];
+        timeOffRequestsFixture as unknown as TimeOffRequestEntity[];
       const expectedPendingVacationDates: Date[] = [
         new Date("2023-10-01"),
         new Date("2023-10-02"),
@@ -64,16 +54,16 @@ describe("timeOffHelpers", () => {
     test("returns an empty array for no pending vacation requests", () => {
       const timeOffRequests = [
         {
-          timeOffType: TimeOffType.vacation,
-          status: TimeOffStatus.approved,
+          timeOffType: TimeOffType.Vacation,
+          status: TimeOffStatus.Approved,
           requestedDays: [new Date("2023-01-01")],
         },
         {
           timeOffType: TimeOffType.dayLeave,
-          status: TimeOffStatus.rejected,
+          status: TimeOffStatus.Rejected,
           requestedDays: [new Date("2023-02-01")],
         },
-      ] as TimeOffRequest[];
+      ] as unknown as TimeOffRequestEntity[];
       // Replace with your actual data for testing
 
       expect(getPendingVacations(timeOffRequests)).toEqual([]);

@@ -18,7 +18,7 @@ export class SalaryDataDTO implements BaseDTO {
   annualIncreasePercentage!: number;
   employmentSubsidyLimit!: number;
   employmentSubsidyAmount!: number;
-  maxWorkingHours: number = 0;
+  maxWorkingHours: number = 48;
   receptionBonus: number = 0;
   degreeBonus: number = 0;
   trainingSupport: number = 0;
@@ -27,6 +27,8 @@ export class SalaryDataDTO implements BaseDTO {
   avgMonthlyOvertimeHours: number = 0;
   avgMonthlySundayHours: number = 0;
   avgMonthlyHolidayHours: number = 0;
+  justifiedAbsenceCompensationPercent: number = 0;
+  foodDayCompensation: number = 0;
 
   constructor({ ...props }: SalaryDataProps) {
     Object.assign(this, props);

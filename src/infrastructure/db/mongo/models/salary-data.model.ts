@@ -24,6 +24,8 @@ const SalaryDataSchema: Schema = new Schema<SalaryDataDocument>(
     avgMonthlyOvertimeHours: { type: Number, default: 0 },
     avgMonthlySundayHours: { type: Number, default: 0 },
     avgMonthlyHolidayHours: { type: Number, default: 0 },
+    justifiedAbsenceCompensationPercent: { type: Number, default: 0 },
+    foodDayCompensation: { type: Number, default: 0 },
   },
   {
     timestamps: {

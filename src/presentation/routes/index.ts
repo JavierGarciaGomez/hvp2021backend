@@ -17,3 +17,4 @@ export * from "./attendance-record.routes";
 export * from "./sale.routes";
 export * from "./branch-cash-reconciliation.routes";
 export * from "./time-off-request.routes";
+export * from "./employment.routes";

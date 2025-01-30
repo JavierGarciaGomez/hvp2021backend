@@ -1,0 +1,2 @@
+export const VACATION_BONUS_PERCENTAGE = 0.25;
+export const SUNDAY_BONUS_PERCENTAGE = 0.25;

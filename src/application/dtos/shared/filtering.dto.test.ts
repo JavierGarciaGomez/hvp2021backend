@@ -18,4 +18,15 @@ describe("FilteringDto", () => {
       collaborator: "61e9fb0c11d080f125a93ec3",
     });
   });
+
+  it.only("should create a filteringDto with $in", () => {
+    const result = FilteringDto.create({
+      $collaborator: '$in: ["123a", "456a"]',
+    });
+    expect(result).toEqual({
+      collaborator: {
+        $in: ["123a", "456a"],
+      },
+    });
+  });
 });

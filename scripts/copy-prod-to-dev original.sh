@@ -18,11 +18,11 @@ fi
 
 # Optionally drop the development database before restoring
 echo "Dropping development database: hvp-test"
-mongosh hvp-test --eval "db.dropDatabase()"
+mongo hvp-test --eval "db.dropDatabase()"
 
 # Restore the dump to the development database with --drop option
 echo "Restoring to development database: $DEV_MONGO_URL"
-mongorestore --uri="$DEV_MONGO_URL" --drop --authenticationDatabase=admin --nsInclude=hvp.* ./dump/hvp --noIndexRestore
+mongorestore --uri="$DEV_MONGO_URL" --drop --authenticationDatabase=admin --nsInclude=hvp.* ./dump/hvp
 
 if [ $? -ne 0 ]; then
     echo "Error: Failed to restore data to development database"

@@ -18,10 +18,10 @@ export class JobDTO implements BaseDTO {
   paymentType: PaymentType = PaymentType.SALARY;
   sortingOrder: number = 99;
   title!: string;
-  proportionalFactor: number = 1;
+  incomeMultiplier: number = 1;
   expectedComissionsPercentage: number = 0.4;
   expectedMinimumIncome: number = 0; // expected minimum ordinary income
-
+  expressBranchCompensation: number = 0;
   constructor({ ...props }: JobProps) {
     Object.assign(this, props);
   }

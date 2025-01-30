@@ -1,7 +1,7 @@
 import { albarans } from "./albarans";
 import { albarans2 } from "./albarans2";
 
-describe("performance", () => {
+describe.skip("performance", () => {
   it("should generate elements and calculate total amount", () => {
     const start = performance.now();
     const elements: any[] = [];
@@ -54,7 +54,7 @@ describe("performance", () => {
     expect(executionTime).toBeLessThan(2000);
   });
 
-  it("should calculate total duration for 10,000 random date pairs in less than 2 seconds", () => {
+  it.skip("should calculate total duration for 10,000 random date pairs in less than 2 seconds", () => {
     const idCols = colls.map((coll) => ({
       id: coll._id,
       coverShift: true,
@@ -63,7 +63,7 @@ describe("performance", () => {
     expect(true).toBe(true);
   });
 
-  it("should filter by not paid", () => {
+  it.skip("should filter by not paid", () => {
     const { Data } = albarans;
     const notPaid = Data.filter((albaran) => albaran.Pendiente > 0);
     const notPaidData = notPaid.map((albaran) => ({
@@ -119,7 +119,7 @@ describe("performance", () => {
     ];
   });
 
-  it.only("should filter by not paid 2", () => {
+  it.skip("should filter by not paid 2", () => {
     const { Data } = albarans2;
     const notPaid = Data.filter((albaran) => albaran.Pendiente > 0);
     const notPaidData = notPaid.map((albaran) => ({

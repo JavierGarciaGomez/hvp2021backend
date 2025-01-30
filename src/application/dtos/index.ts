@@ -18,4 +18,5 @@ export * from "./sale.dto";
 export * from "./branch-cash-reconciliation.dto";
 export * from "./simplified-branch-cash-reconciliation.dto";
 export * from "./time-off-request.dto";
+export * from "./employment.dto";
 // No need for additional export statement, as we're using export * from "./attendance-record.dto"

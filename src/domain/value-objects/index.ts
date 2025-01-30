@@ -15,3 +15,4 @@ export * from "./sale-line.vo";
 export * from "./transaction-line.vo";
 export * from "./money-in-drawer.vo";
 export * from "./reconciliation-expense.vo";
+export * from "./extra-compensation.vo";

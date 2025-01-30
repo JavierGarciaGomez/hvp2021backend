@@ -22,6 +22,8 @@ export interface SalaryDataBase extends newBaseEntityProps {
   avgMonthlyOvertimeHours: number;
   avgMonthlySundayHours: number;
   avgMonthlyHolidayHours: number;
+  justifiedAbsenceCompensationPercent: number;
+  foodDayCompensation: number;
 }
 export interface SalaryDataProps extends SalaryDataBase {
   createdBy?: string;
@@ -59,6 +61,8 @@ export class SalaryDataEntity implements BaseEntity {
   avgMonthlyOvertimeHours: number = 0;
   avgMonthlySundayHours: number = 0;
   avgMonthlyHolidayHours: number = 0;
+  justifiedAbsenceCompensationPercent: number = 0;
+  foodDayCompensation: number = 0;
 
   constructor(props: SalaryDataProps) {
     Object.assign(this, props);

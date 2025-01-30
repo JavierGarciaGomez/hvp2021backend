@@ -1,5 +1,8 @@
 version: "3.8"
 
+# docker compose --profile dev up -d
+# docker compose --profile test up -d
+
 services:
   mongo-db-dev:
     image: mongo:6.0.6

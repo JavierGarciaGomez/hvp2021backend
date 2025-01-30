@@ -17,3 +17,4 @@ export * from "./sale.factory";
 export * from "./branch-cash-reconciliation.factory";
 export * from "./simplified-branch-cash-reconciliation.factory";
 export * from "./time-off-request.factory";
+export * from "./employment.factory";

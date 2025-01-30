@@ -24,3 +24,4 @@ export * from "./transfer.entity";
 export * from "./sale.entity";
 export * from "./simplified-brach-cash-reconciliation.entity";
 export * from "./time-off-request.entity";
+export * from "./employment.entity";

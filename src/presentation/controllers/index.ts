@@ -19,3 +19,4 @@ export * from "./sale.controller";
 export * from "./branch-cash-reconciliation.controller";
 export * from "./simplified-branch-cash-reconciliation.controller";
 export * from "./time-off-request.controller";
+export * from "./employment.controller";
