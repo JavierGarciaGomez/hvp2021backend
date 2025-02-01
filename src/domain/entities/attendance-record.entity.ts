@@ -1,5 +1,8 @@
 import { Schema, Document } from "mongoose";
 import { BaseEntity, BaseEntityProps } from "./base.entity";
+import dayjs from "dayjs";
+import { CollaboratorEntity } from "./collaborator.entity";
+import { TimeOffRequestDayJs } from "./time-off-request.entity";
 
 export interface AttendanceRecordProps extends BaseEntityProps {
   shiftDate: Date;
@@ -105,4 +108,11 @@ export class AttendanceRecordEntity implements BaseEntity {
       endLongitude: document.endLongitude,
     });
   }
+}
+
+export interface AttendanceRecordEntityDayJs
+  extends Omit<AttendanceRecordEntity, "shiftDate" | "startTime" | "endTime"> {
+  shiftDate: dayjs.Dayjs;
+  startTime: dayjs.Dayjs;
+  endTime?: dayjs.Dayjs;
 }

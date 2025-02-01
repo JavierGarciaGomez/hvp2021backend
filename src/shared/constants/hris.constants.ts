@@ -1,0 +1,4 @@
+export const VACATION_BONUS_PERCENTAGE = 0.25;
+export const SUNDAY_BONUS_PERCENTAGE = 0.25;
+export const MAX_WORK_WEEK_LIMIT = 48;
+export const MAX_DOUBLE_PLAY_WORK_WEEK_LIMIT = 57;

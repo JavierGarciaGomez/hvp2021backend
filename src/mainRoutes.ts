@@ -35,4 +35,5 @@ export const mainRoutes = {
   simplifiedBranchCashReconciliation:
     "/api/simplified-branch-cash-reconciliation",
   employments: "/api/employments",
+  attendanceReports: "/api/attendance-reports",
 };

@@ -1,5 +1,6 @@
 // import { ICollaborator } from "../../infra/db/mongo/models/collaborator.model";
-import { CollaboratorDocument } from "../../infrastructure/db/mongo/models/collaborator.model";
+
+import { Document, Schema } from "mongoose";
 import { CollaboratorAuth } from "../../shared";
 import { Degree, Gender, WebAppRole } from "../enums";
 import { PaymentType } from "../enums/job.enums";
@@ -62,6 +63,13 @@ export interface CollaboratorProps extends BaseEntityProps {
   degree?: Degree;
 
   // TODO: enum
+}
+
+export interface CollaboratorDocument
+  extends Omit<CollaboratorProps, "id" | "jobId" | "_id">,
+    Document {
+  id: Schema.Types.ObjectId;
+  jobId: Schema.Types.ObjectId;
 }
 
 export interface PublicCollaborator extends Partial<CollaboratorProps> {
@@ -189,8 +197,8 @@ export class CollaboratorEntity implements BaseEntity {
 
   static fromDocument(document: CollaboratorDocument): CollaboratorEntity {
     return new CollaboratorEntity({
-      _id: document.id,
-      id: document.id,
+      _id: document._id.toString(),
+      id: document._id.toString(),
       first_name: document.first_name,
       last_name: document.last_name,
       gender: document.gender,
@@ -222,7 +230,7 @@ export class CollaboratorEntity implements BaseEntity {
       position: document.position,
       coverShift: document.coverShift,
       weeklyHours: document.weeklyHours,
-      jobId: document.jobId,
+      jobId: document?.jobId?.toString(),
       contractDate: document.contractDate,
       hasIMSS: document.hasIMSS,
       imssEnrollmentDate: document.imssEnrollmentDate,

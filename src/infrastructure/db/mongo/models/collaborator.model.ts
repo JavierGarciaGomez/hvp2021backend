@@ -5,11 +5,11 @@ import {
   PaymentType,
   WebAppRole,
 } from "../../../../domain/enums";
-import { AddressSchema, CollaboratorProps } from "../../../../domain";
-
-export interface CollaboratorDocument
-  extends Omit<CollaboratorProps, "_id">,
-    Omit<Document, "id"> {}
+import {
+  AddressSchema,
+  CollaboratorDocument,
+  CollaboratorProps,
+} from "../../../../domain";
 
 const CollaboratorSchema: Schema = new Schema<CollaboratorDocument>(
   {

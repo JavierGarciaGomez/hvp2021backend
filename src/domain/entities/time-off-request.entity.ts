@@ -1,6 +1,7 @@
 import { Schema } from "mongoose";
 import { TimeOffStatus, TimeOffType } from "../enums";
 import { BaseEntity, BaseEntityProps } from "./base.entity";
+import dayjs from "dayjs";
 
 // export class TimeOffRequestEntity {
 //   constructor(
@@ -78,3 +79,8 @@ export class TimeOffRequestEntity implements BaseEntity {
 }
 
 export interface TimeOffRequestResponse extends TimeOffRequestEntity {}
+
+export interface TimeOffRequestDayJs
+  extends Omit<TimeOffRequestEntity, "requestedDays"> {
+  requestedDays: dayjs.Dayjs[];
+}
