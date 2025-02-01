@@ -341,7 +341,7 @@ export class AttendanceReportService {
     return timeoffRequests.map((timeoffRequest) => ({
       ...timeoffRequest,
       requestedDays: timeoffRequest.requestedDays.map((day) =>
-        convertUtcDateToMexicoTimeStartOfDay(day)
+        toMexicoStartOfDay(day)
       ),
     }));
   }
