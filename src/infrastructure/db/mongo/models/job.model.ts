@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { JobDocument, PaymentType } from "../../../../domain";
+import { JobDocument, HRPaymentType } from "../../../../domain";
 
 const JobSchema: Schema = new Schema<JobDocument>(
   {
@@ -16,8 +16,8 @@ const JobSchema: Schema = new Schema<JobDocument>(
     minimumIncome: { type: Number, required: true, default: 0 },
     paymentType: {
       type: String,
-      enum: PaymentType,
-      default: PaymentType.SALARY,
+      enum: HRPaymentType,
+      default: HRPaymentType.SALARY,
     },
     title: { type: String, required: true, default: "" },
     sortingOrder: { type: Number, required: true, default: 0 },

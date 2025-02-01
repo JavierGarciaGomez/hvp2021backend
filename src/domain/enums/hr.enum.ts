@@ -19,3 +19,9 @@ export enum WorkingDayType {
   IncompleteRecord = "Registro incompleto",
   CompensationShift = "Reposición de jornada",
 }
+
+export enum PayrollStatus {
+  Pending = "pending",
+  Approved = "approved",
+  Paid = "paid",
+}

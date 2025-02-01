@@ -1,6 +1,6 @@
 import { BaseDTO } from "./base.dto";
 import { BaseEntity, EmploymentProps, JobProps } from "../../domain/entities";
-import { ExtraCompensationVO, PaymentType } from "../../domain";
+import { ExtraCompensationVO, HRPaymentType } from "../../domain";
 
 export class EmploymentDTO implements BaseDTO, BaseEntity {
   id?: string;
@@ -15,7 +15,7 @@ export class EmploymentDTO implements BaseDTO, BaseEntity {
   jobEndDate?: Date;
   isActive!: boolean;
   weeklyHours!: number;
-  paymentType: PaymentType = PaymentType.SALARY;
+  paymentType: HRPaymentType = HRPaymentType.SALARY;
   seniorityBonusPercentage: number = 0;
   comissionBonusPercentage: number = 0;
   //

@@ -1,6 +1,6 @@
 import { BaseDTO } from "./base.dto";
 import { JobProps } from "../../domain/entities";
-import { PaymentType } from "../../domain";
+import { HRPaymentType } from "../../domain";
 
 export class JobDTO implements BaseDTO {
   id?: string;
@@ -15,7 +15,7 @@ export class JobDTO implements BaseDTO {
   description?: string;
   hourlyRate?: number;
   minimumIncome?: number; // minimum ordinary income
-  paymentType: PaymentType = PaymentType.SALARY;
+  paymentType: HRPaymentType = HRPaymentType.SALARY;
   sortingOrder: number = 99;
   title!: string;
   incomeMultiplier: number = 1;

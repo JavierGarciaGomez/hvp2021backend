@@ -37,6 +37,7 @@ import {
   BranchCashReconciliationRoutes,
   TimeOffRequestRoutes,
   EmploymentRoutes,
+  PayrollRoutes,
 } from "./routes";
 import { AccountRoutes } from "./routes/account.routes";
 import { SimplifiedBranchCashReconciliationRoutes } from "./routes/simplified-branch-cash-reconciliation.routes";
@@ -115,6 +116,7 @@ export class AppRoutes {
       mainRoutes.attendanceReports,
       new AttendanceReportRoutes().getRoutes()
     );
+    router.use(mainRoutes.payrolls, new PayrollRoutes().getRoutes());
 
     return router;
   }

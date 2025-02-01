@@ -1,14 +1,7 @@
 import { BaseDTO } from "./base.dto";
 import { WeekShiftProps } from "../../domain/entities";
-import { PaymentType } from "../../domain";
 import { CollaboratorDayShift } from "../../domain/value-objects/day-shift.vo";
-import {
-  BaseError,
-  checkForErrors,
-  checkIsMonday,
-  checkIsSunday,
-} from "../../shared";
-import { start } from "repl";
+import { checkForErrors, checkIsMonday, checkIsSunday } from "../../shared";
 import dayjs from "dayjs";
 
 export class WeekShiftDTO implements BaseDTO {

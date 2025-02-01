@@ -1,6 +1,6 @@
 import { JobEntity } from "../../domain/entities";
 import { BaseService } from "./base.service";
-import { JobRepository, PaymentType } from "../../domain";
+import { JobRepository, HRPaymentType } from "../../domain";
 import { JobDTO } from "../dtos";
 
 export class JobService extends BaseService<JobEntity, JobDTO> {
@@ -13,7 +13,7 @@ export class JobService extends BaseService<JobEntity, JobDTO> {
   }
 
   public getPaymentTypes = async () => {
-    const paymentTypeArray = Object.entries(PaymentType).map(
+    const paymentTypeArray = Object.entries(HRPaymentType).map(
       ([key, value], index) => ({
         label: value,
         value: value,

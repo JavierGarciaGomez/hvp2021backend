@@ -2,13 +2,7 @@ import { EmploymentEntity } from "../../domain/entities";
 import { BaseService } from "./base.service";
 import { EmploymentRepository } from "../../domain";
 import { EmploymentDTO } from "../dtos";
-import {
-  AuthenticatedCollaborator,
-  BaseError,
-  buildQueryOptions,
-} from "../../shared";
-import mongoose from "mongoose";
-import { EmploymentModel } from "../../infrastructure";
+import { AuthenticatedCollaborator, buildQueryOptions } from "../../shared";
 
 export class EmploymentService extends BaseService<
   EmploymentEntity,

@@ -1,6 +1,6 @@
 import { Document, Schema } from "mongoose";
-import { PaymentType, TimeOffStatus, TimeOffType } from "../enums";
-import { BaseEntity, BaseEntityProps, newBaseEntityProps } from "./base.entity";
+import { HRPaymentType } from "../enums";
+import { BaseEntity, newBaseEntityProps } from "./base.entity";
 import { ExtraCompensationVO } from "../value-objects";
 
 export interface EmploymentBase extends newBaseEntityProps {
@@ -10,7 +10,7 @@ export interface EmploymentBase extends newBaseEntityProps {
   employmentEndDate?: Date | string;
   isActive: boolean;
   weeklyHours: number;
-  paymentType: PaymentType;
+  paymentType: HRPaymentType;
   //
   seniorityBonusPercentage: number;
   comissionBonusPercentage: number;
@@ -65,7 +65,7 @@ export class EmploymentEntity implements BaseEntity {
   employmentEndDate?: Date;
   isActive!: boolean;
   weeklyHours!: number;
-  paymentType: PaymentType = PaymentType.SALARY;
+  paymentType: HRPaymentType = HRPaymentType.SALARY;
   seniorityBonusPercentage: number = 0;
   comissionBonusPercentage: number = 0;
   //

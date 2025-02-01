@@ -442,7 +442,7 @@ export class AttendanceReportService {
       extendedEndDate
     );
 
-    if (collaboratorAttendanceData.collaborator.col_code === "SCP") {
+    if (collaboratorAttendanceData.collaborator.col_code === "JLP") {
       console.log(dayReportsData);
     }
 

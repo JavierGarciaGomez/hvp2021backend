@@ -23,3 +23,4 @@ export * from "./simplified-branch-cash-reconciliation.service";
 export * from "./time-off-request.service";
 export * from "./employment.service";
 export * from "./attendance-report.service";
+export * from "./payroll.service";

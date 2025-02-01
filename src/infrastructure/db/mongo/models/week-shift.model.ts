@@ -1,5 +1,5 @@
 import mongoose, { Schema, ValidatorProps } from "mongoose";
-import { WeekShiftDocument, PaymentType } from "../../../../domain";
+import { WeekShiftDocument, HRPaymentType } from "../../../../domain";
 import { DATE_FORMAT, TIME_FORMAT } from "../../../../shared";
 
 export const WeekShiftSchema: Schema = new Schema<WeekShiftDocument>(

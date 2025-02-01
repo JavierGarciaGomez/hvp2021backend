@@ -19,3 +19,4 @@ export * from "./branch-cash-reconciliation.datasource";
 export * from "./simplified-branch-cash-reconciliation.datasource";
 export * from "./time-off-request.datasource";
 export * from "./employment.datasource";
+export * from "./payroll.datasource";

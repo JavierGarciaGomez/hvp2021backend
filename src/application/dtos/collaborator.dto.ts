@@ -4,7 +4,7 @@ import {
   Degree,
   Gender,
   ImageUrl,
-  PaymentType,
+  HRPaymentType,
   WebAppRole,
 } from "../../domain";
 import { BaseError } from "../../shared";
@@ -67,7 +67,7 @@ export class CollaboratorDTO implements BaseDTO {
   imssEnrollmentDate?: Date;
   // Payroll information
   // TODO: set in a parameter the value of the compensation
-  paymentType?: PaymentType;
+  paymentType?: HRPaymentType;
   additionalCompensation?: number; // based in the hours he goes
   // TODO: enum
   degree?: Degree;

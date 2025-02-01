@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import {
   EmploymentDocument,
   extraCompensationSchema,
-  PaymentType,
+  HRPaymentType,
 } from "../../../../domain";
 
 const EmploymentSchema: Schema = new Schema<EmploymentDocument>(
@@ -19,9 +19,9 @@ const EmploymentSchema: Schema = new Schema<EmploymentDocument>(
     weeklyHours: { type: Number, required: true, default: 0 },
     paymentType: {
       type: String,
-      enum: PaymentType,
+      enum: HRPaymentType,
       required: true,
-      default: PaymentType.SALARY,
+      default: HRPaymentType.SALARY,
     },
     seniorityBonusPercentage: { type: Number, required: true, default: 0 },
     comissionBonusPercentage: { type: Number, required: true, default: 0 },

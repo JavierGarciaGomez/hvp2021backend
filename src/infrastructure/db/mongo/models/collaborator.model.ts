@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 import {
   Degree,
   Gender,
-  PaymentType,
+  HRPaymentType,
   WebAppRole,
 } from "../../../../domain/enums";
 import {
@@ -155,7 +155,7 @@ const CollaboratorSchema: Schema = new Schema<CollaboratorDocument>(
     },
     paymentType: {
       type: String,
-      enum: PaymentType,
+      enum: HRPaymentType,
     },
     additionalCompensation: {
       type: Number,

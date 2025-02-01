@@ -1,6 +1,6 @@
 import { Document, Schema } from "mongoose";
-import { PaymentType } from "./../enums/job.enums";
-import { BaseEntity, BaseEntityProps, newBaseEntityProps } from "./base.entity";
+import { HRPaymentType } from "./../enums/job.enums";
+import { BaseEntity, newBaseEntityProps } from "./base.entity";
 
 export interface JobPropsBase extends newBaseEntityProps {
   active: boolean;
@@ -11,7 +11,7 @@ export interface JobPropsBase extends newBaseEntityProps {
   description?: string;
   hourlyRate?: number;
   minimumIncome?: number; // minimum ordinary income --- calculate
-  paymentType: PaymentType;
+  paymentType: HRPaymentType;
   sortingOrder: number;
   title: string;
   incomeMultiplier: number;
@@ -45,7 +45,7 @@ export class JobEntity implements BaseEntity {
   description?: string;
   hourlyRate?: number;
   minimumIncome?: number; // minimum ordinary income
-  paymentType: PaymentType = PaymentType.SALARY;
+  paymentType: HRPaymentType = HRPaymentType.SALARY;
   sortingOrder: number = 99;
   title!: string;
   incomeMultiplier: number = 1;

@@ -21,3 +21,4 @@ export * from "./simplified-branch-cash-reconciliation.controller";
 export * from "./time-off-request.controller";
 export * from "./employment.controller";
 export * from "./attendance-report.controller";
+export * from "./payroll.controller";

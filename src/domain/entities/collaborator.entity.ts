@@ -3,7 +3,7 @@
 import { Document, Schema } from "mongoose";
 import { CollaboratorAuth } from "../../shared";
 import { Degree, Gender, WebAppRole } from "../enums";
-import { PaymentType } from "../enums/job.enums";
+import { HRPaymentType } from "../enums/job.enums";
 import { AddressVO, ImageUrl } from "../value-objects";
 import { BaseEntity, BaseEntityProps } from "./base.entity";
 
@@ -57,7 +57,7 @@ export interface CollaboratorProps extends BaseEntityProps {
   imssEnrollmentDate?: Date;
   // Payroll information
   // TODO: set in a parameter the value of the compensation
-  paymentType?: PaymentType;
+  paymentType?: HRPaymentType;
   additionalCompensation?: number; // based in the hours he goes
   // TODO: enum
   degree?: Degree;
@@ -134,7 +134,7 @@ export class CollaboratorEntity implements BaseEntity {
   imssEnrollmentDate?: Date;
   // Payroll information
   // TODO: set in a parameter the value of the compensation
-  paymentType?: PaymentType;
+  paymentType?: HRPaymentType;
   additionalCompensation?: number; // based in the hours he goes
   // TODO: enum
   degree?: Degree;
