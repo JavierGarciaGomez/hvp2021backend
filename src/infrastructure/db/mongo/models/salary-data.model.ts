@@ -5,6 +5,7 @@ const SalaryDataSchema: Schema = new Schema<SalaryDataDocument>(
   {
     year: { type: Number, required: true },
     minimumWage: { type: Number, required: true },
+    minimumWageHVP: { type: Number, required: true },
     uma: { type: Number, required: true },
     ocupationalRisk: { type: Number, required: true },
     imssEmployerRates: { type: Object, required: true },
