@@ -6,6 +6,7 @@ import {
   CollaboratorAttendanceReportWrapper,
   CollaboratorDayReport,
   DayReportData,
+  PeriodHours,
   ProcessedAttendanceRawData,
 } from "../../domain/read-models";
 import {
@@ -27,6 +28,7 @@ import {
 } from "../../shared";
 import {
   createAttendanceRecordService,
+  createBranchService,
   createCollaboratorService,
   createEmploymentService,
   createJobService,
@@ -37,6 +39,7 @@ import {
 import {
   AttendanceRecordEntity,
   AttendanceRecordEntityDayJs,
+  BranchEntity,
   CollaboratorEntity,
   EmploymentEntity,
   JobEntity,
@@ -62,6 +65,7 @@ export class AttendanceReportService {
   collaboratorService = createCollaboratorService();
   publicHolidaysService = createPublicHolidaysService();
   employmentService = createEmploymentService();
+  branchService = createBranchService();
 
   // todo change any
   async getAll(
@@ -146,6 +150,7 @@ export class AttendanceReportService {
         processedPublicHolidays: processedRawData.processedPublicHolidays,
         employments: attendanceRawData.employments,
         jobs: attendanceRawData.jobs,
+        branches: attendanceRawData.branches,
       }
     );
 
@@ -262,6 +267,12 @@ export class AttendanceReportService {
       },
     });
 
+    const branches = await this.branchService.getAll({
+      filteringDto: {
+        active: true,
+      },
+    });
+
     return {
       startDate: extendedStartDateMx,
       endDate: extendedEndDateMx,
@@ -272,6 +283,7 @@ export class AttendanceReportService {
       collaborators,
       publicHolidays,
       employments,
+      branches,
     };
   }
 
@@ -372,6 +384,7 @@ export class AttendanceReportService {
       processedPublicHolidays,
       employments,
       jobs,
+      branches,
     } = args;
     const collaboratorsAttendanceData = collaborators.map((collaborator) => ({
       collaborator,
@@ -383,6 +396,7 @@ export class AttendanceReportService {
       attendanceRecords: [] as AttendanceRecordEntityDayJs[],
       timeOffRequests: [] as TimeOffRequestDayJs[],
       publicHolidays: processedPublicHolidays,
+      branches,
     }));
 
     processedDayShifts.forEach((dayShift) => {
@@ -426,12 +440,8 @@ export class AttendanceReportService {
     extendedStartDate: dayjs.Dayjs,
     extendedEndDate: dayjs.Dayjs
   ): CollaboratorAttendanceReport {
-    const {
-      collaborator,
-      employment,
-
-      publicHolidays,
-    } = collaboratorAttendanceData;
+    const { collaborator, employment, branches, publicHolidays } =
+      collaboratorAttendanceData;
 
     const { startDate: collaboratorStartDate, endDate: collaboratorEndDate } =
       collaboratorAttendanceData.collaborator;
@@ -439,7 +449,8 @@ export class AttendanceReportService {
     const dayReportsData = this.generateDayReportsData(
       collaboratorAttendanceData,
       extendedStartDate,
-      extendedEndDate
+      extendedEndDate,
+      branches
     );
 
     if (collaboratorAttendanceData.collaborator.col_code === "JLP") {
@@ -515,7 +526,8 @@ export class AttendanceReportService {
   private generateDayReportsData(
     collaboratorAttendanceData: CollaboratorAttendanceData,
     extendedStartingDate: dayjs.Dayjs,
-    extendedEndingDate: dayjs.Dayjs
+    extendedEndingDate: dayjs.Dayjs,
+    branches: BranchEntity[]
   ): DayReportData[] {
     const {
       dayShifts,
@@ -539,6 +551,7 @@ export class AttendanceReportService {
       attendanceEnd: undefined,
       timeOffRequestType: undefined,
       isRemote: false,
+      branch: undefined,
     }));
 
     dayShifts.forEach((shift) => {
@@ -559,6 +572,9 @@ export class AttendanceReportService {
       if (dayReport) {
         dayReport.attendanceStart = attendanceRecord.startTime;
         dayReport.attendanceEnd = attendanceRecord.endTime;
+        dayReport.branch = branches.find(
+          (branch) => branch.id === attendanceRecord.clockOutBranch
+        )?.name;
       }
     });
 
@@ -593,6 +609,7 @@ export class AttendanceReportService {
       attendanceEnd,
       timeOffRequestType,
       isRemote,
+      branch,
     } = dayReportData;
 
     const assignedHours =
@@ -630,6 +647,7 @@ export class AttendanceReportService {
       delayMinutes,
       anticipatedMinutes,
       timeOffRequestType: timeOffRequestType,
+      branch,
     };
 
     const setHoursToZero = (dayReport: CollaboratorDayReport) => {
@@ -764,7 +782,7 @@ export class AttendanceReportService {
     collaboratorDayReports: CollaboratorDayReport[],
     weeklyHours: number,
     publicHolidays?: Dayjs[]
-  ) {
+  ): PeriodHours {
     const dailyWorkingHours = weeklyHours ? weeklyHours / 6 : 8;
 
     /*
@@ -880,6 +898,14 @@ export class AttendanceReportService {
           .reduce((acc, dayReport) => acc + dayReport.workedHours, 0)
       : 0;
 
+    const expressHours = collaboratorDayReports
+      .filter((dayReport) => dayReport.branch === "Montejo")
+      .reduce((acc, dayReport) => acc + dayReport.workedHours, 0);
+
+    const mealDays = collaboratorDayReports.filter(
+      (dayReport) => dayReport.workedHours > 8
+    ).length;
+
     // obtain completed weeks
 
     // check if at least one day is a rest day
@@ -899,6 +925,8 @@ export class AttendanceReportService {
       unjustifiedAbsenceHours,
       publicHolidaysHours,
       workedSundayHours,
+      expressHours,
+      mealDays,
     };
   }
 
@@ -1039,4 +1067,5 @@ interface GenerateCollaboratorAttendanceDataArgs {
   processedPublicHolidays: Dayjs[];
   employments: EmploymentEntity[];
   jobs: JobEntity[];
+  branches: BranchEntity[];
 }

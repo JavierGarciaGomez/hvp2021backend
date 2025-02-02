@@ -33,9 +33,9 @@ export interface PayrollBase extends newBaseEntityProps {
   comissions: number;
   // income - similarToComissions
   vacationsCompensation: number;
-  minimumOrdinaryIncomeCompensation: number;
   justifiedAbsencesCompensation: number;
   expressBranchCompensation: number;
+  minimumOrdinaryIncomeCompensation: number;
   // income - legal allowances
   yearEndBonus: number;
   vacationBonus: number;
@@ -48,10 +48,10 @@ export interface PayrollBase extends newBaseEntityProps {
   sundayBonusExtraPay: number;
   holidayOrRestExtraPay: number;
   // income - company benefits
+  punctualityBonus: number;
   mealCompensation: number;
   receptionBonus: number;
   degreeBonus: number;
-  punctualityBonus: number;
   trainingSupport: number;
   physicalActivitySupport: number;
   extraCompensations: ExtraCompensationVO[];

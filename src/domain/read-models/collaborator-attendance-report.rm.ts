@@ -3,6 +3,7 @@ import { TimeOffType, WorkingDayType } from "../enums";
 import {
   AttendanceRecordEntity,
   AttendanceRecordEntityDayJs,
+  BranchEntity,
   CollaboratorEntity,
   EmploymentEntity,
   JobEntity,
@@ -37,6 +38,7 @@ export interface CollaboratorDayReport {
   extraHours: number;
   delayMinutes: number;
   anticipatedMinutes: number;
+  branch?: string;
 }
 
 export interface PeriodHours {
@@ -54,6 +56,8 @@ export interface PeriodHours {
   unjustifiedAbsenceHours: number;
   publicHolidaysHours: number;
   workedSundayHours: number;
+  expressHours: number;
+  mealDays: number;
 }
 
 export interface ConcludedWeekHours {
@@ -74,6 +78,7 @@ export interface AttendanceRawData {
   collaborators: CollaboratorEntity[];
   publicHolidays: PublicHolidaysEntity[];
   employments: EmploymentEntity[];
+  branches: BranchEntity[];
 }
 
 export interface ProcessedAttendanceRawData {
@@ -91,6 +96,7 @@ export interface CollaboratorAttendanceData {
   attendanceRecords: AttendanceRecordEntityDayJs[];
   timeOffRequests: TimeOffRequestDayJs[];
   publicHolidays: Dayjs[];
+  branches: BranchEntity[];
 }
 
 export interface DayReportData {
@@ -101,6 +107,7 @@ export interface DayReportData {
   attendanceEnd: dayjs.Dayjs | undefined;
   timeOffRequestType: TimeOffType | undefined;
   isRemote: boolean;
+  branch?: string;
 }
 
 export interface CollaboratorAttendanceReportWrapper {

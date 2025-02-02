@@ -40,6 +40,28 @@ export class EmploymentService extends BaseService<
     return this.transformToResponse(result);
   };
 
+  public getEmploymentByCollaboratorAndPeriod = async (
+    collaboratorId: string,
+    periodStartDate: string,
+    periodEndDate: string
+  ) => {
+    const employments = await this.getAll({
+      filteringDto: {
+        employmentStartDate: { $lte: periodEndDate },
+        $or: [
+          { employmentEndDate: { $exists: false } },
+          { employmentEndDate: { $gt: periodStartDate } },
+        ],
+      },
+      sortingDto: {
+        sort_by: "employmentStartDate",
+        direction: "desc",
+      },
+    });
+
+    return employments[0];
+  };
+
   public getResourceName(): string {
     return "employment";
   }
