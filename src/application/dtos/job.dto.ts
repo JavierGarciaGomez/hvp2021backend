@@ -10,7 +10,7 @@ export class JobDTO implements BaseDTO {
   updatedBy?: string;
   active!: boolean;
   annualRaisePercent: number = 0.025;
-  quarterlyComissionRaisePercent: number = 0.05;
+  quarterlyCommissionRaisePercent: number = 0.05;
   baseIncome?: number; // fixed perception
   description?: string;
   hourlyRate?: number;
@@ -19,7 +19,7 @@ export class JobDTO implements BaseDTO {
   sortingOrder: number = 99;
   title!: string;
   incomeMultiplier: number = 1;
-  expectedComissionsPercentage: number = 0.4;
+  expectedCommissionsPercentage: number = 0.4;
   expectedMinimumIncome: number = 0; // expected minimum ordinary income
   expressBranchCompensation: number = 0;
   constructor({ ...props }: JobProps) {

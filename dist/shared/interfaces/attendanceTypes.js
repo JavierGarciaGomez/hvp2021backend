@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.attendanceTypeDescriptions = exports.AttendanceType = void 0;
+// todo: DELETE THIS
 var AttendanceType;
 (function (AttendanceType) {
     AttendanceType["ordinary"] = "Ordinary";

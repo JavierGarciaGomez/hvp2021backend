@@ -15,12 +15,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getResource = void 0;
 const infrastructure_1 = require("../../infrastructure");
 const TaskModel_1 = __importDefault(require("../../infrastructure/db/mongo/models/TaskModel"));
-const TimeOffRequestModel_1 = __importDefault(require("../../infrastructure/db/mongo/models/TimeOffRequestModel"));
+const time_off_request_model_1 = __importDefault(require("../../infrastructure/db/mongo/models/time-off-request.model"));
 const getResource = (baseUrl, resourceId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         switch (baseUrl) {
             case "/api/time-off-requests":
-                return (yield TimeOffRequestModel_1.default.findById(resourceId));
+                return (yield time_off_request_model_1.default.findById(resourceId));
             case "/api/tasks":
                 return (yield TaskModel_1.default.findById(resourceId));
             // Add more cases for other routes

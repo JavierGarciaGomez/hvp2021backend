@@ -1,262 +1,352 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.TimeOffRequestsService = void 0;
-const TimeOffRequestModel_1 = __importDefault(require("../../../infrastructure/db/mongo/models/TimeOffRequestModel"));
-const domain_1 = require("../../../domain");
-const BaseError_1 = require("../../../shared/errors/BaseError");
-const SuccessResponseFormatter_1 = require("../../services/SuccessResponseFormatter");
-const timeOffRequestsRoutes_1 = require("./timeOffRequestsRoutes");
-const timeOffHelpers_1 = require("../../../shared/helpers/timeOffHelpers");
-const dateHelpers_1 = require("../../../shared/helpers/dateHelpers");
-const collaboratorsHelpers_1 = require("../../../shared/helpers/collaboratorsHelpers");
-const shared_1 = require("../../../shared");
-const application_1 = require("../../../application");
+// // todo: DELETE
+// import TimeOffRequestModel from "../../../infrastructure/db/mongo/models/time-off-request.model";
 // import {
-//   CreateCategoryDto,
-//   CustomError,
+//   WebAppRole,
+//   NotificationActionType,
+//   NotificationReferenceType,
 //   PaginationDto,
-//   UserEntity,
-// } from "../../domain";
-const commonPath = "/api/time-off-requests";
-const resource = "TimeOffRequests";
-class TimeOffRequestsService {
-    // DI
-    constructor(notificationService) {
-        this.notificationService = notificationService;
-        this.createTimeOffRequest = (timeOffRequestDto, authenticatedCollaborator) => __awaiter(this, void 0, void 0, function* () {
-            const { uid } = authenticatedCollaborator;
-            const timeOffRequest = new TimeOffRequestModel_1.default(Object.assign(Object.assign({}, timeOffRequestDto.data), { createdBy: uid }));
-            const firstTimeOffDate = (0, dateHelpers_1.getEarliestDate)(timeOffRequest.requestedDays);
-            const vacationsDaysRequested = timeOffRequest.requestedDays.length;
-            const { remainingVacationDays, dateTimeOffRequests } = yield (0, timeOffHelpers_1.getCollaboratorTimeOffOverviewDetails)(uid, firstTimeOffDate);
-            const notCancelledTimeOffRequests = dateTimeOffRequests.filter((dateTimeOffRequest) => dateTimeOffRequest.status !== shared_1.TimeOffStatus.canceled);
-            // TODO: Check if dates were already requested
-            for (const date of timeOffRequest.requestedDays) {
-                const dateOnly = (0, dateHelpers_1.formatDateWithoutTime)(date);
-                const pendingDatesWithoutTime = notCancelledTimeOffRequests
-                    .map((dateTimeOffRequest) => dateTimeOffRequest.date)
-                    .map(dateHelpers_1.formatDateWithoutTime);
-                if (pendingDatesWithoutTime.includes(dateOnly)) {
-                    throw BaseError_1.BaseError.badRequest(`The collaborator already has a time off request for the date ${dateOnly}.`);
-                }
-            }
-            // Todo check if he has enough days
-            if (timeOffRequest.timeOffType === shared_1.TimeOffType.vacation &&
-                remainingVacationDays < vacationsDaysRequested) {
-                throw BaseError_1.BaseError.badRequest(`The collaborator has ${remainingVacationDays} vacations days for the ${firstTimeOffDate.toISOString()}.`);
-            }
-            const savedTimeOffRequest = yield timeOffRequest.save();
-            const collaboratorService = (0, application_1.createCollaboratorService)();
-            const user = yield collaboratorService.getById(uid);
-            yield this.notificationService.notifyManagers({
-                message: `A new time off request has been created by ${user.col_code}`,
-                referenceId: savedTimeOffRequest._id.toString(),
-                referenceType: domain_1.NotificationReferenceType.TIME_OFF_REQUEST,
-                actionType: domain_1.NotificationActionType.AWAITING_APPROVAL,
-                title: "New Time Off Request",
-            });
-            const response = SuccessResponseFormatter_1.OldSuccessResponseFormatter.fortmatCreateResponse({
-                data: savedTimeOffRequest,
-                resource,
-            });
-            return response;
-        });
-    }
-    getTimeOffRequests(paginationDto) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // todo change this
-            const all = true;
-            return this.fetchTimeOffRequestsLists({}, paginationDto, all);
-        });
-    }
-    getTimeOffRequestsByCollaborator(paginationDto, collaboratorId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // todo change this
-            const all = true;
-            const query = { collaborator: collaboratorId };
-            return this.fetchTimeOffRequestsLists(query, paginationDto, all);
-        });
-    }
-    getTimeOffRequestsByYear(paginationDto, year) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // todo change this
-            const all = true;
-            const query = {
-                requestedDays: {
-                    $gte: new Date(`${year}-01-01`),
-                    $lte: new Date(`${year}-12-31`),
-                },
-            };
-            return this.fetchTimeOffRequestsLists(query, paginationDto, all);
-        });
-    }
-    getTimeOffRequestById(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const timeOffRequest = yield TimeOffRequestModel_1.default.findById(id);
-            if (!timeOffRequest)
-                throw BaseError_1.BaseError.notFound(`${resource} not found with id ${id}`);
-            const response = SuccessResponseFormatter_1.OldSuccessResponseFormatter.formatGetOneResponse({
-                data: timeOffRequest,
-                resource,
-            });
-            return response;
-        });
-    }
-    updateTimeOffRequest(id, timeOffRequestDto, authenticatedCollaborator) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { uid, role } = authenticatedCollaborator;
-            const timeOffRequest = yield TimeOffRequestModel_1.default.findById(id);
-            if (!timeOffRequest)
-                throw BaseError_1.BaseError.notFound(`${resource} not found with id ${id}`);
-            if (timeOffRequest.status !== shared_1.TimeOffStatus.pending &&
-                role !== domain_1.WebAppRole.admin &&
-                role !== domain_1.WebAppRole.manager) {
-                throw BaseError_1.BaseError.unauthorized("The time off request has already been approved.");
-            }
-            const firstVacationDate = (0, dateHelpers_1.getEarliestDate)(timeOffRequest.requestedDays);
-            const vacationsDaysRequested = timeOffRequest.requestedDays.length;
-            const collaboratorId = timeOffRequest.collaborator;
-            const { remainingVacationDays, vacationsTaken, vacationsRequested } = yield (0, timeOffHelpers_1.getCollaboratorTimeOffOverviewDetails)(collaboratorId, firstVacationDate, id);
-            const pendingOrTakenVacations = vacationsTaken.concat(vacationsRequested);
-            console.log({ pendingOrTakenVacations });
-            // TODO: Check if dates were already requested
-            for (const date of timeOffRequestDto.data.requestedDays) {
-                const dateOnly = (0, dateHelpers_1.formatDateWithoutTime)(new Date(date));
-                const pendingDatesWithoutTime = pendingOrTakenVacations.map(dateHelpers_1.formatDateWithoutTime);
-                if (pendingDatesWithoutTime.includes(dateOnly)) {
-                    throw BaseError_1.BaseError.badRequest(`The collaborator already has a time off request for the date ${dateOnly}.`);
-                }
-            }
-            // Todo check if he has enough days
-            if (remainingVacationDays < vacationsDaysRequested) {
-                throw BaseError_1.BaseError.badRequest(`The collaborator has ${remainingVacationDays} vacations days for the ${firstVacationDate.toISOString()}.`);
-            }
-            const updatedResource = yield TimeOffRequestModel_1.default.findByIdAndUpdate(id, Object.assign(Object.assign({}, timeOffRequestDto.data), { updatedAt: new Date(), updatedBy: uid }), { new: true });
-            const response = SuccessResponseFormatter_1.OldSuccessResponseFormatter.formatUpdateResponse({
-                data: updatedResource,
-                resource,
-            });
-            return response;
-        });
-    }
-    approveTimeOffRequest(_a, id_1) {
-        return __awaiter(this, arguments, void 0, function* ({ approvedBy, managerNote, status }, id) {
-            const updatedResource = yield TimeOffRequestModel_1.default.findByIdAndUpdate(id, {
-                approvedBy,
-                managerNote,
-                status,
-                approvedAt: new Date(),
-                updatedAt: new Date(),
-            }, { new: true });
-            const response = SuccessResponseFormatter_1.OldSuccessResponseFormatter.formatUpdateResponse({
-                data: updatedResource,
-                resource,
-            });
-            yield this.notificationService.notifyCollaborator({
-                message: `Your time off request has been approved.`,
-                referenceId: id,
-                referenceType: domain_1.NotificationReferenceType.TIME_OFF_REQUEST,
-                actionType: domain_1.NotificationActionType.APPROVED,
-                collaboratorId: updatedResource.collaborator,
-                title: "Time Off Request Approved",
-            });
-            return response;
-        });
-    }
-    deleteTimeOffRequest(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const timeOffRequest = yield TimeOffRequestModel_1.default.findById(id);
-            if (!timeOffRequest)
-                throw BaseError_1.BaseError.notFound(`${resource} not found with id ${id}`);
-            if (timeOffRequest.status !== shared_1.TimeOffStatus.pending) {
-                throw BaseError_1.BaseError.badRequest(`The time off request has already been approved/rejected.`);
-            }
-            const deletedResource = yield TimeOffRequestModel_1.default.findByIdAndDelete(id);
-            const response = SuccessResponseFormatter_1.OldSuccessResponseFormatter.formatDeleteResponse({
-                data: deletedResource,
-                resource,
-            });
-            return response;
-        });
-    }
-    getCollaboratorTimeOffOverview(collaboratorId, endDate) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const overview = yield (0, timeOffHelpers_1.getCollaboratorTimeOffOverviewDetails)(collaboratorId, endDate);
-            const response = SuccessResponseFormatter_1.OldSuccessResponseFormatter.formatGetOneResponse({
-                data: overview,
-                resource: "CollaboratorTimeOffOverview",
-            });
-            return response;
-        });
-    }
-    getCollaboratorsTimeOffOverview(paginationDto) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { page, limit } = paginationDto;
-            const activeCollaborators = yield (0, collaboratorsHelpers_1.getActiveCollaborators)();
-            const collaboratorsOverview = [];
-            for (const collaborator of activeCollaborators) {
-                const collaboratorId = collaborator._id; // Adjust this based on your collaborator data structure
-                // Use the getCollaboratorTimeOffOverview function to get the time-off overview for the current collaborator
-                const overview = yield (0, timeOffHelpers_1.getCollaboratorTimeOffOverviewDetails)(collaboratorId);
-                // Add the collaborator's time-off overview to the array
-                collaboratorsOverview.push(overview);
-            }
-            const response = SuccessResponseFormatter_1.OldSuccessResponseFormatter.formatListResponse({
-                data: collaboratorsOverview,
-                page: 1,
-                limit: collaboratorsOverview.length,
-                total: collaboratorsOverview.length,
-                path: `${commonPath}${timeOffRequestsRoutes_1.TimeOffRequestsRoutePaths.collaboratorsOverview}`,
-                resource: "CollaboratorsTimeOffOverview",
-            });
-            return response;
-        });
-    }
-    fetchTimeOffRequestsLists(query, paginationDto, all) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { page, limit } = paginationDto;
-            try {
-                let data;
-                if (all || page === undefined || limit === undefined) {
-                    // If 'all' is present, fetch all resources without pagination
-                    data = yield TimeOffRequestModel_1.default.find(query);
-                }
-                else {
-                    // Fetch paginated time-off requests
-                    const [total, paginatedData] = yield Promise.all([
-                        TimeOffRequestModel_1.default.countDocuments(query),
-                        TimeOffRequestModel_1.default.find(query)
-                            .skip((page - 1) * limit)
-                            .limit(limit),
-                    ]);
-                    data = paginatedData;
-                }
-                const response = SuccessResponseFormatter_1.OldSuccessResponseFormatter.formatListResponse({
-                    data,
-                    page: 1,
-                    limit: data.length,
-                    total: data.length,
-                    path: `${commonPath}${timeOffRequestsRoutes_1.TimeOffRequestsRoutePaths.all}`,
-                    resource: "TimeOffRequests",
-                });
-                return response;
-            }
-            catch (error) {
-                throw BaseError_1.BaseError.internalServer("Internal Server Error");
-            }
-        });
-    }
-}
-exports.TimeOffRequestsService = TimeOffRequestsService;
+// } from "../../../domain";
+// import { BaseError } from "../../../shared/errors/BaseError";
+// import { OldSuccessResponseFormatter } from "../../services/SuccessResponseFormatter";
+// import { TimeOffRequestsRoutePaths } from "./timeOffRequestsRoutes";
+// import { TimeOffRequestDto } from "../../../domain/dtos/timeOffRequests/TimeOffRequestDto";
+// import { AuthenticatedCollaborator } from "../../../shared/interfaces/RequestsAndResponses";
+// import { ObjectId } from "mongoose";
+// import { getCollaboratorTimeOffOverviewDetails } from "../../../shared/helpers/timeOffHelpers";
+// import {
+//   formatDateWithoutTime,
+//   getEarliestDate,
+// } from "../../../shared/helpers/dateHelpers";
+// import { getActiveCollaborators } from "../../../shared/helpers/collaboratorsHelpers";
+// import {
+//   CollaboratorTimeOffOverview,
+//   ListSuccessResponse,
+//   ResourceQuery,
+//   TimeOffRequest,
+//   TimeOffStatus,
+//   TimeOffType,
+// } from "../../../shared";
+// import {
+//   NotificationService,
+//   createCollaboratorService,
+// } from "../../../application";
+// // import {
+// //   CreateCategoryDto,
+// //   CustomError,
+// //   PaginationDto,
+// //   UserEntity,
+// // } from "../../domain";
+// const commonPath = "/api/time-off-requests";
+// const resource = "TimeOffRequests";
+// export class TimeOffRequestsService {
+//   // DI
+//   constructor(private readonly notificationService: NotificationService) {}
+//   async getTimeOffRequests(
+//     paginationDto: PaginationDto
+//   ): Promise<ListSuccessResponse<TimeOffRequest>> {
+//     // todo change this
+//     const all = true;
+//     return this.fetchTimeOffRequestsLists({}, paginationDto, all);
+//   }
+//   async getTimeOffRequestsByCollaborator(
+//     paginationDto: PaginationDto,
+//     collaboratorId: string
+//   ): Promise<ListSuccessResponse<TimeOffRequest>> {
+//     // todo change this
+//     const all = true;
+//     const query = { collaborator: collaboratorId };
+//     return this.fetchTimeOffRequestsLists(query, paginationDto, all);
+//   }
+//   async getTimeOffRequestsByYear(
+//     paginationDto: PaginationDto,
+//     year: number
+//   ): Promise<ListSuccessResponse<TimeOffRequest>> {
+//     // todo change this
+//     const all = true;
+//     const query = {
+//       requestedDays: {
+//         $gte: new Date(`${year}-01-01`),
+//         $lte: new Date(`${year}-12-31`),
+//       },
+//     };
+//     return this.fetchTimeOffRequestsLists(query, paginationDto, all);
+//   }
+//   async getTimeOffRequestById(id: string) {
+//     const timeOffRequest = await TimeOffRequestModel.findById(id);
+//     if (!timeOffRequest)
+//       throw BaseError.notFound(`${resource} not found with id ${id}`);
+//     const response =
+//       OldSuccessResponseFormatter.formatGetOneResponse<TimeOffRequest>({
+//         data: timeOffRequest,
+//         resource,
+//       });
+//     return response;
+//   }
+//   // TODO: DOING
+//   public createTimeOffRequest = async (
+//     timeOffRequestDto: TimeOffRequestDto,
+//     authenticatedCollaborator: AuthenticatedCollaborator
+//   ) => {
+//     const { uid } = authenticatedCollaborator;
+//     const timeOffRequest = new TimeOffRequestModel({
+//       ...timeOffRequestDto.data,
+//       createdBy: uid as unknown as ObjectId,
+//     });
+//     const firstTimeOffDate = getEarliestDate(timeOffRequest.requestedDays);
+//     const vacationsDaysRequested = timeOffRequest.requestedDays.length;
+//     const { remainingVacationDays, dateTimeOffRequests } =
+//       await getCollaboratorTimeOffOverviewDetails(uid, firstTimeOffDate);
+//     const notCancelledTimeOffRequests = dateTimeOffRequests.filter(
+//       (dateTimeOffRequest) =>
+//         dateTimeOffRequest.status !== TimeOffStatus.Canceled
+//     );
+//     // TODO: Check if dates were already requested
+//     for (const date of timeOffRequest.requestedDays) {
+//       const dateOnly = formatDateWithoutTime(date);
+//       const pendingDatesWithoutTime = notCancelledTimeOffRequests
+//         .map((dateTimeOffRequest) => dateTimeOffRequest.date)
+//         .map(formatDateWithoutTime);
+//       if (pendingDatesWithoutTime.includes(dateOnly)) {
+//         throw BaseError.badRequest(
+//           `The collaborator already has a time off request for the date ${dateOnly}.`
+//         );
+//       }
+//     }
+//     // Todo check if he has enough days
+//     if (
+//       timeOffRequest.timeOffType === TimeOffType.Vacation &&
+//       remainingVacationDays < vacationsDaysRequested
+//     ) {
+//       throw BaseError.badRequest(
+//         `The collaborator has ${remainingVacationDays} vacations days for the ${firstTimeOffDate.toISOString()}.`
+//       );
+//     }
+//     const savedTimeOffRequest = await timeOffRequest.save();
+//     const collaboratorService = createCollaboratorService();
+//     const user = await collaboratorService.getById(uid);
+//     await this.notificationService.notifyManagers({
+//       message: `A new time off request has been created by ${user.col_code}`,
+//       referenceId: savedTimeOffRequest._id.toString(),
+//       referenceType: NotificationReferenceType.TIME_OFF_REQUEST,
+//       actionType: NotificationActionType.AWAITING_APPROVAL,
+//       title: "New Time Off Request",
+//     });
+//     const response =
+//       OldSuccessResponseFormatter.fortmatCreateResponse<TimeOffRequest>({
+//         data: savedTimeOffRequest,
+//         resource,
+//       });
+//     return response;
+//   };
+//   async updateTimeOffRequest(
+//     id: string,
+//     timeOffRequestDto: TimeOffRequestDto,
+//     authenticatedCollaborator: AuthenticatedCollaborator
+//   ) {
+//     const { uid, role } = authenticatedCollaborator;
+//     const timeOffRequest = await TimeOffRequestModel.findById(id);
+//     if (!timeOffRequest)
+//       throw BaseError.notFound(`${resource} not found with id ${id}`);
+//     if (
+//       timeOffRequest.status !== TimeOffStatus.Pending &&
+//       role !== WebAppRole.admin &&
+//       role !== WebAppRole.manager
+//     ) {
+//       throw BaseError.unauthorized(
+//         "The time off request has already been approved."
+//       );
+//     }
+//     const firstVacationDate = getEarliestDate(timeOffRequest.requestedDays);
+//     const vacationsDaysRequested = timeOffRequest.requestedDays.length;
+//     const collaboratorId = timeOffRequest.collaborator as unknown as string;
+//     const { remainingVacationDays, vacationsTaken, vacationsRequested } =
+//       await getCollaboratorTimeOffOverviewDetails(
+//         collaboratorId,
+//         firstVacationDate,
+//         id
+//       );
+//     const pendingOrTakenVacations = vacationsTaken.concat(vacationsRequested);
+//     console.log({ pendingOrTakenVacations });
+//     // TODO: Check if dates were already requested
+//     for (const date of timeOffRequestDto.data.requestedDays) {
+//       const dateOnly = formatDateWithoutTime(new Date(date));
+//       const pendingDatesWithoutTime = pendingOrTakenVacations.map(
+//         formatDateWithoutTime
+//       );
+//       if (pendingDatesWithoutTime.includes(dateOnly)) {
+//         throw BaseError.badRequest(
+//           `The collaborator already has a time off request for the date ${dateOnly}.`
+//         );
+//       }
+//     }
+//     // Todo check if he has enough days
+//     if (remainingVacationDays < vacationsDaysRequested) {
+//       throw BaseError.badRequest(
+//         `The collaborator has ${remainingVacationDays} vacations days for the ${firstVacationDate.toISOString()}.`
+//       );
+//     }
+//     const updatedResource = await TimeOffRequestModel.findByIdAndUpdate(
+//       id,
+//       { ...timeOffRequestDto.data, updatedAt: new Date(), updatedBy: uid },
+//       { new: true }
+//     );
+//     const response =
+//       OldSuccessResponseFormatter.formatUpdateResponse<TimeOffRequest>({
+//         data: updatedResource!,
+//         resource,
+//       });
+//     return response;
+//   }
+//   async approveTimeOffRequest(
+//     { approvedBy, managerNote, status }: Partial<TimeOffRequest>,
+//     id: string
+//   ) {
+//     const updatedResource = await TimeOffRequestModel.findByIdAndUpdate(
+//       id,
+//       {
+//         approvedBy,
+//         managerNote,
+//         status,
+//         approvedAt: new Date(),
+//         updatedAt: new Date(),
+//       },
+//       { new: true }
+//     );
+//     const response =
+//       OldSuccessResponseFormatter.formatUpdateResponse<TimeOffRequest>({
+//         data: updatedResource!,
+//         resource,
+//       });
+//     await this.notificationService.notifyCollaborator({
+//       message: `Your time off request has been approved.`,
+//       referenceId: id,
+//       referenceType: NotificationReferenceType.TIME_OFF_REQUEST,
+//       actionType: NotificationActionType.APPROVED,
+//       collaboratorId: updatedResource!.collaborator as unknown as string,
+//       title: "Time Off Request Approved",
+//     });
+//     return response;
+//   }
+//   async deleteTimeOffRequest(id: string) {
+//     const timeOffRequest = await TimeOffRequestModel.findById(id);
+//     if (!timeOffRequest)
+//       throw BaseError.notFound(`${resource} not found with id ${id}`);
+//     if (timeOffRequest.status !== TimeOffStatus.Pending) {
+//       throw BaseError.badRequest(
+//         `The time off request has already been approved/rejected.`
+//       );
+//     }
+//     const deletedResource = await TimeOffRequestModel.findByIdAndDelete(id);
+//     const response =
+//       OldSuccessResponseFormatter.formatDeleteResponse<TimeOffRequest>({
+//         data: deletedResource!,
+//         resource,
+//       });
+//     return response;
+//   }
+//   async getCollaboratorTimeOffOverview(collaboratorId: string, endDate: Date) {
+//     const overview = await getCollaboratorTimeOffOverviewDetails(
+//       collaboratorId,
+//       endDate
+//     );
+//     const response =
+//       OldSuccessResponseFormatter.formatGetOneResponse<CollaboratorTimeOffOverview>(
+//         {
+//           data: overview,
+//           resource: "CollaboratorTimeOffOverview",
+//         }
+//       );
+//     return response;
+//   }
+//   async getCollaboratorsTimeOffOverview(paginationDto: PaginationDto) {
+//     const { page, limit } = paginationDto;
+//     const activeCollaborators = await getActiveCollaborators();
+//     const collaboratorsOverview: CollaboratorTimeOffOverview[] = [];
+//     for (const collaborator of activeCollaborators) {
+//       const collaboratorId = collaborator._id; // Adjust this based on your collaborator data structure
+//       // Use the getCollaboratorTimeOffOverview function to get the time-off overview for the current collaborator
+//       const overview = await getCollaboratorTimeOffOverviewDetails(
+//         collaboratorId
+//       );
+//       // Add the collaborator's time-off overview to the array
+//       collaboratorsOverview.push(overview);
+//     }
+//     const response =
+//       OldSuccessResponseFormatter.formatListResponse<CollaboratorTimeOffOverview>(
+//         {
+//           data: collaboratorsOverview,
+//           page: 1,
+//           limit: collaboratorsOverview.length,
+//           total: collaboratorsOverview.length,
+//           path: `${commonPath}${TimeOffRequestsRoutePaths.collaboratorsOverview}`,
+//           resource: "CollaboratorsTimeOffOverview",
+//         }
+//       );
+//     return response;
+//   }
+//   private async fetchTimeOffRequestsLists(
+//     query: ResourceQuery<TimeOffRequest>,
+//     paginationDto: PaginationDto,
+//     all: boolean
+//   ): Promise<ListSuccessResponse<TimeOffRequest>> {
+//     const { page, limit } = paginationDto;
+//     try {
+//       let data;
+//       if (all || page === undefined || limit === undefined) {
+//         // If 'all' is present, fetch all resources without pagination
+//         data = await TimeOffRequestModel.find(query);
+//       } else {
+//         // Fetch paginated time-off requests
+//         const [total, paginatedData] = await Promise.all([
+//           TimeOffRequestModel.countDocuments(query),
+//           TimeOffRequestModel.find(query)
+//             .skip((page - 1) * limit)
+//             .limit(limit),
+//         ]);
+//         data = paginatedData;
+//       }
+//       const response =
+//         OldSuccessResponseFormatter.formatListResponse<TimeOffRequest>({
+//           data,
+//           page: 1,
+//           limit: data.length,
+//           total: data.length,
+//           path: `${commonPath}${TimeOffRequestsRoutePaths.all}`,
+//           resource: "TimeOffRequests",
+//         });
+//       return response;
+//     } catch (error) {
+//       throw BaseError.internalServer("Internal Server Error");
+//     }
+//   }
+//   async getTimeOffRequestsByRequestedDays(
+//     paginationDto: PaginationDto,
+//     startDate: Date,
+//     endDate: Date
+//   ) {
+//     const { page, limit } = paginationDto;
+//     const query = {
+//       requestedDays: {
+//         $gte: startDate,
+//         $lte: endDate,
+//       },
+//     };
+//     const [total, paginatedData] = await Promise.all([
+//       TimeOffRequestModel.countDocuments(query),
+//       TimeOffRequestModel.find(query)
+//         .skip((page ?? 1 - 1) * (limit ?? 100))
+//         .limit(limit ?? 100),
+//     ]);
+//     const response =
+//       OldSuccessResponseFormatter.formatListResponse<TimeOffRequest>({
+//         data: paginatedData,
+//         page: 1,
+//         limit: paginatedData.length,
+//         total: total,
+//         path: `${commonPath}${TimeOffRequestsRoutePaths.byRequestedDays}`,
+//         resource: "TimeOffRequests",
+//       });
+//     return response;
+//   }
+// }

@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { SalaryDataDocument } from "../../../../domain";
+import { isrRatesSchema, SalaryDataDocument } from "../../../../domain";
 
 const SalaryDataSchema: Schema = new Schema<SalaryDataDocument>(
   {
@@ -27,6 +27,7 @@ const SalaryDataSchema: Schema = new Schema<SalaryDataDocument>(
     avgMonthlyHolidayHours: { type: Number, default: 0 },
     justifiedAbsenceCompensationPercent: { type: Number, default: 0 },
     foodDayCompensation: { type: Number, default: 0 },
+    halfMonthIsrRates: [{ type: isrRatesSchema, default: [] }],
   },
   {
     timestamps: {

@@ -13,6 +13,7 @@ const errorHandler_1 = require("./errorHandler");
 const shared_1 = require("../../shared");
 const helpers_1 = require("../../shared/helpers");
 const isAuthorized = (allowedRoles = [], collaboratorCanUpdate = false) => (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const { role: collaboratorRole, uid } = req.authUser;
     const id = req.params.id;
     const resource = yield (0, helpers_1.getResource)(req.baseUrl, id);
@@ -21,7 +22,8 @@ const isAuthorized = (allowedRoles = [], collaboratorCanUpdate = false) => (req,
         (0, errorHandler_1.errorHandler)(error, req, res, next);
     }
     const hasAllowedRole = allowedRoles.includes(collaboratorRole);
-    const isCollaborator = collaboratorCanUpdate && resource.collaborator.toString() === uid;
+    const isCollaborator = collaboratorCanUpdate &&
+        (((_a = resource.collaborator) === null || _a === void 0 ? void 0 : _a.toString()) === uid || resource.id === uid);
     if (hasAllowedRole || (isCollaborator && collaboratorCanUpdate)) {
         next();
     }

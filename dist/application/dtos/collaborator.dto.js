@@ -6,26 +6,45 @@ const helpers_1 = require("../../shared/helpers");
 class CollaboratorDTO {
     constructor(options) {
         this.id = options.id;
+        this._id = options._id;
         this.first_name = options.first_name;
         this.last_name = options.last_name;
-        this.role = options.role;
-        this.col_code = options.col_code;
-        this.col_numId = options.col_numId;
-        this.isActive = options.isActive;
         this.gender = options.gender;
+        this.email = options.email;
+        this.phoneNumber = options.phoneNumber;
+        this.phoneNumber2 = options.phoneNumber2;
+        this.address = options.address;
+        this.curp = options.curp;
+        this.imssNumber = options.imssNumber;
+        this.rfcCode = options.rfcCode;
+        this.emergencyContact = options.emergencyContact;
+        this.emergencyContactPhone = options.emergencyContactPhone;
+        this.role = options.role;
         this.imgUrl = options.imgUrl;
         this.accessCode = options.accessCode;
         this.isRegistered = options.isRegistered;
-        this.email = options.email;
         this.password = options.password;
-        this.position = options.position;
         this.isDisplayedWeb = options.isDisplayedWeb;
         this.textPresentation = options.textPresentation;
         this.registeredDate = options.registeredDate;
         this.lastLogin = options.lastLogin;
+        this.vacationsTakenBefore2021 = options.vacationsTakenBefore2021;
+        this.col_code = options.col_code;
+        this.col_numId = options.col_numId;
+        this.isActive = options.isActive;
         this.startDate = options.startDate;
         this.endDate = options.endDate;
-        this.vacationsTakenBefore2021 = options.vacationsTakenBefore2021;
+        this.position = options.position;
+        this.coverShift = options.coverShift;
+        this.weeklyHours = options.weeklyHours;
+        this.jobId = options.jobId;
+        this.contractDate = options.contractDate;
+        this.hasIMSS = options.hasIMSS;
+        this.imssEnrollmentDate = options.imssEnrollmentDate;
+        this.paymentType = options.paymentType;
+        this.additionalCompensation = options.additionalCompensation;
+        this.degree = options.degree;
+        this.images = options.images;
         this.createdAt = options.createdAt;
         this.createdBy = options.createdBy;
         this.updatedAt = options.updatedAt;
@@ -33,6 +52,8 @@ class CollaboratorDTO {
     }
     static create(data) {
         const errors = this.validateCreate(data);
+        const accessCode = (0, helpers_1.generateRandomPassword)();
+        data.accessCode = accessCode;
         (0, helpers_1.checkForErrors)(errors);
         return new CollaboratorDTO(data);
     }

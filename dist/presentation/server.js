@@ -45,6 +45,8 @@ class Server {
             this.app.use(express_1.default.static(path_1.default.join(__dirname, "/public")));
             //* Routes
             this.app.use(this.routes);
+            //* Seeds
+            // await seedSimplifiedBranchCashReconciliation();
             //* SPA /^\/(?!api).*/  <== Únicamente si no empieza con la palabra api
             // this.app.get("*", (req, res) => {
             //   const indexPath = path.join(
@@ -59,6 +61,7 @@ class Server {
                 next(error);
             });
             this.app.use(errorHandler_1.errorHandler);
+            // await updateShiftDateField();
             this.serverListener = this.app.listen(this.port, () => {
                 console.log(`Server running on port ${this.port}`);
             });

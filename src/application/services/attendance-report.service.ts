@@ -337,10 +337,21 @@ export class AttendanceReportService {
   private processAttendanceRecordsForAttendanceReports(
     attendanceRecords: AttendanceRecordEntity[]
   ): AttendanceRecordEntityDayJs[] {
-    return attendanceRecords.map((record) => {
+    const attendanceRecord1 = attendanceRecords[0];
+
+    return attendanceRecords.map((record, index) => {
+      if (index === 0) {
+        const myTest = {
+          shiftDateIso: record.shiftDate,
+          shiftDateDayJs: dayjs(record.shiftDate).toISOString(),
+          shiftDateIso2: record.shiftDate.toISOString(),
+          return: toMexicoStartOfDay(record.shiftDate).toISOString(),
+        };
+        console.log(myTest);
+      }
       return {
         ...record,
-        shiftDate: dayjs(record.shiftDate),
+        shiftDate: toMexicoStartOfDay(record.shiftDate),
         startTime: dayjs(record.startTime),
         endTime: record.endTime ? dayjs(record.endTime) : undefined,
       };
@@ -446,16 +457,31 @@ export class AttendanceReportService {
     const { startDate: collaboratorStartDate, endDate: collaboratorEndDate } =
       collaboratorAttendanceData.collaborator;
 
+    if (collaboratorAttendanceData.collaborator.col_code === "JLP") {
+      const firstAttendanceRecord =
+        collaboratorAttendanceData.attendanceRecords[0];
+
+      const firstShift = collaboratorAttendanceData.dayShifts[0];
+      const myTest = {
+        shiftDateIso: firstShift.shiftDate,
+        shiftDateDayJs: dayjs(firstShift.shiftDate).toISOString(),
+        shiftDateIso2: firstShift.shiftDate.toISOString(),
+        attendanceRecordShiftDateIso: firstAttendanceRecord.shiftDate,
+        attendanceRecordShiftDateDayJs: dayjs(
+          firstAttendanceRecord.shiftDate
+        ).toISOString(),
+        attendanceRecordShiftDateIso2:
+          firstAttendanceRecord.shiftDate.toISOString(),
+      };
+      console.log(myTest);
+    }
+
     const dayReportsData = this.generateDayReportsData(
       collaboratorAttendanceData,
       extendedStartDate,
       extendedEndDate,
       branches
     );
-
-    if (collaboratorAttendanceData.collaborator.col_code === "JLP") {
-      console.log(dayReportsData);
-    }
 
     // todo
     // transform dayReportsData to collaboratorDayReports

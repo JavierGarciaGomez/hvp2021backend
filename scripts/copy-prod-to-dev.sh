@@ -5,7 +5,7 @@
 
 # Define the production and development database URLs correctly
 PROD_MONGO_URL="mongodb+srv://user:x96YNidVG8yTKrW@cluster0.ihrvp.mongodb.net/hvp"
-DEV_MONGO_URL="mongodb://mongo-user:123456@localhost:27017/hvp-test"
+DEV_MONGO_URL="mongodb://mongo-user:123456@localhost:27018/hvp-test"
 
 # Dump the production database
 echo "Dumping production database: $PROD_MONGO_URL"

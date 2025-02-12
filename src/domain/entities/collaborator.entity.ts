@@ -273,7 +273,7 @@ export class CollaboratorEntity implements BaseEntity {
 //   baseContributionSalary?: number;
 //   dailyAverageSalary: number;
 //   accumulatedAnnualIncomeRaisePercent: number;
-//   accumulatedAnnualComissionRaisePercent: number;
+//   accumulatedAnnualCommissionRaisePercent: number;
 //   aggregatedMonthlyIncome: number;
 //   imssSalaryBase: number;
 //   averageDailyIncome: number;
@@ -283,7 +283,7 @@ export class CollaboratorEntity implements BaseEntity {
 //     this.baseContributionSalary = 10;
 //     this.dailyAverageSalary = 10;
 //     this.accumulatedAnnualIncomeRaisePercent = 10;
-//     this.accumulatedAnnualComissionRaisePercent = 10;
+//     this.accumulatedAnnualCommissionRaisePercent = 10;
 //     this.aggregatedMonthlyIncome = 10;
 //     this.imssSalaryBase = 10;
 //     this.averageDailyIncome = 10;
@@ -298,7 +298,7 @@ export interface CollaboratorResponse extends CollaboratorProps {
   baseContributionSalary?: number;
   dailyAverageSalary: number;
   accumulatedAnnualIncomeRaisePercent: number;
-  accumulatedAnnualComissionRaisePercent: number;
+  accumulatedAnnualCommissionRaisePercent: number;
   aggregatedMonthlyIncome: number;
   imssSalaryBase: number;
   averageDailyIncome: number;

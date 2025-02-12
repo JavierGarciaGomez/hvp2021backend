@@ -1,22 +1,12 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLastAnniversaryDate = exports.calculateFullYears = exports.calculateYears = exports.calculateVacationsForYearAfter2022 = exports.calculateVacationsForFullYearsAfter2022 = exports.calculateVacationsAfter2022 = exports.calculateVacationDaysForYearBefore2023 = exports.calculateRemainingDaysBefore2023 = exports.calculateVacationsForFullYearsBefore2023 = exports.calculateVacationDaysBefore2023 = exports.calculateTotalVacationDays = exports.getPendingVacations = exports.getApprovedVacations = exports.getNotRejectedTimeOffsByType = exports.getCollaboratorTimeOffOverviewDetails = void 0;
+exports.getLastAnniversaryDate = exports.calculateFullYears = exports.calculateYears = exports.calculateVacationsForYearAfter2022 = exports.calculateVacationsForFullYearsAfter2022 = exports.calculateVacationsAfter2022 = exports.calculateVacationDaysForYearBefore2023 = exports.calculateRemainingDaysBefore2023 = exports.calculateVacationsForFullYearsBefore2023 = exports.calculateVacationDaysBefore2023 = exports.calculateTotalVacationDays = exports.getPendingVacations = exports.getApprovedVacations = exports.getNotRejectedTimeOffsByType = void 0;
 const dayjsConfig_1 = __importDefault(require("../../infrastructure/adapters/dayjsConfig"));
-const TimeOffRequestModel_1 = __importDefault(require("../../infrastructure/db/mongo/models/TimeOffRequestModel"));
-const infrastructure_1 = require("../../infrastructure");
 const interfaces_1 = require("../interfaces");
+const domain_1 = require("../../domain");
 /*
 Vacations
 
@@ -42,64 +32,87 @@ A partir del sexto año, el periodo de vacaciones aumentará en dos días por ca
 15th year 24
 16th year 26
 */
-const getCollaboratorTimeOffOverviewDetails = (collaboratorId_1, ...args_1) => __awaiter(void 0, [collaboratorId_1, ...args_1], void 0, function* (collaboratorId, endDate = new Date(), excludedTimeOffRequestId) {
-    let collaboratorTimeOffRequests = yield TimeOffRequestModel_1.default.find({
-        collaborator: collaboratorId,
-    });
-    if (excludedTimeOffRequestId) {
-        collaboratorTimeOffRequests = collaboratorTimeOffRequests.filter((timeOffRequest) => timeOffRequest._id.toString() !== excludedTimeOffRequestId);
-    }
-    const collaborator = yield infrastructure_1.CollaboratorModel.findById(collaboratorId);
-    const { startDate } = collaborator;
-    const lastAnniversaryDate = (0, exports.getLastAnniversaryDate)(startDate !== null && startDate !== void 0 ? startDate : new Date());
-    const legalVacationDays = (0, exports.calculateTotalVacationDays)(startDate, lastAnniversaryDate);
-    const totalVacationDays = (0, exports.calculateTotalVacationDays)(startDate, endDate);
-    const vacationsTaken = (0, exports.getApprovedVacations)(collaboratorTimeOffRequests);
-    const vacationsRequested = (0, exports.getPendingVacations)(collaboratorTimeOffRequests);
-    const dateTimeOffRequests = [];
-    collaboratorTimeOffRequests
-        .filter((collaboratorTimeOffRequest) => collaboratorTimeOffRequest.status !== interfaces_1.TimeOffStatus.rejected)
-        .forEach((collaboratorTimeOffRequest) => {
-        const { collaborator, timeOffType, status } = collaboratorTimeOffRequest;
-        collaboratorTimeOffRequest.requestedDays.forEach((date) => {
-            dateTimeOffRequests.push({
-                date,
-                id: `${collaboratorTimeOffRequest._id}-${date
-                    .getTime()
-                    .toString()}-${collaborator}}`,
-                timeOffType,
-                status,
-                collaborator,
-            });
-        });
-    });
-    const takenOrRequestedVacationDays = vacationsRequested.length + vacationsTaken.length;
-    const remainingVacationDays = totalVacationDays - takenOrRequestedVacationDays;
-    0;
-    const remainingLegalVacationDays = Math.max(legalVacationDays - takenOrRequestedVacationDays, 0);
-    const thisYearVacationDays = totalVacationDays - legalVacationDays;
-    0;
-    const remainingcurrentYearVacationDays = thisYearVacationDays -
-        Math.min(0, legalVacationDays - takenOrRequestedVacationDays);
-    const data = {
-        collaboratorId,
-        totalVacationDays,
-        vacationsTaken,
-        vacationsRequested: vacationsRequested,
-        remainingVacationDays,
-        dateTimeOffRequests,
-        lastAnniversaryDate,
-        legalVacationDays,
-        remainingLegalVacationDays,
-        remainingcurrentYearVacationDays,
-    };
-    return data;
-});
-exports.getCollaboratorTimeOffOverviewDetails = getCollaboratorTimeOffOverviewDetails;
+// export const getCollaboratorTimeOffOverviewDetails = async (
+//   collaboratorId: string,
+//   endDate: Date = new Date(),
+//   excludedTimeOffRequestId?: string
+// ) => {
+//   let collaboratorTimeOffRequests = await TimeOffRequestModel.find({
+//     collaborator: collaboratorId,
+//   });
+//   if (excludedTimeOffRequestId) {
+//     collaboratorTimeOffRequests = collaboratorTimeOffRequests.filter(
+//       (timeOffRequest) =>
+//         timeOffRequest._id.toString() !== excludedTimeOffRequestId
+//     );
+//   }
+//   const collaborator = await CollaboratorModel.findById(collaboratorId);
+//   const { startDate } = collaborator!;
+//   const lastAnniversaryDate = getLastAnniversaryDate(startDate ?? new Date());
+//   const legalVacationDays = calculateTotalVacationDays(
+//     startDate!,
+//     lastAnniversaryDate
+//   );
+//   const totalVacationDays = calculateTotalVacationDays(startDate!, endDate);
+//   const vacationsTaken: Date[] = getApprovedVacations(
+//     collaboratorTimeOffRequests as unknown as TimeOffRequestEntity[]
+//   );
+//   const vacationsRequested: Date[] = getPendingVacations(
+//     collaboratorTimeOffRequests as unknown as TimeOffRequestEntity[]
+//   );
+//   const dateTimeOffRequests: DateTimeOffRequest[] = [];
+//   // collaboratorTimeOffRequests
+//   //   .filter(
+//   //     (collaboratorTimeOffRequest) =>
+//   //       collaboratorTimeOffRequest.status !== TimeOffStatus.Rejected
+//   //   )
+//   //   .forEach((collaboratorTimeOffRequest) => {
+//   //     const { collaborator, timeOffType, status } = collaboratorTimeOffRequest;
+//   //     collaboratorTimeOffRequest.requestedDays.forEach((date) => {
+//   //       dateTimeOffRequests.push({
+//   //         date,
+//   //         id: `${collaboratorTimeOffRequest._id}-${date
+//   //           .getTime()
+//   //           .toString()}-${collaborator}}`,
+//   //         timeOffType: collaboratorTimeOffRequest.timeOffType as TimeOffType,
+//   //         status,
+//   //         collaborator,
+//   //       });
+//   //     });
+//   //   });
+//   const takenOrRequestedVacationDays =
+//     vacationsRequested.length + vacationsTaken.length;
+//   const remainingVacationDays =
+//     totalVacationDays - takenOrRequestedVacationDays;
+//   0;
+//   const remainingLegalVacationDays = Math.max(
+//     legalVacationDays - takenOrRequestedVacationDays,
+//     0
+//   );
+//   const thisYearVacationDays = totalVacationDays - legalVacationDays;
+//   0;
+//   const remainingcurrentYearVacationDays =
+//     thisYearVacationDays -
+//     Math.min(0, legalVacationDays - takenOrRequestedVacationDays);
+//   const data: CollaboratorTimeOffOverview = {
+//     collaboratorId,
+//     totalVacationDays,
+//     vacationsTaken,
+//     vacationsRequested: vacationsRequested,
+//     remainingVacationDays,
+//     dateTimeOffRequests,
+//     lastAnniversaryDate,
+//     legalVacationDays,
+//     remainingLegalVacationDays,
+//     remainingcurrentYearVacationDays,
+//   };
+//   return data;
+// };
+// todo: remove? i think it's not used
 const getNotRejectedTimeOffsByType = (timeOffRequests, timeOffType) => {
     const filteredTimeOffs = timeOffRequests.filter((timeOffRequest) => timeOffRequest.timeOffType === timeOffType &&
-        (timeOffRequest.status === interfaces_1.TimeOffStatus.approved ||
-            timeOffRequest.status === interfaces_1.TimeOffStatus.pending));
+        (timeOffRequest.status === interfaces_1.TimeOffStatus.Approved ||
+            timeOffRequest.status === interfaces_1.TimeOffStatus.Pending));
     const filteredDays = [];
     filteredTimeOffs.forEach((vacations) => {
         vacations.requestedDays.forEach((day) => {
@@ -111,8 +124,8 @@ const getNotRejectedTimeOffsByType = (timeOffRequests, timeOffType) => {
 exports.getNotRejectedTimeOffsByType = getNotRejectedTimeOffsByType;
 const getApprovedVacations = (timeOffRequests) => {
     //get vacations taken
-    const timeOffVacationsRequestsApproved = timeOffRequests.filter((timeOffRequest) => timeOffRequest.timeOffType === interfaces_1.TimeOffType.vacation &&
-        timeOffRequest.status === interfaces_1.TimeOffStatus.approved);
+    const timeOffVacationsRequestsApproved = timeOffRequests.filter((timeOffRequest) => timeOffRequest.timeOffType === domain_1.TimeOffType.Vacation &&
+        timeOffRequest.status === interfaces_1.TimeOffStatus.Approved);
     const vacationsDaysApproved = [];
     timeOffVacationsRequestsApproved.forEach((vacations) => {
         vacations.requestedDays.forEach((day) => {
@@ -124,8 +137,8 @@ const getApprovedVacations = (timeOffRequests) => {
 exports.getApprovedVacations = getApprovedVacations;
 const getPendingVacations = (timeOffRequests) => {
     //get vacations taken
-    const filteredTimeOffVacations = timeOffRequests.filter((timeOffRequest) => timeOffRequest.timeOffType === interfaces_1.TimeOffType.vacation &&
-        timeOffRequest.status === interfaces_1.TimeOffStatus.pending);
+    const filteredTimeOffVacations = timeOffRequests.filter((timeOffRequest) => timeOffRequest.timeOffType === domain_1.TimeOffType.Vacation &&
+        timeOffRequest.status === interfaces_1.TimeOffStatus.Pending);
     const filteredDates = [];
     filteredTimeOffVacations.forEach((vacations) => {
         vacations.requestedDays.forEach((day) => {

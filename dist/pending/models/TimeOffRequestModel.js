@@ -27,7 +27,7 @@ const timeOffRequestSchema = new mongoose_1.Schema({
     status: {
         type: String,
         enum: Object.values(shared_1.TimeOffStatus),
-        default: shared_1.TimeOffStatus.pending,
+        default: shared_1.TimeOffStatus.Pending,
     },
     timeOffType: {
         type: String,

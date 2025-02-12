@@ -28,3 +28,12 @@ __exportStar(require("./week-shift.dto"), exports);
 __exportStar(require("./job.dto"), exports);
 __exportStar(require("./public-holidays.dto"), exports);
 __exportStar(require("./salary-data.dto"), exports);
+__exportStar(require("./attendance-record.dto"), exports);
+__exportStar(require("./account.dto"), exports);
+__exportStar(require("./sale.dto"), exports);
+__exportStar(require("./branch-cash-reconciliation.dto"), exports);
+__exportStar(require("./simplified-branch-cash-reconciliation.dto"), exports);
+__exportStar(require("./time-off-request.dto"), exports);
+__exportStar(require("./employment.dto"), exports);
+__exportStar(require("./payroll.dto"), exports);
+// No need for additional export statement, as we're using export * from "./attendance-record.dto"

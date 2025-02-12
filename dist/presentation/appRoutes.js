@@ -5,20 +5,21 @@ const express_1 = require("express");
 const mainRoutes_1 = require("../mainRoutes");
 const cleanUpsRoutes_1 = require("../pending/routes/cleanUpsRoutes");
 const routes_1 = require("../pending/routes");
-const attendanceRecordsRoutes_1 = require("./resources/attendanceRecords/attendanceRecordsRoutes");
 const authRoutes_1 = require("./resources/auth/authRoutes");
 const authActivitiesRoutes_1 = require("./resources/authActivities/authActivitiesRoutes");
 const billingRoutes_1 = require("./resources/billing/billingRoutes");
 const tasksRoutes_1 = require("./resources/tasks/tasksRoutes");
-const timeOffRequestsRoutes_1 = require("./resources/timeOffRequests/timeOffRequestsRoutes");
 const workLogsRoutes_1 = require("./resources/workLogs/workLogsRoutes");
 const routes_2 = require("./routes");
+const account_routes_1 = require("./routes/account.routes");
+const simplified_branch_cash_reconciliation_routes_1 = require("./routes/simplified-branch-cash-reconciliation.routes");
+const attendance_reports_routes_1 = require("./routes/attendance-reports.routes");
 class AppRoutes {
     static get routes() {
         const router = (0, express_1.Router)();
         // router.use("/api/collaborators", CollaboratorRoutes.routes);
         // router.use(mainRoutes.activityRegister, activityRegisterRoutes);
-        router.use(mainRoutes_1.mainRoutes.attendanceRecords, attendanceRecordsRoutes_1.AttendanceRecordsRoutes.routes);
+        // router.use(mainRoutes.attendanceRecords, AttendanceRecordsRoutes.routes);
         router.use(mainRoutes_1.mainRoutes.auth, authRoutes_1.AuthRoutes.routes);
         router.use(mainRoutes_1.mainRoutes.authActivities, authActivitiesRoutes_1.AuthActivitiesRoutes.routes);
         router.use(mainRoutes_1.mainRoutes.billing, billingRoutes_1.BillingRoutes.routes);
@@ -30,7 +31,7 @@ class AppRoutes {
         router.use(mainRoutes_1.mainRoutes.notifications, new routes_2.NotificationRoutes().getRoutes());
         router.use(mainRoutes_1.mainRoutes.rfc, routes_1.rfcRoutes);
         router.use(mainRoutes_1.mainRoutes.tasks, tasksRoutes_1.TasksRoutes.routes);
-        router.use(mainRoutes_1.mainRoutes.timeOffRequests, timeOffRequestsRoutes_1.TimeOffRequestsRoutes.routes);
+        router.use(mainRoutes_1.mainRoutes.timeOffRequests, new routes_2.TimeOffRequestRoutes().getRoutes());
         router.use(mainRoutes_1.mainRoutes.users, routes_1.usersRoutes);
         router.use(mainRoutes_1.mainRoutes.workLogs, workLogsRoutes_1.WorkLogsRoutes.routes);
         router.use(mainRoutes_1.mainRoutes.userClient, routes_1.userClientRoutes);
@@ -47,6 +48,14 @@ class AppRoutes {
         router.use(mainRoutes_1.mainRoutes.salaryData, new routes_2.SalaryDataRoutes().getRoutes());
         router.use(mainRoutes_1.mainRoutes.jobs, new routes_2.JobRoutes().getRoutes());
         router.use(mainRoutes_1.mainRoutes.images, new routes_2.ImagesRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.attendanceRecords, new routes_2.AttendanceRecordRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.accounts, new account_routes_1.AccountRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.sales, new routes_2.SaleRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.branchCashReconciliation, new routes_2.BranchCashReconciliationRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.simplifiedBranchCashReconciliation, new simplified_branch_cash_reconciliation_routes_1.SimplifiedBranchCashReconciliationRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.employments, new routes_2.EmploymentRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.attendanceReports, new attendance_reports_routes_1.AttendanceReportRoutes().getRoutes());
+        router.use(mainRoutes_1.mainRoutes.payrolls, new routes_2.PayrollRoutes().getRoutes());
         return router;
     }
 }

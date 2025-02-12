@@ -97,5 +97,16 @@ class ResponseFormatterService {
             data,
         };
     }
+    static formatDeleteManyResponse(options) {
+        const { data, resource } = options;
+        return {
+            ok: true,
+            status_code: enums_1.HttpStatusCode.OK,
+            status: enums_1.HttpStatusCode[enums_1.HttpStatusCode.OK],
+            resource,
+            operation: "deleteMany",
+            data,
+        };
+    }
 }
 exports.ResponseFormatterService = ResponseFormatterService;

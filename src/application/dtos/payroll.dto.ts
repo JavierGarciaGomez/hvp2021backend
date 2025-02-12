@@ -42,9 +42,9 @@ export class PayrollDTO implements BaseDTO, BaseEntity {
   // INCOME
   // income - fixed
   fixedIncome: number = 0;
-  // income - comissions
-  comissions: number = 0;
-  // income - similarToComissions
+  // income - commissions
+  commissions: number = 0;
+  // income - similarToCommissions
   vacationsCompensation: number = 0;
   minimumOrdinaryIncomeCompensation: number = 0;
   justifiedAbsencesCompensation: number = 0;

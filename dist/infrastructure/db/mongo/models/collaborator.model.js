@@ -82,6 +82,22 @@ const CollaboratorSchema = new mongoose_1.Schema({
     imgUrl: {
         type: String,
     },
+    images: [
+        {
+            publicId: {
+                type: String,
+            },
+            url: {
+                type: String,
+            },
+            thumbnailUrl: {
+                type: String,
+            },
+            isMain: {
+                type: Boolean,
+            },
+        },
+    ],
     accessCode: {
         type: String,
     },
@@ -138,7 +154,9 @@ const CollaboratorSchema = new mongoose_1.Schema({
         type: Number,
     },
     jobId: {
-        type: String,
+        type: mongoose_1.Schema.Types.ObjectId,
+        required: true,
+        ref: "Job",
     },
     contractDate: {
         type: Date,
@@ -151,7 +169,7 @@ const CollaboratorSchema = new mongoose_1.Schema({
     },
     paymentType: {
         type: String,
-        enum: enums_1.PaymentType,
+        enum: enums_1.HRPaymentType,
     },
     additionalCompensation: {
         type: Number,

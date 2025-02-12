@@ -1,11 +1,12 @@
 "use strict";
+// todo: DELETE THIS
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TimeOffStatus = exports.TimeOffType = void 0;
 var TimeOffType;
 (function (TimeOffType) {
     TimeOffType["partialPermission"] = "Permission";
     TimeOffType["simulatedAbsence"] = "Simulated Absence";
-    TimeOffType["vacation"] = "Vacation";
+    TimeOffType["Vacation"] = "Vacation";
     TimeOffType["sickLeaveIMSSUnpaid"] = "IMSS Disability (Unpaid)";
     TimeOffType["sickLeaveIMSSPaid"] = "IMSS Paid Disability";
     TimeOffType["sickLeaveJustifiedByCompany"] = "Justified by Company";
@@ -13,8 +14,8 @@ var TimeOffType;
 })(TimeOffType || (exports.TimeOffType = TimeOffType = {}));
 var TimeOffStatus;
 (function (TimeOffStatus) {
-    TimeOffStatus["pending"] = "Pending";
-    TimeOffStatus["approved"] = "Approved";
-    TimeOffStatus["rejected"] = "Rejected";
-    TimeOffStatus["canceled"] = "Canceled";
+    TimeOffStatus["Pending"] = "Pending";
+    TimeOffStatus["Approved"] = "Approved";
+    TimeOffStatus["Rejected"] = "Rejected";
+    TimeOffStatus["Canceled"] = "Canceled";
 })(TimeOffStatus || (exports.TimeOffStatus = TimeOffStatus = {}));

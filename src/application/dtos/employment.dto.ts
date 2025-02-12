@@ -17,7 +17,7 @@ export class EmploymentDTO implements BaseDTO, BaseEntity {
   weeklyHours!: number;
   paymentType: HRPaymentType = HRPaymentType.SALARY;
   seniorityBonusPercentage: number = 0;
-  comissionBonusPercentage: number = 0;
+  commissionBonusPercentage: number = 0;
   //
   fixedIncomeByPosition: number = 0;
   additionalFixedIncome: number = 0;
@@ -33,7 +33,7 @@ export class EmploymentDTO implements BaseDTO, BaseEntity {
   contributionBaseSalary: number = 0;
   averageOrdinaryIncome: number = 0;
   averageIntegratedIncome: number = 0;
-  averageComissionIncome: number = 0;
+  averageCommissionIncome: number = 0;
   extraCompensations: ExtraCompensationVO[] = [];
 
   constructor({ ...props }: EmploymentProps) {
@@ -45,7 +45,7 @@ export class EmploymentDTO implements BaseDTO, BaseEntity {
 
     const {
       seniorityBonusPercentage,
-      comissionBonusPercentage,
+      commissionBonusPercentage,
       fixedIncome,
       minimumOrdinaryIncome,
     } = data;
@@ -53,8 +53,8 @@ export class EmploymentDTO implements BaseDTO, BaseEntity {
     if (seniorityBonusPercentage === undefined) {
       errors.push("Seniority bonus percentage is required");
     }
-    if (comissionBonusPercentage === undefined) {
-      errors.push("Comission bonus percentage is required");
+    if (commissionBonusPercentage === undefined) {
+      errors.push("Commission bonus percentage is required");
     }
     if (fixedIncome === undefined) {
       errors.push("Fixed perception is required");

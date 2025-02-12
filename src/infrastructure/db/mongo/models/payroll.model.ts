@@ -42,7 +42,7 @@ const PayrollSchema: Schema = new Schema<PayrollDocument>(
       default: PayrollStatus.Pending,
     },
     fixedIncome: { type: Number, required: true, default: 0 },
-    comissions: { type: Number, required: true, default: 0 },
+    commissions: { type: Number, required: true, default: 0 },
     vacationsCompensation: { type: Number, required: true, default: 0 },
     minimumOrdinaryIncomeCompensation: {
       type: Number,

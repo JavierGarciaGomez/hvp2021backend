@@ -17,12 +17,13 @@ class BaseController {
         this.service = service;
         this.dtoClass = dtoClass;
         this.create = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _a, _b;
             try {
                 const body = req.body;
                 body.createdBy = (_a = req.authUser) === null || _a === void 0 ? void 0 : _a.uid;
+                body.updatedBy = (_b = req.authUser) === null || _b === void 0 ? void 0 : _b.uid;
                 const dto = this.dtoClass.create(body);
-                const result = yield this.service.create(dto);
+                const result = yield this.service.create(dto, req === null || req === void 0 ? void 0 : req.authUser);
                 const response = application_1.ResponseFormatterService.formatCreateResponse({
                     data: result,
                     resource: this.resource,
@@ -75,7 +76,7 @@ class BaseController {
                 const body = req.body;
                 body.updatedBy = (_a = req.authUser) === null || _a === void 0 ? void 0 : _a.uid;
                 const dto = this.dtoClass.update(body);
-                const result = yield this.service.update(id, dto);
+                const result = yield this.service.update(id, dto, req === null || req === void 0 ? void 0 : req.authUser);
                 const response = application_1.ResponseFormatterService.formatUpdateResponse({
                     data: result,
                     resource: this.resource,
@@ -120,6 +121,20 @@ class BaseController {
                 const result = yield this.service.updateMany(body);
                 const response = application_1.ResponseFormatterService.formatUpdateManyResponse({
                     data: result,
+                    resource: this.resource,
+                });
+                return res.status(response.status_code).json(response);
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+        this.deleteMany = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { ids } = req.body;
+                const result = yield this.service.deleteMany(ids);
+                const response = application_1.ResponseFormatterService.formatDeleteManyResponse({
+                    data: result.toString(),
                     resource: this.resource,
                 });
                 return res.status(response.status_code).json(response);

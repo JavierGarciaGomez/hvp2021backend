@@ -5,8 +5,7 @@ import { BaseEntity, newBaseEntityProps } from "./base.entity";
 export interface JobPropsBase extends newBaseEntityProps {
   active: boolean;
   annualRaisePercent: number; // todo: legacy
-  quarterlyComissionRaisePercent: number; // todo: legacy
-
+  quarterlyCommissionRaisePercent: number; // todo: legacy
   baseIncome?: number; // fixed perception --- calculate
   description?: string;
   hourlyRate?: number;
@@ -15,7 +14,7 @@ export interface JobPropsBase extends newBaseEntityProps {
   sortingOrder: number;
   title: string;
   incomeMultiplier: number;
-  expectedComissionsPercentage: number; // --- calculate
+  expectedCommissionsPercentage: number; // --- calculate
   expectedMinimumIncome: number; // expected minimum ordinary income --- calculate
   expressBranchCompensation: number;
 }
@@ -40,7 +39,7 @@ export class JobEntity implements BaseEntity {
   updatedBy?: string;
   active!: boolean;
   annualRaisePercent: number = 0.025;
-  quarterlyComissionRaisePercent: number = 0.05;
+  quarterlyCommissionRaisePercent: number = 0.05;
   baseIncome?: number; // fixed perception
   description?: string;
   hourlyRate?: number;
@@ -49,7 +48,7 @@ export class JobEntity implements BaseEntity {
   sortingOrder: number = 99;
   title!: string;
   incomeMultiplier: number = 1;
-  expectedComissionsPercentage: number = 0.4;
+  expectedCommissionsPercentage: number = 0.4;
   expectedMinimumIncome: number = 0; // expected minimum ordinary income
   expressBranchCompensation: number = 0;
 

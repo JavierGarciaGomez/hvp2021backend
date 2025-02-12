@@ -135,15 +135,15 @@ export const toMexicoStartOfDay = (date: string | Date) => {
   const spanishStartOfDay = getStartOfDayInTimezone(date, "Europe/Madrid");
   const utcStartOfDay = getStartOfDayInTimezone(date, "UTC");
 
-  if (inputDateTime.isSame(mexicoStartOfDay, "day")) {
+  if (inputDateTime.isSame(mexicoStartOfDay)) {
     return mexicoStartOfDay;
   }
 
-  if (inputDateTime.isSame(spanishStartOfDay, "day")) {
+  if (inputDateTime.isSame(spanishStartOfDay)) {
     return dayjs.tz(spanishDate, "America/Mexico_City").startOf("day");
   }
 
-  if (inputDateTime.isSame(utcStartOfDay, "day")) {
+  if (inputDateTime.isSame(utcStartOfDay)) {
     return dayjs.tz(utcDate, "America/Mexico_City").startOf("day");
   }
 

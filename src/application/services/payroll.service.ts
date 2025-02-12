@@ -51,7 +51,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     collaboratorId: string,
     queryOptions: CustomQueryOptions
   ): Promise<PayrollEstimate> => {
-    const { periodStartDate, periodEndDate, specialCompensation, comissions } =
+    const { periodStartDate, periodEndDate, specialCompensation, commissions } =
       queryOptions?.filteringDto ?? {};
     if (!periodStartDate || !periodEndDate) {
       throw BaseError.badRequest(
@@ -64,14 +64,14 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       );
     }
 
-    const numberComissions = Number(comissions);
+    const numberCommissions = Number(commissions);
     const numberSpecialCompensation = Number(specialCompensation || 0);
 
     const payrollEstimate = await this.generatePayrollEstimate(
       collaboratorId,
       periodStartDate,
       periodEndDate,
-      numberComissions,
+      numberCommissions,
       numberSpecialCompensation
     );
 
@@ -86,7 +86,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     collaboratorId: string,
     periodStartDate: string,
     periodEndDate: string,
-    comissions: number,
+    commissions: number,
     specialCompensation: number
   ) {
     const rawData = await this.getRawData(
@@ -95,15 +95,15 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       periodEndDate
     );
 
-    const fixedIncome = this.calculateAll(
+    const payroll = this.calculateAll(
       rawData,
       periodStartDate,
       periodEndDate,
-      comissions,
+      commissions,
       specialCompensation
     );
 
-    return { ...rawData, fixedIncome };
+    return payroll;
   }
 
   private async getRawData(
@@ -161,12 +161,12 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     rawData: PayrollCollaboratorRawData,
     periodStartDate: string,
     periodEndDate: string,
-    comissions: number,
+    commissions: number,
     specialCompensation: number
   ) {
     const { collaborator, employment, job, attendanceReport, salaryData } =
       rawData;
-    const { minimumWageHVP } = salaryData;
+    const { minimumWageHVP, uma } = salaryData;
     const {
       concludedWeeksHours,
       periodHours,
@@ -175,9 +175,9 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     const { expressBranchCompensation: jobExpressBranchCompensation } = job;
     const {
       weeklyHours,
-      fixedIncome: fixedIncomeMax,
+      fixedIncome: employmentFixedIncome,
       averageOrdinaryIncome,
-      averageComissionIncome,
+      averageCommissionIncome,
       minimumOrdinaryIncome,
       receptionBonus: employmentReceptionBonus,
       degreeBonus: employmentDegreeBonus,
@@ -207,12 +207,12 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       restWorkedHours,
     } = concludedWeeksHours;
     // GENERAL VARIABLES
-    const payrollFixedIncome = fixedIncomeMax / 2;
+    const payrollFixedIncome = employmentFixedIncome / 2;
     const collaboratorDailyWorkHours = weeklyHours / 6;
     const effectiveHourlyWage =
-      fixedIncomeMax / MONTH_DAYS / collaboratorDailyWorkHours; // for extra hours
+      employmentFixedIncome / MONTH_DAYS / collaboratorDailyWorkHours; // for extra hours
     const nominalHourlyWage =
-      fixedIncomeMax /
+      employmentFixedIncome /
       (WEEKS_IN_MONTH * WEEK_WORK_DAYS) /
       collaboratorDailyWorkHours; // for discount days
 
@@ -233,16 +233,15 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       hvpMinWageHourly
     );
 
-    const averageComissionIncomeDaily = averageComissionIncome / MONTH_DAYS;
+    const averageCommissionIncomeDaily = averageCommissionIncome / MONTH_DAYS;
 
-    const totalNonComputableHours =
-      nonComputableHours * collaboratorDailyWorkHours;
+    // fixed income
+    const totalNonComputableHours = nonComputableHours;
     const totalAbsenceDayHours =
-      (justifiedAbsenceByCompanyHours +
-        unjustifiedAbsenceHours +
-        authorizedUnjustifiedAbsenceHours) *
-      collaboratorDailyWorkHours;
-    const totalSickLeaveHours = sickLeaveHours * collaboratorDailyWorkHours;
+      justifiedAbsenceByCompanyHours +
+      unjustifiedAbsenceHours +
+      authorizedUnjustifiedAbsenceHours;
+    const totalSickLeaveHours = sickLeaveHours;
 
     const nonComputableDays =
       totalNonComputableHours / collaboratorDailyWorkHours;
@@ -254,19 +253,25 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     const absenceDiscount = totalAbsenceDayHours * nominalHourlyWage;
     const notWorkedDiscount = notWorkedHours * nominalHourlyWage;
 
-    const fixedIncome =
+    const fixedIncome = Math.max(
       payrollFixedIncome -
-      nonComputableDiscount -
-      sickLeaveDiscount -
-      absenceDiscount -
-      notWorkedDiscount;
+        nonComputableDiscount -
+        sickLeaveDiscount -
+        absenceDiscount -
+        notWorkedDiscount,
+      0
+    );
 
-    // todo: comissions
+    const atttendanceProportion = fixedIncome / payrollFixedIncome;
+
+    // todo: commissions
+
+    // *** SIMILAR TO COMISSIONS ***
 
     // vacation compensation
 
     const vacationDays = vacationHours / collaboratorDailyWorkHours;
-    const vacationsCompensation = vacationDays * averageComissionIncomeDaily;
+    const vacationsCompensation = vacationDays * averageCommissionIncomeDaily;
 
     // justified absences compensation
 
@@ -274,8 +279,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       justifiedAbsenceByCompanyHours / collaboratorDailyWorkHours;
 
     const justifiedAbsencesCompensation =
-      justifiedAbsencesDays *
-      averageOrdinaryIncomeDaily *
+      averageOrdinaryIncomeHourly *
+      justifiedAbsenceByCompanyHours *
       JUSTIFIED_ABSENCES_PERCENTAGE;
 
     // express branch compensation
@@ -288,10 +293,11 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       vacationsCompensation +
       justifiedAbsencesCompensation +
       expressBranchCompensation +
-      comissions;
+      commissions;
 
     const minimumOrdinaryIncomeCompensation =
-      minOrdinaryIncome / 2 - subTotalMinimumIncome;
+      Math.max(0, minOrdinaryIncome / 2 - subTotalMinimumIncome) *
+      atttendanceProportion;
 
     // todo: year end bonus
     const yearEndBonus = 0;
@@ -324,9 +330,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       HOLIDAY_OR_REST_EXTRA_PAY_PERCENTAGE;
 
     // punctualityBonus
-    const punctualityBonus = hasPunctualityBonus
-      ? payrollFixedIncome * minOrdinaryIncomeDaily
-      : 0;
+    const punctualityBonus = hasPunctualityBonus ? minOrdinaryIncomeDaily : 0;
 
     // meal compensation
     const mealCompensation = mealDays * DAILY_MEAL_COMPENSATION;
@@ -341,19 +345,23 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     // extra compensations
     const extraCompensations = employmentExtraCompensations.map(
       (compensation) => {
+        const compensationAmount = compensation.amount / 2;
+        const compensationAdjusted = compensation.attendanceRelated
+          ? compensationAmount * atttendanceProportion
+          : compensationAmount;
+
         return {
           ...compensation,
-          amount: compensation.amount / 2,
+          amount: compensationAdjusted,
         };
       }
     );
 
     // todo employment subsidy
-    const employmentSubsidy = 0;
 
-    const totalIncome =
+    const totalIncomeWithoutSubsidy =
       fixedIncome +
-      comissions +
+      commissions +
       vacationsCompensation +
       justifiedAbsencesCompensation +
       expressBranchCompensation +
@@ -361,7 +369,6 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       yearEndBonus +
       vacationBonus +
       profitSharing +
-      employmentSubsidy +
       extraHoursSinglePlay +
       extraHoursDoublePlay +
       extraHoursTriplePlay +
@@ -378,6 +385,16 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
         0
       ) +
       specialCompensation;
+
+    // TODO
+    const shouldReceiveSubsidy =
+      totalIncomeWithoutSubsidy < salaryData.employmentSubsidyLimit / 2;
+
+    const employmentSubsidy = shouldReceiveSubsidy
+      ? salaryData.employmentSubsidyAmount / 2
+      : 0;
+
+    const totalIncome = totalIncomeWithoutSubsidy + employmentSubsidy;
 
     const payroll: PayrollEntity = new PayrollEntity({
       collaboratorId: collaborator.id!,
@@ -400,7 +417,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       absencesDays: absenceDays,
       payrollStatus: PayrollStatus.Pending,
       fixedIncome: fixedIncome,
-      comissions,
+      commissions,
       vacationsCompensation,
       justifiedAbsencesCompensation: justifiedAbsencesCompensation,
       expressBranchCompensation: expressBranchCompensation,
@@ -417,9 +434,9 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       punctualityBonus: punctualityBonus,
       mealCompensation: mealCompensation,
       receptionBonus: receptionBonus,
-      degreeBonus: degreeBonus,
-      trainingSupport: trainingSupport,
-      physicalActivitySupport: physicalActivitySupport,
+      degreeBonus: degreeBonus * atttendanceProportion,
+      trainingSupport: trainingSupport * atttendanceProportion,
+      physicalActivitySupport: physicalActivitySupport * atttendanceProportion,
       extraCompensations: extraCompensations,
       specialCompensation,
       incomeTaxWithholding: 0,
@@ -433,11 +450,61 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
 
     // *** DEDUCTIONS
 
+    // ISR base
+    /* Dedudcionts ISR
+    https://runahr.com/mx/recursos/ingresos-exentos-de-isr/
+    - profit sharing 100%
+    - aguinaldo hasta por 30 UMA
+    - horas extras 50% por las horas dobles hasta 5 UMA
+    - prima dominical 1 Uma por domingo
+    - prima vacacional hasta 15 UMA
+
+    - Other deductions
+    */
+
+    const yearEndBonusExemption = 30 + uma;
+    const yearEndBonusDifference = Math.max(
+      0,
+      yearEndBonus - yearEndBonusExemption
+    );
+    const profitSharingExemption = profitSharing;
+
+    const maxExtraHoursExemtpion = (5 * uma) / 2;
+    const extraHoursExemption = extraHoursDoublePlay * 0.5;
+    const extraHoursDifference = Math.min(
+      extraHoursExemption,
+      maxExtraHoursExemtpion
+    );
+
+    const workedSundays = Math.floor(
+      workedSundayHours / collaboratorDailyWorkHours
+    );
+    const maxSundayBonusExemption = workedSundays * uma;
+    const sundayBonusDifference = Math.min(
+      maxSundayBonusExemption,
+      sundayBonusExtraPay
+    );
+
+    const maxVacationBonusExemption = 15 * uma;
+    const vacationBonusDifference = Math.min(
+      maxVacationBonusExemption,
+      vacationBonus
+    );
+
+    const totalExemption =
+      yearEndBonusDifference +
+      profitSharingExemption +
+      extraHoursDifference +
+      sundayBonusDifference +
+      vacationBonusDifference;
+
+    const isrBase = totalIncome - totalExemption;
+
     // TODO: EMPLOYMENT SUBSIDY -> THIS GOES TO FRONTEND
     // TODO: COMISSIONS
 
-    return {
-      payroll,
-    };
+    return { payroll };
   }
+
+  private calculateIsr(isrBase: number) {}
 }

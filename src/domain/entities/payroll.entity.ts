@@ -29,9 +29,9 @@ export interface PayrollBase extends newBaseEntityProps {
   // INCOME
   // income - fixed
   fixedIncome: number;
-  // income - comissions
-  comissions: number;
-  // income - similarToComissions
+  // income - commissions
+  commissions: number;
+  // income - similarToCommissions
   vacationsCompensation: number;
   justifiedAbsencesCompensation: number;
   expressBranchCompensation: number;
@@ -113,9 +113,9 @@ export class PayrollEntity implements BaseEntity {
   // INCOME
   // income - fixed
   fixedIncome: number = 0;
-  // income - comissions
-  comissions: number = 0;
-  // income - similarToComissions
+  // income - commissions
+  commissions: number = 0;
+  // income - similarToCommissions
   vacationsCompensation: number = 0;
   minimumOrdinaryIncomeCompensation: number = 0;
   justifiedAbsencesCompensation: number = 0;

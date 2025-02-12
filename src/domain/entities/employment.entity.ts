@@ -13,7 +13,7 @@ export interface EmploymentBase extends newBaseEntityProps {
   paymentType: HRPaymentType;
   //
   seniorityBonusPercentage: number;
-  comissionBonusPercentage: number;
+  commissionBonusPercentage: number;
   //
   fixedIncomeByPosition: number;
   additionalFixedIncome: number;
@@ -29,7 +29,7 @@ export interface EmploymentBase extends newBaseEntityProps {
   contributionBaseSalary: number;
   averageOrdinaryIncome: number;
   averageIntegratedIncome: number;
-  averageComissionIncome: number;
+  averageCommissionIncome: number;
   extraCompensations: ExtraCompensationVO[];
 }
 
@@ -67,7 +67,7 @@ export class EmploymentEntity implements BaseEntity {
   weeklyHours!: number;
   paymentType: HRPaymentType = HRPaymentType.SALARY;
   seniorityBonusPercentage: number = 0;
-  comissionBonusPercentage: number = 0;
+  commissionBonusPercentage: number = 0;
   //
   fixedIncomeByPosition: number = 0;
   additionalFixedIncome: number = 0;
@@ -83,7 +83,7 @@ export class EmploymentEntity implements BaseEntity {
   contributionBaseSalary: number = 0;
   averageOrdinaryIncome: number = 0;
   averageIntegratedIncome: number = 0;
-  averageComissionIncome: number = 0;
+  averageCommissionIncome: number = 0;
   extraCompensations: ExtraCompensationVO[] = [];
 
   constructor(props: EmploymentProps) {

@@ -14,9 +14,11 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthMiddleware = exports.AttachBaseUrlMiddleware = void 0;
+exports.authorizationMiddleware = exports.AuthMiddleware = exports.AttachBaseUrlMiddleware = void 0;
 var attachBaseUrl_middleware_1 = require("./attachBaseUrl.middleware");
 Object.defineProperty(exports, "AttachBaseUrlMiddleware", { enumerable: true, get: function () { return attachBaseUrl_middleware_1.AttachBaseUrlMiddleware; } });
 var auth_middleware_1 = require("./auth.middleware");
 Object.defineProperty(exports, "AuthMiddleware", { enumerable: true, get: function () { return auth_middleware_1.AuthMiddleware; } });
 __exportStar(require("./owner-or-admin.middleare"), exports);
+var authorization_middleware_1 = require("./authorization.middleware");
+Object.defineProperty(exports, "authorizationMiddleware", { enumerable: true, get: function () { return authorization_middleware_1.authorizationMiddleware; } });

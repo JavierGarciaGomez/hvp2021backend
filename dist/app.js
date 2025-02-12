@@ -8,18 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const adapters_1 = require("./infrastructure/adapters");
 const mongo_1 = require("./infrastructure/db/mongo");
 const appRoutes_1 = require("./presentation/appRoutes");
 const server_1 = require("./presentation/server");
-const multer_1 = __importDefault(require("multer"));
-// Use memory storage instead of file system storage
-const storage = multer_1.default.memoryStorage();
-const upload = (0, multer_1.default)({ storage });
+// todo move multer elsewhere
 const helpers_1 = require("./shared/helpers/");
 (() => __awaiter(void 0, void 0, void 0, function* () {
     main();

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TimeOffRequestDto = void 0;
+// TODO: DELETE
 const shared_1 = require("../../../shared");
 class TimeOffRequestDto {
     constructor(data) {
@@ -30,7 +31,7 @@ class TimeOffRequestDto {
     }
     static validateOptions(data) {
         let { collaborator, requestedDays, timeOffType, status } = data;
-        status = status ? status : shared_1.TimeOffStatus.pending;
+        status = status ? status : shared_1.TimeOffStatus.Pending;
         if (!collaborator)
             return "Collaborator ID is missing";
         if (!requestedDays || requestedDays.length === 0)

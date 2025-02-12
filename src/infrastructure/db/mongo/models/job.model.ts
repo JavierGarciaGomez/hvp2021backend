@@ -5,7 +5,7 @@ const JobSchema: Schema = new Schema<JobDocument>(
   {
     active: { type: Boolean, required: true, default: true },
     annualRaisePercent: { type: Number, required: true, default: 0 },
-    quarterlyComissionRaisePercent: {
+    quarterlyCommissionRaisePercent: {
       type: Number,
       required: true,
       default: 0,
@@ -22,7 +22,7 @@ const JobSchema: Schema = new Schema<JobDocument>(
     title: { type: String, required: true, default: "" },
     sortingOrder: { type: Number, required: true, default: 0 },
     incomeMultiplier: { type: Number, required: false, default: 1 },
-    expectedComissionsPercentage: {
+    expectedCommissionsPercentage: {
       type: Number,
       required: true,
       default: 0.4,

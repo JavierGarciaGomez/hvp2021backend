@@ -79,7 +79,7 @@ export class CollaboratorService extends BaseService<
       baseContributionSalary: 10,
       dailyAverageSalary: 10,
       accumulatedAnnualIncomeRaisePercent: 10,
-      accumulatedAnnualComissionRaisePercent: 10,
+      accumulatedAnnualCommissionRaisePercent: 10,
       aggregatedMonthlyIncome: 10,
       imssSalaryBase: 10,
       averageDailyIncome: 10,

@@ -15,7 +15,7 @@ class BaseService {
     constructor(repository, entityClass) {
         this.repository = repository;
         this.entityClass = entityClass;
-        this.create = (dto) => __awaiter(this, void 0, void 0, function* () {
+        this.create = (dto, authUser) => __awaiter(this, void 0, void 0, function* () {
             const entity = new this.entityClass(dto);
             const result = yield this.repository.create(entity);
             return this.transformToResponse(result);
@@ -39,7 +39,7 @@ class BaseService {
             return this.transformToResponse(entity);
         });
     }
-    update(id, dto) {
+    update(id, dto, authUser) {
         return __awaiter(this, void 0, void 0, function* () {
             const entity = new this.entityClass(dto);
             const result = yield this.repository.update(id, entity);
@@ -66,6 +66,11 @@ class BaseService {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield this.repository.createMany(entities);
             return yield Promise.all(result.map(this.transformToResponse));
+        });
+    }
+    deleteMany(ids) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.repository.deleteMany(ids);
         });
     }
 }

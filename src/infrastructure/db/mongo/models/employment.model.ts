@@ -24,7 +24,7 @@ const EmploymentSchema: Schema = new Schema<EmploymentDocument>(
       default: HRPaymentType.SALARY,
     },
     seniorityBonusPercentage: { type: Number, required: true, default: 0 },
-    comissionBonusPercentage: { type: Number, required: true, default: 0 },
+    commissionBonusPercentage: { type: Number, required: true, default: 0 },
     fixedIncome: { type: Number, required: true, default: 0 },
     minimumOrdinaryIncome: { type: Number, required: true, default: 0 },
     degreeBonus: { type: Number, required: true, default: 0 },
@@ -34,7 +34,7 @@ const EmploymentSchema: Schema = new Schema<EmploymentDocument>(
     contributionBaseSalary: { type: Number, required: true, default: 0 },
     averageOrdinaryIncome: { type: Number, required: true, default: 0 },
     averageIntegratedIncome: { type: Number, required: true, default: 0 },
-    averageComissionIncome: { type: Number, required: true, default: 0 },
+    averageCommissionIncome: { type: Number, required: true, default: 0 },
     extraCompensations: {
       type: [extraCompensationSchema],
       required: false,

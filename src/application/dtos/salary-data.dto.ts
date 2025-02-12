@@ -1,6 +1,6 @@
 import { BaseDTO } from "./base.dto";
 import { SalaryDataProps } from "../../domain/entities";
-import { ImssRates } from "../../domain";
+import { ImssRates, isrRate } from "../../domain";
 
 export class SalaryDataDTO implements BaseDTO {
   id?: string;
@@ -29,6 +29,7 @@ export class SalaryDataDTO implements BaseDTO {
   avgMonthlyHolidayHours: number = 0;
   justifiedAbsenceCompensationPercent: number = 0;
   foodDayCompensation: number = 0;
+  halfMonthIsrRates: isrRate[] = [];
 
   constructor({ ...props }: SalaryDataProps) {
     Object.assign(this, props);

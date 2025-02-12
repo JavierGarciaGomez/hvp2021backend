@@ -1,5 +1,5 @@
 import { Document, Schema } from "mongoose";
-import { ImssRates } from "../value-objects";
+import { ImssRates, isrRate } from "../value-objects";
 import { BaseEntity, BaseEntityProps, newBaseEntityProps } from "./base.entity";
 
 export interface SalaryDataBase extends newBaseEntityProps {
@@ -24,6 +24,7 @@ export interface SalaryDataBase extends newBaseEntityProps {
   avgMonthlyHolidayHours: number;
   justifiedAbsenceCompensationPercent: number;
   foodDayCompensation: number;
+  halfMonthIsrRates: isrRate[];
 }
 export interface SalaryDataProps extends SalaryDataBase {
   createdBy?: string;
@@ -34,6 +35,7 @@ export interface SalaryDataDocument extends SalaryDataBase, Document {
   id: Schema.Types.ObjectId;
   createdBy?: Schema.Types.ObjectId;
   updatedBy?: Schema.Types.ObjectId;
+  halfMonthIsrRates: isrRate[];
 }
 
 export class SalaryDataEntity implements BaseEntity {
@@ -63,6 +65,7 @@ export class SalaryDataEntity implements BaseEntity {
   avgMonthlyHolidayHours: number = 0;
   justifiedAbsenceCompensationPercent: number = 0;
   foodDayCompensation: number = 0;
+  halfMonthIsrRates: isrRate[] = [];
 
   constructor(props: SalaryDataProps) {
     Object.assign(this, props);

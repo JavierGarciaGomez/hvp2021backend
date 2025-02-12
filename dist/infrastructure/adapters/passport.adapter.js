@@ -25,8 +25,11 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
     callbackURL: "/api/auth/collaborator/google-callback",
 }, (token, tokenSecret, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const email = profile.emails[0].value;
+        const collaborators = yield db_1.CollaboratorModel.find();
+        console.log({ collaborators });
         const user = yield db_1.CollaboratorModel.findOne({
-            email: profile.emails[0].value,
+            email,
         });
         if (!user) {
             const newUser = yield db_1.CollaboratorModel.create({

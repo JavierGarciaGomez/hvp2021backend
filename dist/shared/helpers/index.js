@@ -29,5 +29,5 @@ __exportStar(require("./queryHelpers"), exports);
 __exportStar(require("./regexHelpers"), exports);
 __exportStar(require("./responseHelpers"), exports);
 __exportStar(require("./taskHelpers"), exports);
-__exportStar(require("./validator.helpers"), exports);
+__exportStar(require("./validation.helpers"), exports);
 __exportStar(require("./options.helpers"), exports);

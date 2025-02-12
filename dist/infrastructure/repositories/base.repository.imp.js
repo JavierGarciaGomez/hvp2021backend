@@ -59,5 +59,10 @@ class BaseRepositoryImpl {
             return yield this.datasource.updateMany(entities);
         });
     }
+    deleteMany(ids) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.datasource.deleteMany(ids);
+        });
+    }
 }
 exports.BaseRepositoryImpl = BaseRepositoryImpl;

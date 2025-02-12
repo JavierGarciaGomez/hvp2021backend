@@ -1,4 +1,5 @@
 "use strict";
+// import { ICollaborator } from "../../infra/db/mongo/models/collaborator.model";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CollaboratorEntity = void 0;
 // todo response interface
@@ -20,6 +21,7 @@ class CollaboratorEntity {
         this.emergencyContactPhone = options.emergencyContactPhone;
         this.role = options.role;
         this.imgUrl = options.imgUrl;
+        this.images = options.images;
         this.accessCode = options.accessCode;
         this.isRegistered = options.isRegistered;
         this.password = options.password;
@@ -49,9 +51,10 @@ class CollaboratorEntity {
         this.updatedBy = options.updatedBy;
     }
     static fromDocument(document) {
+        var _a;
         return new CollaboratorEntity({
-            _id: document.id,
-            id: document.id,
+            _id: document._id.toString(),
+            id: document._id.toString(),
             first_name: document.first_name,
             last_name: document.last_name,
             gender: document.gender,
@@ -66,6 +69,7 @@ class CollaboratorEntity {
             emergencyContactPhone: document.emergencyContactPhone,
             role: document.role,
             imgUrl: document.imgUrl,
+            images: document.images,
             accessCode: document.accessCode,
             isRegistered: document.isRegistered,
             password: document.password,
@@ -82,7 +86,7 @@ class CollaboratorEntity {
             position: document.position,
             coverShift: document.coverShift,
             weeklyHours: document.weeklyHours,
-            jobId: document.jobId,
+            jobId: (_a = document === null || document === void 0 ? void 0 : document.jobId) === null || _a === void 0 ? void 0 : _a.toString(),
             contractDate: document.contractDate,
             hasIMSS: document.hasIMSS,
             imssEnrollmentDate: document.imssEnrollmentDate,
@@ -103,7 +107,9 @@ class CollaboratorEntity {
             col_code: this.col_code,
             position: this.position,
             imgUrl: this.imgUrl,
+            images: this.images,
             textPresentation: this.textPresentation,
+            jobId: this.jobId,
         };
     }
     toCollaboratorAuth() {
@@ -111,6 +117,7 @@ class CollaboratorEntity {
             uid: this.id,
             col_code: this.col_code,
             role: this.role,
+            // todo: this should be main image
             imgUrl: this.imgUrl,
         };
     }

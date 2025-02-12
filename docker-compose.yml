@@ -3,6 +3,10 @@ version: "3.8"
 # docker compose --profile dev up -d
 # docker compose --profile test up -d
 
+networks:
+  mongo_network:
+    driver: bridge
+
 services:
   mongo-db-dev:
     image: mongo:6.0.6
@@ -20,6 +24,8 @@ services:
       - 27017:27017
     profiles:
       - dev
+    networks:
+      - mongo_network
 
   mongo-db-test:
     image: mongo:6.0.6
@@ -31,6 +37,8 @@ services:
     volumes:
       - ./mongo-test:/data/db
     ports:
-      - 27018:27018
+      - 27018:27017
     profiles:
       - test
+    networks:
+      - mongo_network
