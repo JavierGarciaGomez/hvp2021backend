@@ -16,5 +16,5 @@ export * from "./transaction-line.vo";
 export * from "./money-in-drawer.vo";
 export * from "./reconciliation-expense.vo";
 export * from "./extra-compensation.vo";
-export * from "./other-deductions.vo";
+export * from "./other-deduction.vo";
 export * from "./isr-rates.vo";

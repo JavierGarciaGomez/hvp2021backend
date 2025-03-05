@@ -60,6 +60,13 @@ describe("PayrollService", () => {
       extraCompensations: [
         { name: "Extra1", amount: 1000 } as ExtraCompensationVO,
       ],
+      otherDeductions: [
+        {
+          name: "infonavitLoanWithholding",
+          amount: 2000,
+          _id: "67acca515c9d3fca5b6889f8",
+        },
+      ],
       paymentType: HRPaymentType.SALARY,
       contributionBaseSalary: 454.9,
     } as unknown as EmploymentEntity;
@@ -243,12 +250,12 @@ describe("PayrollService", () => {
           cashBenefits: {
             name: "Prestaciones en dinero",
             description: "Base: SBC. 107",
-            rate: 0.007,
+            rate: 0.0025,
           },
           pensionersAndBeneficiaries: {
             name: "Pensionados y beneficiarios",
             description: "Base: SBC. ???",
-            rate: 0.0025,
+            rate: 0.00375,
           },
         },
         disabilityAndLife: {
@@ -321,6 +328,85 @@ describe("PayrollService", () => {
           },
         },
       },
+      halfMonthIsrRates: [
+        {
+          lowerLimit: 0.01,
+          upperLimit: 368.1,
+          fixedFee: 0,
+          rate: 0.0192,
+          _id: "67ac040a14730839d3d612b5",
+        },
+        {
+          lowerLimit: 368.11,
+          upperLimit: 3124.35,
+          fixedFee: 7.05,
+          rate: 0.064,
+          _id: "67ac040a14730839d3d612b6",
+        },
+        {
+          lowerLimit: 3124.36,
+          upperLimit: 5490.75,
+          fixedFee: 183.45,
+          rate: 0.1088,
+          _id: "67ac040a14730839d3d612b7",
+        },
+        {
+          lowerLimit: 5490.76,
+          upperLimit: 6382.8,
+          fixedFee: 441,
+          rate: 0.16,
+          _id: "67ac040a14730839d3d612b8",
+        },
+        {
+          lowerLimit: 6382.81,
+          upperLimit: 7641.9,
+          fixedFee: 583.65,
+          rate: 0.1792,
+          _id: "67ac040a14730839d3d612b9",
+        },
+        {
+          lowerLimit: 7641.91,
+          upperLimit: 15412.8,
+          fixedFee: 809.25,
+          rate: 0.2136,
+          _id: "67ac040a14730839d3d612ba",
+        },
+        {
+          lowerLimit: 15412.81,
+          upperLimit: 24292.65,
+          fixedFee: 2469.15,
+          rate: 0.2352,
+          _id: "67ac040a14730839d3d612bb",
+        },
+        {
+          lowerLimit: 24292.66,
+          upperLimit: 46378.5,
+          fixedFee: 4557.75,
+          rate: 0.3,
+          _id: "67ac040a14730839d3d612bc",
+        },
+        {
+          lowerLimit: 46378.51,
+          upperLimit: 61838.1,
+          fixedFee: 11183.4,
+          rate: 0.32,
+          _id: "67ac040a14730839d3d612bd",
+        },
+        {
+          lowerLimit: 61838.11,
+          upperLimit: 185514.3,
+          fixedFee: 16130.55,
+          rate: 0.34,
+          _id: "67ac040a14730839d3d612be",
+        },
+        {
+          lowerLimit: 185514.31,
+          upperLimit: 10000000,
+          fixedFee: 58180.35,
+          rate: 0.35,
+          _id: "67ac040a14730839d3d612bf",
+        },
+      ],
       createdAt: "2024-10-12T11:49:00.490Z",
       createdBy: "61dff1cb4131595911ad13fb",
       updatedAt: "2025-02-02T01:23:03.821Z",
@@ -748,7 +834,7 @@ describe("PayrollService", () => {
         );
 
         const { employmentSubsidy } = result.payroll;
-        expect(employmentSubsidy).toBeCloseTo(474);
+        expect(employmentSubsidy).toBeCloseTo(237);
       });
     });
 

@@ -8,7 +8,7 @@ import {
 import {
   ExtraCompensationVO,
   HRPaymentType,
-  OtherDeductionsVO,
+  OtherDeductionVO,
   PayrollStatus,
 } from "../../domain";
 
@@ -73,7 +73,7 @@ export class PayrollDTO implements BaseDTO, BaseEntity {
   incomeTaxWithholding: number = 0;
   socialSecurityWithholding: number = 0;
   infonavitLoanWithholding: number = 0;
-  otherDeductions: OtherDeductionsVO[] = [];
+  otherDeductions: OtherDeductionVO[] = [];
   // TOTAL
   totalIncome: number = 0;
   totalDeductions: number = 0;

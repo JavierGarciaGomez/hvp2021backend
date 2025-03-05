@@ -11,6 +11,7 @@ import { CollaboratorAttendanceReport } from "./collaborator-attendance-report.r
 // TODO
 export interface PayrollEstimate {
   payroll: PayrollEntity;
+  relevantValues: PayrollEstimateRelevantValues;
 }
 
 export interface PayrollCollaboratorRawData {
@@ -19,4 +20,16 @@ export interface PayrollCollaboratorRawData {
   job: JobEntity;
   attendanceReport: CollaboratorAttendanceReport;
   salaryData: SalaryDataEntity;
+}
+
+export interface PayrollEstimateRelevantValues {
+  fixedIncomeDiscounts: number;
+  nominalHourlyWage: number;
+  attendanceProportion: number;
+  averageOrdinaryIncomeHourly: number;
+  minOrdinaryIncomeDaily: number;
+  minOrdinaryIncomeHourly: number;
+  mealDays: number;
+  isrBase: number;
+  employerImssRate: number;
 }

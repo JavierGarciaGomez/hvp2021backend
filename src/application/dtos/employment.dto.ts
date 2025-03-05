@@ -1,6 +1,10 @@
 import { BaseDTO } from "./base.dto";
 import { BaseEntity, EmploymentProps, JobProps } from "../../domain/entities";
-import { ExtraCompensationVO, HRPaymentType } from "../../domain";
+import {
+  ExtraCompensationVO,
+  HRPaymentType,
+  OtherDeductionVO,
+} from "../../domain";
 
 export class EmploymentDTO implements BaseDTO, BaseEntity {
   id?: string;
@@ -35,6 +39,7 @@ export class EmploymentDTO implements BaseDTO, BaseEntity {
   averageIntegratedIncome: number = 0;
   averageCommissionIncome: number = 0;
   extraCompensations: ExtraCompensationVO[] = [];
+  otherDeductions: OtherDeductionVO[] = [];
 
   constructor({ ...props }: EmploymentProps) {
     Object.assign(this, props);

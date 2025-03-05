@@ -3,6 +3,7 @@ import {
   EmploymentDocument,
   extraCompensationSchema,
   HRPaymentType,
+  otherDeductionSchema,
 } from "../../../../domain";
 
 const EmploymentSchema: Schema = new Schema<EmploymentDocument>(
@@ -42,6 +43,11 @@ const EmploymentSchema: Schema = new Schema<EmploymentDocument>(
     },
     fixedIncomeByPosition: { type: Number, required: true, default: 0 },
     additionalFixedIncome: { type: Number, required: true, default: 0 },
+    otherDeductions: {
+      type: [otherDeductionSchema],
+      required: false,
+      default: [],
+    },
     createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
     updatedBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
   },

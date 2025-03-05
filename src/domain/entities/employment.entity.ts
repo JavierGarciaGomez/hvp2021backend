@@ -1,7 +1,7 @@
 import { Document, Schema } from "mongoose";
 import { HRPaymentType } from "../enums";
 import { BaseEntity, newBaseEntityProps } from "./base.entity";
-import { ExtraCompensationVO } from "../value-objects";
+import { ExtraCompensationVO, OtherDeductionVO } from "../value-objects";
 
 export interface EmploymentBase extends newBaseEntityProps {
   collaboratorId: string | Schema.Types.ObjectId;
@@ -31,6 +31,7 @@ export interface EmploymentBase extends newBaseEntityProps {
   averageIntegratedIncome: number;
   averageCommissionIncome: number;
   extraCompensations: ExtraCompensationVO[];
+  otherDeductions: OtherDeductionVO[];
 }
 
 export interface EmploymentProps extends EmploymentBase {
@@ -85,7 +86,7 @@ export class EmploymentEntity implements BaseEntity {
   averageIntegratedIncome: number = 0;
   averageCommissionIncome: number = 0;
   extraCompensations: ExtraCompensationVO[] = [];
-
+  otherDeductions: OtherDeductionVO[] = [];
   constructor(props: EmploymentProps) {
     Object.assign(this, props);
   }

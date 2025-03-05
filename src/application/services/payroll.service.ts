@@ -1,11 +1,12 @@
-import { PayrollEntity } from "../../domain/entities";
+import { PayrollEntity, SalaryDataEntity } from "../../domain/entities";
 import { BaseService } from "./base.service";
-import { PayrollRepository, PayrollStatus } from "../../domain";
+import { isrRate, PayrollRepository, PayrollStatus } from "../../domain";
 import { PayrollDTO } from "../dtos";
 import {
   PayrollCollaboratorRawData,
   PayrollEstimate,
-} from "../../domain/read-models/payroll-estimate";
+  PayrollEstimateRelevantValues,
+} from "../../domain/read-models/payroll-estimate.rm";
 import {
   BaseError,
   CustomQueryOptions,
@@ -22,7 +23,7 @@ import {
   createJobService,
   createSalaryDataService,
 } from "../factories";
-import { CollaboratorAttendanceReport } from "../../domain/read-models";
+
 import {
   DAILY_MEAL_COMPENSATION,
   HOLIDAY_OR_REST_EXTRA_PAY_PERCENTAGE,
@@ -166,7 +167,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
   ) {
     const { collaborator, employment, job, attendanceReport, salaryData } =
       rawData;
-    const { minimumWageHVP, uma } = salaryData;
+    const { minimumWageHVP, uma, halfMonthIsrRates } = salaryData;
     const {
       concludedWeeksHours,
       periodHours,
@@ -246,23 +247,23 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     const nonComputableDays =
       totalNonComputableHours / collaboratorDailyWorkHours;
     const sickLeaveDays = totalSickLeaveHours / collaboratorDailyWorkHours;
-    const absenceDays = totalAbsenceDayHours / collaboratorDailyWorkHours;
+    const absenceDays =
+      (totalAbsenceDayHours + notWorkedHours) / collaboratorDailyWorkHours;
 
     const nonComputableDiscount = totalNonComputableHours * nominalHourlyWage;
     const sickLeaveDiscount = totalSickLeaveHours * nominalHourlyWage;
     const absenceDiscount = totalAbsenceDayHours * nominalHourlyWage;
     const notWorkedDiscount = notWorkedHours * nominalHourlyWage;
 
-    const fixedIncome = Math.max(
-      payrollFixedIncome -
-        nonComputableDiscount -
-        sickLeaveDiscount -
-        absenceDiscount -
-        notWorkedDiscount,
-      0
-    );
+    const fixedIncomeDiscounts =
+      nonComputableDiscount +
+      sickLeaveDiscount +
+      absenceDiscount +
+      notWorkedDiscount;
 
-    const atttendanceProportion = fixedIncome / payrollFixedIncome;
+    const fixedIncome = Math.max(payrollFixedIncome - fixedIncomeDiscounts, 0);
+
+    const attendanceProportion = fixedIncome / payrollFixedIncome;
 
     // todo: commissions
 
@@ -297,7 +298,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
 
     const minimumOrdinaryIncomeCompensation =
       Math.max(0, minOrdinaryIncome / 2 - subTotalMinimumIncome) *
-      atttendanceProportion;
+      attendanceProportion;
 
     // todo: year end bonus
     const yearEndBonus = 0;
@@ -347,7 +348,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       (compensation) => {
         const compensationAmount = compensation.amount / 2;
         const compensationAdjusted = compensation.attendanceRelated
-          ? compensationAmount * atttendanceProportion
+          ? compensationAmount * attendanceProportion
           : compensationAmount;
 
         return {
@@ -395,58 +396,6 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       : 0;
 
     const totalIncome = totalIncomeWithoutSubsidy + employmentSubsidy;
-
-    const payroll: PayrollEntity = new PayrollEntity({
-      collaboratorId: collaborator.id!,
-      employmentId: employment.id!,
-      jobId: job.id!,
-      collaboratorFullName: `${collaborator.first_name} ${collaborator.last_name}`,
-      collaboratorCode: collaborator.col_code,
-      curp: collaborator.curp ?? "",
-      socialSecurityNumber: collaborator?.imssNumber || "",
-      rfcNumber: collaborator?.rfcCode || "",
-      jobTitle: job.title,
-      paymentType: employmentPaymentType,
-      contributionBaseSalary: employmentContributionBaseSalary,
-      collaboratorStartDate: collaborator.startDate ?? new Date(),
-      collaboratorEndDate: collaborator.endDate ?? new Date(),
-      payrollStartDate: new Date(periodStartDate),
-      payrollEndDate: new Date(periodEndDate),
-      paymentDate: new Date(),
-      sickLeaveDays: sickLeaveDays,
-      absencesDays: absenceDays,
-      payrollStatus: PayrollStatus.Pending,
-      fixedIncome: fixedIncome,
-      commissions,
-      vacationsCompensation,
-      justifiedAbsencesCompensation: justifiedAbsencesCompensation,
-      expressBranchCompensation: expressBranchCompensation,
-      minimumOrdinaryIncomeCompensation: minimumOrdinaryIncomeCompensation,
-      yearEndBonus,
-      vacationBonus: vacationBonus,
-      profitSharing,
-      employmentSubsidy,
-      extraHoursSinglePlay: extraHoursSinglePlay,
-      extraHoursDoublePlay: extraHoursDoublePlay,
-      extraHoursTriplePlay: extraHoursTriplePlay,
-      sundayBonusExtraPay: sundayBonusExtraPay,
-      holidayOrRestExtraPay: holidayOrRestExtraPay,
-      punctualityBonus: punctualityBonus,
-      mealCompensation: mealCompensation,
-      receptionBonus: receptionBonus,
-      degreeBonus: degreeBonus * atttendanceProportion,
-      trainingSupport: trainingSupport * atttendanceProportion,
-      physicalActivitySupport: physicalActivitySupport * atttendanceProportion,
-      extraCompensations: extraCompensations,
-      specialCompensation,
-      incomeTaxWithholding: 0,
-      socialSecurityWithholding: 0,
-      infonavitLoanWithholding: 0,
-      otherDeductions: [],
-      totalIncome,
-      totalDeductions: 0,
-      netPay: 0,
-    });
 
     // *** DEDUCTIONS
 
@@ -499,12 +448,235 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       vacationBonusDifference;
 
     const isrBase = totalIncome - totalExemption;
+    const isr = this.calculateIsr(isrBase, salaryData.halfMonthIsrRates);
+
+    const { employerImssRate, employeeImssRate } =
+      this.calculateSocialSecurityWithholding(
+        employmentContributionBaseSalary,
+        salaryData
+      );
+
+    const otherDeductions = employment.otherDeductions.map((deduction) => {
+      return {
+        name: deduction.name,
+        amount: deduction.amount / 2,
+      };
+    });
+
+    const totalDeductions =
+      isr +
+      employeeImssRate +
+      otherDeductions.reduce((acc, deduction) => acc + deduction.amount, 0);
 
     // TODO: EMPLOYMENT SUBSIDY -> THIS GOES TO FRONTEND
-    // TODO: COMISSIONS
+    // TODO: COMISSIONSç
 
-    return { payroll };
+    const relevantValues: PayrollEstimateRelevantValues = {
+      fixedIncomeDiscounts,
+      nominalHourlyWage,
+      attendanceProportion,
+      averageOrdinaryIncomeHourly,
+      minOrdinaryIncomeDaily,
+      minOrdinaryIncomeHourly,
+      mealDays,
+      isrBase,
+      employerImssRate,
+    };
+    const payroll: PayrollEntity = new PayrollEntity({
+      // references
+      collaboratorId: collaborator.id!,
+      employmentId: employment.id!,
+      jobId: job.id!,
+      // collaboratorData
+      collaboratorFullName: `${collaborator.first_name} ${collaborator.last_name}`,
+      collaboratorCode: collaborator.col_code,
+      curp: collaborator.curp ?? "",
+      socialSecurityNumber: collaborator?.imssNumber || "",
+      rfcNumber: collaborator?.rfcCode || "",
+      // jobData
+      jobTitle: job.title,
+      paymentType: employmentPaymentType,
+      contributionBaseSalary: employmentContributionBaseSalary,
+      collaboratorStartDate: collaborator.startDate ?? new Date(),
+      collaboratorEndDate: collaborator.endDate ?? new Date(),
+      // payrollData
+      payrollStartDate: new Date(periodStartDate),
+      payrollEndDate: new Date(periodEndDate),
+      paymentDate: new Date(),
+      sickLeaveDays: sickLeaveDays,
+      absencesDays: absenceDays,
+      payrollStatus: PayrollStatus.Pending,
+      // INCOME
+      // income - fixed
+      fixedIncome: fixedIncome,
+      // income - commissions
+      commissions,
+      // income - similarToCommissions
+      vacationsCompensation,
+      justifiedAbsencesCompensation: justifiedAbsencesCompensation,
+      expressBranchCompensation: expressBranchCompensation,
+      minimumOrdinaryIncomeCompensation: minimumOrdinaryIncomeCompensation,
+      // income - legal allowances
+      yearEndBonus,
+      vacationBonus: vacationBonus,
+      profitSharing,
+      employmentSubsidy,
+      // income - extra legal compensations
+      extraHoursSinglePlay: extraHoursSinglePlay,
+      extraHoursDoublePlay: extraHoursDoublePlay,
+      extraHoursTriplePlay: extraHoursTriplePlay,
+      sundayBonusExtraPay: sundayBonusExtraPay,
+      holidayOrRestExtraPay: holidayOrRestExtraPay,
+      // income - company benefits
+      punctualityBonus: punctualityBonus,
+      mealCompensation: mealCompensation,
+      receptionBonus: receptionBonus,
+      degreeBonus: degreeBonus * attendanceProportion,
+      trainingSupport: trainingSupport * attendanceProportion,
+      physicalActivitySupport: physicalActivitySupport * attendanceProportion,
+      extraCompensations: extraCompensations,
+      specialCompensation,
+      // DEDUCTIONS
+      incomeTaxWithholding: isr,
+      socialSecurityWithholding: 0,
+      infonavitLoanWithholding: 0,
+      otherDeductions,
+      // TOTAL
+      totalIncome,
+      totalDeductions,
+      netPay: totalIncome - totalDeductions,
+    });
+
+    return { payroll, relevantValues };
   }
 
-  private calculateIsr(isrBase: number) {}
+  private calculateIsr(isrBase: number, isrRates: isrRate[]) {
+    const isrRate = isrRates.find(
+      (rate) => isrBase >= rate.lowerLimit && isrBase <= rate.upperLimit
+    );
+    const lowerLimit = isrRate?.lowerLimit ?? 0;
+    const fixedFee = isrRate?.fixedFee ?? 0;
+    const rateBase = isrBase - lowerLimit;
+    const isr = rateBase * (isrRate?.rate ?? 0);
+    const totalIsr = isr + fixedFee;
+    return totalIsr;
+  }
+
+  private calculateSocialSecurityWithholding(
+    contributionBaseSalary: number,
+    salaryData: SalaryDataEntity
+  ) {
+    const { imssEmployeeRates, imssEmployerRates } = salaryData;
+    const uma = salaryData.uma;
+
+    // Helper function to calculate rate based on salary and UMA limits
+    const calculateOldAgeRate = (
+      oldAgeRates: Array<{ umaLimit: number; rate: string | number }>,
+      salary: number,
+      uma: number
+    ) => {
+      const salaryInUmas = salary / uma;
+      const applicableRate = oldAgeRates.find(
+        (rate) => salaryInUmas <= rate.umaLimit
+      );
+      return applicableRate ? Number(applicableRate.rate) : 0;
+    };
+
+    // Calculate Sickness and Maternity
+    // Employer
+    const fixedFee =
+      uma * imssEmployerRates.sicknessAndMaternity.fixedFee.rate * 15; // Fixed fee based on UMA
+    const employerSurplus =
+      Math.max(0, contributionBaseSalary - 3 * uma) *
+      imssEmployerRates.sicknessAndMaternity.surplus.rate *
+      15; // Surplus
+
+    const employerCashBenefits =
+      contributionBaseSalary *
+      imssEmployerRates.sicknessAndMaternity.cashBenefits.rate *
+      15; // Cash benefits
+
+    const employerPensionersAndBeneficiaries =
+      contributionBaseSalary *
+      imssEmployerRates.sicknessAndMaternity.pensionersAndBeneficiaries.rate *
+      15; // Pensioners
+
+    const employerDisabilityAndLife =
+      contributionBaseSalary *
+      imssEmployerRates.disabilityAndLife.disabilityAndLife.rate *
+      15; // Disability and Life
+
+    const employerWorkRisk =
+      contributionBaseSalary * imssEmployerRates.workRisk.workRisk.rate * 15; // Work Risk
+
+    const employerDaycareAndSocialBenefits =
+      contributionBaseSalary *
+      imssEmployerRates.daycareAndSocialBenefits.daycareAndSocialBenefits.rate *
+      15; // Daycare and Social Benefits
+
+    const employerOldAgeRetirement =
+      contributionBaseSalary * imssEmployerRates.oldAge.retirement.rate * 15; // Old Age
+
+    const employerOldAgeRate = calculateOldAgeRate(
+      imssEmployerRates.oldAge.oldAge,
+      contributionBaseSalary,
+      uma
+    );
+    const employerOldAge = contributionBaseSalary * employerOldAgeRate * 15;
+    const employerInfonavit =
+      contributionBaseSalary * imssEmployerRates.infonavit.infonavit.rate * 15; // Infonavit
+
+    const employerTotal =
+      fixedFee +
+      employerSurplus +
+      employerCashBenefits +
+      employerPensionersAndBeneficiaries +
+      employerDisabilityAndLife +
+      employerWorkRisk +
+      employerDaycareAndSocialBenefits +
+      employerOldAgeRetirement +
+      employerOldAge +
+      employerInfonavit;
+
+    // Employee
+    const employeeSurplus =
+      Math.max(0, contributionBaseSalary - 3 * uma) *
+      imssEmployeeRates.sicknessAndMaternity.surplus.rate *
+      15; // Surplus
+
+    const employeeCashBenefits =
+      contributionBaseSalary *
+      imssEmployeeRates.sicknessAndMaternity.cashBenefits.rate *
+      15; // Cash benefits
+
+    const employeePensionersAndBeneficiaries =
+      contributionBaseSalary *
+      imssEmployeeRates.sicknessAndMaternity.pensionersAndBeneficiaries.rate *
+      15; // Pensioners
+
+    const employeeDisabilityAndLife =
+      contributionBaseSalary *
+      imssEmployeeRates.disabilityAndLife.disabilityAndLife.rate *
+      15;
+
+    const employeeOldAgeRate = calculateOldAgeRate(
+      imssEmployeeRates.oldAge.oldAge,
+      contributionBaseSalary,
+      uma
+    );
+
+    const employeeOldAge = employeeOldAgeRate * contributionBaseSalary * 15;
+
+    const employeeTotal =
+      employeeSurplus +
+      employeeCashBenefits +
+      employeePensionersAndBeneficiaries +
+      employeeDisabilityAndLife +
+      employeeOldAge;
+
+    return {
+      employerImssRate: Number(employerTotal.toFixed(2)),
+      employeeImssRate: Number(employeeTotal.toFixed(2)),
+    };
+  }
 }

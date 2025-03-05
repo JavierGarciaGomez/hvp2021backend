@@ -1,12 +1,13 @@
 import { Document, Schema } from "mongoose";
 import { HRPaymentType, PayrollStatus } from "../enums";
 import { BaseEntity, newBaseEntityProps } from "./base.entity";
-import { ExtraCompensationVO, OtherDeductionsVO } from "../value-objects";
+import { ExtraCompensationVO, OtherDeductionVO } from "../value-objects";
 
 export interface PayrollBase extends newBaseEntityProps {
   // references
   collaboratorId: string | Schema.Types.ObjectId;
   employmentId: string | Schema.Types.ObjectId;
+  jobId: string | Schema.Types.ObjectId;
   // collaboratorData
   collaboratorFullName: string;
   collaboratorCode: string;
@@ -60,7 +61,7 @@ export interface PayrollBase extends newBaseEntityProps {
   incomeTaxWithholding: number;
   socialSecurityWithholding: number;
   infonavitLoanWithholding: number;
-  otherDeductions: OtherDeductionsVO[];
+  otherDeductions: OtherDeductionVO[];
   // TOTAL
   totalIncome: number;
   totalDeductions: number;
@@ -144,7 +145,7 @@ export class PayrollEntity implements BaseEntity {
   incomeTaxWithholding: number = 0;
   socialSecurityWithholding: number = 0;
   infonavitLoanWithholding: number = 0;
-  otherDeductions: OtherDeductionsVO[] = [];
+  otherDeductions: OtherDeductionVO[] = [];
   // TOTAL
   totalIncome: number = 0;
   totalDeductions: number = 0;

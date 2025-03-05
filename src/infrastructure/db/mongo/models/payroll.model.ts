@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import {
   extraCompensationSchema,
   HRPaymentType,
-  otherDeductionsSchema,
+  otherDeductionSchema,
   PayrollDocument,
   PayrollStatus,
 } from "../../../../domain";
@@ -76,7 +76,7 @@ const PayrollSchema: Schema = new Schema<PayrollDocument>(
     socialSecurityWithholding: { type: Number, required: true, default: 0 },
     infonavitLoanWithholding: { type: Number, required: true, default: 0 },
     otherDeductions: {
-      type: [otherDeductionsSchema],
+      type: [otherDeductionSchema],
       required: true,
       default: [],
     },
