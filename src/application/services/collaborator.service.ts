@@ -60,7 +60,11 @@ export class CollaboratorService extends BaseService<
     id: string,
     dto: CollaboratorDTO
   ): Promise<CollaboratorResponse> => {
-    if (dto.password) dto.password = bcryptAdapter.hash(dto.password);
+    const existentCollaborator = await this.repository.getById(id);
+    if (existentCollaborator?.password !== dto.password) {
+      if (dto.password) dto.password = bcryptAdapter.hash(dto.password);
+    }
+
     const collaborator = new CollaboratorEntity(dto);
     const result = await this.repository.update(id, collaborator);
     return this.transformToResponse(result);
