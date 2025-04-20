@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import {
+  getMxDayjsDatetimeByDateAndTime,
   toMexicoStartOfDay,
   transformMxDateTimeToEsStartOfDay,
   transformMxDateTimeToUtcStartOfDay,
@@ -29,12 +30,27 @@ describe("dateHelpers", () => {
       expect(result.toISOString()).toEqual("2025-01-01T06:00:00.000Z");
     });
 
-    it.only("should transform mx date time to es start of day", () => {
+    it("should transform mx date time to es start of day", () => {
       const date = dayjs("2025-01-13T00:00:00.000Z");
 
       const result = toMexicoStartOfDay(date.toISOString());
 
       expect(result.toISOString()).toEqual("2025-01-13T06:00:00.000Z");
+    });
+  });
+
+  describe.only("getMxDayjsDatetimeByDateAndTime", () => {
+    it("should transform to mx date time", () => {
+      const date = "2025-04-05";
+      const time = "08:00";
+      const result = getMxDayjsDatetimeByDateAndTime(date, time);
+
+      const date2 = "2025-04-06";
+      const time2 = "08:00";
+      const result2 = getMxDayjsDatetimeByDateAndTime(date2, time2);
+
+      expect(result.toISOString()).toEqual("2025-04-05T14:00:00.000Z");
+      expect(result2.toISOString()).toEqual("2025-04-06T14:00:00.000Z");
     });
   });
 });

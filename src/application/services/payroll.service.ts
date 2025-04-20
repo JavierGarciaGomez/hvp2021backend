@@ -679,4 +679,59 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       employeeImssRate: Number(employeeTotal.toFixed(2)),
     };
   }
+
+  public calculateFixedAttendance = (rawData: PayrollCollaboratorRawData) => {
+    /*
+      Get total discounts
+      get fixed income
+    */
+    const { attendanceReport, employment } = rawData;
+    const { periodHours, concludedWeeksHours } = attendanceReport;
+    const { fixedIncome: payrollFixedIncome, weeklyHours } = employment;
+    const {
+      justifiedAbsenceByCompanyHours,
+      nonComputableHours,
+      sickLeaveHours,
+      authorizedUnjustifiedAbsenceHours,
+      unjustifiedAbsenceHours,
+    } = periodHours;
+
+    const { notWorkedHours } = concludedWeeksHours;
+    // fixed income
+
+    const totalNonComputableHours = nonComputableHours;
+    const totalAbsenceDayHours =
+      justifiedAbsenceByCompanyHours +
+      unjustifiedAbsenceHours +
+      authorizedUnjustifiedAbsenceHours;
+    const totalSickLeaveHours = sickLeaveHours;
+
+    const collaboratorDailyWorkHours = weeklyHours / 6;
+
+    const nominalHourlyWage =
+      payrollFixedIncome /
+      (WEEKS_IN_MONTH * WEEK_WORK_DAYS) /
+      collaboratorDailyWorkHours; // for discount days
+
+    const nonComputableDays =
+      totalNonComputableHours / collaboratorDailyWorkHours;
+    const sickLeaveDays = totalSickLeaveHours / collaboratorDailyWorkHours;
+    const absenceDays =
+      (totalAbsenceDayHours + notWorkedHours) / collaboratorDailyWorkHours;
+
+    const nonComputableDiscount = totalNonComputableHours * nominalHourlyWage;
+    const sickLeaveDiscount = totalSickLeaveHours * nominalHourlyWage;
+    const absenceDiscount = totalAbsenceDayHours * nominalHourlyWage;
+    const notWorkedDiscount = notWorkedHours * nominalHourlyWage;
+
+    const fixedIncomeDiscounts =
+      nonComputableDiscount +
+      sickLeaveDiscount +
+      absenceDiscount +
+      notWorkedDiscount;
+
+    const fixedIncome = Math.max(payrollFixedIncome - fixedIncomeDiscounts, 0);
+
+    return fixedIncome;
+  };
 }

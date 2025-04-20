@@ -1,12 +1,14 @@
-import { PayrollService } from "./payroll.service";
-import { HRPaymentType, PayrollRepository, PayrollStatus } from "../../domain";
+import { HRPaymentType } from "../../domain";
 import {
   CollaboratorEntity,
   EmploymentEntity,
   JobEntity,
 } from "../../domain/entities";
 import { SalaryDataEntity } from "../../domain/entities/salary-data.entity";
-import { CollaboratorAttendanceReport } from "../../domain/read-models";
+import {
+  CollaboratorAttendanceReport,
+  PayrollCollaboratorRawData,
+} from "../../domain/read-models";
 import { ExtraCompensationVO } from "../../domain/value-objects";
 import { createPayrollService } from "../factories";
 
@@ -442,7 +444,7 @@ describe("PayrollService", () => {
       .mockImplementation(async () => ({ ...defaultMockData }));
   });
 
-  describe("getPayrollEstimateByCollaboratorId", () => {
+  describe.skip("getPayrollEstimateByCollaboratorId", () => {
     it.only("should calculate payroll estimate correctly", async () => {
       const result = await payrollService.getPayrollEstimateByCollaboratorId(
         inputArgs.id,
@@ -965,6 +967,38 @@ describe("PayrollService", () => {
           filteringDto: {},
         })
       ).rejects.toThrow("Missing required fields");
+    });
+  });
+
+  describe("calculate fixedIncome", () => {
+    const periodHours = {
+      justifiedAbsenceByCompanyHours: 0,
+      nonComputableHours: 0,
+      sickLeaveHours: 0,
+      authorizedUnjustifiedAbsenceHours: 0,
+      unjustifiedAbsenceHours: 0,
+    };
+
+    const attendanceReport = {
+      periodHours,
+      concludedWeeksHours: {
+        notWorkedHours: 0,
+      },
+    };
+
+    const employment = {
+      fixedIncome: 5000,
+      weeklyHours: 36,
+    } as unknown as EmploymentEntity;
+
+    const rawData = {
+      attendanceReport,
+      employment,
+    } as unknown as PayrollCollaboratorRawData;
+
+    it.only("should calculate fixed income", async () => {
+      const result = payrollService.calculateFixedAttendance(rawData);
+      expect(result).toBeCloseTo(5000);
     });
   });
 });

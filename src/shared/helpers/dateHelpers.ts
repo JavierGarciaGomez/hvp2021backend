@@ -121,7 +121,19 @@ export const convertUtcDateToMexicoTimeStartOfDay = (
 };
 
 export const getMxDayjsDatetimeByDateAndTime = (date: string, time: string) => {
-  return dayjs.tz(`${date}T${time}`, "America/Mexico_City");
+  const result = dayjs.tz(`${date}T${time}`, "America/Mexico_City");
+
+  const year = result.year();
+
+  // If the year is 2022 or later, Mexico no longer observes DST, so we enforce UTC-6
+  if (year >= 2022) {
+    if (result.utcOffset() !== -360) {
+      return result.utcOffset(-6 * 60, true); // UTC-6 without DST
+    }
+  }
+
+  // For dates before 2022, return the result as is
+  return result;
 };
 
 export const toMexicoStartOfDay = (date: string | Date) => {

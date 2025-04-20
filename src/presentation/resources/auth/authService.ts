@@ -31,10 +31,13 @@ export class AuthService {
     if (!collaborator) {
       throw BaseError.notFound("Collaborator not found");
     }
-    const passwordsMatch = await bcryptAdapter.compare(
+    const passwordsMatch = bcryptAdapter.compare(
       password,
       collaborator.password!
     );
+    if (!collaborator.isActive) {
+      throw BaseError.unauthorized("Collaborator is not active");
+    }
     if (!passwordsMatch) {
       throw BaseError.unauthorized("Invalid password");
     }
