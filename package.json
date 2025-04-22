@@ -68,6 +68,6 @@
   },
   "homepage": "https://github.com/JavierGarciaGomez/hvp2021backend#readme",
   "engines": {
-    "node": "18.0.0"
+    "node": "20.0.0"
   }
 }

@@ -32,7 +32,10 @@ class AuthService {
             if (!collaborator) {
                 throw BaseError_1.BaseError.notFound("Collaborator not found");
             }
-            const passwordsMatch = yield bcrypt_adapter_1.bcryptAdapter.compare(password, collaborator.password);
+            const passwordsMatch = bcrypt_adapter_1.bcryptAdapter.compare(password, collaborator.password);
+            if (!collaborator.isActive) {
+                throw BaseError_1.BaseError.unauthorized("Collaborator is not active");
+            }
             if (!passwordsMatch) {
                 throw BaseError_1.BaseError.unauthorized("Invalid password");
             }

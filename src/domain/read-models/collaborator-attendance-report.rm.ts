@@ -39,6 +39,9 @@ export interface CollaboratorDayReport {
   delayMinutes: number;
   anticipatedMinutes: number;
   branch?: string;
+  shiftId?: string;
+  attendanceRecordId?: string;
+  timeoffRequestId?: string;
 }
 
 export interface PeriodHours {
@@ -108,6 +111,9 @@ export interface DayReportData {
   timeOffRequestType: TimeOffType | undefined;
   isRemote: boolean;
   branch?: string;
+  shiftId?: string;
+  attendanceRecordId?: string;
+  timeoffRequestId?: string;
 }
 
 export interface CollaboratorAttendanceReportWrapper {

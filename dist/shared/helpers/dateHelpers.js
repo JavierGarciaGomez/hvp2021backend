@@ -110,7 +110,8 @@ const convertUtcDateToMexicoTimeStartOfDay = (utcDate) => {
 };
 exports.convertUtcDateToMexicoTimeStartOfDay = convertUtcDateToMexicoTimeStartOfDay;
 const getMxDayjsDatetimeByDateAndTime = (date, time) => {
-    return dayjs_1.default.tz(`${date}T${time}`, "America/Mexico_City");
+    const result = dayjs_1.default.tz(`${date}T${time}`, "America/Mexico_City");
+    return result;
 };
 exports.getMxDayjsDatetimeByDateAndTime = getMxDayjsDatetimeByDateAndTime;
 const toMexicoStartOfDay = (date) => {
@@ -122,13 +123,13 @@ const toMexicoStartOfDay = (date) => {
     const mexicoStartOfDay = getStartOfDayInTimezone(date, "America/Mexico_City");
     const spanishStartOfDay = getStartOfDayInTimezone(date, "Europe/Madrid");
     const utcStartOfDay = getStartOfDayInTimezone(date, "UTC");
-    if (inputDateTime.isSame(mexicoStartOfDay, "day")) {
+    if (inputDateTime.isSame(mexicoStartOfDay)) {
         return mexicoStartOfDay;
     }
-    if (inputDateTime.isSame(spanishStartOfDay, "day")) {
+    if (inputDateTime.isSame(spanishStartOfDay)) {
         return dayjs_1.default.tz(spanishDate, "America/Mexico_City").startOf("day");
     }
-    if (inputDateTime.isSame(utcStartOfDay, "day")) {
+    if (inputDateTime.isSame(utcStartOfDay)) {
         return dayjs_1.default.tz(utcDate, "America/Mexico_City").startOf("day");
     }
     return utcStartOfDay;

@@ -105,12 +105,22 @@ export const getLastSundayOfExtendedHalfWeek = (date: dayjs.Dayjs) => {
 
 export const transformMxDateTimeToUtcStartOfDay = (date: dayjs.Dayjs) => {
   const utcDate = dayjs(date).utc();
-  return utcDate.startOf("day");
+  const startOfDay = utcDate.startOf("day");
+
+  return startOfDay;
 };
 
 export const transformMxDateTimeToEsStartOfDay = (date: dayjs.Dayjs) => {
   const madridDate = dayjs(date).tz("Europe/Madrid");
-  return madridDate.startOf("day");
+
+  const startOfDate = madridDate.startOf("day");
+  console.log({
+    date: date.toISOString(),
+    madridDate: madridDate.toISOString(),
+    startOfDate: startOfDate.toISOString(),
+  });
+
+  return startOfDate;
 };
 
 export const convertUtcDateToMexicoTimeStartOfDay = (
@@ -122,17 +132,6 @@ export const convertUtcDateToMexicoTimeStartOfDay = (
 
 export const getMxDayjsDatetimeByDateAndTime = (date: string, time: string) => {
   const result = dayjs.tz(`${date}T${time}`, "America/Mexico_City");
-
-  const year = result.year();
-
-  // If the year is 2022 or later, Mexico no longer observes DST, so we enforce UTC-6
-  if (year >= 2022) {
-    if (result.utcOffset() !== -360) {
-      return result.utcOffset(-6 * 60, true); // UTC-6 without DST
-    }
-  }
-
-  // For dates before 2022, return the result as is
   return result;
 };
 
@@ -146,6 +145,13 @@ export const toMexicoStartOfDay = (date: string | Date) => {
   const mexicoStartOfDay = getStartOfDayInTimezone(date, "America/Mexico_City");
   const spanishStartOfDay = getStartOfDayInTimezone(date, "Europe/Madrid");
   const utcStartOfDay = getStartOfDayInTimezone(date, "UTC");
+
+  console.log({
+    inputDateTime: inputDateTime.toISOString(),
+    mexicoStartOfDay: mexicoStartOfDay.toISOString(),
+    spanishStartOfDay: spanishStartOfDay.toISOString(),
+    utcStartOfDay: utcStartOfDay.toISOString(),
+  });
 
   if (inputDateTime.isSame(mexicoStartOfDay)) {
     return mexicoStartOfDay;
@@ -163,8 +169,13 @@ export const toMexicoStartOfDay = (date: string | Date) => {
 };
 
 const getStartOfDayInTimezone = (date: string | Date, timezone: string) => {
-  const localDate = dayjs(date).tz(timezone).format("YYYY-MM-DD");
-  return dayjs(`${localDate}T00:00:00`).tz(timezone).startOf("day");
+  const result = dayjs(date).tz(timezone).startOf("day");
+  console.log({
+    input: date,
+    timezone,
+    result: result.toISOString(),
+  });
+  return result;
 };
 
 export const getDayjsRangeFromDates = (

@@ -3,7 +3,6 @@ import {
   AttendanceRawData,
   CollaboratorAttendanceData,
   CollaboratorAttendanceReport,
-  CollaboratorAttendanceReportWrapper,
   CollaboratorDayReport,
   DayReportData,
   PeriodHours,
@@ -319,11 +318,12 @@ export class AttendanceReportService {
       const { shiftDate, startingTime, endingTime } = shift;
 
       const shiftDateMx = convertUtcDateToMexicoTimeStartOfDay(shift.shiftDate);
+      console.log({ shiftDateMx: shiftDateMx.toISOString() });
       const startingTimeMx = startingTime
         ? getMxDayjsDatetimeByDateAndTime(shiftDate, startingTime)
         : undefined;
 
-      if (shiftDate === "2025-04-06") {
+      if (shiftDate === "2025-04-16") {
         console.log("WAIT");
         console.log({
           shiftDate,
@@ -468,24 +468,6 @@ export class AttendanceReportService {
     const { startDate: collaboratorStartDate, endDate: collaboratorEndDate } =
       collaboratorAttendanceData.collaborator;
 
-    if (collaboratorAttendanceData.collaborator.col_code === "JLP") {
-      const firstAttendanceRecord =
-        collaboratorAttendanceData.attendanceRecords[0];
-
-      const firstShift = collaboratorAttendanceData.dayShifts[0];
-      const myTest = {
-        shiftDateIso: firstShift?.shiftDate,
-        shiftDateDayJs: dayjs(firstShift?.shiftDate).toISOString(),
-        shiftDateIso2: firstShift?.shiftDate?.toISOString(),
-        attendanceRecordShiftDateIso: firstAttendanceRecord?.shiftDate,
-        attendanceRecordShiftDateDayJs:
-          dayjs(firstAttendanceRecord?.shiftDate).toISOString() || undefined,
-        attendanceRecordShiftDateIso2:
-          firstAttendanceRecord?.shiftDate?.toISOString() || undefined,
-      };
-      console.log(myTest);
-    }
-
     const dayReportsData = this.generateDayReportsData(
       collaboratorAttendanceData,
       extendedStartDate,
@@ -598,6 +580,7 @@ export class AttendanceReportService {
         dayReportData.shiftStart = shift.startingTime;
         dayReportData.shiftEnd = shift.endingTime;
         dayReportData.isRemote = shift.isRemote || false;
+        dayReportData.shiftId = shift.id;
       }
     });
 
@@ -611,6 +594,7 @@ export class AttendanceReportService {
         dayReport.branch = branches.find(
           (branch) => branch.id === attendanceRecord.clockOutBranch
         )?.name;
+        dayReport.attendanceRecordId = attendanceRecord.id;
       }
     });
 
@@ -625,6 +609,7 @@ export class AttendanceReportService {
           );
           if (dayReport) {
             dayReport.timeOffRequestType = timeoffRequest.timeOffType;
+            dayReport.timeoffRequestId = timeoffRequest.id;
           }
         });
       });
@@ -646,6 +631,9 @@ export class AttendanceReportService {
       timeOffRequestType,
       isRemote,
       branch,
+      shiftId,
+      attendanceRecordId,
+      timeoffRequestId,
     } = dayReportData;
 
     const assignedHours =
@@ -684,6 +672,9 @@ export class AttendanceReportService {
       anticipatedMinutes,
       timeOffRequestType: timeOffRequestType,
       branch,
+      shiftId,
+      attendanceRecordId,
+      timeoffRequestId,
     };
 
     const setHoursToZero = (dayReport: CollaboratorDayReport) => {

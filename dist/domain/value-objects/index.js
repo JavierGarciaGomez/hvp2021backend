@@ -32,4 +32,5 @@ __exportStar(require("./transaction-line.vo"), exports);
 __exportStar(require("./money-in-drawer.vo"), exports);
 __exportStar(require("./reconciliation-expense.vo"), exports);
 __exportStar(require("./extra-compensation.vo"), exports);
-__exportStar(require("./other-deductions.vo"), exports);
+__exportStar(require("./other-deduction.vo"), exports);
+__exportStar(require("./isr-rates.vo"), exports);

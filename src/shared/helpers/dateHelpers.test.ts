@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import {
+  convertUtcDateToMexicoTimeStartOfDay,
   getMxDayjsDatetimeByDateAndTime,
   toMexicoStartOfDay,
   transformMxDateTimeToEsStartOfDay,
@@ -23,7 +24,7 @@ describe("dateHelpers", () => {
   });
 
   describe("toMexicoStartOfDay", () => {
-    it("should transform mx date time to es start of day", () => {
+    it("should keep the same date", () => {
       const date = dayjs("2025-01-01T06:00:00.000Z");
       const result = toMexicoStartOfDay(date.toISOString());
       const resultIso = result.toISOString();
@@ -39,7 +40,7 @@ describe("dateHelpers", () => {
     });
   });
 
-  describe.only("getMxDayjsDatetimeByDateAndTime", () => {
+  describe("getMxDayjsDatetimeByDateAndTime", () => {
     it("should transform to mx date time", () => {
       const date = "2025-04-05";
       const time = "08:00";
@@ -51,6 +52,14 @@ describe("dateHelpers", () => {
 
       expect(result.toISOString()).toEqual("2025-04-05T14:00:00.000Z");
       expect(result2.toISOString()).toEqual("2025-04-06T14:00:00.000Z");
+    });
+  });
+
+  describe("convertUtcDateToMexicoTimeStartOfDay", () => {
+    it("should convert utc date to mx time start of day", () => {
+      const date = "2025-04-16";
+      const result = convertUtcDateToMexicoTimeStartOfDay(date);
+      expect(result.toISOString()).toEqual("2025-04-16T06:00:00.000Z");
     });
   });
 });

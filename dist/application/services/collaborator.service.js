@@ -39,15 +39,18 @@ class CollaboratorService extends base_service_1.BaseService {
             return yield this.repository.register(dto);
         });
         this.update = (id, dto) => __awaiter(this, void 0, void 0, function* () {
-            if (dto.password)
-                dto.password = adapters_1.bcryptAdapter.hash(dto.password);
+            const existentCollaborator = yield this.repository.getById(id);
+            if ((existentCollaborator === null || existentCollaborator === void 0 ? void 0 : existentCollaborator.password) !== dto.password) {
+                if (dto.password)
+                    dto.password = adapters_1.bcryptAdapter.hash(dto.password);
+            }
             const collaborator = new entities_1.CollaboratorEntity(dto);
             const result = yield this.repository.update(id, collaborator);
             return this.transformToResponse(result);
         });
         this.transformToResponse = (entity) => __awaiter(this, void 0, void 0, function* () {
             const productService = (0, factories_1.createProductService)();
-            const collaborator = Object.assign(Object.assign({}, entity), { baseContributionSalary: 10, dailyAverageSalary: 10, accumulatedAnnualIncomeRaisePercent: 10, accumulatedAnnualComissionRaisePercent: 10, aggregatedMonthlyIncome: 10, imssSalaryBase: 10, averageDailyIncome: 10 });
+            const collaborator = Object.assign(Object.assign({}, entity), { baseContributionSalary: 10, dailyAverageSalary: 10, accumulatedAnnualIncomeRaisePercent: 10, accumulatedAnnualCommissionRaisePercent: 10, aggregatedMonthlyIncome: 10, imssSalaryBase: 10, averageDailyIncome: 10 });
             return collaborator;
         });
     }

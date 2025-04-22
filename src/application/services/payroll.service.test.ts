@@ -444,8 +444,8 @@ describe("PayrollService", () => {
       .mockImplementation(async () => ({ ...defaultMockData }));
   });
 
-  describe.skip("getPayrollEstimateByCollaboratorId", () => {
-    it.only("should calculate payroll estimate correctly", async () => {
+  describe("getPayrollEstimateByCollaboratorId", () => {
+    it("should calculate payroll estimate correctly", async () => {
       const result = await payrollService.getPayrollEstimateByCollaboratorId(
         inputArgs.id,
         { filteringDto: inputArgs.filteringDto }
@@ -996,7 +996,7 @@ describe("PayrollService", () => {
       employment,
     } as unknown as PayrollCollaboratorRawData;
 
-    it.only("should calculate fixed income", async () => {
+    it("should calculate fixed income", async () => {
       const result = payrollService.calculateFixedAttendance(rawData);
       expect(result).toBeCloseTo(5000);
     });
