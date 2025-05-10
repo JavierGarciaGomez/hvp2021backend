@@ -22,6 +22,7 @@ const JobSchema: Schema = new Schema<JobDocument>(
     title: { type: String, required: true, default: "" },
     sortingOrder: { type: Number, required: true, default: 0 },
     incomeMultiplier: { type: Number, required: false, default: 1 },
+    commissionRateAdjustment: { type: Number, required: false, default: 0.4 },
     expectedCommissionsPercentage: {
       type: Number,
       required: true,

@@ -1,6 +1,8 @@
 import {
   CollaboratorEntity,
   CollaboratorResponse,
+  EmploymentEntity,
+  JobEntity,
   PublicCollaborator,
 } from "../../domain/entities";
 import { CollaboratorRepository } from "../../domain/repositories";
@@ -9,7 +11,11 @@ import { bcryptAdapter } from "../../infrastructure/adapters";
 import { CustomQueryOptions } from "../../shared/interfaces";
 
 import { CollaboratorDTO, PaginationDto, SortingDto } from "../dtos";
-import { createJobService, createProductService } from "../factories";
+import {
+  createEmploymentService,
+  createJobService,
+  createProductService,
+} from "../factories";
 import { BaseService } from "./base.service";
 
 export class CollaboratorService extends BaseService<
@@ -68,6 +74,64 @@ export class CollaboratorService extends BaseService<
     const collaborator = new CollaboratorEntity(dto);
     const result = await this.repository.update(id, collaborator);
     return this.transformToResponse(result);
+  };
+
+  public getCollaboratorsWithJobAndEmployment = async (
+    date: string
+  ): Promise<
+    {
+      collaborator: CollaboratorEntity;
+      job?: JobEntity;
+      employment?: EmploymentEntity;
+    }[]
+  > => {
+    const collaborators = await this.getCollaboratorsByDate(date);
+    console.log({ collaborators, date });
+    const jobService = createJobService();
+    const employmentService = createEmploymentService();
+
+    // todo test
+    const collaboratorsWithJobAndEmployment = await Promise.all(
+      collaborators.map(async (collaborator) => {
+        let job;
+        if (collaborator.jobId) {
+          job = await jobService.getById(collaborator.jobId);
+        }
+        if (collaborator.id === "61dff1cb4131595911ad13fb") {
+          console.log({ collaborator: collaborator.jobId, job });
+        }
+        const employment =
+          await employmentService.getEmploymentByCollaboratorAndDate(
+            collaborator.id!,
+            "2025-05-11"
+          );
+        return { collaborator, job, employment };
+      })
+    );
+
+    return collaboratorsWithJobAndEmployment.filter(Boolean);
+  };
+
+  public getCollaboratorsByDate = async (
+    dateStr: string
+  ): Promise<CollaboratorEntity[]> => {
+    const date = new Date(dateStr);
+
+    const collaborators = await this.repository.getAll();
+    const filteredCollaborators = collaborators.filter((collaborator) => {
+      const employmentStart = collaborator.startDate
+        ? new Date(collaborator.startDate)
+        : null;
+      const employmentEnd = collaborator.endDate
+        ? new Date(collaborator.endDate)
+        : null;
+      return (
+        employmentStart &&
+        employmentStart <= date &&
+        (!employmentEnd || employmentEnd >= date)
+      );
+    });
+    return filteredCollaborators;
   };
 
   public getResourceName(): string {

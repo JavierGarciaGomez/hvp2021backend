@@ -19,6 +19,7 @@ export class JobDTO implements BaseDTO {
   sortingOrder: number = 99;
   title!: string;
   incomeMultiplier: number = 1;
+  commissionRateAdjustment: number = 0.4;
   expectedCommissionsPercentage: number = 0.4;
   expectedMinimumIncome: number = 0; // expected minimum ordinary income
   expressBranchCompensation: number = 0;

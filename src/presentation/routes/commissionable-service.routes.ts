@@ -11,8 +11,24 @@ export class CommissionableServiceRoutes extends BaseCRUDRoutes {
     const controller = new CommissionableServiceController(service);
 
     this.router.use(AuthMiddleware.validateJWT);
-    this.router.use(authorizedRolesMiddleware([WebAppRole.admin]));
 
+    this.router.get(
+      "/commission-calculation",
+      controller.getCommissionCalculation
+    );
+
+    this.router.get("/", controller.getAll);
+    this.router.get("/:id", controller.getById);
+    this.router.post(
+      "/",
+      authorizedRolesMiddleware([WebAppRole.admin]),
+      controller.create
+    );
+    this.router.put(
+      "/:id",
+      authorizedRolesMiddleware([WebAppRole.admin]),
+      controller.update
+    );
     this.setupCrudRoutes(controller);
   }
 }

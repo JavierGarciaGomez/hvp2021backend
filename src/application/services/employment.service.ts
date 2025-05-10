@@ -62,6 +62,27 @@ export class EmploymentService extends BaseService<
     return employments[0];
   };
 
+  public getEmploymentByCollaboratorAndDate = async (
+    collaboratorId: string,
+    date: string
+  ) => {
+    const employments = await this.getAll({
+      filteringDto: {
+        collaboratorId,
+        employmentStartDate: { $lte: date },
+        $or: [
+          { employmentEndDate: { $exists: false } },
+          { employmentEndDate: { $gt: date } },
+        ],
+      },
+      sortingDto: {
+        sort_by: "employmentStartDate",
+        direction: "desc",
+      },
+    });
+    return employments[0];
+  };
+
   public getResourceName(): string {
     return "employment";
   }

@@ -14,6 +14,7 @@ export interface JobPropsBase extends newBaseEntityProps {
   sortingOrder: number;
   title: string;
   incomeMultiplier: number;
+  commissionRateAdjustment: number;
   expectedCommissionsPercentage: number; // --- calculate
   expectedMinimumIncome: number; // expected minimum ordinary income --- calculate
   expressBranchCompensation: number;
@@ -48,6 +49,7 @@ export class JobEntity implements BaseEntity {
   sortingOrder: number = 99;
   title!: string;
   incomeMultiplier: number = 1;
+  commissionRateAdjustment: number = 0.4;
   expectedCommissionsPercentage: number = 0.4;
   expectedMinimumIncome: number = 0; // expected minimum ordinary income
   expressBranchCompensation: number = 0;
