@@ -12,3 +12,4 @@ export * from "./branch-reconciliation-status.enum";
 export * from "./time-off-requests.enum";
 export * from "./payroll.enum";
 export * from "./hr.enum";
+export * from "./commissions.enum";

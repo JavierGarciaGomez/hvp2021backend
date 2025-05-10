@@ -20,3 +20,4 @@ export * from "./time-off-request.factory";
 export * from "./employment.factory";
 export * from "./attendance-report.factory";
 export * from "./payroll.factory";
+export * from "./commissionable-service.factory";

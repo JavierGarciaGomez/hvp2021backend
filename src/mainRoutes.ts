@@ -37,4 +37,5 @@ export const mainRoutes = {
   employments: "/api/employments",
   attendanceReports: "/api/attendance-reports",
   payrolls: "/api/payrolls",
+  commissionableServices: "/api/commissionable-services",
 };

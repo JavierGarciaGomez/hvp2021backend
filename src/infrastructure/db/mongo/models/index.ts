@@ -24,3 +24,4 @@ export * from "./branch-cash-reconciliation.model";
 export * from "./simplified-branch-cash-reconciliation.model";
 export * from "./employment.model";
 export * from "./payroll.model";
+export * from "./commissionable-service.model";

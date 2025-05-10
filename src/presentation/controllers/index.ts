@@ -22,3 +22,4 @@ export * from "./time-off-request.controller";
 export * from "./employment.controller";
 export * from "./attendance-report.controller";
 export * from "./payroll.controller";
+export * from "./commissionable-service.controller";

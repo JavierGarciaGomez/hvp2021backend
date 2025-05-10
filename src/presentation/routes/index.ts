@@ -20,3 +20,4 @@ export * from "./time-off-request.routes";
 export * from "./employment.routes";
 export * from "./attendance-reports.routes";
 export * from "./payroll.routes";
+export * from "./commissionable-service.routes";

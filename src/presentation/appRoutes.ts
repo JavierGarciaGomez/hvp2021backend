@@ -38,6 +38,7 @@ import {
   TimeOffRequestRoutes,
   EmploymentRoutes,
   PayrollRoutes,
+  CommissionableServiceRoutes,
 } from "./routes";
 import { AccountRoutes } from "./routes/account.routes";
 import { SimplifiedBranchCashReconciliationRoutes } from "./routes/simplified-branch-cash-reconciliation.routes";
@@ -117,6 +118,10 @@ export class AppRoutes {
       new AttendanceReportRoutes().getRoutes()
     );
     router.use(mainRoutes.payrolls, new PayrollRoutes().getRoutes());
+    router.use(
+      mainRoutes.commissionableServices,
+      new CommissionableServiceRoutes().getRoutes()
+    );
 
     return router;
   }

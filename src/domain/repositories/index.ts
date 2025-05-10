@@ -22,3 +22,4 @@ export * from "./simplified-branch-cash-reconciliation.repository";
 export * from "./time-off-request.repository";
 export * from "./employment.repository";
 export * from "./payroll.repository";
+export * from "./commissionable-service.repository";
