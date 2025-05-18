@@ -38,4 +38,5 @@ export const mainRoutes = {
   attendanceReports: "/api/attendance-reports",
   payrolls: "/api/payrolls",
   commissionableServices: "/api/commissionable-services",
+  commissionAllocations: "/api/commission-allocations",
 };

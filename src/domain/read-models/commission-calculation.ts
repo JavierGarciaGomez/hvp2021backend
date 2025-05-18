@@ -6,14 +6,16 @@ export interface CommissionCalculation {
 }
 
 export interface CommissionableServiceCalculationVO {
-  serviceId: string;
-  serviceName: string;
+  id: string;
+  name: string;
   commissionCalculationType: CommissionCalculationType;
   basePrice: number;
   baseCommission: number;
+  maxCommission: number;
   baseRate: number;
   maxRate: number;
   allowSalesCommission: boolean;
+  isActive: boolean;
   collaborators: CommissionCollaboratorCalculationVO[];
 }
 

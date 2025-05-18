@@ -25,3 +25,4 @@ export * from "./employment.service";
 export * from "./attendance-report.service";
 export * from "./payroll.service";
 export * from "./commissionable-service.service";
+export * from "./commission-allocation.service";

@@ -10,7 +10,6 @@ import {
 } from "../../domain";
 import { CommissionableServiceDTO } from "../dtos";
 import { CustomQueryOptions } from "../../shared";
-import { CommissionCalculation } from "../../domain/read-models";
 import { createCollaboratorService } from "../factories";
 
 export class CommissionableServiceService extends BaseService<
@@ -27,7 +26,9 @@ export class CommissionableServiceService extends BaseService<
   ): Promise<any> => {
     // todo
     const calculationDate =
-      queryOptions?.filteringDto?.calculationDate ?? new Date().toISOString();
+      queryOptions?.filteringDto?.date ?? new Date().toISOString();
+
+    console.log({ queryOptions, calculationDate });
     const collaboratorService = createCollaboratorService();
     const collaboratorsWithJobAndEmployment =
       await collaboratorService.getCollaboratorsWithJobAndEmployment(
@@ -84,13 +85,13 @@ export class CommissionableServiceService extends BaseService<
     job?: JobEntity
   ) => {
     const { baseCommission } = commisionableService;
-    const commissionRateAdjustment = job?.commissionRateAdjustment ?? 0.4;
+    const commissionRateAdjustment = job?.commissionRateAdjustment ?? 40;
     const commissionBonusPercentage =
       employment?.commissionBonusPercentage ?? 0;
 
     return (
       baseCommission *
-      commissionRateAdjustment *
+      (commissionRateAdjustment / 100) *
       (1 + commissionBonusPercentage)
     );
   };
@@ -100,13 +101,17 @@ export class CommissionableServiceService extends BaseService<
     employment?: EmploymentEntity,
     job?: JobEntity
   ) => {
-    const { baseRate } = commisionableService;
-    const commissionRateAdjustment = job?.commissionRateAdjustment ?? 0.4;
+    const { baseRate, name } = commisionableService;
+    let commissionRateAdjustment = job?.commissionRateAdjustment ?? 40;
+    if (name.toLowerCase() === "venta") {
+      commissionRateAdjustment = 100;
+    }
     const commissionBonusPercentage =
       employment?.commissionBonusPercentage ?? 0;
 
     return (
-      baseRate * commissionRateAdjustment * (1 + commissionBonusPercentage)
+      ((baseRate * commissionRateAdjustment) / 100) *
+      (1 + commissionBonusPercentage)
     );
   };
 

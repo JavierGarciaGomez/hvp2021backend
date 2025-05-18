@@ -39,6 +39,7 @@ import {
   EmploymentRoutes,
   PayrollRoutes,
   CommissionableServiceRoutes,
+  CommissionAllocationRoutes,
 } from "./routes";
 import { AccountRoutes } from "./routes/account.routes";
 import { SimplifiedBranchCashReconciliationRoutes } from "./routes/simplified-branch-cash-reconciliation.routes";
@@ -121,6 +122,10 @@ export class AppRoutes {
     router.use(
       mainRoutes.commissionableServices,
       new CommissionableServiceRoutes().getRoutes()
+    );
+    router.use(
+      mainRoutes.commissionAllocations,
+      new CommissionAllocationRoutes().getRoutes()
     );
 
     return router;

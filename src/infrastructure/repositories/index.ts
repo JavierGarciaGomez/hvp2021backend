@@ -21,3 +21,4 @@ export * from "./time-off-request.repository.imp";
 export * from "./employment.repository.imp";
 export * from "./payroll.repository.imp";
 export * from "./commissionable-service.repository.imp";
+export * from "./commission-allocation.repository.imp";

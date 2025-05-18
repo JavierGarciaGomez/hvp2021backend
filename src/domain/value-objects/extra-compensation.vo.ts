@@ -1,6 +1,5 @@
 import { Schema } from "mongoose";
-import { PaymentMethod } from "../enums/paymentMethod.enum";
-import { AccountingClass, PayrollIncomeType } from "../enums";
+import { PayrollIncomeType } from "../enums";
 
 export interface ExtraCompensationVO {
   name: string;

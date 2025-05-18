@@ -21,3 +21,4 @@ export * from "./time-off-request.datasource.mongo-imp";
 export * from "./employment.datasource.mongo-imp";
 export * from "./payroll.datasource.mongo-imp";
 export * from "./commissionable-service.datasource.mongo-imp";
+export * from "./commission-allocation.datasource.mongo-imp";

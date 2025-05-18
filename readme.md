@@ -6,6 +6,9 @@ git push heroku ts-full-update:main
 commissionable-service
 CommissionableService
 
+commission-allocation
+CommissionAllocation
+
 ## approach for creating new endpoints
 
 domain/entities

@@ -21,3 +21,4 @@ export * from "./employment.factory";
 export * from "./attendance-report.factory";
 export * from "./payroll.factory";
 export * from "./commissionable-service.factory";
+export * from "./commission-allocation.factory";

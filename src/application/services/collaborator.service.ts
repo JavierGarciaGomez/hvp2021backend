@@ -86,7 +86,7 @@ export class CollaboratorService extends BaseService<
     }[]
   > => {
     const collaborators = await this.getCollaboratorsByDate(date);
-    console.log({ collaborators, date });
+
     const jobService = createJobService();
     const employmentService = createEmploymentService();
 
@@ -97,9 +97,7 @@ export class CollaboratorService extends BaseService<
         if (collaborator.jobId) {
           job = await jobService.getById(collaborator.jobId);
         }
-        if (collaborator.id === "61dff1cb4131595911ad13fb") {
-          console.log({ collaborator: collaborator.jobId, job });
-        }
+
         const employment =
           await employmentService.getEmploymentByCollaboratorAndDate(
             collaborator.id!,

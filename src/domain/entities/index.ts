@@ -27,3 +27,4 @@ export * from "./time-off-request.entity";
 export * from "./employment.entity";
 export * from "./payroll.entity";
 export * from "./commissionable-service.entity";
+export * from "./commission-allocation.entity";

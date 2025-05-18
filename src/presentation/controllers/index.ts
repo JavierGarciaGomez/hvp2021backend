@@ -23,3 +23,4 @@ export * from "./employment.controller";
 export * from "./attendance-report.controller";
 export * from "./payroll.controller";
 export * from "./commissionable-service.controller";
+export * from "./commission-allocation.controller";
