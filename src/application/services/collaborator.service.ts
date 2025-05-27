@@ -94,13 +94,6 @@ export class CollaboratorService extends BaseService<
     const collaboratorsWithJobAndEmployment = await Promise.all(
       collaborators.map(async (collaborator) => {
         let job;
-        if (collaborator.jobId) {
-          job = await jobService.getById(collaborator.jobId);
-        }
-
-        if (collaborator.id === "61e9f83611d080f125a93e92") {
-          console.log(job);
-        }
 
         const employment =
           await employmentService.getEmploymentByCollaboratorAndDate(
@@ -108,7 +101,13 @@ export class CollaboratorService extends BaseService<
             date
           );
 
-        if (collaborator.id === "61e9f83611d080f125a93e92") {
+        const employmentJobId = employment?.jobId;
+
+        if (employmentJobId) {
+          job = await jobService.getById(employmentJobId);
+        }
+
+        if (collaborator.id === "642f3ec6270f101c00d5fcda") {
           console.log(employment);
         }
 
