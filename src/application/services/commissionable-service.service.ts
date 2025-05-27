@@ -28,7 +28,6 @@ export class CommissionableServiceService extends BaseService<
     const calculationDate =
       queryOptions?.filteringDto?.date ?? new Date().toISOString();
 
-    console.log({ queryOptions, calculationDate });
     const collaboratorService = createCollaboratorService();
     const collaboratorsWithJobAndEmployment =
       await collaboratorService.getCollaboratorsWithJobAndEmployment(

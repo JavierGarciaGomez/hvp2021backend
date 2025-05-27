@@ -98,11 +98,20 @@ export class CollaboratorService extends BaseService<
           job = await jobService.getById(collaborator.jobId);
         }
 
+        if (collaborator.id === "61e9f83611d080f125a93e92") {
+          console.log(job);
+        }
+
         const employment =
           await employmentService.getEmploymentByCollaboratorAndDate(
             collaborator.id!,
-            "2025-05-11"
+            date
           );
+
+        if (collaborator.id === "61e9f83611d080f125a93e92") {
+          console.log(employment);
+        }
+
         return { collaborator, job, employment };
       })
     );
