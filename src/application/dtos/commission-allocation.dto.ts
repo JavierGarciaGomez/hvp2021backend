@@ -2,6 +2,7 @@ import { BaseDTO } from "./base.dto";
 import { BaseEntity, CommissionAllocationProps } from "../../domain/entities";
 import { BaseError } from "../../shared";
 import { CommissionAllocationServiceVOProps } from "../../domain/value-objects/commissions.vo";
+import { CommissionBonusType } from "../../domain";
 
 export class CommissionAllocationDTO implements BaseDTO, BaseEntity {
   id?: string;
@@ -42,6 +43,15 @@ export class CommissionAllocationDTO implements BaseDTO, BaseEntity {
       errors.push(`Commission allocation is missing services`);
 
     services.forEach((service, serviceIndex) => {
+      const { bonusType } = service;
+
+      if (
+        bonusType === undefined ||
+        !Object.values(CommissionBonusType).includes(bonusType)
+      ) {
+        delete service.bonusType;
+      }
+
       if (!service.serviceId || !service.serviceName)
         errors.push(`Service at index ${serviceIndex} is missing service`);
 
