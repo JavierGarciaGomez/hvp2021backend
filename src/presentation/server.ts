@@ -32,8 +32,8 @@ export class Server {
   async start() {
     console.log({ env: envsPlugin.NODE_ENV });
     //* Middlewares
-    this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(express.json({ limit: "10mb" }));
+    this.app.use(express.urlencoded({ extended: true, limit: "10mb" }));
     this.app.use(PrintRouteMiddleware.print);
     this.app.use(AttachBaseUrlMiddleware.attachBaseUrl);
     this.app.use(corsMiddleware);

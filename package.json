@@ -22,7 +22,8 @@
     "nodemailer": "^6.9.13",
     "passport": "^0.5.2",
     "passport-google-oauth20": "^2.0.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -57,7 +58,8 @@
     "seed:attendanceRecords": "tsc && node build/scripts/attendanceRecordSeed.js",
     "seed:customerRFCs": "tsc && node build/scripts/customerRFCSeed.js",
     "seed:customSeed": "tsc && node build/scripts/customSeed.js",
-    "seed:notifications": "tsnd src/scripts/notificationSeed.ts"
+    "seed:notifications": "tsnd src/scripts/notificationSeed.ts",
+    "parse:tickets": "tsnd --project tsconfig.json src/shared/scripts/commissions/parseTickets.ts"
   },
   "repository": "git+https://github.com/JavierGarciaGomez/hvp2021backend.git",
   "keywords": [],
