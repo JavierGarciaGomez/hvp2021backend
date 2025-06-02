@@ -140,6 +140,34 @@ export class CollaboratorService extends BaseService<
     return filteredCollaborators;
   };
 
+  public getCollaboratorsByDateRange = async (
+    startDate: Date,
+    endDate: Date
+  ): Promise<CollaboratorEntity[]> => {
+    const collaborators = await this.repository.getAll();
+    const filteredCollaborators = collaborators.filter((collaborator) => {
+      const employmentStart = collaborator.startDate
+        ? new Date(collaborator.startDate)
+        : null;
+      const employmentEnd = collaborator.endDate
+        ? new Date(collaborator.endDate)
+        : null;
+      return (
+        employmentStart &&
+        employmentStart <= endDate && // Started on or before the end date
+        (!employmentEnd || employmentEnd >= startDate) // No end date or ended on or after the start date
+      );
+    });
+    return filteredCollaborators.sort((a, b) => {
+      const employmentStartA = a.startDate ? new Date(a.startDate) : null;
+      const employmentStartB = b.startDate ? new Date(b.startDate) : null;
+      return (
+        (employmentStartA ? employmentStartA.getTime() : 0) -
+        (employmentStartB ? employmentStartB.getTime() : 0)
+      );
+    });
+  };
+
   public getResourceName(): string {
     return "collaborator";
   }

@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import {
   convertUtcDateToMexicoTimeStartOfDay,
   getMxDayjsDatetimeByDateAndTime,
+  getMxPeriodKey,
   toMexicoStartOfDay,
   transformMxDateTimeToEsStartOfDay,
   transformMxDateTimeToUtcStartOfDay,
@@ -60,6 +61,26 @@ describe("dateHelpers", () => {
       const date = "2025-04-16";
       const result = convertUtcDateToMexicoTimeStartOfDay(date);
       expect(result.toISOString()).toEqual("2025-04-16T06:00:00.000Z");
+    });
+  });
+
+  describe("getMxPeriodKey", () => {
+    it("should return the correct period key for half-month", () => {
+      const date1 = dayjs("2025-04-16T05:00:00.000Z");
+      const result1 = getMxPeriodKey(date1, "half-month");
+      expect(result1).toEqual("2025-Apr-H1");
+
+      const date2 = dayjs("2025-04-16T06:00:00.000Z");
+      const result2 = getMxPeriodKey(date2, "half-month");
+      expect(result2).toEqual("2025-Apr-H2");
+
+      const date3 = dayjs("2025-04-01T05:00:00.000Z");
+      const result3 = getMxPeriodKey(date3, "half-month");
+      expect(result3).toEqual("2025-Mar-H2");
+
+      const date4 = dayjs("2025-04-01T06:00:00.000Z");
+      const result4 = getMxPeriodKey(date4, "half-month");
+      expect(result4).toEqual("2025-Apr-H1");
     });
   });
 });

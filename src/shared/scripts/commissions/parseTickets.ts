@@ -13,6 +13,26 @@ import {
 } from "./types";
 
 const transformExcelToJson = () => {
+  const isUrban = false;
+  const isHarbor = false;
+  const isMontejo = true;
+
+  const urbanFile = "commissionsToAppUrban.xlsx";
+  const harborFile = "commissionsToAppHarbor.xlsx";
+  const montejoFile = "commissionsToAppMontejo.xlsx";
+
+  const urbanId = "670a61538ff5ac02957e50f3";
+  const harborId = "670a61538ff5ac02957e50eb";
+  const montejoId = "670a61538ff5ac02957e50e3";
+
+  const branchId = isUrban ? urbanId : isHarbor ? harborId : montejoId;
+
+  const inputPath = isUrban
+    ? path.resolve(__dirname, `../data/${urbanFile}`)
+    : isHarbor
+    ? path.resolve(__dirname, `../data/${harborFile}`)
+    : path.resolve(__dirname, `../data/${montejoFile}`);
+
   const collaborators = Object.fromEntries(
     collaboratorsData.data.map((c: any) => [
       c.col_code,
@@ -27,7 +47,6 @@ const transformExcelToJson = () => {
     ])
   );
 
-  const inputPath = path.resolve(__dirname, "../data/commissionsToApp.xlsx");
   const outputPath = path.resolve(__dirname, "./output.json");
 
   const workbook = XLSX.readFile(inputPath);
@@ -51,7 +70,7 @@ const transformExcelToJson = () => {
 
     const ticket: TicketOutput = {
       date: CommissionUtils.formatDate(Fecha),
-      branch: "670a61538ff5ac02957e50f3",
+      branch: branchId,
       ticketNumber: ticketNumber,
       services: [],
     };

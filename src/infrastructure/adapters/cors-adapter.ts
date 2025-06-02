@@ -5,6 +5,7 @@ const corsOptions = {
   origin: [
     getEnvsByEnvironment().CLIENT_URL,
     getEnvsByEnvironment().CLIENT_URL2,
+    "https://683d90567a1491009cee92b5--stellar-toffee-e9c8c4.netlify.app",
   ],
   methods: "GET,POST,PUT,DELETE, PATCH",
   credentials: true,

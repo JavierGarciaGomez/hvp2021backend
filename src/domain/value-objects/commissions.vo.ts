@@ -125,3 +125,19 @@ export interface CommissionCollaboratorCalculationVO {
   maxAmount: number;
   maxRate: number;
 }
+
+export interface CommissionAllocationFlattedVO {
+  date: Date;
+  branch: string;
+  ticketNumber: string;
+  serviceId: string;
+  serviceName: string;
+  modality: CommissionModality;
+  bonusType?: CommissionBonusType;
+  collaboratorId: string;
+  collaboratorCode: string;
+  commissionName: string;
+  commissionType: CommissionType;
+  commissionAmount: number;
+  id: string;
+}

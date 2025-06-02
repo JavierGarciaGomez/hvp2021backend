@@ -10,7 +10,7 @@ import { CustomQueryOptions } from "../../shared/interfaces";
 import { BaseService } from "./base.service";
 import { CollaboratorService } from "./collaborator.service";
 import { CollaboratorRepositoryImpl } from "../../infrastructure";
-import { createCollaboratorService } from "../factories/create-collaborator-service.factory";
+import { createCollaboratorService } from "../factories/collaborator.factory";
 import { buildQueryOptions } from "../../shared";
 import { WebAppRole } from "../../domain";
 

@@ -225,3 +225,23 @@ export const getPreviousSunday = (date: Dayjs) => {
   // Si el día es domingo (0), retorna la misma fecha
   return date.day() === 0 ? date : date.subtract(date.day(), "day");
 };
+
+export const getMxPeriodKey = (date: Date | Dayjs, periodType: string) => {
+  const dayjsDate = dayjs(date).tz("America/Mexico_City");
+  switch (periodType) {
+    case "month":
+      return dayjsDate.format("YYYY-MMM");
+    case "half-month":
+      return `${dayjsDate.format("YYYY-MMM")}-${
+        dayjsDate.date() <= 15 ? "H1" : "H2"
+      }`;
+    case "quarter":
+      return `${dayjsDate.format("YYYY")}-Q${Math.ceil(
+        (dayjsDate.month() + 1) / 3
+      )}`;
+    case "year":
+      return dayjsDate.format("YYYY");
+    default:
+      throw new Error(`Unsupported period type: ${periodType}`);
+  }
+};

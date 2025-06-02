@@ -10,6 +10,8 @@ export class CommissionAllocationRoutes extends BaseCRUDRoutes {
 
     this.router.use(AuthMiddleware.validateJWT);
 
+    this.router.get("/stats", controller.getCommissionsStats);
+
     this.setupCrudRoutes(controller);
   }
 }
