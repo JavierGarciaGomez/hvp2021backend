@@ -30,6 +30,13 @@ const JobSchema: Schema = new Schema<JobDocument>(
     },
     expectedMinimumIncome: { type: Number, required: true, default: 0 },
     expressBranchCompensation: { type: Number, required: true, default: 0 },
+    promotionJobId: {
+      type: Schema.Types.ObjectId,
+      ref: "Job",
+      required: false,
+      default: null,
+    },
+    promotionRequirements: { type: Object, required: false, default: null },
     createdAt: { type: Date, default: Date.now },
     createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
     updatedAt: { type: Date, default: Date.now },

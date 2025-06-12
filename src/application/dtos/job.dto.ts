@@ -1,6 +1,6 @@
 import { BaseDTO } from "./base.dto";
 import { JobProps } from "../../domain/entities";
-import { HRPaymentType } from "../../domain";
+import { HRPaymentType, JobPromotionStatsVO } from "../../domain";
 
 export class JobDTO implements BaseDTO {
   id?: string;
@@ -23,6 +23,8 @@ export class JobDTO implements BaseDTO {
   expectedCommissionsPercentage: number = 0.4;
   expectedMinimumIncome: number = 0; // expected minimum ordinary income
   expressBranchCompensation: number = 0;
+  promotionJobId?: string;
+  promotionRequirements?: JobPromotionStatsVO;
   constructor({ ...props }: JobProps) {
     Object.assign(this, props);
   }

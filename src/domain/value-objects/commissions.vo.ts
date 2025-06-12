@@ -128,6 +128,7 @@ export interface CommissionCollaboratorCalculationVO {
 
 export interface CommissionAllocationFlattedVO {
   date: Date;
+  basePrice: number;
   branch: string;
   ticketNumber: string;
   serviceId: string;

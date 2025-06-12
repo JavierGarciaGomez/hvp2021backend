@@ -83,12 +83,6 @@ export class CommissionableServiceService extends BaseService<
     employment?: EmploymentEntity,
     job?: JobEntity
   ) => {
-    if (commisionableService.name === "Vacuna") {
-      if (employment?.collaboratorId === "642f3ec6270f101c00d5fcda") {
-        console.log({ employment, job });
-      }
-    }
-
     const { baseCommission } = commisionableService;
     const commissionRateAdjustment = job?.commissionRateAdjustment ?? 40;
     const commissionBonusPercentage =

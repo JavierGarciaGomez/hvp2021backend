@@ -18,3 +18,4 @@ export * from "./reconciliation-expense.vo";
 export * from "./extra-compensation.vo";
 export * from "./other-deduction.vo";
 export * from "./isr-rates.vo";
+export * from "./job.vo";

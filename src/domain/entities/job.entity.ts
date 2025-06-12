@@ -1,6 +1,7 @@
 import { Document, Schema } from "mongoose";
 import { HRPaymentType } from "./../enums/job.enums";
 import { BaseEntity, newBaseEntityProps } from "./base.entity";
+import { JobPromotionStatsVO } from "../value-objects";
 
 export interface JobPropsBase extends newBaseEntityProps {
   active: boolean;
@@ -18,6 +19,8 @@ export interface JobPropsBase extends newBaseEntityProps {
   expectedCommissionsPercentage: number; // --- calculate
   expectedMinimumIncome: number; // expected minimum ordinary income --- calculate
   expressBranchCompensation: number;
+  promotionJobId?: string;
+  promotionRequirements?: JobPromotionStatsVO;
 }
 
 export interface JobProps extends JobPropsBase {
@@ -53,6 +56,8 @@ export class JobEntity implements BaseEntity {
   expectedCommissionsPercentage: number = 0.4;
   expectedMinimumIncome: number = 0; // expected minimum ordinary income
   expressBranchCompensation: number = 0;
+  promotionJobId?: string;
+  promotionRequirements?: JobPromotionStatsVO;
 
   constructor(props: JobProps) {
     Object.assign(this, props);
