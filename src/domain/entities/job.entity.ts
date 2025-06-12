@@ -20,7 +20,8 @@ export interface JobPropsBase extends newBaseEntityProps {
   expectedMinimumIncome: number; // expected minimum ordinary income --- calculate
   expressBranchCompensation: number;
   promotionJobId?: string;
-  promotionRequirements?: JobPromotionStatsVO;
+  quarterPromotionRequirements?: JobPromotionStatsVO;
+  historicalPromotionRequirements?: JobPromotionStatsVO;
 }
 
 export interface JobProps extends JobPropsBase {

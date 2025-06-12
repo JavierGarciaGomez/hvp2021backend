@@ -36,7 +36,11 @@ const JobSchema: Schema = new Schema<JobDocument>(
       required: false,
       default: null,
     },
-    promotionRequirements: { type: Object, required: false, default: null },
+    quarterPromotionRequirements: {
+      type: Object,
+      required: false,
+      default: null,
+    },
     createdAt: { type: Date, default: Date.now },
     createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
     updatedAt: { type: Date, default: Date.now },
