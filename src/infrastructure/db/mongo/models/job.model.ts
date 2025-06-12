@@ -1,5 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { JobDocument, HRPaymentType } from "../../../../domain";
+import {
+  JobDocument,
+  HRPaymentType,
+  JobPromotionStatsSchema,
+} from "../../../../domain";
 
 const JobSchema: Schema = new Schema<JobDocument>(
   {
@@ -37,7 +41,12 @@ const JobSchema: Schema = new Schema<JobDocument>(
       default: null,
     },
     quarterPromotionRequirements: {
-      type: Object,
+      type: JobPromotionStatsSchema,
+      required: false,
+      default: null,
+    },
+    historicalPromotionRequirements: {
+      type: JobPromotionStatsSchema,
       required: false,
       default: null,
     },
