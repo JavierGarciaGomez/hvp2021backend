@@ -169,7 +169,7 @@ export class CommissionAllocationService extends BaseService<
       .toDate();
     const extendedEndDate = quarterEndDate;
 
-    const [allocations, collaborators, jobs] = await Promise.all([
+    const [allocations, unsortedCollaborators, jobs] = await Promise.all([
       this.getAll(
         buildQueryOptions({
           date: {
@@ -201,6 +201,12 @@ export class CommissionAllocationService extends BaseService<
         filteringDto: { active: true },
       }),
     ]);
+
+    const collaborators = unsortedCollaborators.sort((a, b) => {
+      const dateA = new Date(a.collaborator?.startDate || 0);
+      const dateB = new Date(b.collaborator?.startDate || 0);
+      return dateA.getTime() - dateB.getTime();
+    });
 
     const flattenedCommissions = this.flatCommissions(allocations, "quarter");
     const nextPositionTitles = new Map(
@@ -520,7 +526,9 @@ export class CommissionAllocationService extends BaseService<
     return {
       performed,
       required,
-      percentage: required ? (performed / required) * 100 : 0,
+      percentage: required
+        ? Math.round((performed / required) * 100 * 10) / 10
+        : 0,
     };
   }
 
