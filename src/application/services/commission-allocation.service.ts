@@ -23,12 +23,8 @@ import {
 } from "../../domain/read-models/commissions-stats";
 
 import { CommissionAllocationFlattedVO } from "../../domain/value-objects/commissions.vo";
-
-type CommissionableService = {
-  serviceId: string;
-  serviceName: string;
-  count: number;
-};
+import { CommissionsPromotionStats } from "../../domain/read-models/commission-promotion-stats.rm";
+import dayjs from "dayjs";
 
 export class CommissionAllocationService extends BaseService<
   CommissionAllocationEntity,
@@ -43,8 +39,9 @@ export class CommissionAllocationService extends BaseService<
     queryOptions: CustomQueryOptions
   ): Promise<CommissionsStats> => {
     const { filteringDto } = queryOptions;
+    const date = filteringDto?.date || new Date().toISOString();
 
-    const { date, period } = filteringDto as any;
+    const { period } = filteringDto as any;
     if (!date || !period) {
       throw BaseError.badRequest("Date and period are required");
     }
@@ -63,19 +60,6 @@ export class CommissionAllocationService extends BaseService<
         $lte: periodData.extendedEndDate,
       },
     });
-
-    const collaborators =
-      await this.collaboratorService.getCollaboratorsByDateRange(
-        periodData.extendedStartDate,
-        periodData.extendedEndDate
-      );
-
-    const simpCols = collaborators.map((col) => ({
-      id: col.id,
-      code: col.col_code,
-      startDate: col.startDate,
-      endDate: col.endDate,
-    }));
 
     const allocations = await this.getAll(allocationQueryOptions);
     const flattenedCommissions = this.flatCommissions(allocations, period);
@@ -119,6 +103,69 @@ export class CommissionAllocationService extends BaseService<
     };
 
     return result;
+  };
+
+  public getCommissionPromotionStats = async (
+    queryOptions: CustomQueryOptions
+  ): Promise<CommissionsPromotionStats> => {
+    const { filteringDto } = queryOptions;
+    const date = filteringDto?.date || new Date().toISOString();
+
+    if (!date) {
+      throw BaseError.badRequest("Date is required");
+    }
+
+    const { $gte: startDate, $lte: endDate } = date;
+
+    const quarterStartDate = dayjs(startDate).toDate();
+    const quarterEndDate = dayjs(endDate).toDate();
+    const extendedStartDate = dayjs(quarterEndDate)
+      .subtract(4, "years")
+      .add(1, "millisecond")
+      .toDate();
+    const extendedEndDate = quarterEndDate;
+
+    const allocationQueryOptions = buildQueryOptions({
+      date: {
+        $gte: extendedStartDate,
+        $lte: extendedEndDate,
+      },
+    });
+
+    console.log({
+      quarterStartDate: quarterStartDate.toISOString(),
+      extendedStartDate: extendedStartDate.toISOString(),
+      extendedEndDate: extendedEndDate.toISOString(),
+    });
+
+    // const allocations = await this.getAll(allocationQueryOptions);
+
+    // fetch active collaborators with job and employment
+    const collaborators =
+      await this.collaboratorService.getCollaboratorsWithJobAndEmployment(
+        extendedEndDate.toISOString()
+      );
+
+    console.log({ collaborators });
+
+    // fetch all jobs
+    // generate the data
+
+    // const flattenedCommissions = this.flatCommissions(allocations, "quarter");
+
+    return {
+      collaborators: collaborators.map((col) => {
+        return {
+          id: col.collaborator.id,
+          code: col.collaborator.col_code,
+          job: col.job?.id,
+          jobName: col.job?.title,
+          employment: col.employment?.id,
+          employmentName: col.employment?.jobId,
+        };
+      }),
+      // flattenedCommissions,
+    } as any;
   };
 
   public getResourceName(): string {
@@ -231,35 +278,6 @@ export class CommissionAllocationService extends BaseService<
       countData: sortAndProcess(countMap),
     };
   }
-
-  private getStatsByService(
-    commissions: CommissionAllocationFlattedVO[],
-    periodData: PeriodData,
-    serviceName: string[],
-    statsType: "count" | "amount"
-  ) {
-    const { period, extendedStartDate, extendedEndDate } = periodData;
-    const filteredCommissions = commissions.filter(
-      (commission) =>
-        serviceName.includes(commission.serviceName.toLowerCase()) &&
-        (commission.commissionType === CommissionType.SIMPLE ||
-          commission.commissionType === CommissionType.MENTOREE)
-    );
-
-    const stats = this.getChartData(filteredCommissions, periodData);
-
-    return statsType === "count" ? stats.countData : stats.amountData;
-  }
-
-  /*
-    array {
-      colCode: string,
-      colId: string,
-      period: string,
-      count: number,
-      amount: number
-    }
-  */
 
   private getPeriodStatsByCollaborator = (
     flattenedCommissions: CommissionAllocationFlattedVO[]
@@ -456,33 +474,6 @@ export class CommissionAllocationService extends BaseService<
       ),
     };
   }
-
-  private getCommissionableServices = (
-    commissions: CommissionAllocationFlattedVO[]
-  ): CommissionableService[] => {
-    const serviceMap = new Map<
-      string,
-      { serviceName: string; count: number }
-    >();
-
-    commissions.forEach((commission) => {
-      if (!serviceMap.has(commission.serviceId)) {
-        serviceMap.set(commission.serviceId, {
-          serviceName: commission.serviceName,
-          count: 0,
-        });
-      }
-      serviceMap.get(commission.serviceId)!.count += 1;
-    });
-
-    return Array.from(serviceMap.entries())
-      .map(([serviceId, { serviceName, count }]) => ({
-        serviceId,
-        serviceName,
-        count,
-      }))
-      .sort((a, b) => b.count - a.count); // Sort by count in descending order
-  };
 
   private isCommissionableService = (
     commissionType: CommissionType

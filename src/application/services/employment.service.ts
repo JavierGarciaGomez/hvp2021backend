@@ -66,13 +66,17 @@ export class EmploymentService extends BaseService<
     collaboratorId: string,
     date: string
   ) => {
+    if (collaboratorId === "642f3ec6270f101c00d5fcda") {
+      console.log({ date });
+    }
+
     const employments = await this.getAll({
       filteringDto: {
         collaboratorId,
         employmentStartDate: { $lte: date },
         $or: [
           { employmentEndDate: { $exists: false } },
-          { employmentEndDate: { $gt: date } },
+          { employmentEndDate: { $gte: date } },
         ],
       },
       sortingDto: {

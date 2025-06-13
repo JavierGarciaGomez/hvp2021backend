@@ -1,9 +1,7 @@
 // Top-level response interface
-export interface PromotionStatsResponse {
-  promotionStats: {
-    general: PromotionGeneralStats;
-    individual: PromotionIndividualStats[];
-  };
+export interface CommissionsPromotionStats {
+  general: PromotionGeneralStats;
+  individual: PromotionIndividualStats[];
 }
 
 // General stats section (quarterly + historical)
