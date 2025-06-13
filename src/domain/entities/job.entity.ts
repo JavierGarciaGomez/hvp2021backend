@@ -58,7 +58,8 @@ export class JobEntity implements BaseEntity {
   expectedMinimumIncome: number = 0; // expected minimum ordinary income
   expressBranchCompensation: number = 0;
   promotionJobId?: string;
-  promotionRequirements?: JobPromotionStatsVO;
+  quarterPromotionRequirements?: JobPromotionStatsVO;
+  historicalPromotionRequirements?: JobPromotionStatsVO;
 
   constructor(props: JobProps) {
     Object.assign(this, props);

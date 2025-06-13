@@ -95,10 +95,6 @@ export class CollaboratorService extends BaseService<
       collaborators.map(async (collaborator) => {
         let job;
 
-        if (collaborator.id === "642f3ec6270f101c00d5fcda") {
-          console.log("employment");
-        }
-
         const employment =
           await employmentService.getEmploymentByCollaboratorAndDate(
             collaborator.id!,
@@ -109,10 +105,6 @@ export class CollaboratorService extends BaseService<
 
         if (employmentJobId) {
           job = await jobService.getById(employmentJobId);
-        }
-
-        if (collaborator.id === "642f3ec6270f101c00d5fcda") {
-          console.log(employment);
         }
 
         return { collaborator, job, employment };

@@ -21,7 +21,7 @@ export interface PromotionCollaboratorRow {
   consultations: number;
   vaccines: number;
   totalServices: number;
-  amount: number;
+  amount?: number;
 }
 
 // Individual stats section for a collaborator
@@ -58,6 +58,5 @@ export interface PromotionChartPeriod {
     consultations: number;
     vaccines: number;
     totalServices: number;
-    amount: number;
   };
 }
