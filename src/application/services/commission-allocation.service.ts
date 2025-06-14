@@ -1052,17 +1052,16 @@ export class CommissionAllocationService extends BaseService<
       }
     });
 
-    const servicesTable = Array.from(servicesMap.entries()).map(
-      ([serviceName, data]) => ({
+    const servicesTable = Array.from(servicesMap.entries())
+      .map(([serviceName, data]) => ({
         serviceName,
         quantity: data.quantity,
         amount: data.amount,
-      })
-    );
+      }))
+      .sort((a, b) => b.amount - a.amount);
 
     // Commission percentages by type
     const totalAmount = stats.amount || 0;
-    const totalCount = stats.totalServices || 0;
     const typeAmounts = new Map<string, number>();
     const typeCounts = new Map<string, number>();
 
@@ -1078,13 +1077,22 @@ export class CommissionAllocationService extends BaseService<
       typeCounts.set(type, currentCount + commission.quantity);
     });
 
+    // Calculate total count from ALL commission types, not just commissionable ones
+    const totalCountAllTypes = Array.from(typeCounts.values()).reduce(
+      (sum, count) => sum + count,
+      0
+    );
+
     const commissionPercentagesByType = Array.from(typeAmounts.entries()).map(
       ([type, amount]) => ({
         commissionType: type,
         percentage:
-          totalCount > 0
+          totalCountAllTypes > 0
             ? Number(
-                (((typeCounts.get(type) || 0) / totalCount) * 100).toFixed(2)
+                (
+                  ((typeCounts.get(type) || 0) / totalCountAllTypes) *
+                  100
+                ).toFixed(2)
               )
             : 0,
         count: typeCounts.get(type) || 0,
