@@ -25,6 +25,13 @@ export class CommissionAllocationRoutes extends BaseCRUDRoutes {
       }),
       controller.getCommissionPromotionStats
     );
+    this.router.get(
+      "/stats/:collaboratorId",
+      authorizationMiddleware({
+        roles: [WebAppRole.admin, WebAppRole.manager],
+      }),
+      controller.getCollaboratorCommissionStats
+    );
 
     this.setupCrudRoutes(controller);
   }

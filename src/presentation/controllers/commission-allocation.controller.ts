@@ -55,4 +55,27 @@ export class CommissionAllocationController extends BaseController<
       next(error);
     }
   };
+
+  public getCollaboratorCommissionStats = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { collaboratorId } = req.params;
+      const query = req.query;
+      const options = buildQueryOptions(query);
+      const data = await this.service.getCollaboratorCommissionStats(
+        collaboratorId,
+        options
+      );
+      const response = ResponseFormatterService.formatGetOneResponse({
+        data,
+        resource: this.resource,
+      });
+      res.json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
 }

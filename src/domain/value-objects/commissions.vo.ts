@@ -141,4 +141,5 @@ export interface CommissionAllocationFlattedVO {
   commissionType: CommissionType;
   commissionAmount: number;
   id: string;
+  quantity: number;
 }

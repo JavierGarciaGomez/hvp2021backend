@@ -28,6 +28,7 @@ import {
   PromotionChartPeriod,
   PromotionMetricRow,
 } from "../../domain/read-models/commission-promotion-stats.rm";
+import { CollaboratorCommissionStats } from "../../domain/read-models/collaborator-commission-stats.rm";
 import dayjs from "dayjs";
 import quarterOfYear from "dayjs/plugin/quarterOfYear";
 import timezone from "dayjs/plugin/timezone";
@@ -229,6 +230,86 @@ export class CommissionAllocationService extends BaseService<
         historical: processedData.historicalStats,
       },
       individual: processedData.individualStats,
+    };
+  };
+
+  public getCollaboratorCommissionStats = async (
+    collaboratorId: string,
+    queryOptions: CustomQueryOptions
+  ): Promise<CollaboratorCommissionStats> => {
+    const { filteringDto } = queryOptions;
+    const date = filteringDto?.date || new Date().toISOString();
+    const { period } = filteringDto as any;
+
+    if (!date || !period) {
+      throw BaseError.badRequest("Date and period are required");
+    }
+
+    const { $gte: startDate, $lte: endDate } = date;
+    const periodData = getCommissionsStatsPeriodsByPeriodAndDates(
+      period,
+      startDate,
+      endDate
+    );
+
+    // Get allocations for this collaborator
+    const allocations = await this.getAll(
+      buildQueryOptions({
+        date: {
+          $gte: periodData.extendedStartDate,
+          $lte: periodData.extendedEndDate,
+        },
+        "services.commissions.collaboratorId": collaboratorId,
+        projection: {
+          date: 1,
+          branch: 1,
+          ticketNumber: 1,
+          "services.serviceId": 1,
+          "services.serviceName": 1,
+          "services.modality": 1,
+          "services.bonusType": 1,
+          "services.basePrice": 1,
+          "services.commissions.collaboratorId": 1,
+          "services.commissions.collaboratorCode": 1,
+          "services.commissions.commissionName": 1,
+          "services.commissions.commissionType": 1,
+          "services.commissions.commissionAmount": 1,
+          "services.commissions._id": 1,
+        },
+      })
+    );
+
+    const flattenedCommissions = this.flatCommissions(allocations, period);
+
+    // Filter to only this specific collaborator's commissions
+    const collaboratorCommissions =
+      flattenedCommissions.filter(
+        (commission) => commission.collaboratorId === collaboratorId
+      ) ?? [];
+
+    const collaborator = await this.collaboratorService.getById(collaboratorId);
+    if (!collaborator) {
+      throw BaseError.notFound("Collaborator not found");
+    }
+
+    const collaboratorCode = collaborator.col_code;
+
+    const periodCommissions = this.filterCommissionsByPeriod(
+      collaboratorCommissions,
+      periodData
+    );
+
+    return {
+      collaboratorId,
+      collaboratorCode,
+      startDate: periodData.periodStartDate.toISOString(),
+      endDate: periodData.periodEndDate.toISOString(),
+      period: this.buildCollaboratorPeriodStats(periodCommissions),
+      results: this.buildCollaboratorResultsStats(
+        collaboratorCommissions,
+        periodData
+      ),
+      periodCommissions: periodCommissions,
     };
   };
 
@@ -587,26 +668,26 @@ export class CommissionAllocationService extends BaseService<
       serviceName.includes(SERVICE_TYPES.COMPLEX_SURGERY.name) &&
       commission.basePrice > SERVICE_TYPES.COMPLEX_SURGERY.minPrice
     ) {
-      stats.complexSurgeries++;
+      stats.complexSurgeries += commission.quantity;
     } else if (serviceName.includes(SERVICE_TYPES.SURGERY.name)) {
-      stats.surgeries++;
+      stats.surgeries += commission.quantity;
     } else if (
       SERVICE_TYPES.SURGERY_ASSISTANCE.names.some((name) =>
         serviceName.includes(name)
       )
     ) {
-      stats.surgeryAssistances++;
+      stats.surgeryAssistances += commission.quantity;
     } else if (
       SERVICE_TYPES.CONSULTATION.names.some((name) =>
         serviceName.includes(name)
       )
     ) {
-      stats.consultations++;
+      stats.consultations += commission.quantity;
     } else if (serviceName.includes(SERVICE_TYPES.VACCINE.name)) {
-      stats.vaccines++;
+      stats.vaccines += commission.quantity;
     }
 
-    stats.totalServices++;
+    stats.totalServices += commission.quantity;
   }
 
   private getGlobalStats(commissions: CommissionAllocationFlattedVO[]) {
@@ -649,7 +730,7 @@ export class CommissionAllocationService extends BaseService<
           collaboratorData.commissionAmount + commission.commissionAmount
         ).toFixed(2)
       );
-      collaboratorData.commissionCount += 1;
+      collaboratorData.commissionCount += commission.quantity;
     });
 
     return Array.from(resultMap.values()).sort(
@@ -720,7 +801,7 @@ export class CommissionAllocationService extends BaseService<
         collaboratorCode: commission.collaboratorCode,
         collaboratorId: commission.collaboratorId,
         commissionAmount: Number(commission.commissionAmount.toFixed(2)),
-        servicesCount: isCommissionable ? 1 : 0,
+        servicesCount: isCommissionable ? commission.quantity : 0,
       });
     } else {
       existingCollaborator.commissionAmount = Number(
@@ -729,7 +810,7 @@ export class CommissionAllocationService extends BaseService<
         ).toFixed(2)
       );
       if (isCommissionable) {
-        existingCollaborator.servicesCount += 1;
+        existingCollaborator.servicesCount += commission.quantity;
       }
     }
   }
@@ -757,7 +838,7 @@ export class CommissionAllocationService extends BaseService<
           collaboratorCode: commission.collaboratorCode,
           collaboratorId: commission.collaboratorId,
           commissionAmount: Number(commission.commissionAmount.toFixed(2)),
-          servicesCount: isCommissionable ? 1 : 0,
+          servicesCount: isCommissionable ? commission.quantity : 0,
         });
       } else {
         const totalData = totalsByCollaborator.get(
@@ -767,7 +848,7 @@ export class CommissionAllocationService extends BaseService<
           (totalData.commissionAmount + commission.commissionAmount).toFixed(2)
         );
         if (isCommissionable) {
-          totalData.servicesCount += 1;
+          totalData.servicesCount += commission.quantity;
         }
       }
     });
@@ -853,7 +934,7 @@ export class CommissionAllocationService extends BaseService<
       }
 
       const currentCount = (countPeriodData[collaboratorCode] as number) || 0;
-      countPeriodData[collaboratorCode] = currentCount + 1;
+      countPeriodData[collaboratorCode] = currentCount + commission.quantity;
     });
 
     return {
@@ -931,6 +1012,7 @@ export class CommissionAllocationService extends BaseService<
             serviceName: serviceName,
             modality: serviceModality,
             bonusType: serviceBonusType,
+            quantity: service.quantity,
             collaboratorId: nestedCommission.collaboratorId.toString(),
             collaboratorCode: nestedCommission.collaboratorCode,
             commissionName: nestedCommission.commissionName,
@@ -947,6 +1029,448 @@ export class CommissionAllocationService extends BaseService<
     return flattedCommissions.sort((a, b) => {
       return a.date.getTime() - b.date.getTime();
     });
+  }
+
+  private buildCollaboratorPeriodStats(
+    periodCommissions: CommissionAllocationFlattedVO[]
+  ) {
+    const stats = this.calculateServiceStats(periodCommissions);
+
+    // Services table - only commissionable services
+    const servicesMap = new Map<string, { quantity: number; amount: number }>();
+    periodCommissions.forEach((commission) => {
+      if (this.isCommissionableService(commission.commissionType)) {
+        const serviceName = commission.serviceName;
+        if (!servicesMap.has(serviceName)) {
+          servicesMap.set(serviceName, { quantity: 0, amount: 0 });
+        }
+        const service = servicesMap.get(serviceName)!;
+        service.quantity += commission.quantity;
+        service.amount = Number(
+          (service.amount + commission.commissionAmount).toFixed(2)
+        );
+      }
+    });
+
+    const servicesTable = Array.from(servicesMap.entries()).map(
+      ([serviceName, data]) => ({
+        serviceName,
+        quantity: data.quantity,
+        amount: data.amount,
+      })
+    );
+
+    // Commission percentages by type
+    const totalAmount = stats.amount || 0;
+    const totalCount = stats.totalServices || 0;
+    const typeAmounts = new Map<string, number>();
+    const typeCounts = new Map<string, number>();
+
+    periodCommissions.forEach((commission) => {
+      const type = commission.commissionType;
+
+      // Track amounts
+      const currentAmount = typeAmounts.get(type) || 0;
+      typeAmounts.set(type, currentAmount + commission.commissionAmount);
+
+      // Track counts
+      const currentCount = typeCounts.get(type) || 0;
+      typeCounts.set(type, currentCount + commission.quantity);
+    });
+
+    const commissionPercentagesByType = Array.from(typeAmounts.entries()).map(
+      ([type, amount]) => ({
+        commissionType: type,
+        percentage:
+          totalCount > 0
+            ? Number(
+                (((typeCounts.get(type) || 0) / totalCount) * 100).toFixed(2)
+              )
+            : 0,
+        count: typeCounts.get(type) || 0,
+        amount: Number(amount.toFixed(2)),
+      })
+    );
+
+    return {
+      globalAmounts: {
+        numCommissions: periodCommissions.length,
+        totalAmount: totalAmount,
+      },
+      servicesTable,
+      commissionPercentagesByType,
+    };
+  }
+
+  private buildCollaboratorResultsStats(
+    collaboratorCommissions: CommissionAllocationFlattedVO[],
+    periodData: PeriodData
+  ) {
+    // Historical commission amounts chart
+    const historicalCommissionsAmount = this.buildHistoricalChart(
+      collaboratorCommissions,
+      periodData,
+      "amount"
+    );
+
+    // Historical services number chart (mentoree and normal only)
+    const mentoreeAndNormalCommissions = collaboratorCommissions.filter(
+      (commission) =>
+        commission.commissionType === CommissionType.MENTOREE ||
+        commission.commissionType === CommissionType.SIMPLE
+    );
+    const historicalServicesNumber = this.buildHistoricalChart(
+      mentoreeAndNormalCommissions,
+      periodData,
+      "count"
+    );
+
+    // Historical career services chart (similar to promotion stats)
+    const historicalCareerServices = this.buildCareerServicesChart(
+      mentoreeAndNormalCommissions,
+      periodData
+    );
+
+    // Historical commission types chart
+    const historicalCommissionTypes = this.buildCommissionTypesChart(
+      collaboratorCommissions,
+      periodData
+    );
+
+    return {
+      historicalCommissionsAmountChart: historicalCommissionsAmount,
+      historicalServicesNumberChart: historicalServicesNumber,
+      historicalCareerServicesChart: historicalCareerServices,
+      historicalCommissionTypeChart: historicalCommissionTypes,
+    };
+  }
+
+  private buildCollaboratorPeriodCommissions(
+    periodCommissions: CommissionAllocationFlattedVO[]
+  ) {
+    return periodCommissions.map((commission) => ({
+      id: commission.id,
+      date: commission.date.toISOString(),
+      ticketNumber: commission.ticketNumber,
+      serviceName: commission.serviceName,
+      commissionType: commission.commissionType,
+      commissionAmount: commission.commissionAmount,
+      basePrice: commission.basePrice,
+    }));
+  }
+
+  private buildHistoricalChart(
+    commissions: CommissionAllocationFlattedVO[],
+    periodData: PeriodData,
+    type: "amount" | "count"
+  ) {
+    const periodsMap = new Map<string, number>();
+
+    commissions.forEach((commission) => {
+      const periodKey = getMxPeriodKey(commission.date, periodData.period);
+      const current = periodsMap.get(periodKey) || 0;
+
+      if (type === "amount") {
+        periodsMap.set(periodKey, current + commission.commissionAmount);
+      } else {
+        periodsMap.set(periodKey, current + commission.quantity);
+      }
+    });
+
+    // Generate all periods in range
+    const periods: { period: string; value: number }[] = [];
+    const startDate = dayjs.tz(periodData.extendedStartDate, MX_TIMEZONE);
+    const endDate = dayjs.tz(periodData.extendedEndDate, MX_TIMEZONE);
+
+    if (periodData.period === "half-month") {
+      // Special handling for half-month periods
+      this.generateHalfMonthPeriods(startDate, endDate, periodsMap, periods);
+    } else {
+      // Standard period generation for other period types
+      let currentDate = startDate.clone();
+      const periodUnit =
+        periodData.period === "quarter"
+          ? "quarter"
+          : periodData.period === "year"
+          ? "year"
+          : "month";
+
+      while (
+        currentDate.isBefore(endDate) ||
+        currentDate.isSame(endDate, periodUnit as any)
+      ) {
+        const periodKey = getMxPeriodKey(
+          currentDate.toDate(),
+          periodData.period
+        );
+        periods.push({
+          period: periodKey,
+          value: Number((periodsMap.get(periodKey) || 0).toFixed(2)),
+        });
+        currentDate = currentDate.add(1, periodUnit as any);
+      }
+    }
+
+    return periods;
+  }
+
+  private generateHalfMonthPeriods(
+    startDate: dayjs.Dayjs,
+    endDate: dayjs.Dayjs,
+    periodsMap: Map<string, number>,
+    periods: { period: string; value: number }[]
+  ) {
+    let currentDate = startDate.clone().startOf("month");
+
+    // Determine if we should start with first or second half of the month
+    const startDay = startDate.date();
+    let isSecondHalf = startDay > 15;
+
+    // If starting date is after 15th, start with second half
+    if (isSecondHalf) {
+      currentDate = currentDate.date(16);
+    } else {
+      currentDate = currentDate.date(1);
+    }
+
+    while (currentDate.isSameOrBefore(endDate, "day")) {
+      const periodKey = getMxPeriodKey(currentDate.toDate(), "half-month");
+      periods.push({
+        period: periodKey,
+        value: Number((periodsMap.get(periodKey) || 0).toFixed(2)),
+      });
+
+      // Move to next half-month
+      if (currentDate.date() <= 15) {
+        // Currently in first half, move to second half of same month
+        currentDate = currentDate.date(16);
+      } else {
+        // Currently in second half, move to first half of next month
+        currentDate = currentDate.add(1, "month").date(1);
+      }
+    }
+  }
+
+  private buildCareerServicesChart(
+    commissions: CommissionAllocationFlattedVO[],
+    periodData: PeriodData
+  ) {
+    const periodsMap = new Map<string, ServiceStats>();
+
+    commissions.forEach((commission) => {
+      const periodKey = getMxPeriodKey(commission.date, periodData.period);
+      if (!periodsMap.has(periodKey)) {
+        periodsMap.set(periodKey, {
+          complexSurgeries: 0,
+          surgeries: 0,
+          surgeryAssistances: 0,
+          consultations: 0,
+          vaccines: 0,
+          totalServices: 0,
+        });
+      }
+
+      const stats = periodsMap.get(periodKey)!;
+      this.updateServiceStats(stats, commission);
+    });
+
+    // Generate all periods in range
+    const periods: { period: string; data: ServiceStats }[] = [];
+    const startDate = dayjs.tz(periodData.extendedStartDate, MX_TIMEZONE);
+    const endDate = dayjs.tz(periodData.extendedEndDate, MX_TIMEZONE);
+
+    if (periodData.period === "half-month") {
+      // Special handling for half-month periods
+      this.generateHalfMonthPeriodsForServiceStats(
+        startDate,
+        endDate,
+        periodsMap,
+        periods
+      );
+    } else {
+      // Standard period generation for other period types
+      let currentDate = startDate.clone();
+      const periodUnit =
+        periodData.period === "quarter"
+          ? "quarter"
+          : periodData.period === "year"
+          ? "year"
+          : "month";
+
+      while (
+        currentDate.isBefore(endDate) ||
+        currentDate.isSame(endDate, periodUnit as any)
+      ) {
+        const periodKey = getMxPeriodKey(
+          currentDate.toDate(),
+          periodData.period
+        );
+        const stats = periodsMap.get(periodKey) || {
+          complexSurgeries: 0,
+          surgeries: 0,
+          surgeryAssistances: 0,
+          consultations: 0,
+          vaccines: 0,
+          totalServices: 0,
+        };
+        periods.push({
+          period: periodKey,
+          data: stats,
+        });
+        currentDate = currentDate.add(1, periodUnit as any);
+      }
+    }
+
+    return periods;
+  }
+
+  private generateHalfMonthPeriodsForServiceStats(
+    startDate: dayjs.Dayjs,
+    endDate: dayjs.Dayjs,
+    periodsMap: Map<string, ServiceStats>,
+    periods: { period: string; data: ServiceStats }[]
+  ) {
+    let currentDate = startDate.clone().startOf("month");
+
+    // Determine if we should start with first or second half of the month
+    const startDay = startDate.date();
+    let isSecondHalf = startDay > 15;
+
+    // If starting date is after 15th, start with second half
+    if (isSecondHalf) {
+      currentDate = currentDate.date(16);
+    } else {
+      currentDate = currentDate.date(1);
+    }
+
+    while (currentDate.isSameOrBefore(endDate, "day")) {
+      const periodKey = getMxPeriodKey(currentDate.toDate(), "half-month");
+      const stats = periodsMap.get(periodKey) || {
+        complexSurgeries: 0,
+        surgeries: 0,
+        surgeryAssistances: 0,
+        consultations: 0,
+        vaccines: 0,
+        totalServices: 0,
+      };
+      periods.push({
+        period: periodKey,
+        data: stats,
+      });
+
+      // Move to next half-month
+      if (currentDate.date() <= 15) {
+        // Currently in first half, move to second half of same month
+        currentDate = currentDate.date(16);
+      } else {
+        // Currently in second half, move to first half of next month
+        currentDate = currentDate.add(1, "month").date(1);
+      }
+    }
+  }
+
+  private buildCommissionTypesChart(
+    commissions: CommissionAllocationFlattedVO[],
+    periodData: PeriodData
+  ) {
+    const periodsMap = new Map<string, Map<string, number>>();
+
+    commissions.forEach((commission) => {
+      const periodKey = getMxPeriodKey(commission.date, periodData.period);
+      if (!periodsMap.has(periodKey)) {
+        periodsMap.set(periodKey, new Map());
+      }
+
+      const typeMap = periodsMap.get(periodKey)!;
+      const current = typeMap.get(commission.commissionType) || 0;
+      typeMap.set(commission.commissionType, current + commission.quantity);
+    });
+
+    // Generate all periods in range
+    const periods: any[] = [];
+    const startDate = dayjs.tz(periodData.extendedStartDate, MX_TIMEZONE);
+    const endDate = dayjs.tz(periodData.extendedEndDate, MX_TIMEZONE);
+
+    if (periodData.period === "half-month") {
+      // Special handling for half-month periods
+      this.generateHalfMonthPeriodsForCommissionTypes(
+        startDate,
+        endDate,
+        periodsMap,
+        periods
+      );
+    } else {
+      // Standard period generation for other period types
+      let currentDate = startDate.clone();
+      const periodUnit =
+        periodData.period === "quarter"
+          ? "quarter"
+          : periodData.period === "year"
+          ? "year"
+          : "month";
+
+      while (
+        currentDate.isBefore(endDate) ||
+        currentDate.isSame(endDate, periodUnit as any)
+      ) {
+        const periodKey = getMxPeriodKey(
+          currentDate.toDate(),
+          periodData.period
+        );
+        const typeMap = periodsMap.get(periodKey) || new Map();
+
+        const periodDataRow: any = { period: periodKey };
+        typeMap.forEach((count, type) => {
+          periodDataRow[type] = count;
+        });
+
+        periods.push(periodDataRow);
+        currentDate = currentDate.add(1, periodUnit as any);
+      }
+    }
+
+    return periods;
+  }
+
+  private generateHalfMonthPeriodsForCommissionTypes(
+    startDate: dayjs.Dayjs,
+    endDate: dayjs.Dayjs,
+    periodsMap: Map<string, Map<string, number>>,
+    periods: any[]
+  ) {
+    let currentDate = startDate.clone().startOf("month");
+
+    // Determine if we should start with first or second half of the month
+    const startDay = startDate.date();
+    let isSecondHalf = startDay > 15;
+
+    // If starting date is after 15th, start with second half
+    if (isSecondHalf) {
+      currentDate = currentDate.date(16);
+    } else {
+      currentDate = currentDate.date(1);
+    }
+
+    while (currentDate.isSameOrBefore(endDate, "day")) {
+      const periodKey = getMxPeriodKey(currentDate.toDate(), "half-month");
+      const typeMap = periodsMap.get(periodKey) || new Map();
+
+      const periodDataRow: any = { period: periodKey };
+      typeMap.forEach((count, type) => {
+        periodDataRow[type] = count;
+      });
+
+      periods.push(periodDataRow);
+
+      // Move to next half-month
+      if (currentDate.date() <= 15) {
+        // Currently in first half, move to second half of same month
+        currentDate = currentDate.date(16);
+      } else {
+        // Currently in second half, move to first half of next month
+        currentDate = currentDate.add(1, "month").date(1);
+      }
+    }
   }
 
   public getResourceName(): string {
