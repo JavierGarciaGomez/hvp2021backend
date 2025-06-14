@@ -1428,6 +1428,12 @@ export class CommissionAllocationService extends BaseService<
         const typeMap = periodsMap.get(periodKey) || new Map();
 
         const periodDataRow: any = { period: periodKey };
+
+        // Initialize all commission types with 0, then override with actual values
+        Object.values(CommissionType).forEach((type) => {
+          periodDataRow[type] = 0;
+        });
+
         typeMap.forEach((count, type) => {
           periodDataRow[type] = count;
         });
@@ -1464,6 +1470,12 @@ export class CommissionAllocationService extends BaseService<
       const typeMap = periodsMap.get(periodKey) || new Map();
 
       const periodDataRow: any = { period: periodKey };
+
+      // Initialize all commission types with 0, then override with actual values
+      Object.values(CommissionType).forEach((type) => {
+        periodDataRow[type] = 0;
+      });
+
       typeMap.forEach((count, type) => {
         periodDataRow[type] = count;
       });
