@@ -78,4 +78,34 @@ export class CommissionAllocationController extends BaseController<
       next(error);
     }
   };
+
+  public getCollaboratorHourlyCommissionAverage = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { collaboratorId } = req.params;
+      const { newStartingDate } = req.query;
+
+      if (!newStartingDate || typeof newStartingDate !== "string") {
+        return res.status(400).json({
+          message: "newStartingDate query parameter is required",
+        });
+      }
+
+      const data = await this.service.getCollaboratorHourlyCommissionAverage(
+        collaboratorId,
+        newStartingDate
+      );
+
+      const response = ResponseFormatterService.formatGetOneResponse({
+        data,
+        resource: this.resource,
+      });
+      res.json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
 }

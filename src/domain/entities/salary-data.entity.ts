@@ -10,14 +10,8 @@ export interface SalaryDataBase extends newBaseEntityProps {
   imssEmployerRates: ImssRates;
   imssEmployeeRates: ImssRates;
   minimumWageHVP: number;
-  annualIncreasePercentage: number;
   employmentSubsidyLimit: number;
   employmentSubsidyAmount: number;
-  maxWorkingHours: number;
-  receptionBonus: number;
-  degreeBonus: number;
-  trainingSupport: number;
-  physicalActivitySupport: number;
   // vars
   avgMonthlyOvertimeHours: number;
   avgMonthlySundayHours: number;
@@ -51,14 +45,8 @@ export class SalaryDataEntity implements BaseEntity {
   imssEmployerRates!: ImssRates;
   imssEmployeeRates!: ImssRates;
   minimumWageHVP!: number;
-  annualIncreasePercentage!: number;
   employmentSubsidyLimit!: number;
   employmentSubsidyAmount!: number;
-  maxWorkingHours: number = 48;
-  receptionBonus: number = 0;
-  degreeBonus: number = 0;
-  trainingSupport: number = 0;
-  physicalActivitySupport: number = 0;
   // vars
   avgMonthlyOvertimeHours: number = 0;
   avgMonthlySundayHours: number = 0;

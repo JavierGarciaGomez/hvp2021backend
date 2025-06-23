@@ -15,14 +15,8 @@ export class SalaryDataDTO implements BaseDTO {
   imssEmployerRates!: ImssRates;
   imssEmployeeRates!: ImssRates;
   minimumWageHVP!: number;
-  annualIncreasePercentage!: number;
   employmentSubsidyLimit!: number;
   employmentSubsidyAmount!: number;
-  maxWorkingHours: number = 48;
-  receptionBonus: number = 0;
-  degreeBonus: number = 0;
-  trainingSupport: number = 0;
-  physicalActivitySupport: number = 0;
   // vars
   avgMonthlyOvertimeHours: number = 0;
   avgMonthlySundayHours: number = 0;

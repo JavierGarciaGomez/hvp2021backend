@@ -43,19 +43,19 @@ export class JobEntity implements BaseEntity {
   updatedAt?: Date;
   updatedBy?: string;
   active!: boolean;
-  annualRaisePercent: number = 0.025;
-  quarterlyCommissionRaisePercent: number = 0.05;
+  annualRaisePercent: number = 0.025; // REMOVE
+  quarterlyCommissionRaisePercent: number = 0.05; // REMOVE
   baseIncome?: number; // fixed perception
   description?: string;
-  hourlyRate?: number;
+  hourlyRate?: number; // REMOVE
   minimumIncome?: number; // minimum ordinary income
-  paymentType: HRPaymentType = HRPaymentType.SALARY;
+  paymentType: HRPaymentType = HRPaymentType.SALARY; // REMOVE
   sortingOrder: number = 99;
   title!: string;
   incomeMultiplier: number = 1;
   commissionRateAdjustment: number = 0.4;
   expectedCommissionsPercentage: number = 0.4;
-  expectedMinimumIncome: number = 0; // expected minimum ordinary income
+  expectedMinimumIncome: number = 0; // REMOVE
   expressBranchCompensation: number = 0;
   promotionJobId?: string;
   quarterPromotionRequirements?: JobPromotionStatsVO;

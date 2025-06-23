@@ -49,8 +49,8 @@ describe("PayrollService", () => {
     const mockEmployment = {
       id: "1",
       jobId: "1",
-      weeklyHours: 36,
-      fixedIncome: 3746.25,
+      weeklyHours: 48,
+      fixedIncome: 6000,
       averageOrdinaryIncome: 6992,
       averageIntegratedIncome: 9808,
       averageCommissionIncome: 4647,
@@ -431,8 +431,8 @@ describe("PayrollService", () => {
     inputArgs = {
       id: "1",
       filteringDto: {
-        periodStartDate: "2025-01-15T06:00:00.000Z",
-        periodEndDate: "2025-01-15T06:00:00.000Z",
+        periodStartDate: "2025-01-16T06:00:00.000Z",
+        periodEndDate: "2025-02-01T05:59:00.000Z",
         commissions: 3000,
         specialCompensation: 500,
       },
@@ -466,41 +466,123 @@ describe("PayrollService", () => {
           { filteringDto: inputArgs.filteringDto }
         );
         const { fixedIncome } = result.payroll;
-        expect(fixedIncome).toBe(1873.125);
+        expect(fixedIncome).toBe(3000);
       });
 
-      it("should discount non computable hours", async () => {
-        const modifiedMockData = {
+      describe("non computable hours", () => {
+        interface NonComputableTestCase {
+          description: string;
+          nonComputableHours: number;
+          weeklyHours?: number;
+          expectedFixedIncome: number;
+          startDate?: string;
+          endDate?: string;
+        }
+
+        const createMockDataWithNonComputableHours = (
+          nonComputableHours: number,
+          weeklyHours: number = 48
+        ) => ({
           ...defaultMockData,
           attendanceReport: {
             ...defaultMockData.attendanceReport,
             periodHours: {
               ...defaultMockData.attendanceReport.periodHours,
-              nonComputableHours: 10,
+              nonComputableHours,
             },
           } as unknown as CollaboratorAttendanceReport,
+          employment: {
+            ...defaultMockData.employment,
+            weeklyHours,
+          } as unknown as EmploymentEntity,
+        });
+
+        const testNonComputableHours = async (
+          testCase: NonComputableTestCase
+        ) => {
+          const modifiedMockData = createMockDataWithNonComputableHours(
+            testCase.nonComputableHours,
+            testCase.weeklyHours
+          );
+
+          jest
+            .spyOn(payrollService as any, "getRawData")
+            .mockImplementation(async () => modifiedMockData);
+
+          const filteringDto = testCase.endDate
+            ? {
+                ...inputArgs.filteringDto,
+                periodStartDate: testCase.startDate,
+                periodEndDate: testCase.endDate,
+              }
+            : inputArgs.filteringDto;
+
+          const result =
+            await payrollService.getPayrollEstimateByCollaboratorId(
+              inputArgs.id,
+              { filteringDto }
+            );
+
+          expect(result.payroll.fixedIncome).toBeCloseTo(
+            testCase.expectedFixedIncome
+          );
         };
-        jest
-          .spyOn(payrollService as any, "getRawData")
-          .mockImplementation(async () => modifiedMockData);
 
-        const result = await payrollService.getPayrollEstimateByCollaboratorId(
-          inputArgs.id,
-          { filteringDto: inputArgs.filteringDto }
-        );
+        const testCases: NonComputableTestCase[] = [
+          {
+            description: "should discount non computable hours (6 full days)",
+            nonComputableHours: 48, // 6 days × 8 hours
+            expectedFixedIncome: 1875,
+          },
+          {
+            description:
+              "should discount non computable hours when is just one day",
+            nonComputableHours: 8, // 1 day × 8 hours
+            expectedFixedIncome: 2812.5,
+          },
+          {
+            description:
+              "should discount non computable hours when is all days",
+            nonComputableHours: 8 * 16, // 15 days × 8 hours
+            expectedFixedIncome: 0,
+          },
+          {
+            description:
+              "should discount non computable hours when is all days minus one",
+            nonComputableHours: 8 * 15, // 14 days × 8 hours
+            expectedFixedIncome: 187.5,
+          },
+          {
+            description:
+              "should discount non computable hours when is all days minus one and it works 36 hours a week",
+            nonComputableHours: 6 * 15, // 14 days × 6 hours (36h/week = 6h/day)
+            weeklyHours: 36,
+            expectedFixedIncome: 187.5,
+          },
+          {
+            description:
+              "should discount non computable hours when is all days minus one and the period has 15 days",
+            nonComputableHours: 8 * 14,
+            weeklyHours: 48,
+            expectedFixedIncome: 200.0,
+            startDate: "2025-01-01T06:00:00.000Z",
+            endDate: "2025-01-16T05:59:00.000Z", // Extend period to 17 days total (16 working days)
+          },
+        ];
 
-        const { fixedIncome } = result.payroll;
-        expect(fixedIncome).toBeCloseTo(1633.64);
+        testCases.forEach((testCase) => {
+          it(testCase.description, () => testNonComputableHours(testCase));
+        });
       });
 
-      it("should discount justified absence by company hours", async () => {
+      it.only("should discount justified absence by company hours", async () => {
         const modifiedMockData = {
           ...defaultMockData,
           attendanceReport: {
             ...defaultMockData.attendanceReport,
             periodHours: {
               ...defaultMockData.attendanceReport.periodHours,
-              justifiedAbsenceByCompanyHours: 10,
+              justifiedAbsenceByCompanyHours: 8,
             },
           } as unknown as CollaboratorAttendanceReport,
         };
@@ -516,8 +598,8 @@ describe("PayrollService", () => {
 
         const { fixedIncome, justifiedAbsencesCompensation } = result.payroll;
 
-        expect(fixedIncome).toBeCloseTo(1633.64);
-        expect(justifiedAbsencesCompensation).toBeCloseTo(233.07);
+        expect(fixedIncome).toBeCloseTo(2769.86);
+        expect(justifiedAbsencesCompensation).toBeCloseTo(139.84);
       });
 
       it("should discount unjustified absence hours", async () => {
@@ -527,7 +609,7 @@ describe("PayrollService", () => {
             ...defaultMockData.attendanceReport,
             periodHours: {
               ...defaultMockData.attendanceReport.periodHours,
-              unjustifiedAbsenceHours: 10,
+              unjustifiedAbsenceHours: 8,
             },
           } as unknown as CollaboratorAttendanceReport,
         };

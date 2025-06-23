@@ -12,6 +12,7 @@ import {
   CustomQueryOptions,
   DAILY_WORK_HOURS,
   MONTH_DAYS,
+  MONTH_WORK_DAYS,
   VACATION_BONUS_PERCENTAGE,
   WEEK_WORK_DAYS,
   WEEKS_IN_MONTH,
@@ -30,6 +31,12 @@ import {
   JUSTIFIED_ABSENCES_PERCENTAGE,
   SUNDAY_BONUS_PERCENTAGE,
 } from "../../shared/constants/hris.constants";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
   attendanceReportService = createAttendanceReportService();
@@ -208,15 +215,21 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       restWorkedHours,
     } = concludedWeeksHours;
     // GENERAL VARIABLES
-    const payrollFixedIncome = employmentFixedIncome / 2;
+    const periodDaysLength =
+      dayjs(periodEndDate)
+        .tz("America/Mexico_City")
+        .diff(dayjs(periodStartDate).tz("America/Mexico_City"), "day") + 1;
+    const halfWeekPayrollFixedIncome = employmentFixedIncome / 2;
     const collaboratorDailyWorkHours = weeklyHours / 6;
-    const effectiveHourlyWage =
-      employmentFixedIncome / MONTH_DAYS / collaboratorDailyWorkHours; // for extra hours
-    const nominalHourlyWage =
-      employmentFixedIncome /
-      (WEEKS_IN_MONTH * WEEK_WORK_DAYS) /
-      collaboratorDailyWorkHours; // for discount days
+    const dailyNominalFixedIncome = employmentFixedIncome / MONTH_DAYS;
+    const dailyEffectiveFixedIncome = employmentFixedIncome / MONTH_WORK_DAYS;
 
+    const hourlyNominalFixedIncome =
+      employmentFixedIncome / MONTH_DAYS / collaboratorDailyWorkHours; // for extra hours
+    const hourlyEffectiveFixedIncome =
+      dailyEffectiveFixedIncome / collaboratorDailyWorkHours; // for discount days
+
+    // todo
     const averageOrdinaryIncomeDaily = averageOrdinaryIncome / MONTH_DAYS;
     const averageOrdinaryIncomeHourly =
       averageOrdinaryIncomeDaily / collaboratorDailyWorkHours;
@@ -224,12 +237,15 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     const hvpMinWageDaily = minimumWageHVP / MONTH_DAYS;
     const hvpMinWageHourly = hvpMinWageDaily / DAILY_WORK_HOURS;
 
-    const minOrdinaryIncome = Math.max(averageOrdinaryIncome, minimumWageHVP);
-    const minOrdinaryIncomeDaily = Math.max(
+    const monthlyMinOrdinaryIncome = Math.max(
+      averageOrdinaryIncome,
+      minimumWageHVP
+    );
+    const dailyMinOrdinaryIncome = Math.max(
       averageOrdinaryIncomeDaily,
       hvpMinWageDaily
     );
-    const minOrdinaryIncomeHourly = Math.max(
+    const hourlyMinOrdinaryIncomeHourly = Math.max(
       averageOrdinaryIncomeHourly,
       hvpMinWageHourly
     );
@@ -237,23 +253,30 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     const averageCommissionIncomeDaily = averageCommissionIncome / MONTH_DAYS;
 
     // fixed income
+    /// non computable discount nominalFixedIncome
     const totalNonComputableHours = nonComputableHours;
+    const nonComputableDays =
+      totalNonComputableHours / collaboratorDailyWorkHours;
+    const nonComputableDaysRatio = nonComputableDays / periodDaysLength;
+    const nonComputableDiscount =
+      nonComputableDaysRatio * halfWeekPayrollFixedIncome;
+
+    /// absence: discount effectiveFixedIncome
     const totalAbsenceDayHours =
       justifiedAbsenceByCompanyHours +
       unjustifiedAbsenceHours +
       authorizedUnjustifiedAbsenceHours;
+    const absenceDiscount = totalAbsenceDayHours * hourlyEffectiveFixedIncome;
+
     const totalSickLeaveHours = sickLeaveHours;
 
-    const nonComputableDays =
-      totalNonComputableHours / collaboratorDailyWorkHours;
     const sickLeaveDays = totalSickLeaveHours / collaboratorDailyWorkHours;
     const absenceDays =
       (totalAbsenceDayHours + notWorkedHours) / collaboratorDailyWorkHours;
 
-    const nonComputableDiscount = totalNonComputableHours * nominalHourlyWage;
-    const sickLeaveDiscount = totalSickLeaveHours * nominalHourlyWage;
-    const absenceDiscount = totalAbsenceDayHours * nominalHourlyWage;
-    const notWorkedDiscount = notWorkedHours * nominalHourlyWage;
+    const sickLeaveDiscount = totalSickLeaveHours * hourlyEffectiveFixedIncome;
+
+    const notWorkedDiscount = notWorkedHours * hourlyEffectiveFixedIncome;
 
     const fixedIncomeDiscounts =
       nonComputableDiscount +
@@ -261,9 +284,12 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       absenceDiscount +
       notWorkedDiscount;
 
-    const fixedIncome = Math.max(payrollFixedIncome - fixedIncomeDiscounts, 0);
+    const fixedIncome = Math.max(
+      halfWeekPayrollFixedIncome - fixedIncomeDiscounts,
+      0
+    );
 
-    const attendanceProportion = fixedIncome / payrollFixedIncome;
+    const attendanceProportion = fixedIncome / halfWeekPayrollFixedIncome;
 
     // todo: commissions
 
@@ -297,7 +323,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       commissions;
 
     const minimumOrdinaryIncomeCompensation =
-      Math.max(0, minOrdinaryIncome / 2 - subTotalMinimumIncome) *
+      Math.max(0, monthlyMinOrdinaryIncome / 2 - subTotalMinimumIncome) *
       attendanceProportion;
 
     // todo: year end bonus
@@ -305,33 +331,35 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
 
     // vacation bonus
     const vacationBonus =
-      vacationDays * minOrdinaryIncomeDaily * VACATION_BONUS_PERCENTAGE;
+      vacationDays * dailyMinOrdinaryIncome * VACATION_BONUS_PERCENTAGE;
 
     // todo: profit sharing
     const profitSharing = 0;
 
     // extra hours
     const extraHoursSinglePlay =
-      singlePlayWorkedExtraHours * minOrdinaryIncomeHourly;
+      singlePlayWorkedExtraHours * hourlyMinOrdinaryIncomeHourly;
     const extraHoursDoublePlay =
-      doublePlayWorkedExtraHours * minOrdinaryIncomeHourly * 2;
+      doublePlayWorkedExtraHours * hourlyMinOrdinaryIncomeHourly * 2;
     const extraHoursTriplePlay =
-      triplePlayWorkedExtraHours * minOrdinaryIncomeHourly * 3;
+      triplePlayWorkedExtraHours * hourlyMinOrdinaryIncomeHourly * 3;
 
     // sunday bonus
     const sundayBonusExtraPay =
-      workedSundayHours * minOrdinaryIncomeHourly * SUNDAY_BONUS_PERCENTAGE;
+      workedSundayHours *
+      hourlyMinOrdinaryIncomeHourly *
+      SUNDAY_BONUS_PERCENTAGE;
 
     // holiday or rest extra pay
     // const holidayOrRestHours = publicHolidaysHours + restWorkedHours;
     const holidayOrRestHours = publicHolidaysHours + restWorkedHours;
     const holidayOrRestExtraPay =
       holidayOrRestHours *
-      minOrdinaryIncomeHourly *
+      hourlyMinOrdinaryIncomeHourly *
       HOLIDAY_OR_REST_EXTRA_PAY_PERCENTAGE;
 
     // punctualityBonus
-    const punctualityBonus = hasPunctualityBonus ? minOrdinaryIncomeDaily : 0;
+    const punctualityBonus = hasPunctualityBonus ? dailyMinOrdinaryIncome : 0;
 
     // meal compensation
     const mealCompensation = mealDays * DAILY_MEAL_COMPENSATION;
@@ -473,11 +501,11 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
 
     const relevantValues: PayrollEstimateRelevantValues = {
       fixedIncomeDiscounts,
-      nominalHourlyWage,
+      nominalHourlyWage: hourlyEffectiveFixedIncome,
       attendanceProportion,
       averageOrdinaryIncomeHourly,
-      minOrdinaryIncomeDaily,
-      minOrdinaryIncomeHourly,
+      minOrdinaryIncomeDaily: dailyMinOrdinaryIncome,
+      minOrdinaryIncomeHourly: hourlyMinOrdinaryIncomeHourly,
       mealDays,
       isrBase,
       employerImssRate,

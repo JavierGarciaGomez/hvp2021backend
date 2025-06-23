@@ -21,16 +21,16 @@ export interface EmploymentBase extends newBaseEntityProps {
   minimumOrdinaryIncome: number;
   //
   degreeBonus: number;
-  receptionBonus: number;
+  receptionBonus: number; // REMOVE
   //
   trainingSupport: number;
   physicalActivitySupport: number;
   //
   contributionBaseSalary: number;
-  averageOrdinaryIncome: number;
-  averageIntegratedIncome: number;
-  averageCommissionIncome: number;
-  extraCompensations: ExtraCompensationVO[];
+  averageOrdinaryIncome: number; // REMOVE
+  averageIntegratedIncome: number; // REMOVE
+  averageCommissionIncome: number; // REMOVE
+  extraCompensations: ExtraCompensationVO[]; // REMOVE
   otherDeductions: OtherDeductionVO[];
 }
 
