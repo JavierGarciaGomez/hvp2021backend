@@ -25,3 +25,14 @@ export enum PayrollStatus {
   Approved = "approved",
   Paid = "paid",
 }
+
+export enum HRPaymentType {
+  "HOURLY" = "HOURLY",
+  "SALARY" = "SALARY",
+  "INFORMAL" = "INFORMAL",
+}
+
+export enum HRAttendanceSource {
+  "ATTENDANCE_RECORDS" = "ATTENDANCE_RECORDS",
+  "ACTIVITY_REGISTER" = "ACTIVITY_REGISTER",
+}

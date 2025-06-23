@@ -1,5 +1,5 @@
 import { Document, Schema } from "mongoose";
-import { HRPaymentType } from "../enums";
+import { HRAttendanceSource, HRPaymentType } from "../enums";
 import { BaseEntity, newBaseEntityProps } from "./base.entity";
 import { ExtraCompensationVO, OtherDeductionVO } from "../value-objects";
 
@@ -9,28 +9,23 @@ export interface EmploymentBase extends newBaseEntityProps {
   employmentStartDate: Date | string;
   employmentEndDate?: Date | string;
   isActive: boolean;
-  weeklyHours: number;
   paymentType: HRPaymentType;
-  //
+  attendanceSource: HRAttendanceSource;
+  weeklyHours: number;
+  dailyWorkingHours: number;
+  workWeekRatio: number;
   seniorityBonusPercentage: number;
+  employmentGuaranteedIncome: number;
   commissionBonusPercentage: number;
-  //
   fixedIncomeByPosition: number;
   additionalFixedIncome: number;
   fixedIncome: number;
   minimumOrdinaryIncome: number;
-  //
   degreeBonus: number;
-  receptionBonus: number; // REMOVE
-  //
   trainingSupport: number;
   physicalActivitySupport: number;
-  //
   contributionBaseSalary: number;
-  averageOrdinaryIncome: number; // REMOVE
-  averageIntegratedIncome: number; // REMOVE
-  averageCommissionIncome: number; // REMOVE
-  extraCompensations: ExtraCompensationVO[]; // REMOVE
+  extraCompensations: ExtraCompensationVO[];
   otherDeductions: OtherDeductionVO[];
 }
 
@@ -65,26 +60,22 @@ export class EmploymentEntity implements BaseEntity {
   employmentStartDate!: Date;
   employmentEndDate?: Date;
   isActive!: boolean;
-  weeklyHours!: number;
   paymentType: HRPaymentType = HRPaymentType.SALARY;
+  attendanceSource!: HRAttendanceSource;
+  weeklyHours!: number;
+  dailyWorkingHours!: number;
+  workWeekRatio!: number;
+  employmentGuaranteedIncome!: number;
   seniorityBonusPercentage: number = 0;
   commissionBonusPercentage: number = 0;
-  //
   fixedIncomeByPosition: number = 0;
   additionalFixedIncome: number = 0;
   fixedIncome: number = 0;
   minimumOrdinaryIncome: number = 0;
-  //
   degreeBonus: number = 0;
-  receptionBonus: number = 0;
-  //
   trainingSupport: number = 0;
   physicalActivitySupport: number = 0;
-  //
   contributionBaseSalary: number = 0;
-  averageOrdinaryIncome: number = 0;
-  averageIntegratedIncome: number = 0;
-  averageCommissionIncome: number = 0;
   extraCompensations: ExtraCompensationVO[] = [];
   otherDeductions: OtherDeductionVO[] = [];
   constructor(props: EmploymentProps) {

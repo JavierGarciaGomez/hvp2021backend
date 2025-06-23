@@ -2,6 +2,7 @@ import { BaseDTO } from "./base.dto";
 import { BaseEntity, EmploymentProps, JobProps } from "../../domain/entities";
 import {
   ExtraCompensationVO,
+  HRAttendanceSource,
   HRPaymentType,
   OtherDeductionVO,
 } from "../../domain";
@@ -18,26 +19,22 @@ export class EmploymentDTO implements BaseDTO, BaseEntity {
   employmentEndDate?: Date;
   jobEndDate?: Date;
   isActive!: boolean;
-  weeklyHours!: number;
   paymentType: HRPaymentType = HRPaymentType.SALARY;
+  attendanceSource!: HRAttendanceSource;
+  weeklyHours!: number;
+  dailyWorkingHours!: number;
+  workWeekRatio!: number;
+  employmentGuaranteedIncome!: number;
   seniorityBonusPercentage: number = 0;
   commissionBonusPercentage: number = 0;
-  //
   fixedIncomeByPosition: number = 0;
   additionalFixedIncome: number = 0;
   fixedIncome: number = 0;
   minimumOrdinaryIncome: number = 0;
-  //
   degreeBonus: number = 0;
-  receptionBonus: number = 0;
-  //
   trainingSupport: number = 0;
   physicalActivitySupport: number = 0;
-  //
   contributionBaseSalary: number = 0;
-  averageOrdinaryIncome: number = 0;
-  averageIntegratedIncome: number = 0;
-  averageCommissionIncome: number = 0;
   extraCompensations: ExtraCompensationVO[] = [];
   otherDeductions: OtherDeductionVO[] = [];
 
@@ -49,23 +46,39 @@ export class EmploymentDTO implements BaseDTO, BaseEntity {
     const errors = [];
 
     const {
-      seniorityBonusPercentage,
-      commissionBonusPercentage,
-      fixedIncome,
-      minimumOrdinaryIncome,
+      collaboratorId,
+      jobId,
+      employmentStartDate,
+      isActive,
+      weeklyHours,
+      dailyWorkingHours,
+      workWeekRatio,
+      employmentGuaranteedIncome,
     } = data;
 
-    if (seniorityBonusPercentage === undefined) {
-      errors.push("Seniority bonus percentage is required");
+    if (!collaboratorId) {
+      errors.push("Collaborator ID is required");
     }
-    if (commissionBonusPercentage === undefined) {
-      errors.push("Commission bonus percentage is required");
+    if (!jobId) {
+      errors.push("Job ID is required");
     }
-    if (fixedIncome === undefined) {
-      errors.push("Fixed perception is required");
+    if (!employmentStartDate) {
+      errors.push("Employment start date is required");
     }
-    if (minimumOrdinaryIncome === undefined) {
-      errors.push("Minimum ordinary income is required");
+    if (isActive === undefined) {
+      errors.push("Active status is required");
+    }
+    if (!weeklyHours) {
+      errors.push("Weekly hours is required");
+    }
+    if (!dailyWorkingHours) {
+      errors.push("Daily working hours is required");
+    }
+    if (!workWeekRatio) {
+      errors.push("Work week ratio is required");
+    }
+    if (!employmentGuaranteedIncome) {
+      errors.push("Employment guaranteed income is required");
     }
 
     if (errors.length) {
