@@ -1,6 +1,6 @@
 import { BaseDTO } from "./base.dto";
 import { JobProps } from "../../domain/entities";
-import { HRPaymentType, JobPromotionStatsVO } from "../../domain";
+import { JobPromotionStatsVO } from "../../domain";
 
 export class JobDTO implements BaseDTO {
   id?: string;
@@ -9,22 +9,19 @@ export class JobDTO implements BaseDTO {
   updatedAt?: Date;
   updatedBy?: string;
   active!: boolean;
-  annualRaisePercent: number = 0.025;
-  quarterlyCommissionRaisePercent: number = 0.05;
-  baseIncome?: number; // fixed perception
   description?: string;
-  hourlyRate?: number;
-  minimumIncome?: number; // minimum ordinary income
-  paymentType: HRPaymentType = HRPaymentType.SALARY;
   sortingOrder: number = 99;
   title!: string;
-  incomeMultiplier: number = 1;
   commissionRateAdjustment: number = 0.4;
-  expectedCommissionsPercentage: number = 0.4;
-  expectedMinimumIncome: number = 0; // expected minimum ordinary income
   expressBranchCompensation: number = 0;
   promotionJobId?: string;
-  promotionRequirements?: JobPromotionStatsVO;
+  quarterPromotionRequirements?: JobPromotionStatsVO;
+  historicalPromotionRequirements?: JobPromotionStatsVO;
+  positionFactor: number = 1;
+  guarantedJobIncome?: number;
+  jobFixedIncome?: number;
+  fixedShareOfGuaranteedIncome: number = 0.4;
+
   constructor({ ...props }: JobProps) {
     Object.assign(this, props);
   }
@@ -32,19 +29,13 @@ export class JobDTO implements BaseDTO {
   static create(data: JobProps): JobDTO {
     const errors = [];
 
-    const { annualRaisePercent, baseIncome, paymentType, title } = data;
+    const { title, active } = data;
 
-    if (annualRaisePercent === undefined) {
-      errors.push("Annual raise percent is required");
-    }
-    if (baseIncome === undefined) {
-      errors.push("Base income is required");
-    }
-    if (!paymentType) {
-      errors.push("Payment type is required");
-    }
     if (!title) {
       errors.push("Title is required");
+    }
+    if (active === undefined) {
+      errors.push("Active status is required");
     }
 
     if (errors.length) {
