@@ -2,8 +2,7 @@
 
 import { Document, Schema } from "mongoose";
 import { CollaboratorAuth } from "../../shared";
-import { Degree, Gender, WebAppRole } from "../enums";
-import { HRPaymentType } from "../enums/job.enums";
+import { Degree, Gender, HRPaymentType, WebAppRole } from "../enums";
 import { AddressVO, ImageUrl } from "../value-objects";
 import { BaseEntity, BaseEntityProps } from "./base.entity";
 

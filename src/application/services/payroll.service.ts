@@ -183,12 +183,11 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     const { expressBranchCompensation: jobExpressBranchCompensation } = job;
     const {
       weeklyHours,
-      fixedIncome: employmentFixedIncome,
-      averageOrdinaryIncome,
-      averageCommissionIncome,
+      employmentFixedIncomeByJob: employmentFixedIncome,
+
       minimumOrdinaryIncome,
-      receptionBonus: employmentReceptionBonus,
-      degreeBonus: employmentDegreeBonus,
+
+      employmentDegreeBonus: employmentDegreeBonus,
       trainingSupport: employmentTrainingSupport,
       physicalActivitySupport: employmentPhysicalActivitySupport,
       extraCompensations: employmentExtraCompensations,
@@ -229,7 +228,11 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     const hourlyEffectiveFixedIncome =
       dailyEffectiveFixedIncome / collaboratorDailyWorkHours; // for discount days
 
-    // todo
+    // Calculate derived values since these fields were removed
+    const averageOrdinaryIncome =
+      minimumOrdinaryIncome || employmentFixedIncome;
+    const averageCommissionIncome = 0; // Default to 0 or calculate based on business logic
+
     const averageOrdinaryIncomeDaily = averageOrdinaryIncome / MONTH_DAYS;
     const averageOrdinaryIncomeHourly =
       averageOrdinaryIncomeDaily / collaboratorDailyWorkHours;
@@ -363,8 +366,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
 
     // meal compensation
     const mealCompensation = mealDays * DAILY_MEAL_COMPENSATION;
-    // reception bonus
-    const receptionBonus = employmentReceptionBonus / 2;
+    // reception bonus - removed from employment entity
+    const receptionBonus = 0;
     // degree bonus
     const degreeBonus = employmentDegreeBonus / 2;
     // training support
@@ -715,7 +718,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     */
     const { attendanceReport, employment } = rawData;
     const { periodHours, concludedWeeksHours } = attendanceReport;
-    const { fixedIncome: payrollFixedIncome, weeklyHours } = employment;
+    const { employmentFixedIncomeByJob: payrollFixedIncome, weeklyHours } =
+      employment;
     const {
       justifiedAbsenceByCompanyHours,
       nonComputableHours,

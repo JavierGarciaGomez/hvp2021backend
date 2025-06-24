@@ -2,7 +2,6 @@ export * from "./collaborator.enum";
 export * from "./controlled-prescriptions.enum";
 export * from "./notification.enums";
 export * from "./user.enums";
-export * from "./job.enums";
 export * from "./account.enum";
 export * from "./accountingClass.enum";
 export * from "./paymentMethod.enum";

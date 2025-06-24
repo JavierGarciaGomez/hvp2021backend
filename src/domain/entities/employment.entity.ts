@@ -15,13 +15,20 @@ export interface EmploymentBase extends newBaseEntityProps {
   dailyWorkingHours: number;
   workWeekRatio: number;
   seniorityBonusPercentage: number;
-  employmentGuaranteedIncome: number;
   commissionBonusPercentage: number;
-  fixedIncomeByPosition: number;
-  additionalFixedIncome: number;
-  fixedIncome: number;
+  employmentGuaranteedIncome: number;
+  employmentFixedIncomeByJob: number;
+  additionalRoleFixedIncome: number;
+  complementaryFixedIncome: number;
   minimumOrdinaryIncome: number;
-  degreeBonus: number;
+  employmentDegreeBonus: number;
+  totalFixedIncome: number;
+  nominalDailyFixedIncome: number;
+  nominalHourlyFixedIncome: number;
+  effectiveDailyFixedIncome: number;
+  effectiveHourlyFixedIncome: number;
+  averageCommissionsPerScheduledHour: number;
+  averageOrdinaryIncomePerScheduledHour: number;
   trainingSupport: number;
   physicalActivitySupport: number;
   contributionBaseSalary: number;
@@ -65,19 +72,27 @@ export class EmploymentEntity implements BaseEntity {
   weeklyHours!: number;
   dailyWorkingHours!: number;
   workWeekRatio!: number;
-  employmentGuaranteedIncome!: number;
   seniorityBonusPercentage: number = 0;
   commissionBonusPercentage: number = 0;
-  fixedIncomeByPosition: number = 0;
-  additionalFixedIncome: number = 0;
-  fixedIncome: number = 0;
+  employmentGuaranteedIncome!: number;
+  employmentFixedIncomeByJob: number = 0;
+  additionalRoleFixedIncome: number = 0;
+  complementaryFixedIncome: number = 0;
   minimumOrdinaryIncome: number = 0;
-  degreeBonus: number = 0;
+  employmentDegreeBonus: number = 0;
+  totalFixedIncome: number = 0;
+  nominalDailyFixedIncome: number = 0;
+  nominalHourlyFixedIncome: number = 0;
+  effectiveDailyFixedIncome: number = 0;
+  effectiveHourlyFixedIncome: number = 0;
+  averageCommissionsPerScheduledHour: number = 0;
+  averageOrdinaryIncomePerScheduledHour: number = 0;
   trainingSupport: number = 0;
   physicalActivitySupport: number = 0;
   contributionBaseSalary: number = 0;
   extraCompensations: ExtraCompensationVO[] = [];
   otherDeductions: OtherDeductionVO[] = [];
+
   constructor(props: EmploymentProps) {
     Object.assign(this, props);
   }
