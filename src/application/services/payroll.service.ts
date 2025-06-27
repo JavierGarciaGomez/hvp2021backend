@@ -124,9 +124,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       throw BaseError.notFound("Collaborator not found");
     }
     const employment =
-      await this.employmentService.getEmploymentByCollaboratorAndPeriod(
+      await this.employmentService.getEmploymentByCollaboratorAndDate(
         collaboratorId,
-        periodStartDate,
         periodEndDate
       );
     if (!employment) {

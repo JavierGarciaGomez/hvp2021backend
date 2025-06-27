@@ -63,9 +63,10 @@ export class CollaboratorDataSourceMongoImp
   }
 
   async getAllForWeb(
-    options: CustomQueryOptions
+    options: CustomQueryOptions,
+    session?: import("mongoose").ClientSession
   ): Promise<PublicCollaborator[]> {
-    const result = await getAllHelper(CollaboratorModel, options);
+    const result = await getAllHelper(CollaboratorModel, options, session);
     return result.map((collaborator) =>
       CollaboratorEntity.fromDocument(collaborator).toPublicCollaborator()
     );

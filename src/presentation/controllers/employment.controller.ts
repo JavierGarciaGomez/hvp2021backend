@@ -82,4 +82,40 @@ export class EmploymentController extends BaseController<
       next(error);
     }
   };
+
+  public createMany = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> => {
+    try {
+      const employmentData = req.body;
+
+      if (!Array.isArray(employmentData)) {
+        return res.status(400).json({
+          success: false,
+          message: "Request body must be an array of employment objects",
+        });
+      }
+
+      const authUser = (req as any).user;
+      const result = await this.service.createManyFromDTOs(
+        employmentData,
+        authUser
+      );
+
+      const response = ResponseFormatterService.formatListResponse({
+        data: result,
+        page: 1,
+        limit: result.length,
+        total: result.length,
+        path: this.path,
+        resource: this.resource,
+      });
+
+      return res.status(response.status_code).json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
 }

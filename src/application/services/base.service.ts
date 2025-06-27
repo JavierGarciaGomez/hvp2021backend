@@ -11,6 +11,7 @@ import {
   AuthenticatedCollaborator,
   CustomQueryOptions,
 } from "../../shared/interfaces";
+import { ClientSession } from "mongoose";
 
 export abstract class BaseService<T extends BaseEntity | BaseVO, DTO, R = T> {
   constructor(
@@ -22,20 +23,24 @@ export abstract class BaseService<T extends BaseEntity | BaseVO, DTO, R = T> {
 
   public create = async (
     dto: DTO,
-    authUser?: AuthenticatedCollaborator
+    authUser?: AuthenticatedCollaborator,
+    session?: ClientSession
   ): Promise<R> => {
     const entity = new this.entityClass(dto);
-    const result = await this.repository.create(entity);
+    const result = await this.repository.create(entity, session);
     return this.transformToResponse(result);
   };
 
-  async getAll(queryOptions?: CustomQueryOptions): Promise<R[]> {
-    const data = await this.repository.getAll(queryOptions);
+  async getAll(
+    queryOptions?: CustomQueryOptions,
+    session?: ClientSession
+  ): Promise<R[]> {
+    const data = await this.repository.getAll(queryOptions, session);
     return await Promise.all(data.map(this.transformToResponse));
   }
 
-  async getById(id: string): Promise<R> {
-    const entity = await this.repository.getById(id);
+  async getById(id: string, session?: ClientSession): Promise<R> {
+    const entity = await this.repository.getById(id, session);
     if (!entity) {
       throw BaseError.notFound(`${this.getResourceName()} not found`);
     }
@@ -45,33 +50,37 @@ export abstract class BaseService<T extends BaseEntity | BaseVO, DTO, R = T> {
   async update(
     id: string,
     dto: DTO,
-    authUser?: AuthenticatedCollaborator
+    authUser?: AuthenticatedCollaborator,
+    session?: ClientSession
   ): Promise<R> {
     const entity = new this.entityClass(dto);
-    const result = await this.repository.update(id, entity);
+    const result = await this.repository.update(id, entity, session);
     return this.transformToResponse(result);
   }
 
-  async delete(id: string): Promise<string> {
-    return await this.repository.delete(id);
+  async delete(id: string, session?: ClientSession): Promise<string> {
+    return await this.repository.delete(id, session);
   }
 
-  async count(queryOptions: CustomQueryOptions): Promise<number> {
-    return await this.repository.count(queryOptions);
+  async count(
+    queryOptions: CustomQueryOptions,
+    session?: ClientSession
+  ): Promise<number> {
+    return await this.repository.count(queryOptions, session);
   }
 
-  async updateMany(entities: T[]): Promise<R[]> {
-    const result = await this.repository.updateMany(entities);
+  async updateMany(entities: T[], session?: ClientSession): Promise<R[]> {
+    const result = await this.repository.updateMany(entities, session);
     return await Promise.all(result.map(this.transformToResponse));
   }
 
-  async createMany(entities: T[]): Promise<R[]> {
-    const result = await this.repository.createMany(entities);
+  async createMany(entities: T[], session?: ClientSession): Promise<R[]> {
+    const result = await this.repository.createMany(entities, session);
     return await Promise.all(result.map(this.transformToResponse));
   }
 
-  async deleteMany(ids: string[]): Promise<string[]> {
-    return await this.repository.deleteMany(ids);
+  async deleteMany(ids: string[], session?: ClientSession): Promise<string[]> {
+    return await this.repository.deleteMany(ids, session);
   }
 
   public abstract getResourceName(): string;

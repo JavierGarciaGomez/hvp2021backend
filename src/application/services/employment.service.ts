@@ -45,6 +45,85 @@ export class EmploymentService extends BaseService<
     return "employment";
   }
 
+  public createManyFromDTOs = async (
+    data: EmploymentDTO[],
+    authUser?: AuthenticatedCollaborator
+  ): Promise<EmploymentEntity[]> => {
+    const results: EmploymentEntity[] = [];
+    const updatesNeeded = new Map<string, { id: string; data: any }>();
+
+    // First pass: validate all employment conflicts and prepare operations
+    for (const employmentData of data) {
+      const entity = new this.entityClass(employmentData);
+      const newEmploymentStartDate = new Date(entity.employmentStartDate);
+
+      // 1. Handle previous employment conflicts
+      const previousEmployment =
+        await this.getEmploymentByCollaboratorBeforeDate(
+          employmentData.collaboratorId,
+          entity.employmentStartDate.toString()
+        );
+
+      if (
+        previousEmployment &&
+        (!previousEmployment.employmentEndDate ||
+          new Date(previousEmployment.employmentEndDate) >=
+            newEmploymentStartDate)
+      ) {
+        // Use Map to avoid duplicate updates to the same employment
+        updatesNeeded.set(previousEmployment.id!, {
+          id: previousEmployment.id!,
+          data: {
+            ...previousEmployment,
+            isActive: false,
+            employmentEndDate: new Date(newEmploymentStartDate.getTime() - 1),
+          },
+        });
+      }
+
+      // 2. Handle future employment conflicts
+      const futureEmployments = await this.getAll({
+        filteringDto: {
+          collaboratorId: employmentData.collaboratorId,
+          employmentStartDate: { $gt: entity.employmentStartDate },
+        },
+        sortingDto: {
+          sort_by: "employmentStartDate",
+          direction: "asc",
+        },
+      });
+
+      const nextEmployment = futureEmployments[0];
+      if (nextEmployment) {
+        // Override any provided end date with calculated one from future employment
+        entity.employmentEndDate = new Date(
+          new Date(nextEmployment.employmentStartDate).getTime() - 1
+        );
+      }
+
+      results.push(entity);
+    }
+
+    // Second pass: perform all updates (deduplicated)
+
+    for (const update of updatesNeeded.values()) {
+      try {
+        const result = await this.update(update.id, update.data, authUser);
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    // Third pass: create all new employments
+    const createdEmployments = await this.repository.createMany(results);
+
+    return await Promise.all(
+      createdEmployments.map((employment) =>
+        this.transformToResponse(employment)
+      )
+    );
+  };
+
   public create = async (
     data: EmploymentDTO,
     authUser?: AuthenticatedCollaborator
@@ -64,11 +143,15 @@ export class EmploymentService extends BaseService<
         new Date(previousEmployment.employmentEndDate) >=
           newEmploymentStartDate)
     ) {
-      await this.update(previousEmployment.id!, {
-        ...previousEmployment,
-        isActive: false,
-        employmentEndDate: new Date(newEmploymentStartDate.getTime() - 1),
-      });
+      await this.update(
+        previousEmployment.id!,
+        {
+          ...previousEmployment,
+          isActive: false,
+          employmentEndDate: new Date(newEmploymentStartDate.getTime() - 1),
+        },
+        authUser
+      );
     }
 
     // 2. Handle future employment conflicts
@@ -92,6 +175,7 @@ export class EmploymentService extends BaseService<
     }
 
     const result = await this.repository.create(entity);
+
     return this.transformToResponse(result);
   };
 
@@ -120,10 +204,6 @@ export class EmploymentService extends BaseService<
     collaboratorId: string,
     date: string
   ) => {
-    if (collaboratorId === "642f3ec6270f101c00d5fcda") {
-      console.log({ date });
-    }
-
     const employments = await this.getAll({
       filteringDto: {
         collaboratorId,
@@ -187,10 +267,6 @@ export class EmploymentService extends BaseService<
     const draftEmployments: DraftEmploymentReadModel[] = [];
 
     for (const collaborator of activeCollaborators) {
-      if (collaborator.id === "61e9f83611d080f125a93e92") {
-        console.log({ collaborator });
-      }
-
       // Get the employment that was active before the start date
       const previousEmployment =
         await this.getEmploymentByCollaboratorBeforeDate(
@@ -317,7 +393,7 @@ export class EmploymentService extends BaseService<
 
     // Calculate employment degree bonus
     const employmentDegreeBonus =
-      DEGREE_BONUS[collaborator.degree as Degree] * workWeekRatio;
+      DEGREE_BONUS[collaborator.degree as Degree] || 0 * workWeekRatio;
 
     // Calculate total fixed income
     const totalFixedIncome =

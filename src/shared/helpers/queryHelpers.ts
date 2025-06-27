@@ -1,4 +1,4 @@
-import { Model } from "mongoose";
+import { Model, ClientSession } from "mongoose";
 import { FilteringDto } from "../../application/dtos/shared/filtering.dto";
 import { PaginationDto, SortingDto } from "../../domain";
 import { CustomQueryOptions } from "../interfaces";
@@ -29,7 +29,8 @@ export const buildQueryOptions = (queryParams: any): CustomQueryOptions => {
 
 export const getAllHelper = async <T>(
   model: Model<T>,
-  queryOptions?: CustomQueryOptions
+  queryOptions?: CustomQueryOptions,
+  session?: ClientSession
 ): Promise<T[]> => {
   const { paginationDto, filteringDto, sortingDto } = queryOptions || {};
   const sortField = sortingDto?.sort_by || "updated_at";
@@ -41,7 +42,8 @@ export const getAllHelper = async <T>(
     .find(filteringDto as any)
     .sort({ [sortField]: sortDirection })
     .skip((page - 1) * limit) // Correct skip calculation
-    .limit(limit);
+    .limit(limit)
+    .session(session || null);
 
   return result;
 };

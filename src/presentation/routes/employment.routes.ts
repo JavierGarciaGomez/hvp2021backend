@@ -22,6 +22,13 @@ export class EmploymentRoutes extends BaseCRUDRoutes {
       controller.createDraftEmploymentForCollaborator
     );
 
+    // Custom route for creating multiple employments
+    this.router.post(
+      "/bulk",
+      AuthMiddleware.validateJWT,
+      controller.createMany
+    );
+
     this.setupCrudRoutes(controller);
   }
 }
