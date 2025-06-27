@@ -20,6 +20,11 @@ export class CollaboratorRoutes extends BaseCRUDRoutes {
     const controller = new CollaboratorController(service);
 
     this.router.get("/getAllForWeb", controller.getAllPublic);
+    this.router.get(
+      "/withJobAndEmployment",
+      AuthMiddleware.validateJWT,
+      controller.getCollaboratorsWithJobAndEmployment
+    );
     this.router.get("/", AuthMiddleware.validateJWT, controller.getAll);
     this.router.delete(
       "/:id",

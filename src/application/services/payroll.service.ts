@@ -184,9 +184,6 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     const {
       weeklyHours,
       employmentFixedIncomeByJob: employmentFixedIncome,
-
-      minimumOrdinaryIncome,
-
       employmentDegreeBonus: employmentDegreeBonus,
       trainingSupport: employmentTrainingSupport,
       physicalActivitySupport: employmentPhysicalActivitySupport,
@@ -229,8 +226,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       dailyEffectiveFixedIncome / collaboratorDailyWorkHours; // for discount days
 
     // Calculate derived values since these fields were removed
-    const averageOrdinaryIncome =
-      minimumOrdinaryIncome || employmentFixedIncome;
+    const averageOrdinaryIncome = employmentFixedIncome;
     const averageCommissionIncome = 0; // Default to 0 or calculate based on business logic
 
     const averageOrdinaryIncomeDaily = averageOrdinaryIncome / MONTH_DAYS;

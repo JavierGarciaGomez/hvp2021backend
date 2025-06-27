@@ -1,6 +1,7 @@
 import {
   CollaboratorEntity,
   CollaboratorResponse,
+  CollaboratorWithJobAndEmploymentResponse,
   EmploymentEntity,
   JobEntity,
   PublicCollaborator,
@@ -78,13 +79,7 @@ export class CollaboratorService extends BaseService<
 
   public getCollaboratorsWithJobAndEmployment = async (
     date: string
-  ): Promise<
-    {
-      collaborator: CollaboratorEntity;
-      job?: JobEntity;
-      employment?: EmploymentEntity;
-    }[]
-  > => {
+  ): Promise<CollaboratorWithJobAndEmploymentResponse[]> => {
     const collaborators = await this.getCollaboratorsByDate(date);
 
     const jobService = createJobService();

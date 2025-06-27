@@ -84,13 +84,13 @@ export class CommissionableServiceService extends BaseService<
     job?: JobEntity
   ) => {
     const { baseCommission } = commisionableService;
-    const commissionRateAdjustment = job?.commissionRateAdjustment ?? 40;
+    const commissionRateAdjustment = job?.commissionRateAdjustment ?? 0.4;
     const commissionBonusPercentage =
       employment?.commissionBonusPercentage ?? 0;
 
     return (
       baseCommission *
-      (commissionRateAdjustment / 100) *
+      commissionRateAdjustment *
       (1 + commissionBonusPercentage)
     );
   };
@@ -101,16 +101,15 @@ export class CommissionableServiceService extends BaseService<
     job?: JobEntity
   ) => {
     const { baseRate, name } = commisionableService;
-    let commissionRateAdjustment = job?.commissionRateAdjustment ?? 40;
+    let commissionRateAdjustment = job?.commissionRateAdjustment ?? 0.4;
     if (name.toLowerCase() === "venta") {
-      commissionRateAdjustment = 100;
+      commissionRateAdjustment = 1;
     }
     const commissionBonusPercentage =
       employment?.commissionBonusPercentage ?? 0;
 
     return (
-      ((baseRate * commissionRateAdjustment) / 100) *
-      (1 + commissionBonusPercentage)
+      baseRate * commissionRateAdjustment * (1 + commissionBonusPercentage)
     );
   };
 

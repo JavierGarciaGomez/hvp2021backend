@@ -5,8 +5,6 @@ import {
   ResponseFormatterService,
 } from "../../application";
 import { buildQueryOptions } from "../../shared/helpers/queryHelpers";
-
-import { AuthenticatedRequest } from "../../shared/interfaces/RequestsAndResponses";
 import { JwtAdapter } from "../../infrastructure/adapters";
 import { BaseController } from "./base.controller";
 import { CollaboratorEntity, CollaboratorResponse } from "../../domain";
@@ -59,6 +57,39 @@ export class CollaboratorController extends BaseController<
       const token = await JwtAdapter.generateToken({ ...result });
       const response = ResponseFormatterService.formatUpdateResponse({
         data: { token, user: result.toCollaboratorAuth() },
+        resource: this.resource,
+      });
+
+      return res.status(response.status_code).json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getCollaboratorsWithJobAndEmployment = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> => {
+    try {
+      const { date } = req.query;
+
+      // Use current date as fallback if date is not provided
+      const dateToUse =
+        date && typeof date === "string"
+          ? date
+          : new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
+
+      const result = await this.service.getCollaboratorsWithJobAndEmployment(
+        dateToUse
+      );
+
+      const response = ResponseFormatterService.formatListResponse({
+        data: result,
+        page: 1,
+        limit: result.length,
+        total: result.length,
+        path: this.path,
         resource: this.resource,
       });
 

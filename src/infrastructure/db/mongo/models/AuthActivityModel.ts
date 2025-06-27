@@ -1,5 +1,8 @@
 import { Schema, model } from "mongoose";
-import { AuthActivity, AuthActivityType } from "../../../../shared";
+import {
+  AuthActivity,
+  AuthActivityType,
+} from "../../../../shared/interfaces/authActivityTypes";
 
 const authActivitySchema = new Schema<AuthActivity>(
   {

@@ -302,3 +302,9 @@ export interface CollaboratorResponse extends CollaboratorProps {
   imssSalaryBase: number;
   averageDailyIncome: number;
 }
+
+export interface CollaboratorWithJobAndEmploymentResponse {
+  collaborator: CollaboratorEntity;
+  job?: import("./job.entity").JobEntity;
+  employment?: import("./employment.entity").EmploymentEntity;
+}

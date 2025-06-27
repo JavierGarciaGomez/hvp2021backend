@@ -29,8 +29,8 @@ export class EmploymentDTO implements BaseDTO, BaseEntity {
   employmentFixedIncomeByJob: number = 0;
   additionalRoleFixedIncome: number = 0;
   complementaryFixedIncome: number = 0;
-  minimumOrdinaryIncome: number = 0;
   employmentDegreeBonus: number = 0;
+  employmentHourlyRate: number = 0;
   totalFixedIncome: number = 0;
   nominalDailyFixedIncome: number = 0;
   nominalHourlyFixedIncome: number = 0;
