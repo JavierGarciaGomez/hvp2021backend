@@ -73,23 +73,37 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       );
     }
 
-    // Get active collaborators for the period
-    const activeCollaborators =
-      await this.collaboratorService.getCollaboratorsByDate(periodEndDate);
+    // Get shared data that's the same for all collaborators
+    const [activeCollaborators, salaryDataResponse] = await Promise.all([
+      this.collaboratorService.getCollaboratorsByDate(periodEndDate),
+      this.salaryDataService.getAll({
+        filteringDto: { year: new Date(periodEndDate).getFullYear() },
+      }),
+    ]);
 
+    const salaryData = salaryDataResponse[0];
+    if (!salaryData) {
+      throw BaseError.notFound("Salary data not found");
+    }
+
+    // Process collaborators in batches to avoid overwhelming the database
+    const batchSize = 5; // Process 5 at a time to avoid DB overload
     const payrollEstimates: PayrollEstimate[] = [];
 
-    // Generate payroll estimate for each active collaborator
-    for (const collaborator of activeCollaborators) {
-      if (collaborator.col_code === "CRR") {
-        console.log(collaborator);
-      }
-      const payrollEstimate = await this.generatePayrollEstimate(
-        collaborator.id!,
-        periodStartDate,
-        periodEndDate
-      );
-      payrollEstimates.push(payrollEstimate);
+    for (let i = 0; i < activeCollaborators.length; i += batchSize) {
+      const batch = activeCollaborators.slice(i, i + batchSize);
+
+      const batchPromises = batch.map(async (collaborator) => {
+        return await this.generatePayrollEstimate(
+          collaborator.id!,
+          periodStartDate,
+          periodEndDate,
+          salaryData
+        );
+      });
+
+      const batchResults = await Promise.all(batchPromises);
+      payrollEstimates.push(...batchResults);
     }
 
     return payrollEstimates;
@@ -111,10 +125,20 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       );
     }
 
+    const salaryDataResponse = await this.salaryDataService.getAll({
+      filteringDto: { year: new Date(periodEndDate).getFullYear() },
+    });
+
+    const salaryData = salaryDataResponse[0];
+    if (!salaryData) {
+      throw BaseError.notFound("Salary data not found");
+    }
+
     const payrollEstimate = await this.generatePayrollEstimate(
       collaboratorId,
       periodStartDate,
-      periodEndDate
+      periodEndDate,
+      salaryData
     );
 
     return payrollEstimate;
@@ -127,12 +151,14 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
   private async generatePayrollEstimate(
     collaboratorId: string,
     periodStartDate: string,
-    periodEndDate: string
+    periodEndDate: string,
+    salaryData: SalaryDataEntity
   ) {
     const rawData = await this.getRawData(
       collaboratorId,
       periodStartDate,
-      periodEndDate
+      periodEndDate,
+      salaryData
     );
 
     const payroll = this.calculatePayroll(
@@ -147,25 +173,24 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
   private async getRawData(
     collaboratorId: string,
     periodStartDate: string,
-    periodEndDate: string
+    periodEndDate: string,
+    salaryData: SalaryDataEntity
   ): Promise<PayrollCollaboratorRawData> {
-    const [
-      collaboratorWithJobAndEmployment,
-      attendanceReport,
-      salaryDataResponse,
-      commissionsData,
-    ] = await Promise.all([
+    const collaboratorPromise =
       this.collaboratorService.getCollaboratorWithJobAndEmployment(
         collaboratorId,
         periodEndDate
-      ),
-      this.attendanceReportService.getByCollaboratorId(collaboratorId, {
+      );
+
+    const attendancePromise = this.attendanceReportService.getByCollaboratorId(
+      collaboratorId,
+      {
         filteringDto: { periodStartDate, periodEndDate },
-      }),
-      this.salaryDataService.getAll({
-        filteringDto: { year: new Date(periodEndDate).getFullYear() },
-      }),
-      this.commissionAllocationService.getCollaboratorCommissionStats(
+      }
+    );
+
+    const commissionsPromise =
+      this.commissionAllocationService.getCollaboratorTotalCommissions(
         collaboratorId,
         {
           filteringDto: {
@@ -173,7 +198,16 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
             period: "half-month",
           },
         }
-      ),
+      );
+
+    const [
+      collaboratorWithJobAndEmployment,
+      attendanceReport,
+      totalCommissions,
+    ] = await Promise.all([
+      collaboratorPromise,
+      attendancePromise,
+      commissionsPromise,
     ]);
 
     if (!collaboratorWithJobAndEmployment) {
@@ -188,13 +222,6 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     if (!attendanceReport) {
       throw BaseError.notFound("Attendance report not found");
     }
-
-    const salaryData = salaryDataResponse[0];
-    if (!salaryData) {
-      throw BaseError.notFound("Salary data not found");
-    }
-
-    const totalCommissions = commissionsData.period.globalAmounts.totalAmount;
 
     return {
       collaborator: collaboratorWithJobAndEmployment.collaborator,

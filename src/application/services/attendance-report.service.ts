@@ -319,20 +319,11 @@ export class AttendanceReportService {
       const { shiftDate, startingTime, endingTime } = shift;
 
       const shiftDateMx = convertUtcDateToMexicoTimeStartOfDay(shift.shiftDate);
-      console.log({ shiftDateMx: shiftDateMx.toISOString() });
+
       const startingTimeMx = startingTime
         ? getMxDayjsDatetimeByDateAndTime(shiftDate, startingTime)
         : undefined;
 
-      if (shiftDate === "2025-04-16") {
-        console.log("WAIT");
-        console.log({
-          shiftDate,
-          startingTime,
-          endingTime,
-          startingTimeMx: startingTimeMx?.toISOString(),
-        });
-      }
       const endingTimeMx = endingTime
         ? getMxDayjsDatetimeByDateAndTime(shiftDate, endingTime)
         : undefined;
@@ -352,15 +343,6 @@ export class AttendanceReportService {
     const attendanceRecord1 = attendanceRecords[0];
 
     return attendanceRecords.map((record, index) => {
-      if (index === 0) {
-        const myTest = {
-          shiftDateIso: record.shiftDate,
-          shiftDateDayJs: dayjs(record.shiftDate).toISOString(),
-          shiftDateIso2: record.shiftDate.toISOString(),
-          return: toMexicoStartOfDay(record.shiftDate).toISOString(),
-        };
-        console.log(myTest);
-      }
       return {
         ...record,
         shiftDate: toMexicoStartOfDay(record.shiftDate),

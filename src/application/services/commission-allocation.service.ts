@@ -317,6 +317,73 @@ export class CommissionAllocationService extends BaseService<
     };
   };
 
+  /**
+   * Efficiently gets only the total commission amount for a collaborator in a period
+   * Used for payroll calculations where we only need the total amount
+   */
+  public getCollaboratorTotalCommissions = async (
+    collaboratorId: string,
+    queryOptions: CustomQueryOptions
+  ): Promise<number> => {
+    const commissionStart = Date.now();
+
+    const { filteringDto } = queryOptions;
+    const date = filteringDto?.date || new Date().toISOString();
+    const { period } = filteringDto as any;
+
+    if (!date || !period) {
+      throw BaseError.badRequest("Date and period are required");
+    }
+
+    const { $gte: startDate, $lte: endDate } = date;
+    const periodData = getCommissionsStatsPeriodsByPeriodAndDates(
+      period,
+      startDate,
+      endDate
+    );
+
+    // Get allocations with minimal projection - only commission amounts
+    const dbStart = Date.now();
+    const allocations = await this.getAll(
+      buildQueryOptions({
+        date: {
+          $gte: periodData.periodStartDate,
+          $lte: periodData.periodEndDate,
+        },
+        "services.commissions.collaboratorId": collaboratorId,
+        projection: {
+          date: 1,
+          "services.commissions.collaboratorId": 1,
+          "services.commissions.commissionAmount": 1,
+        },
+      })
+    );
+    const dbTime = Date.now() - dbStart;
+
+    // Sum up commission amounts directly without complex processing
+    const processingStart = Date.now();
+    let totalAmount = 0;
+    for (const allocation of allocations) {
+      for (const service of allocation.services || []) {
+        for (const commission of service.commissions || []) {
+          if (commission.collaboratorId === collaboratorId) {
+            totalAmount += commission.commissionAmount;
+          }
+        }
+      }
+    }
+    const processingTime = Date.now() - processingStart;
+
+    const totalTime = Date.now() - commissionStart;
+    if (totalTime > 100) {
+      console.log(
+        `   💰 Commission calc: ${totalTime}ms (DB: ${dbTime}ms, Processing: ${processingTime}ms, ${allocations.length} records)`
+      );
+    }
+
+    return Number(totalAmount.toFixed(2));
+  };
+
   private preprocessCommissionData(
     commissions: CommissionAllocationFlattedVO[],
     collaborators: any[],

@@ -114,11 +114,6 @@ export const transformMxDateTimeToEsStartOfDay = (date: dayjs.Dayjs) => {
   const madridDate = dayjs(date).tz("Europe/Madrid");
 
   const startOfDate = madridDate.startOf("day");
-  console.log({
-    date: date.toISOString(),
-    madridDate: madridDate.toISOString(),
-    startOfDate: startOfDate.toISOString(),
-  });
 
   return startOfDate;
 };
@@ -146,13 +141,6 @@ export const toMexicoStartOfDay = (date: string | Date) => {
   const spanishStartOfDay = getStartOfDayInTimezone(date, "Europe/Madrid");
   const utcStartOfDay = getStartOfDayInTimezone(date, "UTC");
 
-  console.log({
-    inputDateTime: inputDateTime.toISOString(),
-    mexicoStartOfDay: mexicoStartOfDay.toISOString(),
-    spanishStartOfDay: spanishStartOfDay.toISOString(),
-    utcStartOfDay: utcStartOfDay.toISOString(),
-  });
-
   if (inputDateTime.isSame(mexicoStartOfDay)) {
     return mexicoStartOfDay;
   }
@@ -170,11 +158,7 @@ export const toMexicoStartOfDay = (date: string | Date) => {
 
 const getStartOfDayInTimezone = (date: string | Date, timezone: string) => {
   const result = dayjs(date).tz(timezone).startOf("day");
-  console.log({
-    input: date,
-    timezone,
-    result: result.toISOString(),
-  });
+
   return result;
 };
 
