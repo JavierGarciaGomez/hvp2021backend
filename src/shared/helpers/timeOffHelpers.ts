@@ -185,7 +185,8 @@ export const getPendingVacations = (
 
 export const calculateTotalVacationDays = (
   employmentStartDate: Date,
-  endDate = new Date()
+  endDate = new Date(),
+  collaboratorEndDate?: Date
 ): number => {
   const vacationsBefore2023 = calculateVacationDaysBefore2023(
     employmentStartDate,
@@ -196,7 +197,13 @@ export const calculateTotalVacationDays = (
     endDate
   );
 
-  return vacationsBefore2023 + vacationsAfter2022;
+  const extraVacacations = calculateExtraVacations(
+    employmentStartDate,
+    endDate,
+    collaboratorEndDate
+  );
+
+  return vacationsBefore2023 + vacationsAfter2022 + extraVacacations;
 };
 
 export const calculateVacationDaysBefore2023 = (
@@ -431,4 +438,33 @@ export const getLastAnniversaryDate = (startDate: Date): Date => {
   }
 
   return lastAnniversaryDate.toDate();
+};
+
+export const calculateExtraVacations = (
+  employmentStartDate: Date,
+  endDate = new Date(),
+  collaboratorEndDate?: Date
+) => {
+  const extraVacationsStartDate = dayjs("2025-01-01");
+
+  // Use the earlier of endDate or collaboratorEndDate
+  const effectiveEndDate =
+    collaboratorEndDate && dayjs(collaboratorEndDate).isBefore(dayjs(endDate))
+      ? dayjs(collaboratorEndDate)
+      : dayjs(endDate);
+
+  // If the effective end date is before 2025, no extra vacations
+  if (effectiveEndDate.isBefore(extraVacationsStartDate)) {
+    return 0;
+  }
+
+  // Calculate the number of years from 2025 to the effective end date
+  const yearsWithExtraVacations = effectiveEndDate.diff(
+    extraVacationsStartDate,
+    "year"
+  );
+
+  // 2 extra vacation days for each year starting from 2025
+  // If worked in 2025: 2 days, if worked in 2025-2026: 4 days, etc.
+  return (yearsWithExtraVacations + 1) * 2;
 };

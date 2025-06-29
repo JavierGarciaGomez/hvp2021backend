@@ -1,18 +1,26 @@
-import { PayrollEntity, SalaryDataEntity } from "../../domain/entities";
+import {
+  EmploymentEntity,
+  PayrollEntity,
+  SalaryDataEntity,
+} from "../../domain/entities";
 import { BaseService } from "./base.service";
-import { isrRate, PayrollRepository, PayrollStatus } from "../../domain";
+import {
+  ConcludedWeekHours,
+  HRPaymentType,
+  isrRate,
+  PayrollRepository,
+} from "../../domain";
 import { PayrollDTO } from "../dtos";
 import {
   PayrollCollaboratorRawData,
   PayrollEstimate,
-  PayrollEstimateRelevantValues,
-} from "../../domain/read-models/payroll-estimate.rm";
+} from "../../domain/read-models/payroll-estimate2.rm";
+
+// Internal calculation types removed - using contextData instead
 import {
   BaseError,
   CustomQueryOptions,
   DAILY_WORK_HOURS,
-  MONTH_DAYS,
-  MONTH_WORK_DAYS,
   VACATION_BONUS_PERCENTAGE,
   WEEK_WORK_DAYS,
   WEEKS_IN_MONTH,
@@ -24,6 +32,7 @@ import {
   createJobService,
   createSalaryDataService,
 } from "../factories";
+import { createCommissionAllocationService } from "../factories/commission-allocation.factory";
 
 import {
   DAILY_MEAL_COMPENSATION,
@@ -44,6 +53,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
   jobService = createJobService();
   collaboratorService = createCollaboratorService();
   salaryDataService = createSalaryDataService();
+  commissionAllocationService = createCommissionAllocationService();
   constructor(protected readonly repository: PayrollRepository) {
     super(repository, PayrollEntity);
   }
@@ -51,16 +61,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
   public getPayrollEstimates = async (
     queryOptions: CustomQueryOptions
   ): Promise<PayrollEstimate[]> => {
-    const payrollEstimates: PayrollEstimate[] = [];
-    return payrollEstimates;
-  };
-
-  public getPayrollEstimateByCollaboratorId = async (
-    collaboratorId: string,
-    queryOptions: CustomQueryOptions
-  ): Promise<PayrollEstimate> => {
-    const { periodStartDate, periodEndDate, specialCompensation, commissions } =
-      queryOptions?.filteringDto ?? {};
+    const { periodStartDate, periodEndDate } = queryOptions?.filteringDto ?? {};
     if (!periodStartDate || !periodEndDate) {
       throw BaseError.badRequest(
         `Missing required fields: ${[
@@ -72,15 +73,48 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       );
     }
 
-    const numberCommissions = Number(commissions);
-    const numberSpecialCompensation = Number(specialCompensation || 0);
+    // Get active collaborators for the period
+    const activeCollaborators =
+      await this.collaboratorService.getCollaboratorsByDate(periodEndDate);
+
+    const payrollEstimates: PayrollEstimate[] = [];
+
+    // Generate payroll estimate for each active collaborator
+    for (const collaborator of activeCollaborators) {
+      if (collaborator.col_code === "CRR") {
+        console.log(collaborator);
+      }
+      const payrollEstimate = await this.generatePayrollEstimate(
+        collaborator.id!,
+        periodStartDate,
+        periodEndDate
+      );
+      payrollEstimates.push(payrollEstimate);
+    }
+
+    return payrollEstimates;
+  };
+
+  public getPayrollEstimateByCollaboratorId = async (
+    collaboratorId: string,
+    queryOptions: CustomQueryOptions
+  ): Promise<PayrollEstimate> => {
+    const { periodStartDate, periodEndDate } = queryOptions?.filteringDto ?? {};
+    if (!periodStartDate || !periodEndDate) {
+      throw BaseError.badRequest(
+        `Missing required fields: ${[
+          !periodStartDate && "periodStartDate",
+          !periodEndDate && "periodEndDate",
+        ]
+          .filter(Boolean)
+          .join(", ")}`
+      );
+    }
 
     const payrollEstimate = await this.generatePayrollEstimate(
       collaboratorId,
       periodStartDate,
-      periodEndDate,
-      numberCommissions,
-      numberSpecialCompensation
+      periodEndDate
     );
 
     return payrollEstimate;
@@ -93,9 +127,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
   private async generatePayrollEstimate(
     collaboratorId: string,
     periodStartDate: string,
-    periodEndDate: string,
-    commissions: number,
-    specialCompensation: number
+    periodEndDate: string
   ) {
     const rawData = await this.getRawData(
       collaboratorId,
@@ -103,12 +135,10 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       periodEndDate
     );
 
-    const payroll = this.calculateAll(
+    const payroll = this.calculatePayroll(
       rawData,
       periodStartDate,
-      periodEndDate,
-      commissions,
-      specialCompensation
+      periodEndDate
     );
 
     return payroll;
@@ -119,76 +149,173 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     periodStartDate: string,
     periodEndDate: string
   ): Promise<PayrollCollaboratorRawData> {
-    const collaborator = await this.collaboratorService.getById(collaboratorId);
-    if (!collaborator) {
-      throw BaseError.notFound("Collaborator not found");
-    }
-    const employment =
-      await this.employmentService.getEmploymentByCollaboratorAndDate(
+    const [
+      collaboratorWithJobAndEmployment,
+      attendanceReport,
+      salaryDataResponse,
+      commissionsData,
+    ] = await Promise.all([
+      this.collaboratorService.getCollaboratorWithJobAndEmployment(
         collaboratorId,
         periodEndDate
-      );
-    if (!employment) {
+      ),
+      this.attendanceReportService.getByCollaboratorId(collaboratorId, {
+        filteringDto: { periodStartDate, periodEndDate },
+      }),
+      this.salaryDataService.getAll({
+        filteringDto: { year: new Date(periodEndDate).getFullYear() },
+      }),
+      this.commissionAllocationService.getCollaboratorCommissionStats(
+        collaboratorId,
+        {
+          filteringDto: {
+            date: { $gte: periodStartDate, $lte: periodEndDate },
+            period: "half-month",
+          },
+        }
+      ),
+    ]);
+
+    if (!collaboratorWithJobAndEmployment) {
+      throw BaseError.notFound("Collaborator not found");
+    }
+    if (!collaboratorWithJobAndEmployment.employment) {
       throw BaseError.notFound("Employment not found");
     }
-    const job = await this.jobService.getById(employment.jobId);
-    if (!job) {
+    if (!collaboratorWithJobAndEmployment.job) {
       throw BaseError.notFound("Job not found");
     }
-    const attendanceReport =
-      await this.attendanceReportService.getByCollaboratorId(collaboratorId, {
-        filteringDto: {
-          periodStartDate,
-          periodEndDate,
-        },
-      });
     if (!attendanceReport) {
       throw BaseError.notFound("Attendance report not found");
     }
-    const salaryDataResponse = await this.salaryDataService.getAll({
-      filteringDto: {
-        year: new Date(periodEndDate).getFullYear(),
-      },
-    });
+
     const salaryData = salaryDataResponse[0];
     if (!salaryData) {
       throw BaseError.notFound("Salary data not found");
     }
 
+    const totalCommissions = commissionsData.period.globalAmounts.totalAmount;
+
     return {
-      collaborator,
-      employment,
-      job,
+      collaborator: collaboratorWithJobAndEmployment.collaborator,
+      employment: collaboratorWithJobAndEmployment.employment,
+      job: collaboratorWithJobAndEmployment.job,
       attendanceReport,
       salaryData,
+      totalCommissions,
     };
   }
 
-  private calculateAll(
+  private calculatePayroll(
     rawData: PayrollCollaboratorRawData,
     periodStartDate: string,
-    periodEndDate: string,
-    commissions: number,
-    specialCompensation: number
-  ) {
-    const { collaborator, employment, job, attendanceReport, salaryData } =
-      rawData;
-    const { minimumWageHVP, uma, halfMonthIsrRates } = salaryData;
+    periodEndDate: string
+  ): PayrollEstimate {
+    const payrollEstimate = this.generateEmptyPayrollEstimate();
+
+    // Step 1: Fill payroll general data
+    this.fillGeneralData(
+      payrollEstimate,
+      rawData,
+      periodStartDate,
+      periodEndDate
+    );
+
+    // Step 2: Fill basic variables to the context
+    this.fillBasicVariables(
+      payrollEstimate,
+      rawData,
+      periodStartDate,
+      periodEndDate
+    );
+
+    // Step 3: Fill attendance related discounts and attendance factor to the context
+    this.fillAttendanceDiscounts(payrollEstimate, rawData);
+
+    // Step 4: Fill all the earnings that don't depend on other earnings
+    this.fillInitialEarnings(payrollEstimate, rawData);
+
+    // Step 5: Fill guaranteed perception compensation
+    this.fillGuaranteedPerceptionCompensation(payrollEstimate, rawData);
+
+    // Step 6: Fill employment subsidy
+    this.fillEmploymentSubsidy(payrollEstimate, rawData);
+
+    // Step 7: Fill social security withholding
+    this.fillSocialSecurityWithholding(payrollEstimate, rawData);
+
+    // Step 8: Fill income tax withholding
+    this.fillIncomeTaxWithholding(payrollEstimate, rawData);
+
+    // Step 9: Fill totals
+    this.fillTotals(payrollEstimate);
+
+    return payrollEstimate;
+  }
+
+  private fillGeneralData(
+    payrollEstimate: PayrollEstimate,
+    rawData: PayrollCollaboratorRawData,
+    periodStartDate: string,
+    periodEndDate: string
+  ): void {
+    const { collaborator, employment, job } = rawData;
+
+    payrollEstimate.collaboratorId = collaborator.id!;
+    payrollEstimate.generalData = {
+      fullName: `${collaborator.first_name} ${collaborator.last_name}`,
+      collaboratorCode: collaborator.col_code,
+      curp: collaborator.curp ?? "",
+      socialSecurityNumber: collaborator?.imssNumber || "",
+      rfcNumber: collaborator?.rfcCode || "",
+      jobTitle: job.title,
+      paymentType: employment.paymentType,
+      contributionBaseSalary: employment.contributionBaseSalary,
+      periodStartDate: new Date(periodStartDate),
+      periodEndDate: new Date(periodEndDate),
+    };
+  }
+
+  private fillBasicVariables(
+    payrollEstimate: PayrollEstimate,
+    rawData: PayrollCollaboratorRawData,
+    periodStartDate: string,
+    periodEndDate: string
+  ): void {
+    const { employment } = rawData;
     const {
-      concludedWeeksHours,
-      periodHours,
-      punctualityBonus: hasPunctualityBonus,
-    } = attendanceReport;
-    const { expressBranchCompensation: jobExpressBranchCompensation } = job;
+      totalFixedIncome,
+      dailyWorkingHours,
+      averageOrdinaryIncomePerScheduledHour,
+    } = employment;
+
+    const periodDaysLength =
+      dayjs(periodEndDate)
+        .tz("America/Mexico_City")
+        .diff(dayjs(periodStartDate).tz("America/Mexico_City"), "day") + 1;
+
+    const halfWeekFixedIncome = totalFixedIncome / 2;
+
+    const averageOrdinaryIncomeDaily =
+      averageOrdinaryIncomePerScheduledHour * dailyWorkingHours;
+
+    // Fill context data
+    payrollEstimate.contextData.periodDaysLength = periodDaysLength;
+    payrollEstimate.contextData.halfWeekFixedIncome = halfWeekFixedIncome;
+    payrollEstimate.contextData.averageOrdinaryIncomeDaily =
+      averageOrdinaryIncomeDaily;
+  }
+
+  private fillAttendanceDiscounts(
+    payrollEstimate: PayrollEstimate,
+    rawData: PayrollCollaboratorRawData
+  ): void {
+    const { employment, attendanceReport } = rawData;
+    const { periodHours, concludedWeeksHours, tardiness } = attendanceReport;
     const {
-      weeklyHours,
-      employmentFixedIncomeByJob: employmentFixedIncome,
-      employmentDegreeBonus: employmentDegreeBonus,
-      trainingSupport: employmentTrainingSupport,
-      physicalActivitySupport: employmentPhysicalActivitySupport,
-      extraCompensations: employmentExtraCompensations,
-      paymentType: employmentPaymentType,
-      contributionBaseSalary: employmentContributionBaseSalary,
+      dailyWorkingHours,
+      effectiveHourlyFixedIncome,
+      nominalDailyFixedIncome,
     } = employment;
     const {
       justifiedAbsenceByCompanyHours,
@@ -196,384 +323,327 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       sickLeaveHours,
       authorizedUnjustifiedAbsenceHours,
       unjustifiedAbsenceHours,
-      vacationHours,
-      workedSundayHours,
-      publicHolidaysHours,
-      expressHours,
-      mealDays,
     } = periodHours;
-    const {
-      notWorkedHours,
-      singlePlayWorkedExtraHours,
-      doublePlayWorkedExtraHours,
-      triplePlayWorkedExtraHours,
-      restWorkedHours,
-    } = concludedWeeksHours;
-    // GENERAL VARIABLES
-    const periodDaysLength =
-      dayjs(periodEndDate)
-        .tz("America/Mexico_City")
-        .diff(dayjs(periodStartDate).tz("America/Mexico_City"), "day") + 1;
-    const halfWeekPayrollFixedIncome = employmentFixedIncome / 2;
-    const collaboratorDailyWorkHours = weeklyHours / 6;
-    const dailyNominalFixedIncome = employmentFixedIncome / MONTH_DAYS;
-    const dailyEffectiveFixedIncome = employmentFixedIncome / MONTH_WORK_DAYS;
+    const { notWorkedHours } = concludedWeeksHours;
 
-    const hourlyNominalFixedIncome =
-      employmentFixedIncome / MONTH_DAYS / collaboratorDailyWorkHours; // for extra hours
-    const hourlyEffectiveFixedIncome =
-      dailyEffectiveFixedIncome / collaboratorDailyWorkHours; // for discount days
+    // Get values from context
+    const { periodDaysLength, halfWeekFixedIncome } =
+      payrollEstimate.contextData;
 
-    // Calculate derived values since these fields were removed
-    const averageOrdinaryIncome = employmentFixedIncome;
-    const averageCommissionIncome = 0; // Default to 0 or calculate based on business logic
-
-    const averageOrdinaryIncomeDaily = averageOrdinaryIncome / MONTH_DAYS;
-    const averageOrdinaryIncomeHourly =
-      averageOrdinaryIncomeDaily / collaboratorDailyWorkHours;
-
-    const hvpMinWageDaily = minimumWageHVP / MONTH_DAYS;
-    const hvpMinWageHourly = hvpMinWageDaily / DAILY_WORK_HOURS;
-
-    const monthlyMinOrdinaryIncome = Math.max(
-      averageOrdinaryIncome,
-      minimumWageHVP
-    );
-    const dailyMinOrdinaryIncome = Math.max(
-      averageOrdinaryIncomeDaily,
-      hvpMinWageDaily
-    );
-    const hourlyMinOrdinaryIncomeHourly = Math.max(
-      averageOrdinaryIncomeHourly,
-      hvpMinWageHourly
-    );
-
-    const averageCommissionIncomeDaily = averageCommissionIncome / MONTH_DAYS;
-
-    // fixed income
-    /// non computable discount nominalFixedIncome
+    // Calculate attendance-related discounts for deductions
     const totalNonComputableHours = nonComputableHours;
-    const nonComputableDays =
-      totalNonComputableHours / collaboratorDailyWorkHours;
+    const nonComputableDays = totalNonComputableHours / dailyWorkingHours;
     const nonComputableDaysRatio = nonComputableDays / periodDaysLength;
-    const nonComputableDiscount =
-      nonComputableDaysRatio * halfWeekPayrollFixedIncome;
 
-    /// absence: discount effectiveFixedIncome
-    const totalAbsenceDayHours =
-      justifiedAbsenceByCompanyHours +
-      unjustifiedAbsenceHours +
-      authorizedUnjustifiedAbsenceHours;
-    const absenceDiscount = totalAbsenceDayHours * hourlyEffectiveFixedIncome;
+    const totalUnjustifiedAbsenceHours =
+      unjustifiedAbsenceHours + authorizedUnjustifiedAbsenceHours;
 
-    const totalSickLeaveHours = sickLeaveHours;
+    const totalJustifiedAbsenceHours =
+      sickLeaveHours + justifiedAbsenceByCompanyHours;
 
-    const sickLeaveDays = totalSickLeaveHours / collaboratorDailyWorkHours;
-    const absenceDays =
-      (totalAbsenceDayHours + notWorkedHours) / collaboratorDailyWorkHours;
+    // discounts
+    const nonComputableDiscount = nonComputableDaysRatio * halfWeekFixedIncome;
+    const unjustifiedAbsenceDiscount =
+      totalUnjustifiedAbsenceHours * effectiveHourlyFixedIncome;
+    const justifiedAbsenceDiscount =
+      totalJustifiedAbsenceHours * effectiveHourlyFixedIncome;
+    const notWorkedDiscount = notWorkedHours * effectiveHourlyFixedIncome;
+    const tardinessDiscount =
+      Math.floor(tardiness / 3) * nominalDailyFixedIncome;
 
-    const sickLeaveDiscount = totalSickLeaveHours * hourlyEffectiveFixedIncome;
-
-    const notWorkedDiscount = notWorkedHours * hourlyEffectiveFixedIncome;
-
-    const fixedIncomeDiscounts =
+    const totalAttendanceDiscounts =
       nonComputableDiscount +
-      sickLeaveDiscount +
-      absenceDiscount +
-      notWorkedDiscount;
+      unjustifiedAbsenceDiscount +
+      justifiedAbsenceDiscount +
+      notWorkedDiscount +
+      tardinessDiscount;
 
-    const fixedIncome = Math.max(
-      halfWeekPayrollFixedIncome - fixedIncomeDiscounts,
-      0
+    // Calculate attendance factor
+    const attendanceFactor = Math.max(
+      0,
+      Math.min(
+        1,
+        (halfWeekFixedIncome - totalAttendanceDiscounts) / halfWeekFixedIncome
+      )
     );
 
-    const attendanceProportion = fixedIncome / halfWeekPayrollFixedIncome;
+    // Fill attendance factor and discounts in context
+    payrollEstimate.contextData.attendanceFactor = attendanceFactor;
+    payrollEstimate.contextData.attendanceRelatedDiscounts =
+      totalAttendanceDiscounts;
 
-    // todo: commissions
+    // Fill employment-based deductions (attendance-related)
+    payrollEstimate.deductions.nonCountedDaysDiscount = nonComputableDiscount;
+    payrollEstimate.deductions.justifiedAbsencesDiscount =
+      justifiedAbsenceDiscount;
+    payrollEstimate.deductions.unjustifiedAbsencesDiscount =
+      unjustifiedAbsenceDiscount;
+    payrollEstimate.deductions.unworkedHoursDiscount = notWorkedDiscount;
+    payrollEstimate.deductions.tardinessDiscount = tardinessDiscount;
 
-    // *** SIMILAR TO COMISSIONS ***
+    // Other employment-based deductions
+    payrollEstimate.deductions.otherFixedDeductions =
+      employment.otherDeductions.map((deduction) => ({
+        name: deduction.name,
+        description: deduction.name,
+        amount: deduction.amount / 2, // Half month
+      }));
+  }
 
-    // vacation compensation
+  private fillInitialEarnings(
+    payrollEstimate: PayrollEstimate,
+    rawData: PayrollCollaboratorRawData
+  ): void {
+    const { employment, job, totalCommissions, attendanceReport } = rawData;
+    const {
+      periodHours,
+      concludedWeeksHours,
+      punctualityBonus: hasPunctualityBonus,
+    } = attendanceReport;
 
-    const vacationDays = vacationHours / collaboratorDailyWorkHours;
-    const vacationsCompensation = vacationDays * averageCommissionIncomeDaily;
+    const {
+      nominalHourlyFixedIncome,
+      nominalDailyFixedIncome,
+      averageCommissionsPerScheduledHour,
+      dailyWorkingHours,
+      trainingSupport,
+      physicalActivitySupport,
+    } = employment;
 
-    // justified absences compensation
+    // Get values from context
+    const { halfWeekFixedIncome, averageOrdinaryIncomeDaily } =
+      payrollEstimate.contextData;
 
-    const justifiedAbsencesDays =
-      justifiedAbsenceByCompanyHours / collaboratorDailyWorkHours;
+    // Set half week fixed income
+    payrollEstimate.earnings.halfWeekFixedIncome = halfWeekFixedIncome;
 
-    const justifiedAbsencesCompensation =
-      averageOrdinaryIncomeHourly *
-      justifiedAbsenceByCompanyHours *
-      JUSTIFIED_ABSENCES_PERCENTAGE;
+    // Set commissions
+    payrollEstimate.earnings.commissions = totalCommissions;
 
-    // express branch compensation
-    const expressBranchCompensation =
-      (expressHours * jobExpressBranchCompensation) / DAILY_WORK_HOURS;
+    // Vacation compensation
+    const vacationDays = periodHours.vacationHours / dailyWorkingHours;
+    payrollEstimate.earnings.vacationCompensation =
+      periodHours.vacationHours * averageCommissionsPerScheduledHour;
 
-    // minimum ordinary income compensation
-    const subTotalMinimumIncome =
-      fixedIncome +
-      vacationsCompensation +
-      justifiedAbsencesCompensation +
-      expressBranchCompensation +
-      commissions;
+    // Other fixed compensations
+    payrollEstimate.earnings.expressBranchCompensation =
+      periodHours.expressHours *
+      (job.expressBranchCompensation / DAILY_WORK_HOURS);
 
-    const minimumOrdinaryIncomeCompensation =
-      Math.max(0, monthlyMinOrdinaryIncome / 2 - subTotalMinimumIncome) *
-      attendanceProportion;
+    payrollEstimate.earnings.mealCompensation =
+      periodHours.mealDays * DAILY_MEAL_COMPENSATION;
 
-    // todo: year end bonus
-    const yearEndBonus = 0;
-
-    // vacation bonus
-    const vacationBonus =
-      vacationDays * dailyMinOrdinaryIncome * VACATION_BONUS_PERCENTAGE;
-
-    // todo: profit sharing
-    const profitSharing = 0;
-
-    // extra hours
-    const extraHoursSinglePlay =
-      singlePlayWorkedExtraHours * hourlyMinOrdinaryIncomeHourly;
-    const extraHoursDoublePlay =
-      doublePlayWorkedExtraHours * hourlyMinOrdinaryIncomeHourly * 2;
-    const extraHoursTriplePlay =
-      triplePlayWorkedExtraHours * hourlyMinOrdinaryIncomeHourly * 3;
-
-    // sunday bonus
-    const sundayBonusExtraPay =
-      workedSundayHours *
-      hourlyMinOrdinaryIncomeHourly *
-      SUNDAY_BONUS_PERCENTAGE;
-
-    // holiday or rest extra pay
-    // const holidayOrRestHours = publicHolidaysHours + restWorkedHours;
-    const holidayOrRestHours = publicHolidaysHours + restWorkedHours;
-    const holidayOrRestExtraPay =
-      holidayOrRestHours *
-      hourlyMinOrdinaryIncomeHourly *
-      HOLIDAY_OR_REST_EXTRA_PAY_PERCENTAGE;
-
-    // punctualityBonus
-    const punctualityBonus = hasPunctualityBonus ? dailyMinOrdinaryIncome : 0;
-
-    // meal compensation
-    const mealCompensation = mealDays * DAILY_MEAL_COMPENSATION;
-    // reception bonus - removed from employment entity
-    const receptionBonus = 0;
-    // degree bonus
-    const degreeBonus = employmentDegreeBonus / 2;
-    // training support
-    const trainingSupport = employmentTrainingSupport / 2;
-    // physical activity support
-    const physicalActivitySupport = employmentPhysicalActivitySupport / 2;
-    // extra compensations
-    const extraCompensations = employmentExtraCompensations.map(
-      (compensation) => {
-        const compensationAmount = compensation.amount / 2;
-        const compensationAdjusted = compensation.attendanceRelated
-          ? compensationAmount * attendanceProportion
-          : compensationAmount;
-
-        return {
-          ...compensation,
-          amount: compensationAdjusted,
-        };
-      }
-    );
-
-    // todo employment subsidy
-
-    const totalIncomeWithoutSubsidy =
-      fixedIncome +
-      commissions +
-      vacationsCompensation +
-      justifiedAbsencesCompensation +
-      expressBranchCompensation +
-      minimumOrdinaryIncomeCompensation +
-      yearEndBonus +
-      vacationBonus +
-      profitSharing +
-      extraHoursSinglePlay +
-      extraHoursDoublePlay +
-      extraHoursTriplePlay +
-      sundayBonusExtraPay +
-      holidayOrRestExtraPay +
-      punctualityBonus +
-      mealCompensation +
-      receptionBonus +
-      degreeBonus +
-      trainingSupport +
-      physicalActivitySupport +
-      extraCompensations.reduce(
-        (acc, compensation) => acc + compensation.amount,
-        0
-      ) +
-      specialCompensation;
-
-    // TODO
-    const shouldReceiveSubsidy =
-      totalIncomeWithoutSubsidy < salaryData.employmentSubsidyLimit / 2;
-
-    const employmentSubsidy = shouldReceiveSubsidy
-      ? salaryData.employmentSubsidyAmount / 2
+    payrollEstimate.earnings.punctualityBonus = hasPunctualityBonus
+      ? nominalDailyFixedIncome
       : 0;
 
-    const totalIncome = totalIncomeWithoutSubsidy + employmentSubsidy;
+    payrollEstimate.earnings.absencesJustifiedByCompanyCompensation =
+      nominalHourlyFixedIncome *
+      periodHours.justifiedAbsenceByCompanyHours *
+      JUSTIFIED_ABSENCES_PERCENTAGE;
 
-    // *** DEDUCTIONS
+    payrollEstimate.earnings.traniningActivitySupport = trainingSupport / 2;
+    payrollEstimate.earnings.physicalActivitySupport =
+      physicalActivitySupport / 2;
 
-    // ISR base
-    /* Dedudcionts ISR
-    https://runahr.com/mx/recursos/ingresos-exentos-de-isr/
-    - profit sharing 100%
-    - aguinaldo hasta por 30 UMA
-    - horas extras 50% por las horas dobles hasta 5 UMA
-    - prima dominical 1 Uma por domingo
-    - prima vacacional hasta 15 UMA
+    // Overtime compensation
+    const { simpleOvertimeHours, doubleOvertimeHours, tripleOvertimeHours } =
+      this.calculateOvertimeCompensations(concludedWeeksHours, employment);
 
-    - Other deductions
-    */
+    payrollEstimate.earnings.simpleOvertimeHours = simpleOvertimeHours;
+    payrollEstimate.earnings.doubleOvertimeHours = doubleOvertimeHours;
+    payrollEstimate.earnings.tripleOvertimeHours = tripleOvertimeHours;
 
-    const yearEndBonusExemption = 30 + uma;
-    const yearEndBonusDifference = Math.max(
-      0,
-      yearEndBonus - yearEndBonusExemption
-    );
-    const profitSharingExemption = profitSharing;
+    // Sunday and holiday/rest bonuses
+    payrollEstimate.earnings.sundayBonus =
+      periodHours.workedSundayHours *
+      nominalHourlyFixedIncome *
+      SUNDAY_BONUS_PERCENTAGE;
 
-    const maxExtraHoursExemtpion = (5 * uma) / 2;
-    const extraHoursExemption = extraHoursDoublePlay * 0.5;
-    const extraHoursDifference = Math.min(
-      extraHoursExemption,
-      maxExtraHoursExemtpion
-    );
+    const holidayOrRestHours =
+      periodHours.publicHolidaysHours + concludedWeeksHours.restWorkedHours;
 
-    const workedSundays = Math.floor(
-      workedSundayHours / collaboratorDailyWorkHours
-    );
-    const maxSundayBonusExemption = workedSundays * uma;
-    const sundayBonusDifference = Math.min(
-      maxSundayBonusExemption,
-      sundayBonusExtraPay
-    );
+    payrollEstimate.earnings.holidayOrRestExtraPay =
+      holidayOrRestHours *
+      nominalHourlyFixedIncome *
+      HOLIDAY_OR_REST_EXTRA_PAY_PERCENTAGE;
 
-    const maxVacationBonusExemption = 15 * uma;
-    const vacationBonusDifference = Math.min(
-      maxVacationBonusExemption,
-      vacationBonus
-    );
+    // Bonuses
+    const vacationBonus =
+      vacationDays * averageOrdinaryIncomeDaily * VACATION_BONUS_PERCENTAGE;
 
-    const totalExemption =
-      yearEndBonusDifference +
-      profitSharingExemption +
-      extraHoursDifference +
-      sundayBonusDifference +
-      vacationBonusDifference;
+    payrollEstimate.earnings.vacationBonus = vacationBonus;
 
-    const isrBase = totalIncome - totalExemption;
-    const isr = this.calculateIsr(isrBase, salaryData.halfMonthIsrRates);
+    // TODO: Placeholders for future calculation logic
+    payrollEstimate.earnings.receptionBonus = 0;
+    payrollEstimate.earnings.endYearBonus = 0;
+    payrollEstimate.earnings.profitSharing = 0;
 
-    const { employerImssRate, employeeImssRate } =
-      this.calculateSocialSecurityWithholding(
-        employmentContributionBaseSalary,
-        salaryData
+    payrollEstimate.earnings.extraFixedCompensations =
+      employment.extraCompensations.map((compensation) => ({
+        name: compensation.name,
+        description: compensation.name,
+        amount: compensation.amount / 2, // Half month
+      }));
+
+    payrollEstimate.earnings.extraVariableCompensations = [];
+  }
+
+  private fillGuaranteedPerceptionCompensation(
+    payrollEstimate: PayrollEstimate,
+    rawData: PayrollCollaboratorRawData
+  ): void {
+    // Get values from context
+    const { attendanceFactor, attendanceRelatedDiscounts } =
+      payrollEstimate.contextData;
+
+    // Calculate guaranteed perception compensation
+    const subTotalOrdinaryIncome =
+      payrollEstimate.earnings.halfWeekFixedIncome +
+      payrollEstimate.earnings.commissions +
+      payrollEstimate.earnings.vacationCompensation +
+      payrollEstimate.earnings.absencesJustifiedByCompanyCompensation +
+      payrollEstimate.earnings.expressBranchCompensation +
+      payrollEstimate.earnings.mealCompensation +
+      payrollEstimate.earnings.receptionBonus +
+      payrollEstimate.earnings.punctualityBonus +
+      payrollEstimate.earnings.specialBonuses.reduce(
+        (acc, bonus) => acc + bonus.amount,
+        0
       );
 
-    const otherDeductions = employment.otherDeductions.map((deduction) => {
-      return {
-        name: deduction.name,
-        amount: deduction.amount / 2,
-      };
-    });
+    const totalOrdinaryIncome =
+      subTotalOrdinaryIncome - attendanceRelatedDiscounts;
 
-    const totalDeductions =
-      isr +
-      employeeImssRate +
-      otherDeductions.reduce((acc, deduction) => acc + deduction.amount, 0);
+    const maxGuaranteedPerception =
+      (rawData.employment.employmentGuaranteedIncome / 2) * attendanceFactor;
 
-    // TODO: EMPLOYMENT SUBSIDY -> THIS GOES TO FRONTEND
-    // TODO: COMISSIONSç
+    payrollEstimate.earnings.guaranteedPerceptionCompensation = Math.max(
+      0,
+      maxGuaranteedPerception - totalOrdinaryIncome
+    );
+  }
 
-    const relevantValues: PayrollEstimateRelevantValues = {
-      fixedIncomeDiscounts,
-      nominalHourlyWage: hourlyEffectiveFixedIncome,
-      attendanceProportion,
-      averageOrdinaryIncomeHourly,
-      minOrdinaryIncomeDaily: dailyMinOrdinaryIncome,
-      minOrdinaryIncomeHourly: hourlyMinOrdinaryIncomeHourly,
-      mealDays,
+  private fillEmploymentSubsidy(
+    payrollEstimate: PayrollEstimate,
+    rawData: PayrollCollaboratorRawData
+  ): void {
+    // Calculate total income without subsidy
+    const totalIncomeWithoutSubsidy =
+      this.calculateTotalEarnings(payrollEstimate);
+
+    const shouldReceiveSubsidy =
+      totalIncomeWithoutSubsidy < rawData.salaryData.employmentSubsidyLimit / 2;
+
+    payrollEstimate.earnings.employmentSubsidy = shouldReceiveSubsidy
+      ? rawData.salaryData.employmentSubsidyAmount / 2
+      : 0;
+  }
+
+  private fillSocialSecurityWithholding(
+    payrollEstimate: PayrollEstimate,
+    rawData: PayrollCollaboratorRawData
+  ): void {
+    const { employerImssRate, employeeImssRate } =
+      this.calculateSocialSecurityWithholding(
+        rawData.employment.contributionBaseSalary,
+        rawData.salaryData
+      );
+
+    payrollEstimate.deductions.socialSecurityWithholding = employeeImssRate;
+    payrollEstimate.contextData.employerImssRate = employerImssRate;
+  }
+
+  private fillIncomeTaxWithholding(
+    payrollEstimate: PayrollEstimate,
+    rawData: PayrollCollaboratorRawData
+  ): void {
+    // Calculate ISR base with exemptions
+    const totalIncome = this.calculateTotalEarnings(payrollEstimate);
+    const exemptions = this.calculateTaxExemptions(payrollEstimate, rawData);
+    const isrBase = totalIncome - exemptions;
+
+    const isr = this.calculateIsr(
       isrBase,
-      employerImssRate,
-    };
-    const payroll: PayrollEntity = new PayrollEntity({
-      // references
-      collaboratorId: collaborator.id!,
-      employmentId: employment.id!,
-      jobId: job.id!,
-      // collaboratorData
-      collaboratorFullName: `${collaborator.first_name} ${collaborator.last_name}`,
-      collaboratorCode: collaborator.col_code,
-      curp: collaborator.curp ?? "",
-      socialSecurityNumber: collaborator?.imssNumber || "",
-      rfcNumber: collaborator?.rfcCode || "",
-      // jobData
-      jobTitle: job.title,
-      paymentType: employmentPaymentType,
-      contributionBaseSalary: employmentContributionBaseSalary,
-      collaboratorStartDate: collaborator.startDate ?? new Date(),
-      collaboratorEndDate: collaborator.endDate ?? new Date(),
-      // payrollData
-      payrollStartDate: new Date(periodStartDate),
-      payrollEndDate: new Date(periodEndDate),
-      paymentDate: new Date(),
-      sickLeaveDays: sickLeaveDays,
-      absencesDays: absenceDays,
-      payrollStatus: PayrollStatus.Pending,
-      // INCOME
-      // income - fixed
-      fixedIncome: fixedIncome,
-      // income - commissions
-      commissions,
-      // income - similarToCommissions
-      vacationsCompensation,
-      justifiedAbsencesCompensation: justifiedAbsencesCompensation,
-      expressBranchCompensation: expressBranchCompensation,
-      minimumOrdinaryIncomeCompensation: minimumOrdinaryIncomeCompensation,
-      // income - legal allowances
-      yearEndBonus,
-      vacationBonus: vacationBonus,
-      profitSharing,
-      employmentSubsidy,
-      // income - extra legal compensations
-      extraHoursSinglePlay: extraHoursSinglePlay,
-      extraHoursDoublePlay: extraHoursDoublePlay,
-      extraHoursTriplePlay: extraHoursTriplePlay,
-      sundayBonusExtraPay: sundayBonusExtraPay,
-      holidayOrRestExtraPay: holidayOrRestExtraPay,
-      // income - company benefits
-      punctualityBonus: punctualityBonus,
-      mealCompensation: mealCompensation,
-      receptionBonus: receptionBonus,
-      degreeBonus: degreeBonus * attendanceProportion,
-      trainingSupport: trainingSupport * attendanceProportion,
-      physicalActivitySupport: physicalActivitySupport * attendanceProportion,
-      extraCompensations: extraCompensations,
-      specialCompensation,
-      // DEDUCTIONS
-      incomeTaxWithholding: isr,
-      socialSecurityWithholding: 0,
-      infonavitLoanWithholding: 0,
-      otherDeductions,
-      // TOTAL
-      totalIncome,
-      totalDeductions,
-      netPay: totalIncome - totalDeductions,
-    });
+      rawData.salaryData.halfMonthIsrRates
+    );
+    payrollEstimate.deductions.incomeTaxWithholding = isr;
+  }
 
-    return { payroll, relevantValues };
+  private fillTotals(payrollEstimate: PayrollEstimate): void {
+    const totalIncome = this.calculateTotalEarnings(payrollEstimate);
+    const totalDeductions = this.calculateTotalDeductions(payrollEstimate);
+
+    payrollEstimate.totals.totalIncome = totalIncome;
+    payrollEstimate.totals.totalDeductions = totalDeductions;
+    payrollEstimate.totals.netPay = totalIncome - totalDeductions;
+  }
+
+  private calculateTotalEarnings(payrollEstimate: PayrollEstimate): number {
+    return Object.entries(payrollEstimate.earnings)
+      .filter(([key, value]) => typeof value === "number")
+      .reduce((sum, [key, value]) => sum + (value as number), 0);
+  }
+
+  private calculateTotalDeductions(payrollEstimate: PayrollEstimate): number {
+    const fixedDeductions =
+      payrollEstimate.deductions.incomeTaxWithholding +
+      payrollEstimate.deductions.socialSecurityWithholding +
+      payrollEstimate.deductions.nonCountedDaysDiscount +
+      payrollEstimate.deductions.justifiedAbsencesDiscount +
+      payrollEstimate.deductions.unjustifiedAbsencesDiscount +
+      payrollEstimate.deductions.unworkedHoursDiscount +
+      payrollEstimate.deductions.tardinessDiscount;
+
+    const otherDeductions =
+      payrollEstimate.deductions.otherFixedDeductions.reduce(
+        (acc, deduction) => acc + deduction.amount,
+        0
+      );
+
+    return fixedDeductions + otherDeductions;
+  }
+
+  private calculateTaxExemptions(
+    payrollEstimate: PayrollEstimate,
+    rawData: PayrollCollaboratorRawData
+  ): number {
+    const { uma } = rawData.salaryData;
+    const { employment } = rawData;
+
+    // Calculate various exemptions
+    const yearEndBonusExemption = Math.min(
+      payrollEstimate.earnings.endYearBonus,
+      30 * uma
+    );
+    const profitSharingExemption = payrollEstimate.earnings.profitSharing; // 100% exempt
+    const extraHoursExemption = Math.min(
+      payrollEstimate.earnings.doubleOvertimeHours * 0.5,
+      (5 * uma) / 2
+    );
+
+    // Sunday bonus exemption (1 UMA per Sunday worked)
+    const workedSundays = Math.floor(
+      rawData.attendanceReport.periodHours.workedSundayHours /
+        employment.dailyWorkingHours
+    );
+    const sundayBonusExemption = Math.min(
+      payrollEstimate.earnings.sundayBonus,
+      workedSundays * uma
+    );
+
+    const vacationBonusExemption = Math.min(
+      payrollEstimate.earnings.vacationBonus,
+      15 * uma
+    );
+
+    return (
+      yearEndBonusExemption +
+      profitSharingExemption +
+      extraHoursExemption +
+      sundayBonusExemption +
+      vacationBonusExemption
+    );
   }
 
   private calculateIsr(isrBase: number, isrRates: isrRate[]) {
@@ -761,4 +831,97 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
 
     return fixedIncome;
   };
+
+  private calculateOvertimeCompensations = (
+    concludedWeeksHours: ConcludedWeekHours,
+    employment: EmploymentEntity
+  ) => {
+    const {
+      singlePlayWorkedExtraHours,
+      doublePlayWorkedExtraHours,
+      triplePlayWorkedExtraHours,
+    } = concludedWeeksHours;
+    const { nominalHourlyFixedIncome } = employment;
+
+    const simpleOvertimeHours =
+      singlePlayWorkedExtraHours * nominalHourlyFixedIncome;
+    const doubleOvertimeHours =
+      doublePlayWorkedExtraHours * nominalHourlyFixedIncome * 2;
+    const tripleOvertimeHours =
+      triplePlayWorkedExtraHours * nominalHourlyFixedIncome * 3;
+
+    return {
+      simpleOvertimeHours,
+      doubleOvertimeHours,
+      tripleOvertimeHours,
+    };
+  };
+
+  private generateEmptyPayrollEstimate(): PayrollEstimate {
+    return {
+      id: undefined,
+      collaboratorId: "",
+      generalData: {
+        fullName: "",
+        collaboratorCode: "",
+        curp: "",
+        socialSecurityNumber: "",
+        rfcNumber: "",
+        jobTitle: "",
+        paymentType: HRPaymentType.SALARY,
+        contributionBaseSalary: 0,
+        periodStartDate: new Date(0),
+        periodEndDate: new Date(0),
+      },
+      earnings: {
+        halfWeekFixedIncome: 0,
+        commissions: 0,
+        vacationCompensation: 0,
+        expressBranchCompensation: 0,
+        mealCompensation: 0,
+        receptionBonus: 0,
+        punctualityBonus: 0,
+        absencesJustifiedByCompanyCompensation: 0,
+        specialBonuses: [],
+        guaranteedPerceptionCompensation: 0,
+        simpleOvertimeHours: 0,
+        doubleOvertimeHours: 0,
+        tripleOvertimeHours: 0,
+        sundayBonus: 0,
+        holidayOrRestExtraPay: 0,
+        traniningActivitySupport: 0,
+        physicalActivitySupport: 0,
+        extraFixedCompensations: [],
+        extraVariableCompensations: [],
+        vacationBonus: 0,
+        endYearBonus: 0,
+        profitSharing: 0,
+        employmentSubsidy: 0,
+      },
+      deductions: {
+        incomeTaxWithholding: 0,
+        socialSecurityWithholding: 0,
+        otherFixedDeductions: [],
+        otherVariableDeductions: [],
+        nonCountedDaysDiscount: 0,
+        justifiedAbsencesDiscount: 0,
+        unjustifiedAbsencesDiscount: 0,
+        unworkedHoursDiscount: 0,
+        tardinessDiscount: 0,
+      },
+      totals: {
+        totalIncome: 0,
+        totalDeductions: 0,
+        netPay: 0,
+      },
+      contextData: {
+        periodDaysLength: 0,
+        halfWeekFixedIncome: 0,
+        averageOrdinaryIncomeDaily: 0,
+        attendanceRelatedDiscounts: 0,
+        attendanceFactor: 0,
+        employerImssRate: 0,
+      },
+    };
+  }
 }

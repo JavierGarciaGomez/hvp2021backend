@@ -181,15 +181,20 @@ export class TimeOffRequestService extends BaseService<
       );
     }
     const collaborator = await this.collaboratorService.getById(collaboratorId);
-    const { startDate } = collaborator!;
+    const { startDate, endDate: collaboratorEndDate } = collaborator!;
     const lastAnniversaryDate = this.getLastAnniversaryDate(
       startDate ?? new Date()
     );
     const legalVacationDays = calculateTotalVacationDays(
       startDate!,
-      lastAnniversaryDate
+      lastAnniversaryDate,
+      collaboratorEndDate
     );
-    const totalVacationDays = calculateTotalVacationDays(startDate!, endDate);
+    const totalVacationDays = calculateTotalVacationDays(
+      startDate!,
+      endDate,
+      collaboratorEndDate
+    );
     const vacationsTaken: Date[] = getApprovedVacations(
       collaboratorTimeOffRequests
     );

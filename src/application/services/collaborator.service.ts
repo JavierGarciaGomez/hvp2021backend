@@ -8,15 +8,12 @@ import {
 } from "../../domain/entities";
 import { CollaboratorRepository } from "../../domain/repositories";
 import { bcryptAdapter } from "../../infrastructure/adapters";
+import { BaseError } from "../../shared";
 
 import { CustomQueryOptions } from "../../shared/interfaces";
 
 import { CollaboratorDTO, PaginationDto, SortingDto } from "../dtos";
-import {
-  createEmploymentService,
-  createJobService,
-  createProductService,
-} from "../factories";
+import { createEmploymentService, createJobService } from "../factories";
 import { BaseService } from "./base.service";
 
 export class CollaboratorService extends BaseService<
@@ -24,6 +21,9 @@ export class CollaboratorService extends BaseService<
   CollaboratorDTO,
   CollaboratorResponse
 > {
+  // private readonly employmentService = createEmploymentService();
+  private readonly jobService = createJobService();
+
   constructor(protected repository: CollaboratorRepository) {
     super(repository, CollaboratorEntity);
   }
@@ -40,11 +40,14 @@ export class CollaboratorService extends BaseService<
     options: CustomQueryOptions
   ): Promise<PublicCollaborator[]> => {
     const collaborators = await this.repository.getAllForWeb(options);
-    const jobService = createJobService();
+    if (!this.jobService) {
+      return collaborators;
+    }
+
     const enhancedCollaborators = await Promise.all(
       collaborators.map(async (collab) => {
         if (collab.jobId) {
-          const job = await jobService.getById(collab.jobId);
+          const job = await this.jobService.getById(collab.jobId);
           return {
             ...collab,
             jobTitle: job?.title || "Unknown",
@@ -81,11 +84,8 @@ export class CollaboratorService extends BaseService<
     date: string
   ): Promise<CollaboratorWithJobAndEmploymentResponse[]> => {
     const collaborators = await this.getCollaboratorsByDate(date);
-
-    const jobService = createJobService();
     const employmentService = createEmploymentService();
 
-    // todo test
     const collaboratorsWithJobAndEmployment = await Promise.all(
       collaborators.map(async (collaborator) => {
         let job;
@@ -99,7 +99,7 @@ export class CollaboratorService extends BaseService<
         const employmentJobId = employment?.jobId;
 
         if (employmentJobId) {
-          job = await jobService.getById(employmentJobId);
+          job = await this.jobService.getById(employmentJobId);
         }
 
         return { collaborator, job, employment };
@@ -107,6 +107,30 @@ export class CollaboratorService extends BaseService<
     );
 
     return collaboratorsWithJobAndEmployment.filter(Boolean);
+  };
+
+  public getCollaboratorWithJobAndEmployment = async (
+    collaboratorId: string,
+    date: string
+  ): Promise<CollaboratorWithJobAndEmploymentResponse> => {
+    const employmentService = createEmploymentService();
+    const collaborator = await this.repository.getById(collaboratorId);
+    if (!collaborator) {
+      throw BaseError.notFound("Collaborator not found");
+    }
+
+    if (!employmentService || !this.jobService) {
+      return { collaborator, job: undefined, employment: undefined };
+    }
+
+    const employment =
+      await employmentService.getEmploymentByCollaboratorAndDate(
+        collaborator?.id!,
+        date
+      );
+    const job = await this.jobService.getById(employment?.jobId);
+
+    return { collaborator, job, employment };
   };
 
   public getCollaboratorsByDate = async (
@@ -166,16 +190,8 @@ export class CollaboratorService extends BaseService<
   transformToResponse = async (
     entity: CollaboratorEntity
   ): Promise<CollaboratorResponse> => {
-    const productService = createProductService();
     const collaborator: CollaboratorResponse = {
       ...entity,
-      baseContributionSalary: 10,
-      dailyAverageSalary: 10,
-      accumulatedAnnualIncomeRaisePercent: 10,
-      accumulatedAnnualCommissionRaisePercent: 10,
-      aggregatedMonthlyIncome: 10,
-      imssSalaryBase: 10,
-      averageDailyIncome: 10,
     };
     return collaborator;
   };

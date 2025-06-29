@@ -51,10 +51,10 @@ export interface PeriodHours {
   toBeCompensatedHours: number;
   vacationHours: number;
   personalLeaveHours: number;
-  justifiedAbsenceByCompanyHours: number;
+  justifiedAbsenceByCompanyHours: number; // this
   nonComputableHours: number;
   compensationHours: number;
-  sickLeaveHours: number;
+  sickLeaveHours: number; // this
   authorizedUnjustifiedAbsenceHours: number;
   unjustifiedAbsenceHours: number;
   publicHolidaysHours: number;

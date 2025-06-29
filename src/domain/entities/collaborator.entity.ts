@@ -293,15 +293,7 @@ export class CollaboratorEntity implements BaseEntity {
 //   }
 // }
 
-export interface CollaboratorResponse extends CollaboratorProps {
-  baseContributionSalary?: number;
-  dailyAverageSalary: number;
-  accumulatedAnnualIncomeRaisePercent: number;
-  accumulatedAnnualCommissionRaisePercent: number;
-  aggregatedMonthlyIncome: number;
-  imssSalaryBase: number;
-  averageDailyIncome: number;
-}
+export interface CollaboratorResponse extends CollaboratorProps {}
 
 export interface CollaboratorWithJobAndEmploymentResponse {
   collaborator: CollaboratorEntity;

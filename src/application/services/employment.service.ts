@@ -19,14 +19,14 @@ import {
   AVERAGE_WORK_DAYS_PER_MONTH,
   DEGREE_BONUS,
 } from "../../shared";
-import {
-  createCollaboratorService,
-  createJobService,
-  createCommissionAllocationService,
-  createSalaryDataService,
-} from "../factories";
 
 import dayjs from "dayjs";
+import {
+  createCollaboratorService,
+  createCommissionAllocationService,
+  createJobService,
+  createSalaryDataService,
+} from "../factories";
 
 export class EmploymentService extends BaseService<
   EmploymentEntity,
@@ -210,6 +210,7 @@ export class EmploymentService extends BaseService<
         employmentStartDate: { $lte: date },
         $or: [
           { employmentEndDate: { $exists: false } },
+          { employmentEndDate: null },
           { employmentEndDate: { $gte: date } },
         ],
       },
@@ -300,6 +301,10 @@ export class EmploymentService extends BaseService<
     startDate: string,
     endDate?: string
   ): Promise<DraftEmploymentReadModel> => {
+    if (!this.collaboratorService) {
+      throw new Error("Collaborator service not available");
+    }
+
     // Get the collaborator
     const collaborator = await this.collaboratorService.getById(collaboratorId);
     if (!collaborator) {
@@ -343,7 +348,8 @@ export class EmploymentService extends BaseService<
   ): Promise<EmploymentEntity> => {
     // Get job information
     const jobId = previousEmployment?.jobId || collaborator.jobId || "";
-    const job = jobId ? await this.jobService.getById(jobId) : null;
+    const job =
+      jobId && this.jobService ? await this.jobService.getById(jobId) : null;
 
     // Calculate basic work metrics
     const weeklyHours =
@@ -422,17 +428,19 @@ export class EmploymentService extends BaseService<
     // Get average commissions per scheduled hour
     let averageCommissionsPerScheduledHour = 10; // Default fallback
 
-    try {
-      const commissionData =
-        await this.commissionService.getCollaboratorHourlyCommissionAverage(
-          collaborator.id!,
-          startDate
-        );
-      averageCommissionsPerScheduledHour =
-        commissionData.hourlyCommissionAverage || 10;
-    } catch (error) {
-      // Use default value if commission data not available
-      averageCommissionsPerScheduledHour = 10;
+    if (this.commissionService) {
+      try {
+        const commissionData =
+          await this.commissionService.getCollaboratorHourlyCommissionAverage(
+            collaborator.id!,
+            startDate
+          );
+        averageCommissionsPerScheduledHour =
+          commissionData.hourlyCommissionAverage || 10;
+      } catch (error) {
+        // Use default value if commission data not available
+        averageCommissionsPerScheduledHour = 10;
+      }
     }
 
     // Calculate average ordinary income per scheduled hour
@@ -459,11 +467,6 @@ export class EmploymentService extends BaseService<
       contributionBaseSalaryMain +
       contributionBaseSalaryYearBonus +
       contributionBaseSalaryVacationBonus;
-
-    const contributionBaseSalary = Math.max(
-      previousEmployment?.contributionBaseSalary || 0,
-      contributionBaseSalaryTotal
-    );
 
     // Create a draft employment based on the calculated values
     return new EmploymentEntity({
@@ -497,7 +500,7 @@ export class EmploymentService extends BaseService<
         averageOrdinaryIncomePerScheduledHour,
       trainingSupport: previousEmployment?.trainingSupport || 0,
       physicalActivitySupport: previousEmployment?.physicalActivitySupport || 0,
-      contributionBaseSalary: contributionBaseSalary,
+      contributionBaseSalary: contributionBaseSalaryTotal,
       extraCompensations: previousEmployment?.extraCompensations || [],
       otherDeductions: previousEmployment?.otherDeductions || [],
     });
@@ -505,6 +508,10 @@ export class EmploymentService extends BaseService<
 
   private getMinimumWageForYear = async (year: number): Promise<number> => {
     const defaultMinimumWage = 278.8;
+    if (!this.salaryDataService) {
+      return defaultMinimumWage;
+    }
+
     try {
       const salaryDataResponse = await this.salaryDataService.getAll({
         filteringDto: { year },

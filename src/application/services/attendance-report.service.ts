@@ -257,6 +257,7 @@ export class AttendanceReportService {
         employmentStartDate: { $lte: extendedEndDateMx.toDate() },
         $or: [
           { employmentEndDate: { $exists: false } },
+          { employmentEndDate: null },
           { employmentEndDate: { $gt: extendedStartDateMx.toDate() } },
         ],
       },
@@ -1023,7 +1024,7 @@ export class AttendanceReportService {
       */
       const extraHours = workedOrExcludedHours - weeklyHours;
       if (extraHours < 0) {
-        notWorkedHours += extraHours;
+        notWorkedHours += extraHours * -1;
       }
 
       const maxSinglePlayWorkedExtraHours = MAX_WORK_WEEK_LIMIT - weeklyHours; // 48 - 35 = 13

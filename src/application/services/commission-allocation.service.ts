@@ -197,9 +197,9 @@ export class CommissionAllocationService extends BaseService<
           },
         })
       ),
-      this.collaboratorService.getCollaboratorsWithJobAndEmployment(
+      this.collaboratorService?.getCollaboratorsWithJobAndEmployment?.(
         extendedEndDate.toISOString()
-      ),
+      ) || [],
       this.jobService.getAll({
         filteringDto: { active: true },
       }),
@@ -289,7 +289,9 @@ export class CommissionAllocationService extends BaseService<
         (commission) => commission.collaboratorId === collaboratorId
       ) ?? [];
 
-    const collaborator = await this.collaboratorService.getById(collaboratorId);
+    const collaborator = await this.collaboratorService?.getById?.(
+      collaboratorId
+    );
     if (!collaborator) {
       throw BaseError.notFound("Collaborator not found");
     }
