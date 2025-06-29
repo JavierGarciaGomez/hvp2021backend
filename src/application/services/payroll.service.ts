@@ -271,7 +271,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       );
     }
 
-    return payrollEstimate;
+    // Round all numbers to 2 decimal places before returning
+    return this.roundPayrollEstimateNumbers(payrollEstimate);
   }
 
   private calculateSalaryPayroll(
@@ -1125,5 +1126,71 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
         workedHours: 0,
       },
     };
+  }
+
+  private roundPayrollEstimateNumbers(
+    payrollEstimate: PayrollEstimate
+  ): PayrollEstimate {
+    // Helper function to round numbers to 2 decimal places
+    const roundTo2Decimals = (num: number): number => {
+      return Math.round((num + Number.EPSILON) * 100) / 100;
+    };
+
+    // Round earnings
+    Object.keys(payrollEstimate.earnings).forEach((key) => {
+      const value = (payrollEstimate.earnings as any)[key];
+      if (typeof value === "number") {
+        (payrollEstimate.earnings as any)[key] = roundTo2Decimals(value);
+      } else if (Array.isArray(value)) {
+        // Handle arrays of objects with amount property
+        value.forEach((item) => {
+          if (typeof item === "object" && item.amount !== undefined) {
+            item.amount = roundTo2Decimals(item.amount);
+          }
+        });
+      }
+    });
+
+    // Round deductions
+    Object.keys(payrollEstimate.deductions).forEach((key) => {
+      const value = (payrollEstimate.deductions as any)[key];
+      if (typeof value === "number") {
+        (payrollEstimate.deductions as any)[key] = roundTo2Decimals(value);
+      } else if (Array.isArray(value)) {
+        // Handle arrays of objects with amount property
+        value.forEach((item) => {
+          if (typeof item === "object" && item.amount !== undefined) {
+            item.amount = roundTo2Decimals(item.amount);
+          }
+        });
+      }
+    });
+
+    // Round totals
+    Object.keys(payrollEstimate.totals).forEach((key) => {
+      const value = (payrollEstimate.totals as any)[key];
+      if (typeof value === "number") {
+        (payrollEstimate.totals as any)[key] = roundTo2Decimals(value);
+      }
+    });
+
+    // Round contextData
+    Object.keys(payrollEstimate.contextData).forEach((key) => {
+      const value = (payrollEstimate.contextData as any)[key];
+      if (typeof value === "number") {
+        (payrollEstimate.contextData as any)[key] = roundTo2Decimals(value);
+      }
+    });
+
+    // Round contributionBaseSalary in generalData
+    if (
+      typeof payrollEstimate.generalData.contributionBaseSalary === "number"
+    ) {
+      payrollEstimate.generalData.contributionBaseSalary = roundTo2Decimals(
+        payrollEstimate.generalData.contributionBaseSalary
+      );
+    }
+
+    return payrollEstimate;
   }
 }

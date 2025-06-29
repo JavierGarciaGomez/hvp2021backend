@@ -23,9 +23,9 @@ const PayrollSchema: Schema = new Schema<PayrollDocument>(
     generalData: {
       fullName: { type: String, required: true },
       collaboratorCode: { type: String, required: true },
-      curp: { type: String, required: true },
-      socialSecurityNumber: { type: String, required: true },
-      rfcNumber: { type: String, required: true },
+      curp: { type: String, required: false },
+      socialSecurityNumber: { type: String, required: false },
+      rfcNumber: { type: String, required: false },
       jobTitle: { type: String, required: true },
       paymentType: {
         type: String,

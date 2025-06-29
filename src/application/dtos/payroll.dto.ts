@@ -53,15 +53,6 @@ export class PayrollDTO implements BaseDTO, BaseEntity {
       if (!generalData.collaboratorCode) {
         errors.push("Collaborator code is required");
       }
-      if (!generalData.curp) {
-        errors.push("CURP is required");
-      }
-      if (!generalData.socialSecurityNumber) {
-        errors.push("Social security number is required");
-      }
-      if (!generalData.rfcNumber) {
-        errors.push("RFC number is required");
-      }
     }
 
     if (errors.length) {

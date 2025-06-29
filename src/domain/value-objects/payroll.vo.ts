@@ -9,9 +9,9 @@ export interface PayrollConcept {
 export interface PayrollGeneralData {
   fullName: string;
   collaboratorCode: string;
-  curp: string;
-  socialSecurityNumber: string;
-  rfcNumber: string;
+  curp?: string;
+  socialSecurityNumber?: string;
+  rfcNumber?: string;
   jobTitle: string;
   paymentType: HRPaymentType;
   contributionBaseSalary: number;
