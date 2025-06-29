@@ -1,71 +1,26 @@
 import { Document, Schema } from "mongoose";
 import { HRPaymentType, PayrollStatus } from "../enums";
 import { BaseEntity, newBaseEntityProps } from "./base.entity";
-import { ExtraCompensationVO, OtherDeductionVO } from "../value-objects";
+import {
+  PayrollConcept,
+  PayrollGeneralData,
+  PayrollEarnings,
+  PayrollDeductions,
+  PayrollTotals,
+  PayrollContextData,
+} from "../value-objects";
 
 export interface PayrollBase extends newBaseEntityProps {
-  // references
   collaboratorId: string | Schema.Types.ObjectId;
-  employmentId: string | Schema.Types.ObjectId;
-  jobId: string | Schema.Types.ObjectId;
-  // collaboratorData
-  collaboratorFullName: string;
-  collaboratorCode: string;
-  curp: string;
-  socialSecurityNumber: string;
-  rfcNumber: string;
-  // jobData
-  jobTitle: string;
-  paymentType: HRPaymentType;
-  contributionBaseSalary: number;
-  collaboratorStartDate: Date;
-  collaboratorEndDate: Date;
-  // payrollData
-  payrollStartDate: Date;
-  payrollEndDate: Date;
-  paymentDate: Date;
-  sickLeaveDays: number;
-  absencesDays: number;
-  payrollStatus: PayrollStatus;
-  // INCOME
-  // income - fixed
-  fixedIncome: number;
-  // income - commissions
-  commissions: number;
-  // income - similarToCommissions
-  vacationsCompensation: number;
-  justifiedAbsencesCompensation: number;
-  expressBranchCompensation: number;
-  minimumOrdinaryIncomeCompensation: number;
-  // income - legal allowances
-  yearEndBonus: number;
-  vacationBonus: number;
-  profitSharing: number;
-  employmentSubsidy: number;
-  // income - extra legal compensations
-  extraHoursSinglePlay: number;
-  extraHoursDoublePlay: number;
-  extraHoursTriplePlay: number;
-  sundayBonusExtraPay: number;
-  holidayOrRestExtraPay: number;
-  // income - company benefits
-  punctualityBonus: number;
-  mealCompensation: number;
-  receptionBonus: number;
-  degreeBonus: number;
-  trainingSupport: number;
-  physicalActivitySupport: number;
-  extraCompensations: ExtraCompensationVO[];
-  specialCompensation: number;
-  // DEDUCTIONS
-  incomeTaxWithholding: number;
-  socialSecurityWithholding: number;
-  infonavitLoanWithholding: number;
-  otherDeductions: OtherDeductionVO[];
-  // TOTAL
-  totalIncome: number;
-  totalDeductions: number;
-  netPay: number;
+  jobId?: string | Schema.Types.ObjectId;
+  payrollStatus?: PayrollStatus;
+  periodStartDate: Date;
+  periodEndDate: Date;
+  generalData: PayrollGeneralData;
+  earnings: PayrollEarnings;
+  deductions: PayrollDeductions;
+  totals: PayrollTotals;
+  contextData: PayrollContextData;
 }
 
 export interface PayrollProps extends PayrollBase {
@@ -73,7 +28,9 @@ export interface PayrollProps extends PayrollBase {
   createdBy?: string;
   updatedBy?: string;
   collaboratorId: string;
-  jobId: string;
+  payrollStatus?: PayrollStatus;
+  periodStartDate: Date;
+  periodEndDate: Date;
 }
 
 export interface PayrollDocument extends PayrollBase, Document {
@@ -91,65 +48,14 @@ export class PayrollEntity implements BaseEntity {
   updatedAt?: Date;
   updatedBy?: string;
   collaboratorId!: string;
-  employmentId!: string;
-  // collaboratorData
-  collaboratorFullName!: string;
-  collaboratorCode!: string;
-  curp!: string;
-  socialSecurityNumber!: string;
-  rfcNumber!: string;
-  // jobData
-  jobTitle!: string;
-  paymentType!: HRPaymentType;
-  contributionBaseSalary!: number;
-  collaboratorStartDate!: Date;
-  collaboratorEndDate!: Date;
-  // payrollData
-  payrollStartDate!: Date;
-  payrollEndDate!: Date;
-  paymentDate!: Date;
-  sickLeaveDays: number = 0;
-  absencesDays: number = 0;
   payrollStatus: PayrollStatus = PayrollStatus.Pending;
-  // INCOME
-  // income - fixed
-  fixedIncome: number = 0;
-  // income - commissions
-  commissions: number = 0;
-  // income - similarToCommissions
-  vacationsCompensation: number = 0;
-  minimumOrdinaryIncomeCompensation: number = 0;
-  justifiedAbsencesCompensation: number = 0;
-  expressBranchCompensation: number = 0;
-  // income - legal allowances
-  yearEndBonus: number = 0;
-  vacationBonus: number = 0;
-  profitSharing: number = 0;
-  employmentSubsidy: number = 0;
-  // income - extra legal compensations
-  extraHoursSinglePlay: number = 0;
-  extraHoursDoublePlay: number = 0;
-  extraHoursTriplePlay: number = 0;
-  sundayBonusExtraPay: number = 0;
-  holidayOrRestExtraPay: number = 0;
-  // income - company benefits
-  mealCompensation: number = 0;
-  receptionBonus: number = 0;
-  degreeBonus: number = 0;
-  punctualityBonus: number = 0;
-  trainingSupport: number = 0;
-  physicalActivitySupport: number = 0;
-  extraCompensations: ExtraCompensationVO[] = [];
-  specialCompensation: number = 0;
-  // DEDUCTIONS
-  incomeTaxWithholding: number = 0;
-  socialSecurityWithholding: number = 0;
-  infonavitLoanWithholding: number = 0;
-  otherDeductions: OtherDeductionVO[] = [];
-  // TOTAL
-  totalIncome: number = 0;
-  totalDeductions: number = 0;
-  netPay: number = 0;
+  periodStartDate!: Date;
+  periodEndDate!: Date;
+  generalData!: PayrollGeneralData;
+  earnings!: PayrollEarnings;
+  deductions!: PayrollDeductions;
+  totals!: PayrollTotals;
+  contextData!: PayrollContextData;
 
   constructor(props: PayrollProps) {
     Object.assign(this, props);
@@ -164,7 +70,6 @@ export class PayrollEntity implements BaseEntity {
       createdBy: data.createdBy?.toString(),
       updatedBy: data.updatedBy?.toString(),
       collaboratorId: data.collaboratorId?.toString(),
-      jobId: data.jobId?.toString(),
     });
   }
 }

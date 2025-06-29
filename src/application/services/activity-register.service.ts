@@ -64,6 +64,20 @@ export class ActivityRegisterService extends BaseService<
     return activities.reduce((acc, curr) => acc + curr.getDuration(), 0);
   };
 
+  public calculateCollaboratorDuration = async (
+    collaboratorId: string,
+    startDate: Date,
+    endDate: Date
+  ): Promise<number> => {
+    const queryOptions = buildQueryOptions({
+      collaborator: collaboratorId,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    });
+    const activities = await this.repository.getByDateRange(queryOptions);
+    return activities.reduce((acc, curr) => acc + curr.getDuration(), 0);
+  };
+
   private async isActivityOverlapping(
     collaboratorId: string,
     newActivity: ActivityRegisterEntity

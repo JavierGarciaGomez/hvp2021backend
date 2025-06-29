@@ -1,22 +1,9 @@
-import {
-  CollaboratorEntity,
-  EmploymentEntity,
-  JobEntity,
-  PayrollEntity,
-  SalaryDataEntity,
-} from "../entities";
 import { HRPaymentType } from "../enums";
-import { CollaboratorAttendanceReport } from "./collaborator-attendance-report.rm";
 
-// TODO
-export interface PayrollEstimate {
-  id?: string;
-  collaboratorId: string;
-  generalData: PayrollGeneralData;
-  earnings: PayrollEarnings;
-  deductions: PayrollDeductions;
-  totals: PayrollTotals;
-  contextData: PayrollContextData;
+export interface PayrollConcept {
+  name: string;
+  description: string;
+  amount: number;
 }
 
 export interface PayrollGeneralData {
@@ -28,8 +15,6 @@ export interface PayrollGeneralData {
   jobTitle: string;
   paymentType: HRPaymentType;
   contributionBaseSalary: number;
-  periodStartDate: Date;
-  periodEndDate: Date;
 }
 
 export interface PayrollEarnings {
@@ -70,12 +55,6 @@ export interface PayrollDeductions {
   tardinessDiscount: number;
 }
 
-export interface PayrollConcept {
-  name: string;
-  description: string;
-  amount: number;
-}
-
 export interface PayrollTotals {
   totalIncome: number;
   totalDeductions: number;
@@ -86,17 +65,8 @@ export interface PayrollContextData {
   periodDaysLength: number;
   halfWeekFixedIncome: number;
   averageOrdinaryIncomeDaily: number;
-
   attendanceRelatedDiscounts: number;
   attendanceFactor: number;
   employerImssRate: number;
-}
-
-export interface PayrollCollaboratorRawData {
-  collaborator: CollaboratorEntity;
-  employment: EmploymentEntity;
-  job: JobEntity;
-  attendanceReport: CollaboratorAttendanceReport;
-  salaryData: SalaryDataEntity;
-  totalCommissions: number;
+  workedHours: number;
 }

@@ -36,4 +36,35 @@ export class ActivityRegisterController extends BaseController<
       next(error);
     }
   };
+
+  public calculateCollaboratorDuration = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { collaboratorId } = req.params;
+      const { startDate, endDate } = req.query;
+
+      if (!startDate || !endDate) {
+        return res.status(400).json({
+          message: "startDate and endDate query parameters are required",
+        });
+      }
+
+      const duration = await this.service.calculateCollaboratorDuration(
+        collaboratorId,
+        new Date(startDate as string),
+        new Date(endDate as string)
+      );
+
+      const response = ResponseFormatterService.formatGetOneResponse({
+        resource: this.resource,
+        data: { duration },
+      });
+      return res.status(response.status_code).json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
 }

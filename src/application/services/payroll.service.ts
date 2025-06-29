@@ -7,6 +7,7 @@ import { BaseService } from "./base.service";
 import {
   ConcludedWeekHours,
   HRPaymentType,
+  PayrollStatus,
   isrRate,
   PayrollRepository,
 } from "../../domain";
@@ -14,7 +15,7 @@ import { PayrollDTO } from "../dtos";
 import {
   PayrollCollaboratorRawData,
   PayrollEstimate,
-} from "../../domain/read-models/payroll-estimate2.rm";
+} from "../../domain/read-models/payroll-estimate.rm";
 
 // Internal calculation types removed - using contextData instead
 import {
@@ -248,6 +249,37 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       periodEndDate
     );
 
+    // Check if this is an hourly employee
+    const isHourlyEmployee =
+      rawData.employment.paymentType === HRPaymentType.HOURLY;
+
+    if (isHourlyEmployee) {
+      // Use hourly calculation logic
+      this.calculateHourlyPayroll(
+        payrollEstimate,
+        rawData,
+        periodStartDate,
+        periodEndDate
+      );
+    } else {
+      // Use original salary calculation logic
+      this.calculateSalaryPayroll(
+        payrollEstimate,
+        rawData,
+        periodStartDate,
+        periodEndDate
+      );
+    }
+
+    return payrollEstimate;
+  }
+
+  private calculateSalaryPayroll(
+    payrollEstimate: PayrollEstimate,
+    rawData: PayrollCollaboratorRawData,
+    periodStartDate: string,
+    periodEndDate: string
+  ): void {
     // Step 2: Fill basic variables to the context
     this.fillBasicVariables(
       payrollEstimate,
@@ -276,8 +308,148 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
 
     // Step 9: Fill totals
     this.fillTotals(payrollEstimate);
+  }
 
-    return payrollEstimate;
+  private calculateHourlyPayroll(
+    payrollEstimate: PayrollEstimate,
+    rawData: PayrollCollaboratorRawData,
+    periodStartDate: string,
+    periodEndDate: string
+  ): void {
+    // Step 2: Fill basic variables for hourly employees
+    this.fillBasicVariablesHourly(
+      payrollEstimate,
+      rawData,
+      periodStartDate,
+      periodEndDate
+    );
+
+    // Step 3: Fill hourly earnings (no attendance discounts for hourly)
+    this.fillHourlyEarnings(payrollEstimate, rawData);
+
+    // Step 4: Fill totals (no deductions for hourly employees)
+    this.fillTotals(payrollEstimate);
+  }
+
+  private fillBasicVariablesHourly(
+    payrollEstimate: PayrollEstimate,
+    rawData: PayrollCollaboratorRawData,
+    periodStartDate: string,
+    periodEndDate: string
+  ): void {
+    const { attendanceReport } = rawData;
+    const periodDaysLength =
+      dayjs(periodEndDate)
+        .tz("America/Mexico_City")
+        .diff(dayjs(periodStartDate).tz("America/Mexico_City"), "day") + 1;
+
+    // For hourly employees, we don't pre-calculate halfWeekFixedIncome here
+    // It will be calculated based on actual worked hours
+    payrollEstimate.contextData.periodDaysLength = periodDaysLength;
+    payrollEstimate.contextData.halfWeekFixedIncome = 0; // Will be calculated in earnings
+    payrollEstimate.contextData.workedHours =
+      attendanceReport.periodHours.workedHours +
+      attendanceReport.periodHours.vacationHours;
+  }
+
+  private fillHourlyEarnings(
+    payrollEstimate: PayrollEstimate,
+    rawData: PayrollCollaboratorRawData
+  ): void {
+    const { employment, job, totalCommissions, attendanceReport } = rawData;
+    const { periodHours } = attendanceReport;
+    const {
+      nominalHourlyFixedIncome,
+      trainingSupport,
+      physicalActivitySupport,
+      averageCommissionsPerScheduledHour,
+      employmentHourlyRate,
+    } = employment;
+
+    // Calculate halfWeekFixedIncome based on worked hours * hourly rate
+    payrollEstimate.earnings.halfWeekFixedIncome =
+      periodHours.workedHours * employmentHourlyRate;
+    payrollEstimate.contextData.halfWeekFixedIncome =
+      payrollEstimate.earnings.halfWeekFixedIncome;
+
+    // Set commissions (same calculation)
+    payrollEstimate.earnings.commissions = totalCommissions;
+
+    // Vacation compensation (same calculation)
+    payrollEstimate.earnings.vacationCompensation =
+      periodHours.vacationHours * averageCommissionsPerScheduledHour;
+
+    // Express branch compensation (same calculation)
+    payrollEstimate.earnings.expressBranchCompensation =
+      periodHours.expressHours *
+      (job.expressBranchCompensation / DAILY_WORK_HOURS);
+
+    // Meal compensation (same calculation)
+    payrollEstimate.earnings.mealCompensation =
+      periodHours.mealDays * DAILY_MEAL_COMPENSATION;
+
+    // Reception bonus (same calculation - currently 0)
+    payrollEstimate.earnings.receptionBonus = 0;
+
+    // Sunday bonus (same calculation)
+    payrollEstimate.earnings.sundayBonus =
+      periodHours.workedSundayHours *
+      nominalHourlyFixedIncome *
+      SUNDAY_BONUS_PERCENTAGE;
+
+    // Holiday/rest extra pay (same calculation)
+    const holidayOrRestHours = periodHours.publicHolidaysHours;
+    payrollEstimate.earnings.holidayOrRestExtraPay =
+      holidayOrRestHours *
+      nominalHourlyFixedIncome *
+      HOLIDAY_OR_REST_EXTRA_PAY_PERCENTAGE;
+
+    // Support payments (same calculation)
+    payrollEstimate.earnings.traniningActivitySupport = trainingSupport / 2;
+    payrollEstimate.earnings.physicalActivitySupport =
+      physicalActivitySupport / 2;
+
+    // Vacation bonus (same calculation)
+    const vacationDays =
+      periodHours.vacationHours / employment.dailyWorkingHours;
+    const averageOrdinaryIncomeDaily =
+      employment.averageOrdinaryIncomePerScheduledHour *
+      employment.dailyWorkingHours;
+    payrollEstimate.earnings.vacationBonus =
+      vacationDays * averageOrdinaryIncomeDaily * VACATION_BONUS_PERCENTAGE;
+
+    // End year bonus (same calculation - currently 0)
+    payrollEstimate.earnings.endYearBonus = 0;
+
+    // Extra compensations (same calculation)
+    payrollEstimate.earnings.extraFixedCompensations =
+      employment.extraCompensations.map((compensation) => ({
+        name: compensation.name,
+        description: compensation.name,
+        amount: compensation.amount / 2, // Half month
+      }));
+
+    payrollEstimate.earnings.extraVariableCompensations = [];
+    payrollEstimate.earnings.specialBonuses = [];
+
+    // Set all deductions to 0 for hourly employees
+    payrollEstimate.deductions.incomeTaxWithholding = 0;
+    payrollEstimate.deductions.socialSecurityWithholding = 0;
+    payrollEstimate.deductions.nonCountedDaysDiscount = 0;
+    payrollEstimate.deductions.justifiedAbsencesDiscount = 0;
+    payrollEstimate.deductions.unjustifiedAbsencesDiscount = 0;
+    payrollEstimate.deductions.unworkedHoursDiscount = 0;
+    payrollEstimate.deductions.tardinessDiscount = 0;
+
+    // Keep other fixed deductions (same calculation)
+    payrollEstimate.deductions.otherFixedDeductions =
+      employment.otherDeductions.map((deduction) => ({
+        name: deduction.name,
+        description: deduction.name,
+        amount: deduction.amount / 2, // Half month
+      }));
+
+    payrollEstimate.deductions.otherVariableDeductions = [];
   }
 
   private fillGeneralData(
@@ -289,6 +461,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     const { collaborator, employment, job } = rawData;
 
     payrollEstimate.collaboratorId = collaborator.id!;
+    payrollEstimate.periodStartDate = new Date(periodStartDate);
+    payrollEstimate.periodEndDate = new Date(periodEndDate);
     payrollEstimate.generalData = {
       fullName: `${collaborator.first_name} ${collaborator.last_name}`,
       collaboratorCode: collaborator.col_code,
@@ -298,8 +472,6 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       jobTitle: job.title,
       paymentType: employment.paymentType,
       contributionBaseSalary: employment.contributionBaseSalary,
-      periodStartDate: new Date(periodStartDate),
-      periodEndDate: new Date(periodEndDate),
     };
   }
 
@@ -309,7 +481,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     periodStartDate: string,
     periodEndDate: string
   ): void {
-    const { employment } = rawData;
+    const { employment, attendanceReport } = rawData;
     const {
       totalFixedIncome,
       dailyWorkingHours,
@@ -331,6 +503,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     payrollEstimate.contextData.halfWeekFixedIncome = halfWeekFixedIncome;
     payrollEstimate.contextData.averageOrdinaryIncomeDaily =
       averageOrdinaryIncomeDaily;
+    payrollEstimate.contextData.workedHours =
+      attendanceReport.periodHours.workedHours;
   }
 
   private fillAttendanceDiscounts(
@@ -888,6 +1062,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     return {
       id: undefined,
       collaboratorId: "",
+      periodStartDate: new Date(0),
+      periodEndDate: new Date(0),
       generalData: {
         fullName: "",
         collaboratorCode: "",
@@ -897,8 +1073,6 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
         jobTitle: "",
         paymentType: HRPaymentType.SALARY,
         contributionBaseSalary: 0,
-        periodStartDate: new Date(0),
-        periodEndDate: new Date(0),
       },
       earnings: {
         halfWeekFixedIncome: 0,
@@ -948,6 +1122,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
         attendanceRelatedDiscounts: 0,
         attendanceFactor: 0,
         employerImssRate: 0,
+        workedHours: 0,
       },
     };
   }

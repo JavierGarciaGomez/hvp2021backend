@@ -24,6 +24,7 @@ export enum PayrollStatus {
   Pending = "pending",
   Approved = "approved",
   Paid = "paid",
+  Billed = "billed",
 }
 
 export enum HRPaymentType {

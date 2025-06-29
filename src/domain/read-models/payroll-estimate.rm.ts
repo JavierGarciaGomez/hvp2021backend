@@ -1,35 +1,38 @@
 import {
   CollaboratorEntity,
-  CollaboratorResponse,
   EmploymentEntity,
   JobEntity,
-  PayrollEntity,
   SalaryDataEntity,
 } from "../entities";
+import { PayrollStatus } from "../enums";
+import {
+  PayrollGeneralData,
+  PayrollEarnings,
+  PayrollDeductions,
+  PayrollTotals,
+  PayrollContextData,
+} from "../value-objects";
 import { CollaboratorAttendanceReport } from "./collaborator-attendance-report.rm";
 
 // TODO
 export interface PayrollEstimate {
-  payroll: PayrollEntity;
-  relevantValues: PayrollEstimateRelevantValues;
+  id?: string;
+  collaboratorId: string;
+  payrollStatus?: PayrollStatus;
+  periodStartDate: Date;
+  periodEndDate: Date;
+  generalData: PayrollGeneralData;
+  earnings: PayrollEarnings;
+  deductions: PayrollDeductions;
+  totals: PayrollTotals;
+  contextData: PayrollContextData;
 }
 
 export interface PayrollCollaboratorRawData {
-  collaborator: CollaboratorResponse;
+  collaborator: CollaboratorEntity;
   employment: EmploymentEntity;
   job: JobEntity;
   attendanceReport: CollaboratorAttendanceReport;
   salaryData: SalaryDataEntity;
-}
-
-export interface PayrollEstimateRelevantValues {
-  fixedIncomeDiscounts: number;
-  nominalHourlyWage: number;
-  attendanceProportion: number;
-  averageOrdinaryIncomeHourly: number;
-  minOrdinaryIncomeDaily: number;
-  minOrdinaryIncomeHourly: number;
-  mealDays: number;
-  isrBase: number;
-  employerImssRate: number;
+  totalCommissions: number;
 }

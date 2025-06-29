@@ -34,5 +34,11 @@ export class ActivityRegisterRoutes extends BaseCRUDRoutes {
       AuthMiddleware.validateJWT,
       controller.calculateDuration
     );
+
+    this.router.get(
+      "/collaborator/:collaboratorId/calculate-duration",
+      AuthMiddleware.validateJWT,
+      controller.calculateCollaboratorDuration
+    );
   }
 }

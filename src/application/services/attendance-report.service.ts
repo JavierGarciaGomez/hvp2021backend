@@ -26,6 +26,7 @@ import {
   transformMxDateTimeToUtcStartOfDay,
 } from "../../shared";
 import {
+  createActivityRegisterService,
   createAttendanceRecordService,
   createBranchService,
   createCollaboratorService,
@@ -41,6 +42,7 @@ import {
   BranchEntity,
   CollaboratorEntity,
   EmploymentEntity,
+  HRAttendanceSource,
   JobEntity,
   PublicHolidaysEntity,
   TimeOffRequestDayJs,
@@ -60,6 +62,7 @@ export class AttendanceReportService {
   weekshiftService = createWeekShiftService();
   timeOffRequestService = createTimeOffRequestService();
   attendanceRecordService = createAttendanceRecordService();
+  activityRegisterService = createActivityRegisterService();
   jobService = createJobService();
   collaboratorService = createCollaboratorService();
   publicHolidaysService = createPublicHolidaysService();
@@ -153,8 +156,8 @@ export class AttendanceReportService {
       }
     );
 
-    const attendanceReports = collaboratorsAttendanceData.map(
-      (attendanceData) =>
+    const attendanceReports = await Promise.all(
+      collaboratorsAttendanceData.map((attendanceData) =>
         this.generateAttendanceReport(
           attendanceData,
           startDate,
@@ -162,6 +165,7 @@ export class AttendanceReportService {
           extendedStartDateMx,
           extendedEndDateMx
         )
+      )
     );
 
     return attendanceReports;
@@ -438,13 +442,13 @@ export class AttendanceReportService {
     return collaboratorsAttendanceData;
   }
 
-  private generateAttendanceReport(
+  private async generateAttendanceReport(
     collaboratorAttendanceData: CollaboratorAttendanceData,
     startDate: dayjs.Dayjs,
     endDate: dayjs.Dayjs,
     extendedStartDate: dayjs.Dayjs,
     extendedEndDate: dayjs.Dayjs
-  ): CollaboratorAttendanceReport {
+  ): Promise<CollaboratorAttendanceReport> {
     const { collaborator, employment, branches, publicHolidays } =
       collaboratorAttendanceData;
 
@@ -511,6 +515,19 @@ export class AttendanceReportService {
       employment?.weeklyHours || collaborator.weeklyHours || 48,
       concludedWeeksReports
     );
+
+    // Add activity register hours if employment uses activity register as attendance source
+    if (employment?.attendanceSource === HRAttendanceSource.ACTIVITY_REGISTER) {
+      const activityRegisterDurationMs =
+        await this.activityRegisterService.calculateCollaboratorDuration(
+          collaborator.id!,
+          startDate.toDate(),
+          endDate.toDate()
+        );
+      const activityRegisterHours =
+        activityRegisterDurationMs / (1000 * 60 * 60); // Convert ms to hours
+      periodHours.workedHours += activityRegisterHours;
+    }
 
     return {
       collaboratorId: collaborator.id!,
