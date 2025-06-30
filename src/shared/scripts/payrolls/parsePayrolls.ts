@@ -6,6 +6,8 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 
 import collaboratorsData from "../data/collaboratorsData.json";
+import employmentsData from "../data/employments.json";
+import jobsData from "../data/jobsData.json";
 import { PayrollStatus, HRPaymentType } from "../../../domain/enums";
 import type {
   PayrollGeneralData,
@@ -35,8 +37,7 @@ interface CollaboratorPayrollData {
   collaboratorId: string;
   collaboratorCode: string;
   jobId?: string;
-  concepts: Map<number, number>; // code -> amount
-  conceptDescriptions: Map<number, string>; // code -> description
+  conceptEntries: Array<{ code: number; amount: number; description: string }>; // Store individual entries
 }
 
 interface PayrollOutput {
@@ -50,6 +51,26 @@ interface PayrollOutput {
   deductions: PayrollDeductions;
   totals: PayrollTotals;
   contextData: PayrollContextData;
+}
+
+interface Employment {
+  collaboratorId: string;
+  jobId: string;
+  paymentType: "HOURLY" | "SALARY";
+  attendanceSource: "ATTENDANCE_RECORDS" | "ACTIVITY_REGISTER";
+  employmentStartDate: string;
+  employmentEndDate?: string;
+  isActive: boolean;
+  contributionBaseSalary: number;
+  trainingSupport: number;
+  physicalActivitySupport: number;
+  // Add other employment fields as needed
+}
+
+interface Job {
+  id: string;
+  title: string;
+  paymentType: "HOURLY" | "SALARY";
 }
 
 const transformExcelToJson = () => {
@@ -73,6 +94,21 @@ const transformExcelToJson = () => {
       },
     ])
   );
+
+  // Load jobs data
+  const jobs = Object.fromEntries(
+    jobsData.data.map((j: any) => [
+      j.id,
+      {
+        id: j.id,
+        title: j.title,
+        paymentType: j.paymentType,
+      },
+    ])
+  );
+
+  // Load employments data
+  const employments = employmentsData.data as Employment[];
 
   // Read Excel file
   const workbook = XLSX.readFile(inputPath);
@@ -99,8 +135,7 @@ const transformExcelToJson = () => {
         collaboratorId: collaborator.id,
         collaboratorCode: collaborator.col_code,
         jobId: collaborator.jobId,
-        concepts: new Map(),
-        conceptDescriptions: new Map(),
+        conceptEntries: [],
       });
     }
 
@@ -117,16 +152,11 @@ const transformExcelToJson = () => {
     // Store the raw amount (we'll handle signs in the mapping function)
 
     // Store concept description
-    payrollData.conceptDescriptions.set(row.Código, row.Concepto);
-
-    if (payrollData.concepts.has(row.Código)) {
-      payrollData.concepts.set(
-        row.Código,
-        payrollData.concepts.get(row.Código)! + amount
-      );
-    } else {
-      payrollData.concepts.set(row.Código, amount);
-    }
+    payrollData.conceptEntries.push({
+      code: row.Código,
+      amount: amount,
+      description: row.Concepto,
+    });
   }
 
   // Convert to payroll entities
@@ -140,9 +170,22 @@ const transformExcelToJson = () => {
       payrollData.date
     );
 
+    // Find the active employment for this collaborator at this time
+    const employment = findActiveEmployment(
+      employments,
+      payrollData.collaboratorId,
+      parseDate(payrollData.date)
+    );
+
+    // Get job information
+    const job = employment?.jobId ? jobs[employment.jobId] : null;
+
+    // Determine payment type
+    const paymentType = employment?.paymentType || job?.paymentType || "SALARY";
+
     const payroll: PayrollOutput = {
       collaboratorId: payrollData.collaboratorId,
-      jobId: payrollData.jobId,
+      jobId: employment?.jobId || payrollData.jobId,
       payrollStatus: PayrollStatus.Paid,
       periodStartDate,
       periodEndDate,
@@ -152,9 +195,12 @@ const transformExcelToJson = () => {
         curp: collaborator.curp,
         socialSecurityNumber: collaborator.imssNumber,
         rfcNumber: collaborator.rfcCode,
-        jobTitle: collaborator.position,
-        paymentType: HRPaymentType.SALARY,
-        contributionBaseSalary: 0,
+        jobTitle: job?.title || collaborator.position,
+        paymentType:
+          paymentType === "HOURLY"
+            ? HRPaymentType.HOURLY
+            : HRPaymentType.SALARY,
+        contributionBaseSalary: employment?.contributionBaseSalary || 0,
       },
       earnings: {
         halfWeekFixedIncome: 0,
@@ -172,8 +218,8 @@ const transformExcelToJson = () => {
         tripleOvertimeHours: 0,
         sundayBonus: 0,
         holidayOrRestExtraPay: 0,
-        traniningActivitySupport: 0,
-        physicalActivitySupport: 0,
+        traniningActivitySupport: employment?.trainingSupport || 0,
+        physicalActivitySupport: employment?.physicalActivitySupport || 0,
         extraFixedCompensations: [],
         extraVariableCompensations: [],
         vacationBonus: 0,
@@ -209,11 +255,7 @@ const transformExcelToJson = () => {
     };
 
     // Map concepts to payroll fields
-    mapConceptsToPayroll(
-      payroll,
-      payrollData.concepts,
-      payrollData.conceptDescriptions
-    );
+    mapConceptsToPayroll(payroll, payrollData.conceptEntries);
 
     // Calculate totals
     calculateTotals(payroll);
@@ -228,6 +270,12 @@ const transformExcelToJson = () => {
     `👥 Processed ${
       new Set(result.map((p) => p.collaboratorId)).size
     } unique collaborators`
+  );
+
+  // Log some statistics about employment matching
+  const employmentMatched = result.filter((p) => p.jobId).length;
+  console.log(
+    `🏢 Employment data matched for ${employmentMatched}/${result.length} payroll records`
   );
 };
 
@@ -304,10 +352,9 @@ const calculatePeriodDates = (
 
 const mapConceptsToPayroll = (
   payroll: PayrollOutput,
-  concepts: Map<number, number>,
-  conceptDescriptions?: Map<number, string>
+  conceptEntries: Array<{ code: number; amount: number; description: string }>
 ) => {
-  for (const [code, amount] of concepts) {
+  for (const { code, amount, description } of conceptEntries) {
     // Ensure all amounts are positive for proper calculation
     const positiveAmount = Math.abs(amount);
 
@@ -349,7 +396,6 @@ const mapConceptsToPayroll = (
         break;
       case 2172:
         // Handle 2172 variations based on concept description
-        const description = conceptDescriptions?.get(code) || "";
         if (description.includes("Montejo")) {
           payroll.earnings.expressBranchCompensation += positiveAmount;
         } else if (description.includes("alimentos")) {
@@ -446,6 +492,59 @@ const calculateTotals = (payroll: PayrollOutput) => {
   payroll.contextData.halfWeekFixedIncome = earnings.halfWeekFixedIncome;
   payroll.contextData.averageOrdinaryIncomeDaily =
     earnings.halfWeekFixedIncome / 15;
+};
+
+/**
+ * Find the active employment for a collaborator at a specific date
+ */
+const findActiveEmployment = (
+  employments: Employment[],
+  collaboratorId: string,
+  payrollDate: dayjs.Dayjs
+): Employment | null => {
+  // Filter employments for this collaborator
+  const collaboratorEmployments = employments.filter(
+    (emp) => emp.collaboratorId === collaboratorId
+  );
+
+  if (collaboratorEmployments.length === 0) {
+    console.warn(`⚠️ No employment found for collaborator: ${collaboratorId}`);
+    return null;
+  }
+
+  // Find the employment that was active at the payroll date
+  const activeEmployment = collaboratorEmployments.find((emp) => {
+    const startDate = dayjs(emp.employmentStartDate);
+    const endDate = emp.employmentEndDate ? dayjs(emp.employmentEndDate) : null;
+
+    // Check if the payroll date falls within the employment period
+    const isAfterStart =
+      payrollDate.isAfter(startDate) || payrollDate.isSame(startDate, "day");
+    const isBeforeEnd =
+      !endDate ||
+      payrollDate.isBefore(endDate) ||
+      payrollDate.isSame(endDate, "day");
+
+    return isAfterStart && isBeforeEnd;
+  });
+
+  if (!activeEmployment) {
+    console.warn(
+      `⚠️ No active employment found for collaborator ${collaboratorId} on date ${payrollDate.format(
+        "YYYY-MM-DD"
+      )}`
+    );
+    // Return the most recent employment as fallback
+    return (
+      collaboratorEmployments.sort(
+        (a, b) =>
+          dayjs(b.employmentStartDate).valueOf() -
+          dayjs(a.employmentStartDate).valueOf()
+      )[0] || null
+    );
+  }
+
+  return activeEmployment;
 };
 
 transformExcelToJson();

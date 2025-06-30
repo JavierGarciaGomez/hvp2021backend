@@ -13,25 +13,15 @@ import {
 } from "./types";
 
 const transformExcelToJson = () => {
-  const isUrban = false;
-  const isHarbor = false;
-  const isMontejo = true;
+  const allFile = "commissionsToAppAll.xlsx";
 
-  const urbanFile = "commissionsToAppUrban.xlsx";
-  const harborFile = "commissionsToAppHarbor.xlsx";
-  const montejoFile = "commissionsToAppMontejo.xlsx";
+  const branchIds = {
+    Urban: "670a61538ff5ac02957e50f3",
+    Harbor: "670a61538ff5ac02957e50eb",
+    Montejo: "670a61538ff5ac02957e50e3",
+  };
 
-  const urbanId = "670a61538ff5ac02957e50f3";
-  const harborId = "670a61538ff5ac02957e50eb";
-  const montejoId = "670a61538ff5ac02957e50e3";
-
-  const branchId = isUrban ? urbanId : isHarbor ? harborId : montejoId;
-
-  const inputPath = isUrban
-    ? path.resolve(__dirname, `../data/${urbanFile}`)
-    : isHarbor
-    ? path.resolve(__dirname, `../data/${harborFile}`)
-    : path.resolve(__dirname, `../data/${montejoFile}`);
+  const inputPath = path.resolve(__dirname, `../data/${allFile}`);
 
   const collaborators = Object.fromEntries(
     collaboratorsData.data.map((c: any) => [
@@ -65,6 +55,26 @@ const transformExcelToJson = () => {
 
   for (const [key, entries] of grouped) {
     const { Folio, Fecha } = entries[0];
+
+    // Get branch from the first entry and validate all entries have the same branch
+    const branchName = (entries[0] as any).Branch;
+    const branchId = branchIds[branchName as keyof typeof branchIds];
+
+    if (!branchId) {
+      console.warn(`⚠️ Unknown branch: ${branchName} for ticket ${Folio}`);
+      continue;
+    }
+
+    // Validate all entries in this ticket have the same branch
+    const hasMultipleBranches = entries.some(
+      (entry) => (entry as any).Branch !== branchName
+    );
+    if (hasMultipleBranches) {
+      console.warn(
+        `⚠️ Ticket ${Folio} has services from multiple branches, skipping`
+      );
+      continue;
+    }
 
     const ticketNumber = String(Folio);
 

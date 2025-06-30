@@ -342,13 +342,18 @@ export class CommissionAllocationService extends BaseService<
       endDate
     );
 
+    console.log({
+      start: periodData.periodStartDate.toISOString(),
+      end: periodData.periodEndDate.toISOString(),
+    });
+
     // Get allocations with minimal projection - only commission amounts
     const dbStart = Date.now();
     const allocations = await this.getAll(
       buildQueryOptions({
         date: {
-          $gte: periodData.periodStartDate,
-          $lte: periodData.periodEndDate,
+          $gte: startDate,
+          $lte: endDate,
         },
         "services.commissions.collaboratorId": collaboratorId,
         projection: {
