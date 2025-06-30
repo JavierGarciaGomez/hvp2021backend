@@ -732,7 +732,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
   ): void {
     // Calculate total income without subsidy
     const totalIncomeWithoutSubsidy =
-      this.calculateTotalEarnings(payrollEstimate);
+      this.calculateTotalEarnings(payrollEstimate) -
+      payrollEstimate.contextData.attendanceRelatedDiscounts;
 
     const shouldReceiveSubsidy =
       totalIncomeWithoutSubsidy < rawData.salaryData.employmentSubsidyLimit / 2;
@@ -763,7 +764,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     // Calculate ISR base with exemptions
     const totalIncome = this.calculateTotalEarnings(payrollEstimate);
     const exemptions = this.calculateTaxExemptions(payrollEstimate, rawData);
-    const isrBase = totalIncome - exemptions;
+    const deductions = this.calculateTotalDeductions(payrollEstimate);
+    const isrBase = totalIncome - exemptions - deductions;
 
     const isr = this.calculateIsr(
       isrBase,
