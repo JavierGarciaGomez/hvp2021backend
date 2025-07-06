@@ -73,6 +73,37 @@ export class CollaboratorHalfWeekClosingReportController extends BaseController<
     }
   };
 
+  // Override the base createMany method to use upsertMany logic
+  public createMany = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> => {
+    try {
+      const body = req.body;
+
+      // Add user info to each item in the array
+      const processedBody = body.map((item: any) => ({
+        ...item,
+        createdBy: req.authUser?.uid,
+        updatedBy: req.authUser?.uid,
+      }));
+
+      const dtos = processedBody.map((item: any) =>
+        CollaboratorHalfWeekClosingReportDTO.create(item)
+      );
+
+      const result = await this.service.upsertMany(dtos, req?.authUser);
+      const response = ResponseFormatterService.formatCreateManyResponse({
+        data: result,
+        resource: this.resource,
+      });
+      return res.status(response.status_code).json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getByCollaboratorId = async (
     req: AuthenticatedRequest,
     res: Response,

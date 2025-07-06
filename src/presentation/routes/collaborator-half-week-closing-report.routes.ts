@@ -89,6 +89,16 @@ export class CollaboratorHalfWeekClosingReportRoutes extends BaseCRUDRoutes {
       controller.update
     );
 
+    // Delete multiple reports
+    this.router.delete(
+      "/bulk",
+      AuthMiddleware.validateJWT,
+      authorizationMiddleware({
+        roles: [WebAppRole.admin],
+      }),
+      controller.deleteMany
+    );
+
     // Delete report
     this.router.delete(
       "/:id",
@@ -117,16 +127,6 @@ export class CollaboratorHalfWeekClosingReportRoutes extends BaseCRUDRoutes {
         roles: [WebAppRole.admin, WebAppRole.manager],
       }),
       controller.updateMany
-    );
-
-    // Delete multiple reports
-    this.router.delete(
-      "/bulk",
-      AuthMiddleware.validateJWT,
-      authorizationMiddleware({
-        roles: [WebAppRole.admin],
-      }),
-      controller.deleteMany
     );
   }
 }

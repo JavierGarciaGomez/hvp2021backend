@@ -67,6 +67,21 @@ export class CollaboratorHalfWeekClosingReportService extends BaseService<
     }
   };
 
+  public upsertMany = async (
+    dtos: CollaboratorHalfWeekClosingReportDTO[],
+    authUser?: AuthenticatedCollaborator,
+    session?: ClientSession
+  ): Promise<CollaboratorHalfWeekClosingReportResponse[]> => {
+    const results: CollaboratorHalfWeekClosingReportResponse[] = [];
+
+    for (const dto of dtos) {
+      const result = await this.upsert(dto, authUser, session);
+      results.push(result);
+    }
+
+    return results;
+  };
+
   public getByCollaboratorId = async (
     collaboratorId: string,
     options?: CustomQueryOptions
