@@ -1,10 +1,17 @@
 import { HRPaymentType } from "../enums";
+import { Schema } from "mongoose";
 
 export interface PayrollConcept {
   name: string;
-  description: string;
+  description?: string;
   amount: number;
 }
+
+export const payrollConceptSchema = new Schema({
+  name: { type: String, required: true },
+  description: { type: String, required: false },
+  amount: { type: Number, required: true },
+});
 
 export interface PayrollGeneralData {
   fullName: string;

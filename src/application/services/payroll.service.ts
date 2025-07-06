@@ -423,12 +423,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     payrollEstimate.earnings.endYearBonus = 0;
 
     // Extra compensations (same calculation)
-    payrollEstimate.earnings.extraFixedCompensations =
-      employment.extraCompensations.map((compensation) => ({
-        name: compensation.name,
-        description: compensation.name,
-        amount: compensation.amount / 2, // Half month
-      }));
+    payrollEstimate.earnings.extraFixedCompensations = [];
 
     payrollEstimate.earnings.extraVariableCompensations = [];
     payrollEstimate.earnings.specialBonuses = [];
@@ -681,12 +676,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     payrollEstimate.earnings.endYearBonus = 0;
     payrollEstimate.earnings.profitSharing = 0;
 
-    payrollEstimate.earnings.extraFixedCompensations =
-      employment.extraCompensations.map((compensation) => ({
-        name: compensation.name,
-        description: compensation.name,
-        amount: compensation.amount / 2, // Half month
-      }));
+    payrollEstimate.earnings.extraFixedCompensations = [];
 
     payrollEstimate.earnings.extraVariableCompensations = [];
   }

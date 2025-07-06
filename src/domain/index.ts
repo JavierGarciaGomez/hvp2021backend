@@ -1,4 +1,5 @@
 export * from "./value-objects";
+export { payrollConceptSchema } from "./value-objects";
 export * from "./enums";
 export * from "../application/dtos/shared/pagination.dto";
 export * from "../application/dtos/shared/sorting.dto";

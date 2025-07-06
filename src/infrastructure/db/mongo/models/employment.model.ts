@@ -1,10 +1,9 @@
 import mongoose, { Schema } from "mongoose";
 import {
   EmploymentDocument,
-  extraCompensationSchema,
   HRAttendanceSource,
   HRPaymentType,
-  otherDeductionSchema,
+  payrollConceptSchema,
 } from "../../../../domain";
 
 const EmploymentSchema: Schema = new Schema<EmploymentDocument>(
@@ -36,6 +35,11 @@ const EmploymentSchema: Schema = new Schema<EmploymentDocument>(
     commissionBonusPercentage: { type: Number, required: true, default: 0 },
     employmentGuaranteedIncome: { type: Number, required: true, default: 0 },
     employmentFixedIncomeByJob: { type: Number, required: true, default: 0 },
+    additionalFixedIncomes: {
+      type: [payrollConceptSchema],
+      required: false,
+      default: [],
+    },
     additionalRoleFixedIncome: { type: Number, required: true, default: 0 },
     complementaryFixedIncome: { type: Number, required: true, default: 0 },
     employmentDegreeBonus: { type: Number, required: true, default: 0 },
@@ -58,13 +62,8 @@ const EmploymentSchema: Schema = new Schema<EmploymentDocument>(
     trainingSupport: { type: Number, required: true, default: 0 },
     physicalActivitySupport: { type: Number, required: true, default: 0 },
     contributionBaseSalary: { type: Number, required: true, default: 0 },
-    extraCompensations: {
-      type: [extraCompensationSchema],
-      required: false,
-      default: [],
-    },
     otherDeductions: {
-      type: [otherDeductionSchema],
+      type: [payrollConceptSchema],
       required: false,
       default: [],
     },

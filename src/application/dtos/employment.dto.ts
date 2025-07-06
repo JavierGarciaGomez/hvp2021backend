@@ -1,10 +1,9 @@
 import { BaseDTO } from "./base.dto";
 import { BaseEntity, EmploymentProps, JobProps } from "../../domain/entities";
 import {
-  ExtraCompensationVO,
   HRAttendanceSource,
   HRPaymentType,
-  OtherDeductionVO,
+  PayrollConcept,
 } from "../../domain";
 
 export class EmploymentDTO implements BaseDTO, BaseEntity {
@@ -27,6 +26,7 @@ export class EmploymentDTO implements BaseDTO, BaseEntity {
   commissionBonusPercentage: number = 0;
   employmentGuaranteedIncome!: number;
   employmentFixedIncomeByJob: number = 0;
+  additionalFixedIncomes: PayrollConcept[] = [];
   additionalRoleFixedIncome: number = 0;
   complementaryFixedIncome: number = 0;
   employmentDegreeBonus: number = 0;
@@ -41,8 +41,7 @@ export class EmploymentDTO implements BaseDTO, BaseEntity {
   trainingSupport: number = 0;
   physicalActivitySupport: number = 0;
   contributionBaseSalary: number = 0;
-  extraCompensations: ExtraCompensationVO[] = [];
-  otherDeductions: OtherDeductionVO[] = [];
+  otherDeductions: PayrollConcept[] = [];
 
   constructor({ ...props }: EmploymentProps) {
     Object.assign(this, props);

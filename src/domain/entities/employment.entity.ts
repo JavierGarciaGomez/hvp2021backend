@@ -1,7 +1,7 @@
 import { Document, Schema } from "mongoose";
 import { HRAttendanceSource, HRPaymentType } from "../enums";
 import { BaseEntity, newBaseEntityProps } from "./base.entity";
-import { ExtraCompensationVO, OtherDeductionVO } from "../value-objects";
+import { PayrollConcept } from "../value-objects";
 
 export interface EmploymentBase extends newBaseEntityProps {
   collaboratorId: string | Schema.Types.ObjectId;
@@ -32,8 +32,8 @@ export interface EmploymentBase extends newBaseEntityProps {
   trainingSupport: number;
   physicalActivitySupport: number;
   contributionBaseSalary: number;
-  extraCompensations: ExtraCompensationVO[];
-  otherDeductions: OtherDeductionVO[];
+  additionalFixedIncomes: PayrollConcept[];
+  otherDeductions: PayrollConcept[];
 }
 
 export interface EmploymentProps extends EmploymentBase {
@@ -76,6 +76,7 @@ export class EmploymentEntity implements BaseEntity {
   commissionBonusPercentage: number = 0;
   employmentGuaranteedIncome!: number;
   employmentFixedIncomeByJob: number = 0;
+  additionalFixedIncomes: PayrollConcept[] = [];
   additionalRoleFixedIncome: number = 0;
   complementaryFixedIncome: number = 0;
   employmentDegreeBonus: number = 0;
@@ -90,8 +91,8 @@ export class EmploymentEntity implements BaseEntity {
   trainingSupport: number = 0;
   physicalActivitySupport: number = 0;
   contributionBaseSalary: number = 0;
-  extraCompensations: ExtraCompensationVO[] = [];
-  otherDeductions: OtherDeductionVO[] = [];
+
+  otherDeductions: PayrollConcept[] = [];
 
   constructor(props: EmploymentProps) {
     Object.assign(this, props);

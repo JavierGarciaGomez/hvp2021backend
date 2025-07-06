@@ -382,14 +382,12 @@ export class EmploymentService extends BaseService<
       completedSemestersWorked * COMMISSION_SENIORITY_BONUS_PER_SEMESTER;
 
     // Calculate employment guaranteed income (job guaranteed income * work week ratio)
-    const employmentGuaranteedIncome = job?.guaranteedJobIncome
-      ? 0
-      : previousEmployment?.employmentGuaranteedIncome || 0;
+    const employmentGuaranteedIncome =
+      job?.guaranteedJobIncome ?? 0 * workWeekRatio;
 
     // Calculate employment fixed income by job (job fixed income * work week ratio * (1 + seniority bonus))
-    const employmentFixedIncomeByJob = job?.jobFixedIncome
-      ? job.jobFixedIncome * workWeekRatio * (1 + seniorityBonusPercentage)
-      : previousEmployment?.employmentFixedIncomeByJob || 0;
+    const employmentFixedIncomeByJob =
+      employmentGuaranteedIncome * (1 + seniorityBonusPercentage);
 
     // Get additional role and complementary fixed income from previous employment
     const additionalRoleFixedIncome =
@@ -501,8 +499,8 @@ export class EmploymentService extends BaseService<
       trainingSupport: previousEmployment?.trainingSupport || 0,
       physicalActivitySupport: previousEmployment?.physicalActivitySupport || 0,
       contributionBaseSalary: contributionBaseSalaryTotal,
-      extraCompensations: previousEmployment?.extraCompensations || [],
       otherDeductions: previousEmployment?.otherDeductions || [],
+      additionalFixedIncomes: previousEmployment?.additionalFixedIncomes || [],
     });
   };
 
