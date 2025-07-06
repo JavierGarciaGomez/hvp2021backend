@@ -3,7 +3,7 @@ import {
   EmploymentDocument,
   HRAttendanceSource,
   HRPaymentType,
-  payrollConceptSchema,
+  employmentFixedConceptSchema,
 } from "../../../../domain";
 
 const EmploymentSchema: Schema = new Schema<EmploymentDocument>(
@@ -36,13 +36,10 @@ const EmploymentSchema: Schema = new Schema<EmploymentDocument>(
     employmentGuaranteedIncome: { type: Number, required: true, default: 0 },
     employmentFixedIncomeByJob: { type: Number, required: true, default: 0 },
     additionalFixedIncomes: {
-      type: [payrollConceptSchema],
+      type: [employmentFixedConceptSchema],
       required: false,
       default: [],
     },
-    additionalRoleFixedIncome: { type: Number, required: true, default: 0 },
-    complementaryFixedIncome: { type: Number, required: true, default: 0 },
-    employmentDegreeBonus: { type: Number, required: true, default: 0 },
     employmentHourlyRate: { type: Number, required: true, default: 0 },
     totalFixedIncome: { type: Number, required: true, default: 0 },
     nominalDailyFixedIncome: { type: Number, required: true, default: 0 },
@@ -63,7 +60,7 @@ const EmploymentSchema: Schema = new Schema<EmploymentDocument>(
     physicalActivitySupport: { type: Number, required: true, default: 0 },
     contributionBaseSalary: { type: Number, required: true, default: 0 },
     otherDeductions: {
-      type: [payrollConceptSchema],
+      type: [employmentFixedConceptSchema],
       required: false,
       default: [],
     },

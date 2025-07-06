@@ -1,6 +1,7 @@
 export * from "./shared";
 export * from "./base.dto";
 export * from "./collaborator.dto";
+export * from "./collaborator-half-week-closing-report.dto";
 export * from "./notification.dto";
 export * from "./product.dto";
 export * from "./supplier.dto";

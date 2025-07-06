@@ -1,6 +1,8 @@
 export const mainRoutes = {
   auth: "/api/auth",
   collaborators: "/api/collaborators",
+  collaboratorHalfWeekClosingReports:
+    "/api/collaborator-half-week-closing-reports",
   cleanUps: "/api/cleanUps",
   rfc: "/api/rfc",
   collaboratorLog: "/api/collaboratorLog",

@@ -8,6 +8,7 @@ export { default as WorkLogModel } from "./WorkLogModel";
 export * from "./activity-register-type.model";
 export * from "./activity-register.model";
 export * from "./collaborator.model";
+export * from "./collaborator-half-week-closing-report.model";
 export * from "./controlled-prescription-model";
 export * from "./notification.model";
 export * from "./product.model";

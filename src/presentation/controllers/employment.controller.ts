@@ -118,4 +118,69 @@ export class EmploymentController extends BaseController<
       next(error);
     }
   };
+
+  public recalculateEmployment = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> => {
+    try {
+      const employmentData = req.body;
+
+      if (!employmentData) {
+        return res.status(400).json({
+          success: false,
+          message: "Employment data is required",
+        });
+      }
+
+      const result = await this.service.recalculateEmployment(employmentData);
+
+      const response = ResponseFormatterService.formatGetOneResponse({
+        data: result,
+        resource: this.resource,
+      });
+
+      return res.status(response.status_code).json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public recalculateEmployments = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> => {
+    try {
+      const employmentsData = req.body;
+
+      if (!employmentsData || !Array.isArray(employmentsData)) {
+        return res.status(400).json({
+          success: false,
+          message: "Request body must be an array of employment objects",
+        });
+      }
+
+      // Transform raw data to DTOs
+      const employmentDTOs = employmentsData.map((employmentData) =>
+        EmploymentDTO.create(employmentData)
+      );
+
+      const results = await this.service.recalculateEmployments(employmentDTOs);
+
+      const response = ResponseFormatterService.formatListResponse({
+        data: results,
+        page: 1,
+        limit: results.length,
+        total: results.length,
+        path: this.path,
+        resource: this.resource,
+      });
+
+      return res.status(response.status_code).json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
 }

@@ -26,12 +26,14 @@ export interface PayrollGeneralData {
 
 export interface PayrollEarnings {
   halfWeekFixedIncome: number;
+  extraFixedCompensations: PayrollConcept[];
   commissions: number;
+  punctualityBonus: number;
+  receptionBonus: number;
+
   vacationCompensation: number;
   expressBranchCompensation: number;
   mealCompensation: number;
-  receptionBonus: number;
-  punctualityBonus: number;
   absencesJustifiedByCompanyCompensation: number;
   specialBonuses: PayrollConcept[];
   guaranteedIncomeCompensation: number;
@@ -42,7 +44,6 @@ export interface PayrollEarnings {
   holidayOrRestExtraPay: number;
   traniningActivitySupport: number;
   physicalActivitySupport: number;
-  extraFixedCompensations: PayrollConcept[];
   extraVariableCompensations: PayrollConcept[];
   vacationBonus: number;
   endYearBonus: number;

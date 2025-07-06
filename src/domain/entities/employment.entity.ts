@@ -1,7 +1,8 @@
 import { Document, Schema } from "mongoose";
 import { HRAttendanceSource, HRPaymentType } from "../enums";
 import { BaseEntity, newBaseEntityProps } from "./base.entity";
-import { PayrollConcept } from "../value-objects";
+
+import { EmploymentFixedConcept } from "../value-objects/hr.vo";
 
 export interface EmploymentBase extends newBaseEntityProps {
   collaboratorId: string | Schema.Types.ObjectId;
@@ -18,9 +19,6 @@ export interface EmploymentBase extends newBaseEntityProps {
   commissionBonusPercentage: number;
   employmentGuaranteedIncome: number;
   employmentFixedIncomeByJob: number;
-  additionalRoleFixedIncome: number;
-  complementaryFixedIncome: number;
-  employmentDegreeBonus: number;
   totalFixedIncome: number;
   nominalDailyFixedIncome: number;
   nominalHourlyFixedIncome: number;
@@ -32,8 +30,8 @@ export interface EmploymentBase extends newBaseEntityProps {
   trainingSupport: number;
   physicalActivitySupport: number;
   contributionBaseSalary: number;
-  additionalFixedIncomes: PayrollConcept[];
-  otherDeductions: PayrollConcept[];
+  additionalFixedIncomes: EmploymentFixedConcept[];
+  otherDeductions: EmploymentFixedConcept[];
 }
 
 export interface EmploymentProps extends EmploymentBase {
@@ -76,10 +74,7 @@ export class EmploymentEntity implements BaseEntity {
   commissionBonusPercentage: number = 0;
   employmentGuaranteedIncome!: number;
   employmentFixedIncomeByJob: number = 0;
-  additionalFixedIncomes: PayrollConcept[] = [];
-  additionalRoleFixedIncome: number = 0;
-  complementaryFixedIncome: number = 0;
-  employmentDegreeBonus: number = 0;
+  additionalFixedIncomes: EmploymentFixedConcept[] = [];
   employmentHourlyRate: number = 0;
   totalFixedIncome: number = 0;
   nominalDailyFixedIncome: number = 0;
@@ -92,7 +87,7 @@ export class EmploymentEntity implements BaseEntity {
   physicalActivitySupport: number = 0;
   contributionBaseSalary: number = 0;
 
-  otherDeductions: PayrollConcept[] = [];
+  otherDeductions: EmploymentFixedConcept[] = [];
 
   constructor(props: EmploymentProps) {
     Object.assign(this, props);

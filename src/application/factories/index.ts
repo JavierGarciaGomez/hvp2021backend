@@ -1,5 +1,6 @@
 export * from "./activity-register-type.factory";
 export * from "./collaborator.factory";
+export * from "./collaborator-half-week-closing-report.factory";
 export * from "./create-controlled-prescription-service.factory";
 export * from "./create-notification-service.factory";
 export * from "./product.factory";

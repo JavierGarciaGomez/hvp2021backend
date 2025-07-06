@@ -1,6 +1,7 @@
 export * from "./activity-register-type.repository.imp";
 export * from "./base.repository.imp";
 export * from "./collaborator.repository.imp";
+export * from "./collaborator-half-week-closing-report.repository.imp";
 export * from "./controlled-prescription.repository.imp";
 export * from "./notification.repository.imp";
 export * from "./product.repository.imp";

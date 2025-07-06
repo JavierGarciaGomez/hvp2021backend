@@ -29,6 +29,20 @@ export class EmploymentRoutes extends BaseCRUDRoutes {
       controller.createMany
     );
 
+    // Custom route for recalculating employment values
+    this.router.post(
+      "/recalculate",
+      AuthMiddleware.validateJWT,
+      controller.recalculateEmployment
+    );
+
+    // Custom route for recalculating multiple employment values
+    this.router.post(
+      "/recalculate-bulk",
+      AuthMiddleware.validateJWT,
+      controller.recalculateEmployments
+    );
+
     this.setupCrudRoutes(controller);
   }
 }

@@ -1,5 +1,6 @@
 export * from "./base.entity";
 export * from "./collaborator.entity";
+export * from "./collaborator-half-week-closing-report.entity";
 export * from "./user.entity";
 export * from "./notification.entity";
 export * from "./product.entity";

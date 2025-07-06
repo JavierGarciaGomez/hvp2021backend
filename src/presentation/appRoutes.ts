@@ -21,6 +21,7 @@ import {
   ActivityRegisterRoutes,
   ActivityRegisterTypeRoutes,
   CollaboratorRoutes,
+  CollaboratorHalfWeekClosingReportRoutes,
   ControlledPrescriptionRoutes,
   NotificationRoutes,
   ProductRoutes,
@@ -59,6 +60,10 @@ export class AppRoutes {
     router.use(mainRoutes.cleanUps, cleanupsRouter);
     router.use(mainRoutes.collaboratorLog, collaboratorLogRoutes);
     router.use(mainRoutes.collaborators, new CollaboratorRoutes().getRoutes());
+    router.use(
+      mainRoutes.collaboratorHalfWeekClosingReports,
+      new CollaboratorHalfWeekClosingReportRoutes().getRoutes()
+    );
     router.use(mainRoutes.documentation, documentationRoutes);
     router.use(mainRoutes.fcm, fcmRoutes);
     router.use(mainRoutes.notifications, new NotificationRoutes().getRoutes());

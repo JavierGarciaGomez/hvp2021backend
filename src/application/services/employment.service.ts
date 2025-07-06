@@ -339,6 +339,103 @@ export class EmploymentService extends BaseService<
     };
   };
 
+  public recalculateEmployment = async (
+    employmentData: any
+  ): Promise<EmploymentEntity> => {
+    if (!this.collaboratorService) {
+      throw new Error("Collaborator service not available");
+    }
+
+    // Get the collaborator
+    const collaborator = await this.collaboratorService.getById(
+      employmentData.collaboratorId
+    );
+    if (!collaborator) {
+      throw new Error(
+        `Collaborator with id ${employmentData.collaboratorId} not found`
+      );
+    }
+
+    // Get salary data for the year
+    const startYear = dayjs(employmentData.employmentStartDate).year();
+    const minimumWage = await this.getMinimumWageForYear(startYear);
+
+    // Use the employment data directly as "previous employment"
+    const recalculatedEmployment = await this.calculateDraftEmployment(
+      collaborator,
+      employmentData.employmentStartDate.toString(),
+      employmentData.employmentEndDate?.toString(),
+      minimumWage,
+      employmentData
+    );
+
+    return recalculatedEmployment;
+  };
+
+  public recalculateEmployments = async (
+    employmentsData: EmploymentDTO[]
+  ): Promise<EmploymentEntity[]> => {
+    if (!this.collaboratorService) {
+      throw new Error("Collaborator service not available");
+    }
+
+    if (!Array.isArray(employmentsData)) {
+      throw new Error("Employment data must be an array");
+    }
+
+    const results: EmploymentEntity[] = [];
+    const collaboratorCache = new Map<string, any>();
+    const minimumWageCache = new Map<number, number>();
+
+    // Process each employment
+    for (const employmentData of employmentsData) {
+      try {
+        // Get the collaborator (use cache to avoid repeated requests)
+        let collaborator = collaboratorCache.get(employmentData.collaboratorId);
+        if (!collaborator) {
+          collaborator = await this.collaboratorService.getById(
+            employmentData.collaboratorId
+          );
+          if (!collaborator) {
+            throw new Error(
+              `Collaborator with id ${employmentData.collaboratorId} not found`
+            );
+          }
+          collaboratorCache.set(employmentData.collaboratorId, collaborator);
+        }
+
+        // Get salary data for the year (use cache to avoid repeated requests)
+        const startYear = dayjs(employmentData.employmentStartDate).year();
+        let minimumWage = minimumWageCache.get(startYear);
+        if (!minimumWage) {
+          minimumWage = await this.getMinimumWageForYear(startYear);
+          minimumWageCache.set(startYear, minimumWage);
+        }
+
+        // Use the employment data directly as "previous employment"
+        const recalculatedEmployment = await this.calculateDraftEmployment(
+          collaborator,
+          employmentData.employmentStartDate.toString(),
+          employmentData.employmentEndDate?.toString(),
+          minimumWage,
+          employmentData
+        );
+
+        results.push(recalculatedEmployment);
+      } catch (error) {
+        // Continue processing other employments even if one fails
+        console.error(
+          `Error recalculating employment for collaborator ${employmentData.collaboratorId}:`,
+          error
+        );
+        // You might want to include the error in the response or handle it differently
+        throw error;
+      }
+    }
+
+    return results;
+  };
+
   private calculateDraftEmployment = async (
     collaborator: any,
     startDate: string,
@@ -381,30 +478,24 @@ export class EmploymentService extends BaseService<
     const commissionBonusPercentage =
       completedSemestersWorked * COMMISSION_SENIORITY_BONUS_PER_SEMESTER;
 
-    // Calculate employment guaranteed income (job guaranteed income * work week ratio)
-    const employmentGuaranteedIncome =
-      job?.guaranteedJobIncome ?? 0 * workWeekRatio;
-
     // Calculate employment fixed income by job (job fixed income * work week ratio * (1 + seniority bonus))
+
+    const jobFixedIncome = job?.jobFixedIncome ?? 0 * workWeekRatio;
+
     const employmentFixedIncomeByJob =
-      employmentGuaranteedIncome * (1 + seniorityBonusPercentage);
+      jobFixedIncome * (1 + seniorityBonusPercentage);
 
-    // Get additional role and complementary fixed income from previous employment
-    const additionalRoleFixedIncome =
-      previousEmployment?.additionalRoleFixedIncome || 0;
-    const complementaryFixedIncome =
-      previousEmployment?.complementaryFixedIncome || 0;
+    const additionalFixedIncomes =
+      previousEmployment?.additionalFixedIncomes || [];
 
-    // Calculate employment degree bonus
-    const employmentDegreeBonus =
-      DEGREE_BONUS[collaborator.degree as Degree] || 0 * workWeekRatio;
+    const attendanceFixedIncomesTotal = additionalFixedIncomes.reduce(
+      (acc, curr) => acc + (curr.isAttendanceRelated ? curr.amount : 0),
+      0
+    );
 
     // Calculate total fixed income
     const totalFixedIncome =
-      employmentFixedIncomeByJob +
-      additionalRoleFixedIncome +
-      complementaryFixedIncome +
-      employmentDegreeBonus;
+      employmentFixedIncomeByJob + attendanceFixedIncomesTotal;
 
     // Calculate derived income metrics
     const nominalDailyFixedIncome = totalFixedIncome / 30;
@@ -422,6 +513,12 @@ export class EmploymentService extends BaseService<
     // Employment hourly rate (uses the original effective calculation)
     const employmentHourlyRate =
       totalFixedIncome / AVERAGE_WORK_DAYS_PER_MONTH / dailyWorkingHours;
+
+    // Calculate employment guaranteed income
+
+    const employmentGuaranteedIncome =
+      job?.guaranteedJobIncome ??
+      0 * workWeekRatio + attendanceFixedIncomesTotal;
 
     // Get average commissions per scheduled hour
     let averageCommissionsPerScheduledHour = 10; // Default fallback
@@ -484,9 +581,6 @@ export class EmploymentService extends BaseService<
       commissionBonusPercentage: commissionBonusPercentage,
       employmentGuaranteedIncome: employmentGuaranteedIncome,
       employmentFixedIncomeByJob: employmentFixedIncomeByJob,
-      additionalRoleFixedIncome: additionalRoleFixedIncome,
-      complementaryFixedIncome: complementaryFixedIncome,
-      employmentDegreeBonus: employmentDegreeBonus,
       employmentHourlyRate: employmentHourlyRate,
       totalFixedIncome: totalFixedIncome,
       nominalDailyFixedIncome: nominalDailyFixedIncome,

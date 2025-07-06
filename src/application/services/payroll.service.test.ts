@@ -55,7 +55,7 @@
 //       averageCommissionIncome: 4647,
 //       minimumOrdinaryIncome: 7875,
 //       receptionBonus: 0,
-//       employmentDegreeBonus: 225,
+
 //       trainingSupport: 0,
 //       physicalActivitySupport: 0,
 
