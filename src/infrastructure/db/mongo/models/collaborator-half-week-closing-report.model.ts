@@ -5,9 +5,8 @@ const InvalidClosingDetailSchema = new Schema(
   {
     id: { type: String, required: true },
     reason: { type: String, required: true },
-    amount: { type: Number, required: true },
+
     date: { type: Date, required: true },
-    description: { type: String, required: false },
   },
   { _id: false }
 );
@@ -16,9 +15,7 @@ const InvalidWithdrawalDetailSchema = new Schema(
   {
     id: { type: String, required: true },
     reason: { type: String, required: true },
-    amount: { type: Number, required: true },
     date: { type: Date, required: true },
-    description: { type: String, required: false },
   },
   { _id: false }
 );

@@ -4,17 +4,13 @@ import { BaseEntity, BaseEntityProps } from "./base.entity";
 export interface InvalidClosingDetail {
   id: string;
   reason: string;
-  amount: number;
   date: Date;
-  description?: string;
 }
 
 export interface InvalidWithdrawalDetail {
   id: string;
   reason: string;
-  amount: number;
   date: Date;
-  description?: string;
 }
 
 export interface CollaboratorHalfWeekClosingReportProps
