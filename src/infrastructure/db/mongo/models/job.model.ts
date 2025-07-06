@@ -26,7 +26,7 @@ const JobSchema: Schema = new Schema<JobDocument>(
       default: null,
     },
     positionFactor: { type: Number, required: false, default: 1 },
-    guarantedJobIncome: { type: Number, required: false },
+    guaranteedJobIncome: { type: Number, required: false },
     jobFixedIncome: { type: Number, required: false },
     fixedShareOfGuaranteedIncome: {
       type: Number,

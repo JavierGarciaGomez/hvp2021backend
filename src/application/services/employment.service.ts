@@ -382,8 +382,8 @@ export class EmploymentService extends BaseService<
       completedSemestersWorked * COMMISSION_SENIORITY_BONUS_PER_SEMESTER;
 
     // Calculate employment guaranteed income (job guaranteed income * work week ratio)
-    const employmentGuaranteedIncome = job?.guarantedJobIncome
-      ? job.guarantedJobIncome * workWeekRatio
+    const employmentGuaranteedIncome = job?.guaranteedJobIncome
+      ? 0
       : previousEmployment?.employmentGuaranteedIncome || 0;
 
     // Calculate employment fixed income by job (job fixed income * work week ratio * (1 + seniority bonus))

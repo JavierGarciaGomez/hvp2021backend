@@ -51,7 +51,7 @@ In the end just save it as payrollOutput.json
 2172 startis with Compensación por vacaciones - vacationCompensation
 2172 starts with Compensación extra - extraVariableCompensations
 2172 starts with Compensación por faltas - absencesJustifiedByCompanyCompensation
-2172 starts with Compensación por ingreso mínimo - guaranteedPerceptionCompensation
+2172 starts with Compensación por ingreso mínimo - guaranteedIncomeCompensation
 2172 rest - extraVariableCompensations
 2173 - punctualityBonus
 2174 - halfWeekFixedIncome

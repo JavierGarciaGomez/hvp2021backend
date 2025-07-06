@@ -28,7 +28,7 @@
       "incomeMultiplier": 1,
       "quarterlyCommissionRaisePercent": 2.5,
       "updatedBy": "61dff1cb4131595911ad13fb",
-      "guarantedJobIncome": 32200,
+      "guaranteedJobIncome": 32200,
       "historicalPromotionRequirements": {
         "complexSurgeries": 0,
         "surgeries": 0,

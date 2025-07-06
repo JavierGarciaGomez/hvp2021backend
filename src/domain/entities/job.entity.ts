@@ -13,7 +13,7 @@ export interface JobPropsBase extends newBaseEntityProps {
   quarterPromotionRequirements?: JobPromotionStatsVO;
   historicalPromotionRequirements?: JobPromotionStatsVO;
   positionFactor: number;
-  guarantedJobIncome?: number;
+  guaranteedJobIncome?: number;
   jobFixedIncome?: number;
   fixedShareOfGuaranteedIncome: number;
 }
@@ -37,8 +37,8 @@ export class JobEntity implements BaseEntity {
   updatedAt?: Date;
   updatedBy?: string;
   positionFactor: number = 1;
-  guarantedJobIncome?: number; // minimum ordinary income
-  jobFixedIncome?: number; // fixed perception
+  guaranteedJobIncome?: number; // minimum ordinary income
+  jobFixedIncome?: number; // fixed income
   expressBranchCompensation: number = 0;
   commissionRateAdjustment: number = 0.4;
   title!: string;

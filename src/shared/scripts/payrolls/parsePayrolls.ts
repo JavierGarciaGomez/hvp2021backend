@@ -212,7 +212,7 @@ const transformExcelToJson = () => {
         punctualityBonus: 0,
         absencesJustifiedByCompanyCompensation: 0,
         specialBonuses: [],
-        guaranteedPerceptionCompensation: 0,
+        guaranteedIncomeCompensation: 0,
         simpleOvertimeHours: 0,
         doubleOvertimeHours: 0,
         tripleOvertimeHours: 0,
@@ -406,7 +406,7 @@ const mapConceptsToPayroll = (
           payroll.earnings.absencesJustifiedByCompanyCompensation +=
             positiveAmount;
         } else if (description.includes("ingreso mínimo")) {
-          payroll.earnings.guaranteedPerceptionCompensation += positiveAmount;
+          payroll.earnings.guaranteedIncomeCompensation += positiveAmount;
         } else {
           payroll.earnings.extraVariableCompensations.push({
             name: "Compensación extra",
@@ -443,7 +443,7 @@ const calculateTotals = (payroll: PayrollOutput) => {
     earnings.receptionBonus +
     earnings.punctualityBonus +
     earnings.absencesJustifiedByCompanyCompensation +
-    earnings.guaranteedPerceptionCompensation +
+    earnings.guaranteedIncomeCompensation +
     earnings.simpleOvertimeHours +
     earnings.doubleOvertimeHours +
     earnings.tripleOvertimeHours +

@@ -27,7 +27,7 @@ export interface PayrollEarnings {
   punctualityBonus: number;
   absencesJustifiedByCompanyCompensation: number;
   specialBonuses: PayrollConcept[];
-  guaranteedPerceptionCompensation: number;
+  guaranteedIncomeCompensation: number;
   simpleOvertimeHours: number;
   doubleOvertimeHours: number;
   tripleOvertimeHours: number;

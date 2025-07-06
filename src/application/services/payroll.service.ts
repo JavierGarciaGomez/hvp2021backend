@@ -295,8 +295,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     // Step 4: Fill all the earnings that don't depend on other earnings
     this.fillInitialEarnings(payrollEstimate, rawData);
 
-    // Step 5: Fill guaranteed perception compensation
-    this.fillGuaranteedPerceptionCompensation(payrollEstimate, rawData);
+    // Step 5: Fill guaranteed income compensation
+    this.fillGuaranteedIncomeCompensation(payrollEstimate, rawData);
 
     // Step 6: Fill employment subsidy
     this.fillEmploymentSubsidy(payrollEstimate, rawData);
@@ -691,7 +691,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     payrollEstimate.earnings.extraVariableCompensations = [];
   }
 
-  private fillGuaranteedPerceptionCompensation(
+  private fillGuaranteedIncomeCompensation(
     payrollEstimate: PayrollEstimate,
     rawData: PayrollCollaboratorRawData
   ): void {
@@ -699,7 +699,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     const { attendanceFactor, attendanceRelatedDiscounts } =
       payrollEstimate.contextData;
 
-    // Calculate guaranteed perception compensation
+    // Calculate guaranteed income compensation
     const subTotalOrdinaryIncome =
       payrollEstimate.earnings.halfWeekFixedIncome +
       payrollEstimate.earnings.commissions +
@@ -717,12 +717,12 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     const totalOrdinaryIncome =
       subTotalOrdinaryIncome - attendanceRelatedDiscounts;
 
-    const maxGuaranteedPerception =
+    const maxGuaranteedIncome =
       (rawData.employment.employmentGuaranteedIncome / 2) * attendanceFactor;
 
-    payrollEstimate.earnings.guaranteedPerceptionCompensation = Math.max(
+    payrollEstimate.earnings.guaranteedIncomeCompensation = Math.max(
       0,
-      maxGuaranteedPerception - totalOrdinaryIncome
+      maxGuaranteedIncome - totalOrdinaryIncome
     );
   }
 
@@ -1087,7 +1087,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
         punctualityBonus: 0,
         absencesJustifiedByCompanyCompensation: 0,
         specialBonuses: [],
-        guaranteedPerceptionCompensation: 0,
+        guaranteedIncomeCompensation: 0,
         simpleOvertimeHours: 0,
         doubleOvertimeHours: 0,
         tripleOvertimeHours: 0,

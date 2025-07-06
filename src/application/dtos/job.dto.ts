@@ -18,7 +18,7 @@ export class JobDTO implements BaseDTO {
   quarterPromotionRequirements?: JobPromotionStatsVO;
   historicalPromotionRequirements?: JobPromotionStatsVO;
   positionFactor: number = 1;
-  guarantedJobIncome?: number;
+  guaranteedJobIncome?: number;
   jobFixedIncome?: number;
   fixedShareOfGuaranteedIncome: number = 0.4;
 

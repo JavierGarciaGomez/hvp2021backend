@@ -51,7 +51,7 @@ const PayrollSchema: Schema = new Schema<PayrollDocument>(
           amount: Number,
         },
       ],
-      guaranteedPerceptionCompensation: { type: Number, default: 0 },
+      guaranteedIncomeCompensation: { type: Number, default: 0 },
       simpleOvertimeHours: { type: Number, default: 0 },
       doubleOvertimeHours: { type: Number, default: 0 },
       tripleOvertimeHours: { type: Number, default: 0 },

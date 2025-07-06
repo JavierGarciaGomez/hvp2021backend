@@ -81,7 +81,7 @@ describe("PayrollService", () => {
       description: "",
       title: "Veterinario B",
       positionFactor: 1,
-      guarantedJobIncome: 10500,
+      guaranteedJobIncome: 10500,
       jobFixedIncome: 4440,
       fixedShareOfGuaranteedIncome: 0.4,
       createdAt: "2024-10-12T11:47:20.879Z",
