@@ -1,16 +1,10 @@
 import { Document, Schema } from "mongoose";
 import { BaseEntity, BaseEntityProps } from "./base.entity";
 
-export interface InvalidClosingDetail {
-  id: string;
+export interface InvalidDetail {
   reason: string;
   date: Date;
-}
-
-export interface InvalidWithdrawalDetail {
-  id: string;
-  reason: string;
-  date: Date;
+  ref: string;
 }
 
 export interface CollaboratorHalfWeekClosingReportProps
@@ -26,8 +20,8 @@ export interface CollaboratorHalfWeekClosingReportProps
   bonusEarned: number;
   bonusDeducted: number;
   totalBonus: number;
-  invalidClosingsDetails: InvalidClosingDetail[];
-  invalidWithdrawalsDetails: InvalidWithdrawalDetail[];
+  invalidClosingsDetails: InvalidDetail[];
+  invalidWithdrawalsDetails: InvalidDetail[];
 }
 
 export interface CollaboratorHalfWeekClosingReportDocument
@@ -50,8 +44,8 @@ export class CollaboratorHalfWeekClosingReportEntity implements BaseEntity {
   bonusEarned: number;
   bonusDeducted: number;
   totalBonus: number;
-  invalidClosingsDetails: InvalidClosingDetail[];
-  invalidWithdrawalsDetails: InvalidWithdrawalDetail[];
+  invalidClosingsDetails: InvalidDetail[];
+  invalidWithdrawalsDetails: InvalidDetail[];
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;

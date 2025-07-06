@@ -1,19 +1,9 @@
 import mongoose, { Schema, Model } from "mongoose";
 import { CollaboratorHalfWeekClosingReportDocument } from "../../../../domain";
 
-const InvalidClosingDetailSchema = new Schema(
+const InvalidDetailSchema = new Schema(
   {
-    id: { type: String, required: true },
-    reason: { type: String, required: true },
-
-    date: { type: Date, required: true },
-  },
-  { _id: false }
-);
-
-const InvalidWithdrawalDetailSchema = new Schema(
-  {
-    id: { type: String, required: true },
+    ref: { type: String, required: true },
     reason: { type: String, required: true },
     date: { type: Date, required: true },
   },
@@ -77,11 +67,11 @@ const CollaboratorHalfWeekClosingReportSchema: Schema =
         // Note: totalBonus can be negative, so no min constraint
       },
       invalidClosingsDetails: {
-        type: [InvalidClosingDetailSchema],
+        type: [InvalidDetailSchema],
         default: [],
       },
       invalidWithdrawalsDetails: {
-        type: [InvalidWithdrawalDetailSchema],
+        type: [InvalidDetailSchema],
         default: [],
       },
       createdAt: { type: Date, default: Date.now },

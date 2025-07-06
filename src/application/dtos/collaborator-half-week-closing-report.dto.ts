@@ -1,7 +1,6 @@
 import {
   CollaboratorHalfWeekClosingReportProps,
-  InvalidClosingDetail,
-  InvalidWithdrawalDetail,
+  InvalidDetail,
 } from "../../domain";
 import { BaseError } from "../../shared";
 import { checkForErrors } from "../../shared/helpers";
@@ -20,8 +19,8 @@ export class CollaboratorHalfWeekClosingReportDTO implements BaseDTO {
   bonusEarned: number;
   bonusDeducted: number;
   totalBonus: number;
-  invalidClosingsDetails: InvalidClosingDetail[];
-  invalidWithdrawalsDetails: InvalidWithdrawalDetail[];
+  invalidClosingsDetails: InvalidDetail[];
+  invalidWithdrawalsDetails: InvalidDetail[];
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
