@@ -25,42 +25,42 @@ export interface PayrollGeneralData {
 }
 
 export interface PayrollEarnings {
-  halfWeekFixedIncome: number;
-  extraFixedCompensations: PayrollConcept[];
+  halfWeekFixedIncome?: number;
+  halfWeekHourlyPay?: number;
+  additionalFixedIncomes: PayrollConcept[];
   commissions: number;
-  punctualityBonus: number;
+  punctualityBonus?: number;
   receptionBonus: number;
-
-  vacationCompensation: number;
   expressBranchCompensation: number;
-  mealCompensation: number;
-  absencesJustifiedByCompanyCompensation: number;
+  vacationCompensation: number;
   specialBonuses: PayrollConcept[];
-  guaranteedIncomeCompensation: number;
-  simpleOvertimeHours: number;
-  doubleOvertimeHours: number;
-  tripleOvertimeHours: number;
+  guaranteedIncomeCompensation?: number;
+  simpleOvertimeHours?: number;
+  doubleOvertimeHours?: number;
+  tripleOvertimeHours?: number;
   sundayBonus: number;
   holidayOrRestExtraPay: number;
+  endYearBonus: number;
+  vacationBonus: number;
+  profitSharing?: number;
+  employmentSubsidy?: number;
   traniningActivitySupport: number;
   physicalActivitySupport: number;
   extraVariableCompensations: PayrollConcept[];
-  vacationBonus: number;
-  endYearBonus: number;
-  profitSharing: number;
-  employmentSubsidy: number;
+  absencesJustifiedByCompanyCompensation?: number; // legacy
+  mealCompensation?: number; // legacy
 }
 
 export interface PayrollDeductions {
-  incomeTaxWithholding: number;
-  socialSecurityWithholding: number;
-  otherFixedDeductions: PayrollConcept[];
-  otherVariableDeductions: PayrollConcept[];
-  nonCountedDaysDiscount: number;
-  justifiedAbsencesDiscount: number;
-  unjustifiedAbsencesDiscount: number;
-  unworkedHoursDiscount: number;
-  tardinessDiscount: number;
+  incomeTaxWithholding?: number;
+  socialSecurityWithholding?: number;
+  otherFixedDeductions?: PayrollConcept[];
+  otherVariableDeductions?: PayrollConcept[];
+  nonCountedDaysDiscount?: number;
+  justifiedAbsencesDiscount?: number;
+  unjustifiedAbsencesDiscount?: number;
+  unworkedHoursDiscount?: number;
+  tardinessDiscount?: number;
 }
 
 export interface PayrollTotals {
@@ -70,11 +70,53 @@ export interface PayrollTotals {
 }
 
 export interface PayrollContextData {
-  periodDaysLength: number;
-  halfWeekFixedIncome: number;
-  averageOrdinaryIncomeDaily: number;
-  attendanceRelatedDiscounts: number;
   attendanceFactor: number;
   employerImssRate: number;
   workedHours: number;
+}
+
+// sorted by calculation
+export interface AttendanceDiscounts {
+  nonCountedDaysDiscount: number;
+  justifiedAbsencesDiscount: number;
+  unjustifiedAbsencesDiscount: number;
+  unworkedHoursDiscount: number;
+  tardinessDiscount: number;
+}
+
+export interface SimpleSalaryPayrollEarnings {
+  halfWeekFixedIncome: number;
+  additionalFixedIncomes: PayrollConcept[];
+  commissions: number;
+  receptionBonus: number;
+  punctualityBonus: number;
+  expressBranchCompensation: number;
+  vacationCompensation: number;
+  simpleOvertimeHours: number;
+  doubleOvertimeHours: number;
+  tripleOvertimeHours: number;
+  sundayBonus: number;
+  holidayOrRestExtraPay: number;
+  vacationBonus: number;
+  traniningActivitySupport: number;
+  physicalActivitySupport: number;
+}
+
+export interface FrontendSalaryPayrollEarnings {
+  specialBonuses: PayrollConcept[];
+  endYearBonus: number;
+  extraVariableCompensations: PayrollConcept[];
+  profitSharing: number;
+}
+
+export interface incomeTaxConcepts {
+  employmentSubsidy: number;
+  incomeTaxWithholding: number;
+}
+
+export interface OtherDeductions {
+  socialSecurityWithholding: number;
+  otherFixedDeductions: PayrollConcept[];
+  otherVariableDeductions: PayrollConcept[];
+  employerSocialSecurityCost: number;
 }

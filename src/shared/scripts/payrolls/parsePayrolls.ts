@@ -15,7 +15,6 @@ import type {
   PayrollDeductions,
   PayrollTotals,
   PayrollContextData,
-  PayrollConcept,
 } from "../../../domain/value-objects";
 
 dayjs.extend(utc);
@@ -204,6 +203,8 @@ const transformExcelToJson = () => {
       },
       earnings: {
         halfWeekFixedIncome: 0,
+        halfWeekHourlyPay: 0,
+        additionalFixedIncomes: [],
         commissions: 0,
         vacationCompensation: 0,
         expressBranchCompensation: 0,
@@ -220,7 +221,6 @@ const transformExcelToJson = () => {
         holidayOrRestExtraPay: 0,
         traniningActivitySupport: employment?.trainingSupport || 0,
         physicalActivitySupport: employment?.physicalActivitySupport || 0,
-        extraFixedCompensations: [],
         extraVariableCompensations: [],
         vacationBonus: 0,
         endYearBonus: 0,
@@ -244,10 +244,6 @@ const transformExcelToJson = () => {
         netPay: 0,
       },
       contextData: {
-        periodDaysLength: 15,
-        halfWeekFixedIncome: 0,
-        averageOrdinaryIncomeDaily: 0,
-        attendanceRelatedDiscounts: 0,
         attendanceFactor: 1,
         employerImssRate: 0,
         workedHours: 0,
@@ -360,14 +356,19 @@ const mapConceptsToPayroll = (
 
     switch (code) {
       case 2111:
+        payroll.earnings.halfWeekFixedIncome =
+          (payroll.earnings.halfWeekFixedIncome || 0) + positiveAmount;
+        break;
       case 2174:
-        payroll.earnings.halfWeekFixedIncome += positiveAmount;
+        payroll.earnings.halfWeekHourlyPay =
+          (payroll.earnings.halfWeekHourlyPay || 0) + positiveAmount;
         break;
       case 2132:
         payroll.earnings.vacationBonus += positiveAmount;
         break;
       case 2133:
-        payroll.earnings.doubleOvertimeHours += positiveAmount;
+        payroll.earnings.doubleOvertimeHours =
+          (payroll.earnings.doubleOvertimeHours || 0) + positiveAmount;
         break;
       case 2134:
         payroll.earnings.sundayBonus += positiveAmount;
@@ -379,9 +380,13 @@ const mapConceptsToPayroll = (
         payroll.earnings.endYearBonus += positiveAmount;
         break;
       case 2141:
-        payroll.deductions.socialSecurityWithholding += positiveAmount;
+        payroll.deductions.socialSecurityWithholding =
+          (payroll.deductions.socialSecurityWithholding || 0) + positiveAmount;
         break;
       case 2144:
+        if (!payroll.deductions.otherFixedDeductions) {
+          payroll.deductions.otherFixedDeductions = [];
+        }
         payroll.deductions.otherFixedDeductions.push({
           name: "Retención crédito Infonavit",
           description: "Retención crédito Infonavit",
@@ -399,14 +404,18 @@ const mapConceptsToPayroll = (
         if (description.includes("Montejo")) {
           payroll.earnings.expressBranchCompensation += positiveAmount;
         } else if (description.includes("alimentos")) {
-          payroll.earnings.mealCompensation += positiveAmount;
+          payroll.earnings.mealCompensation =
+            (payroll.earnings.mealCompensation || 0) + positiveAmount;
         } else if (description.includes("vacaciones")) {
           payroll.earnings.vacationCompensation += positiveAmount;
         } else if (description.includes("faltas")) {
-          payroll.earnings.absencesJustifiedByCompanyCompensation +=
+          payroll.earnings.absencesJustifiedByCompanyCompensation =
+            (payroll.earnings.absencesJustifiedByCompanyCompensation || 0) +
             positiveAmount;
         } else if (description.includes("ingreso mínimo")) {
-          payroll.earnings.guaranteedIncomeCompensation += positiveAmount;
+          payroll.earnings.guaranteedIncomeCompensation =
+            (payroll.earnings.guaranteedIncomeCompensation || 0) +
+            positiveAmount;
         } else {
           payroll.earnings.extraVariableCompensations.push({
             name: "Compensación extra",
@@ -416,13 +425,16 @@ const mapConceptsToPayroll = (
         }
         break;
       case 2173:
-        payroll.earnings.punctualityBonus += positiveAmount;
+        payroll.earnings.punctualityBonus =
+          (payroll.earnings.punctualityBonus || 0) + positiveAmount;
         break;
       case 2812:
-        payroll.deductions.incomeTaxWithholding += positiveAmount;
+        payroll.deductions.incomeTaxWithholding =
+          (payroll.deductions.incomeTaxWithholding || 0) + positiveAmount;
         break;
       case 2813:
-        payroll.earnings.employmentSubsidy += positiveAmount;
+        payroll.earnings.employmentSubsidy =
+          (payroll.earnings.employmentSubsidy || 0) + positiveAmount;
         break;
       default:
         console.warn(`⚠️ Unknown concept code: ${code} with amount: ${amount}`);
@@ -435,31 +447,28 @@ const calculateTotals = (payroll: PayrollOutput) => {
   // Calculate total earnings
   const earnings = payroll.earnings;
   payroll.totals.totalIncome =
-    earnings.halfWeekFixedIncome +
+    (earnings.halfWeekFixedIncome || 0) +
+    (earnings.halfWeekHourlyPay || 0) +
     earnings.commissions +
     earnings.vacationCompensation +
     earnings.expressBranchCompensation +
-    earnings.mealCompensation +
+    (earnings.mealCompensation || 0) +
     earnings.receptionBonus +
-    earnings.punctualityBonus +
-    earnings.absencesJustifiedByCompanyCompensation +
-    earnings.guaranteedIncomeCompensation +
-    earnings.simpleOvertimeHours +
-    earnings.doubleOvertimeHours +
-    earnings.tripleOvertimeHours +
+    (earnings.punctualityBonus || 0) +
+    (earnings.absencesJustifiedByCompanyCompensation || 0) +
+    (earnings.guaranteedIncomeCompensation || 0) +
+    (earnings.simpleOvertimeHours || 0) +
+    (earnings.doubleOvertimeHours || 0) +
+    (earnings.tripleOvertimeHours || 0) +
     earnings.sundayBonus +
     earnings.holidayOrRestExtraPay +
     earnings.traniningActivitySupport +
     earnings.physicalActivitySupport +
     earnings.vacationBonus +
     earnings.endYearBonus +
-    earnings.profitSharing +
-    earnings.employmentSubsidy +
+    (earnings.profitSharing || 0) +
+    (earnings.employmentSubsidy || 0) +
     earnings.specialBonuses.reduce((sum, bonus) => sum + bonus.amount, 0) +
-    earnings.extraFixedCompensations.reduce(
-      (sum, comp) => sum + comp.amount,
-      0
-    ) +
     earnings.extraVariableCompensations.reduce(
       (sum, comp) => sum + comp.amount,
       0
@@ -468,18 +477,18 @@ const calculateTotals = (payroll: PayrollOutput) => {
   // Calculate total deductions
   const deductions = payroll.deductions;
   payroll.totals.totalDeductions =
-    deductions.incomeTaxWithholding +
-    deductions.socialSecurityWithholding +
-    deductions.nonCountedDaysDiscount +
-    deductions.justifiedAbsencesDiscount +
-    deductions.unjustifiedAbsencesDiscount +
-    deductions.unworkedHoursDiscount +
-    deductions.tardinessDiscount +
-    deductions.otherFixedDeductions.reduce(
+    (deductions.incomeTaxWithholding || 0) +
+    (deductions.socialSecurityWithholding || 0) +
+    (deductions.nonCountedDaysDiscount || 0) +
+    (deductions.justifiedAbsencesDiscount || 0) +
+    (deductions.unjustifiedAbsencesDiscount || 0) +
+    (deductions.unworkedHoursDiscount || 0) +
+    (deductions.tardinessDiscount || 0) +
+    (deductions.otherFixedDeductions || []).reduce(
       (sum, deduction) => sum + deduction.amount,
       0
     ) +
-    deductions.otherVariableDeductions.reduce(
+    (deductions.otherVariableDeductions || []).reduce(
       (sum, deduction) => sum + deduction.amount,
       0
     );
@@ -488,10 +497,7 @@ const calculateTotals = (payroll: PayrollOutput) => {
   payroll.totals.netPay =
     payroll.totals.totalIncome - payroll.totals.totalDeductions;
 
-  // Update context data
-  payroll.contextData.halfWeekFixedIncome = earnings.halfWeekFixedIncome;
-  payroll.contextData.averageOrdinaryIncomeDaily =
-    earnings.halfWeekFixedIncome / 15;
+  // Context data is already properly initialized
 };
 
 /**

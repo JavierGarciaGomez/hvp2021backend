@@ -13,6 +13,7 @@ import {
 export interface PayrollBase extends newBaseEntityProps {
   collaboratorId: string | Schema.Types.ObjectId;
   jobId?: string | Schema.Types.ObjectId;
+  employmentId?: string | Schema.Types.ObjectId;
   payrollStatus?: PayrollStatus;
   periodStartDate: Date;
   periodEndDate: Date;
@@ -28,6 +29,8 @@ export interface PayrollProps extends PayrollBase {
   createdBy?: string;
   updatedBy?: string;
   collaboratorId: string;
+  jobId?: string;
+  employmentId?: string;
   payrollStatus?: PayrollStatus;
   periodStartDate: Date;
   periodEndDate: Date;
@@ -70,6 +73,8 @@ export class PayrollEntity implements BaseEntity {
       createdBy: data.createdBy?.toString(),
       updatedBy: data.updatedBy?.toString(),
       collaboratorId: data.collaboratorId?.toString(),
+      jobId: data.jobId?.toString(),
+      employmentId: data.employmentId?.toString(),
     });
   }
 }

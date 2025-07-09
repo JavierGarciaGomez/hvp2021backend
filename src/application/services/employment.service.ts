@@ -261,6 +261,10 @@ export class EmploymentService extends BaseService<
     const activeCollaborators =
       await this.collaboratorService.getCollaboratorsByDate(startDate);
 
+    activeCollaborators.sort((a, b) => {
+      return (a.startDate?.getTime() ?? 0) - (b.startDate?.getTime() ?? 0);
+    });
+
     // Get salary data once for all collaborators (same year)
     const startYear = dayjs(startDate).year();
     const minimumWage = await this.getMinimumWageForYear(startYear);
@@ -480,7 +484,7 @@ export class EmploymentService extends BaseService<
 
     // Calculate employment fixed income by job (job fixed income * work week ratio * (1 + seniority bonus))
 
-    const jobFixedIncome = job?.jobFixedIncome ?? 0 * workWeekRatio;
+    const jobFixedIncome = (job?.jobFixedIncome ?? 0) * workWeekRatio;
 
     const employmentFixedIncomeByJob =
       jobFixedIncome * (1 + seniorityBonusPercentage);
@@ -517,8 +521,7 @@ export class EmploymentService extends BaseService<
     // Calculate employment guaranteed income
 
     const employmentGuaranteedIncome =
-      job?.guaranteedJobIncome ??
-      0 * workWeekRatio + attendanceFixedIncomesTotal;
+      (job?.guaranteedJobIncome ?? 0) * workWeekRatio;
 
     // Get average commissions per scheduled hour
     let averageCommissionsPerScheduledHour = 10; // Default fallback

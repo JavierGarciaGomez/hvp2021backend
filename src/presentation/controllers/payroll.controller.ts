@@ -63,4 +63,44 @@ export class PayrollController extends BaseController<
       next(error);
     }
   };
+
+  public recalculatePayroll = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const payrollData = req.body;
+      const data = await this.service.recalculatePayroll(payrollData);
+      const response = ResponseFormatterService.formatGetOneResponse({
+        data,
+        resource: "payroll-recalculation",
+      });
+      res.json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public recalculatePayrollList = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const payrollListData = req.body;
+      const data = await this.service.recalculatePayrollList(payrollListData);
+      const response = ResponseFormatterService.formatListResponse({
+        data,
+        path: this.path,
+        resource: "payroll-recalculation",
+        page: 1,
+        limit: data.length,
+        total: data.length,
+      });
+      res.json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
 }

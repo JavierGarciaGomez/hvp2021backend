@@ -35,4 +35,5 @@ export interface PayrollCollaboratorRawData {
   attendanceReport: CollaboratorAttendanceReport;
   salaryData: SalaryDataEntity;
   totalCommissions: number;
+  totalReceptionBonus: number;
 }

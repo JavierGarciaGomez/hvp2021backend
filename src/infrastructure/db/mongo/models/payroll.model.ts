@@ -13,6 +13,7 @@ const PayrollSchema: Schema = new Schema<PayrollDocument>(
       required: true,
     },
     jobId: { type: Schema.Types.ObjectId, ref: "Job" },
+    employmentId: { type: Schema.Types.ObjectId, ref: "Employment" },
     payrollStatus: {
       type: String,
       enum: PayrollStatus,
@@ -37,6 +38,14 @@ const PayrollSchema: Schema = new Schema<PayrollDocument>(
     },
     earnings: {
       halfWeekFixedIncome: { type: Number, default: 0 },
+      halfWeekHourlyPay: { type: Number, default: 0 },
+      additionalFixedIncomes: [
+        {
+          name: String,
+          description: String,
+          amount: Number,
+        },
+      ],
       commissions: { type: Number, default: 0 },
       vacationCompensation: { type: Number, default: 0 },
       expressBranchCompensation: { type: Number, default: 0 },
@@ -59,13 +68,6 @@ const PayrollSchema: Schema = new Schema<PayrollDocument>(
       holidayOrRestExtraPay: { type: Number, default: 0 },
       traniningActivitySupport: { type: Number, default: 0 },
       physicalActivitySupport: { type: Number, default: 0 },
-      extraFixedCompensations: [
-        {
-          name: String,
-          description: String,
-          amount: Number,
-        },
-      ],
       extraVariableCompensations: [
         {
           name: String,
@@ -107,10 +109,6 @@ const PayrollSchema: Schema = new Schema<PayrollDocument>(
       netPay: { type: Number, default: 0 },
     },
     contextData: {
-      periodDaysLength: { type: Number, default: 0 },
-      halfWeekFixedIncome: { type: Number, default: 0 },
-      averageOrdinaryIncomeDaily: { type: Number, default: 0 },
-      attendanceRelatedDiscounts: { type: Number, default: 0 },
       attendanceFactor: { type: Number, default: 0 },
       employerImssRate: { type: Number, default: 0 },
       workedHours: { type: Number, default: 0 },

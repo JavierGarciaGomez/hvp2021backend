@@ -59,7 +59,8 @@
     "seed:customerRFCs": "tsc && node build/scripts/customerRFCSeed.js",
     "seed:customSeed": "tsc && node build/scripts/customSeed.js",
     "seed:notifications": "tsnd src/scripts/notificationSeed.ts",
-    "parse:tickets": "tsnd --project tsconfig.json src/shared/scripts/commissions/parseTickets.ts"
+    "parse:tickets": "tsnd --project tsconfig.json src/shared/scripts/commissions/parseTickets.ts",
+    "parse:payrolls": "tsnd --project tsconfig.json src/shared/scripts/payrolls/parsePayrolls.ts"
   },
   "repository": "git+https://github.com/JavierGarciaGomez/hvp2021backend.git",
   "keywords": [],

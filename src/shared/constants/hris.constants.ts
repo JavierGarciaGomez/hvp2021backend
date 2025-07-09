@@ -5,7 +5,7 @@ export const SUNDAY_BONUS_PERCENTAGE = 0.25; // *
 export const MAX_WORK_WEEK_LIMIT = 48;
 export const MAX_DOUBLE_PLAY_WORK_WEEK_LIMIT = 57; // *
 export const HOLIDAY_OR_REST_EXTRA_PAY_PERCENTAGE = 2;
-export const ANNUAL_RAISE_PERCENT = 0.025;
+export const ANNUAL_RAISE_PERCENT = 0.02;
 export const WORKING_DAYS_IN_A_WEEK = 6;
 export const AVERAGE_WORK_DAYS_PER_MONTH =
   (365 / 12 / 7) * WORKING_DAYS_IN_A_WEEK;

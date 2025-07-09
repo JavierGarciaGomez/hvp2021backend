@@ -20,6 +20,18 @@ export class PayrollRoutes extends BaseCRUDRoutes {
       controller.getPayrollEstimateByCollaboratorId
     );
 
+    this.router.post(
+      "/recalculate",
+      AuthMiddleware.validateJWT,
+      controller.recalculatePayroll
+    );
+
+    this.router.post(
+      "/recalculate/list",
+      AuthMiddleware.validateJWT,
+      controller.recalculatePayrollList
+    );
+
     this.setupCrudRoutes(controller);
   }
 }
