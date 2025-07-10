@@ -34,7 +34,9 @@ import {
   VACATION_BONUS_PERCENTAGE,
   WEEK_WORK_DAYS,
   WEEKS_IN_MONTH,
+  AuthenticatedCollaborator,
 } from "../../shared";
+import { ClientSession } from "mongoose";
 import {
   createAttendanceReportService,
   createCollaboratorService,
@@ -46,9 +48,7 @@ import { createCommissionAllocationService } from "../factories/commission-alloc
 import { createCollaboratorHalfWeekClosingReportService } from "../factories/collaborator-half-week-closing-report.factory";
 
 import {
-  DAILY_MEAL_COMPENSATION,
   HOLIDAY_OR_REST_EXTRA_PAY_PERCENTAGE,
-  JUSTIFIED_ABSENCES_PERCENTAGE,
   SUNDAY_BONUS_PERCENTAGE,
 } from "../../shared/constants/hris.constants";
 import dayjs from "dayjs";
@@ -70,6 +70,73 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
   constructor(protected readonly repository: PayrollRepository) {
     super(repository, PayrollEntity);
   }
+
+  // Override create method to add validation
+  public create = async (
+    dto: PayrollDTO,
+    authUser?: AuthenticatedCollaborator,
+    session?: ClientSession
+  ): Promise<PayrollEntity> => {
+    await this.validatePayrollDoesNotExist(
+      dto.collaboratorId,
+      dto.periodEndDate
+    );
+    const entity = new this.entityClass(dto);
+    const result = await this.repository.create(entity, session);
+    return this.transformToResponse(result);
+  };
+
+  // Override createMany method to add validation
+  public createMany = async (
+    entities: PayrollEntity[],
+    session?: ClientSession
+  ): Promise<PayrollEntity[]> => {
+    await this.validatePayrollsDoNotExist(entities);
+    const result = await this.repository.createMany(entities, session);
+    return await Promise.all(result.map(this.transformToResponse));
+  };
+
+  // Validation method for single payroll
+  private validatePayrollDoesNotExist = async (
+    collaboratorId: string,
+    periodEndDate: Date
+  ): Promise<void> => {
+    const existingPayroll = await this.repository.getAll({
+      filteringDto: {
+        collaboratorId,
+        periodEndDate: periodEndDate.toISOString(),
+      },
+    });
+
+    if (existingPayroll.length > 0) {
+      throw BaseError.conflict(
+        `Payroll already exists for collaborator ${collaboratorId} with end date ${
+          periodEndDate.toISOString().split("T")[0]
+        }`
+      );
+    }
+  };
+
+  // Validation method for multiple payrolls
+  private validatePayrollsDoNotExist = async (
+    payrolls: PayrollEntity[]
+  ): Promise<void> => {
+    const validationPromises = payrolls.map(async (payroll) => {
+      return await this.validatePayrollDoesNotExist(
+        payroll.collaboratorId,
+        payroll.periodEndDate
+      );
+    });
+
+    try {
+      await Promise.all(validationPromises);
+    } catch (error) {
+      // If any validation fails, throw an error that prevents all payrolls from being created
+      throw BaseError.conflict(
+        "One or more payrolls already exist for the specified collaborators and end dates. No payrolls will be created."
+      );
+    }
+  };
 
   public getPayrollEstimates = async (
     queryOptions: CustomQueryOptions
@@ -162,6 +229,9 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
   ): Promise<PayrollEstimate> => {
     const { periodStartDate, periodEndDate, collaboratorId } = payrollData;
 
+    const newPeriodStartDate = new Date(periodStartDate);
+    const newPeriodEndDate = new Date(periodEndDate);
+
     if (!periodStartDate || !periodEndDate || !collaboratorId) {
       throw BaseError.badRequest(
         "Missing required fields: periodStartDate, periodEndDate, or collaboratorId"
@@ -169,7 +239,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     }
 
     const salaryDataResponse = await this.salaryDataService.getAll({
-      filteringDto: { year: periodEndDate.getFullYear() },
+      filteringDto: { year: newPeriodEndDate.getFullYear() },
     });
 
     const salaryData = salaryDataResponse[0];
@@ -179,8 +249,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
 
     const payrollEstimate = await this.generatePayrollEstimate(
       collaboratorId,
-      periodStartDate.toISOString().split("T")[0],
-      periodEndDate.toISOString().split("T")[0],
+      newPeriodStartDate.toISOString(),
+      newPeriodEndDate.toISOString(),
       salaryData,
       payrollData
     );
@@ -777,7 +847,12 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       simplePayrollEarnings.simpleOvertimeHours +
       simplePayrollEarnings.tripleOvertimeHours +
       simplePayrollEarnings.traniningActivitySupport +
-      simplePayrollEarnings.physicalActivitySupport;
+      simplePayrollEarnings.holidayOrRestExtraPay +
+      simplePayrollEarnings.physicalActivitySupport +
+      frontendSalaryPayrollEarnings.extraVariableCompensations.reduce(
+        (acc, compensation) => acc + compensation.amount,
+        0
+      );
 
     const uma = rawData.salaryData.uma;
     const profitSharingBase = Math.min(
@@ -795,11 +870,17 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       15 * uma
     );
 
+    const endYearBonusBase = Math.min(
+      frontendSalaryPayrollEarnings.endYearBonus,
+      30 * uma
+    );
+
     const isrBase =
       isrBaseComplete +
       profitSharingBase +
       overtimeBase +
-      vacationBonusBase -
+      vacationBonusBase +
+      endYearBonusBase -
       attendanceDiscounts;
 
     const shouldReceiveSubsidy =
@@ -891,7 +972,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       deductions,
       totals,
       contextData: {
-        employerImssRate: employerSocialSecurityCost / attendanceFactor,
+        employerImssRate: employerSocialSecurityCost,
         workedHours: rawData.attendanceReport.periodHours.workedHours,
         attendanceFactor,
       },
@@ -899,9 +980,23 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
   }
 
   private calculateTotalConcepts(object: any): number {
-    return Object.entries(object)
-      .filter(([key, value]) => typeof value === "number")
-      .reduce((sum, [key, value]) => sum + (value as number), 0);
+    return Object.entries(object).reduce((sum, [key, value]) => {
+      if (typeof value === "number") {
+        return sum + value;
+      } else if (Array.isArray(value)) {
+        // Sum amounts from arrays of objects with amount property
+        return (
+          sum +
+          value.reduce((arraySum, item) => {
+            return (
+              arraySum +
+              (typeof item === "object" && item.amount ? item.amount : 0)
+            );
+          }, 0)
+        );
+      }
+      return sum;
+    }, 0);
   }
 
   private calculateIsr(isrBase: number, isrRates: isrRate[]) {

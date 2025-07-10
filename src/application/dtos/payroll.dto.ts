@@ -59,7 +59,11 @@ export class PayrollDTO implements BaseDTO, BaseEntity {
       throw new Error(errors.join(", "));
     }
 
-    return new PayrollDTO({ ...data });
+    return new PayrollDTO({
+      ...data,
+      periodStartDate: new Date(data.periodStartDate),
+      periodEndDate: new Date(data.periodEndDate),
+    });
   }
 
   static update(data: PayrollProps): PayrollDTO {

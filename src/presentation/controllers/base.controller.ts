@@ -131,7 +131,13 @@ export abstract class BaseController<
   ): Promise<Response | void> => {
     try {
       const body = req.body;
-      const result = await this.service.createMany(body);
+      const elements = body.map((element: any) => {
+        element.createdBy = req.authUser?.uid;
+        element.updatedBy = req.authUser?.uid;
+        return this.dtoClass.create(element) as DTO;
+      });
+
+      const result = await this.service.createMany(elements);
       const response = ResponseFormatterService.formatCreateManyResponse<R>({
         data: result,
         resource: this.resource,
