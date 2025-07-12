@@ -96,48 +96,6 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     return await Promise.all(result.map(this.transformToResponse));
   };
 
-  // Validation method for single payroll
-  private validatePayrollDoesNotExist = async (
-    collaboratorId: string,
-    periodEndDate: Date
-  ): Promise<void> => {
-    const existingPayroll = await this.repository.getAll({
-      filteringDto: {
-        collaboratorId,
-        periodEndDate: periodEndDate.toISOString(),
-      },
-    });
-
-    if (existingPayroll.length > 0) {
-      throw BaseError.conflict(
-        `Payroll already exists for collaborator ${collaboratorId} with end date ${
-          periodEndDate.toISOString().split("T")[0]
-        }`
-      );
-    }
-  };
-
-  // Validation method for multiple payrolls
-  private validatePayrollsDoNotExist = async (
-    payrolls: PayrollEntity[]
-  ): Promise<void> => {
-    const validationPromises = payrolls.map(async (payroll) => {
-      return await this.validatePayrollDoesNotExist(
-        payroll.collaboratorId,
-        payroll.periodEndDate
-      );
-    });
-
-    try {
-      await Promise.all(validationPromises);
-    } catch (error) {
-      // If any validation fails, throw an error that prevents all payrolls from being created
-      throw BaseError.conflict(
-        "One or more payrolls already exist for the specified collaborators and end dates. No payrolls will be created."
-      );
-    }
-  };
-
   public getPayrollEstimates = async (
     queryOptions: CustomQueryOptions
   ): Promise<PayrollEstimate[]> => {
@@ -310,9 +268,95 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     return recalculatedPayrolls;
   };
 
+  public getOrdinaryIncomeByCollaboratorAndPeriod = async (
+    collaboratorId: string,
+    periodStartDate: string,
+    periodEndDate: string
+  ) => {
+    const payrolls = await this.getAll({
+      filteringDto: {
+        collaboratorId,
+        periodStartDate: { $lte: periodEndDate },
+        periodEndDate: { $gte: periodStartDate },
+      },
+    });
+
+    const totalOrdinaryIncome = payrolls.reduce(
+      (acc, curr) => acc + this.getOrdinaryIncomePerPayroll(curr),
+      0
+    );
+
+    return totalOrdinaryIncome;
+
+    // return totalOrdinaryIncome;
+  };
+
+  public getContributionBaseSalaryBase = async (
+    collaboratorId: string,
+    periodStartDate: string,
+    periodEndDate: string
+  ): Promise<number> => {
+    const payrolls = await this.getAll({
+      filteringDto: {
+        collaboratorId,
+        periodStartDate: { $lte: periodEndDate },
+        periodEndDate: { $gte: periodStartDate },
+      },
+    });
+
+    const totalContributionBaseSalary = payrolls.reduce(
+      (acc, curr) => acc + this.getPayrollContributionBaseSalaryBase(curr),
+      0
+    );
+
+    return totalContributionBaseSalary;
+  };
+
   public getResourceName(): string {
     return "payroll";
   }
+
+  // Validation method for single payroll
+  private validatePayrollDoesNotExist = async (
+    collaboratorId: string,
+    periodEndDate: Date
+  ): Promise<void> => {
+    const existingPayroll = await this.repository.getAll({
+      filteringDto: {
+        collaboratorId,
+        periodEndDate: periodEndDate.toISOString(),
+      },
+    });
+
+    if (existingPayroll.length > 0) {
+      throw BaseError.conflict(
+        `Payroll already exists for collaborator ${collaboratorId} with end date ${
+          periodEndDate.toISOString().split("T")[0]
+        }`
+      );
+    }
+  };
+
+  // Validation method for multiple payrolls
+  private validatePayrollsDoNotExist = async (
+    payrolls: PayrollEntity[]
+  ): Promise<void> => {
+    const validationPromises = payrolls.map(async (payroll) => {
+      return await this.validatePayrollDoesNotExist(
+        payroll.collaboratorId,
+        payroll.periodEndDate
+      );
+    });
+
+    try {
+      await Promise.all(validationPromises);
+    } catch (error) {
+      // If any validation fails, throw an error that prevents all payrolls from being created
+      throw BaseError.conflict(
+        "One or more payrolls already exist for the specified collaborators and end dates. No payrolls will be created."
+      );
+    }
+  };
 
   private async generatePayrollEstimate(
     collaboratorId: string,
@@ -440,7 +484,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       payrollEstimate = this.calculateHourlyPayroll(
         rawData,
         periodStartDate,
-        periodEndDate
+        periodEndDate,
+        payrollDraft
       );
     } else {
       // Use original salary calculation logic
@@ -580,6 +625,9 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     const extraVariableCompensations =
       payrollDraft?.earnings?.extraVariableCompensations ?? [];
 
+    const otherVariableDeductions =
+      payrollDraft?.deductions?.otherVariableDeductions ?? [];
+
     const earnings = {
       halfWeekHourlyPay,
       additionalFixedIncomes,
@@ -599,17 +647,23 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
 
     const totalIncome = this.calculateTotalConcepts(earnings);
 
+    const totalDeductions = this.calculateTotalConcepts(
+      otherVariableDeductions
+    );
+
     return {
       collaboratorId: rawData.collaborator.id!,
       periodStartDate: new Date(periodStartDate),
       periodEndDate: new Date(periodEndDate),
       generalData,
       earnings,
-      deductions: {},
+      deductions: {
+        otherVariableDeductions,
+      },
       totals: {
         totalIncome: totalIncome,
-        totalDeductions: 0,
-        netPay: totalIncome,
+        totalDeductions: totalDeductions,
+        netPay: totalIncome - totalDeductions,
       },
       contextData: {
         attendanceFactor: 0,
@@ -1129,62 +1183,6 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     };
   }
 
-  public calculateFixedAttendance = (rawData: PayrollCollaboratorRawData) => {
-    /*
-      Get total discounts
-      get fixed income
-    */
-    const { attendanceReport, employment } = rawData;
-    const { periodHours, concludedWeeksHours } = attendanceReport;
-    const { employmentFixedIncomeByJob: payrollFixedIncome, weeklyHours } =
-      employment;
-    const {
-      justifiedAbsenceByCompanyHours,
-      nonComputableHours,
-      sickLeaveHours,
-      authorizedUnjustifiedAbsenceHours,
-      unjustifiedAbsenceHours,
-    } = periodHours;
-
-    const { notWorkedHours } = concludedWeeksHours;
-    // fixed income
-
-    const totalNonComputableHours = nonComputableHours;
-    const totalAbsenceDayHours =
-      justifiedAbsenceByCompanyHours +
-      unjustifiedAbsenceHours +
-      authorizedUnjustifiedAbsenceHours;
-    const totalSickLeaveHours = sickLeaveHours;
-
-    const collaboratorDailyWorkHours = weeklyHours / 6;
-
-    const nominalHourlyWage =
-      payrollFixedIncome /
-      (WEEKS_IN_MONTH * WEEK_WORK_DAYS) /
-      collaboratorDailyWorkHours; // for discount days
-
-    const nonComputableDays =
-      totalNonComputableHours / collaboratorDailyWorkHours;
-    const sickLeaveDays = totalSickLeaveHours / collaboratorDailyWorkHours;
-    const absenceDays =
-      (totalAbsenceDayHours + notWorkedHours) / collaboratorDailyWorkHours;
-
-    const nonComputableDiscount = totalNonComputableHours * nominalHourlyWage;
-    const sickLeaveDiscount = totalSickLeaveHours * nominalHourlyWage;
-    const absenceDiscount = totalAbsenceDayHours * nominalHourlyWage;
-    const notWorkedDiscount = notWorkedHours * nominalHourlyWage;
-
-    const fixedIncomeDiscounts =
-      nonComputableDiscount +
-      sickLeaveDiscount +
-      absenceDiscount +
-      notWorkedDiscount;
-
-    const fixedIncome = Math.max(payrollFixedIncome - fixedIncomeDiscounts, 0);
-
-    return fixedIncome;
-  };
-
   private calculateOvertimeCompensations = (
     concludedWeeksHours: ConcludedWeekHours,
     employment: EmploymentEntity
@@ -1275,6 +1273,121 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
 
     return payrollEstimate;
   }
+
+  private getOrdinaryIncomePerPayroll = (payroll: PayrollEntity): number => {
+    const { earnings, deductions } = payroll;
+
+    const {
+      halfWeekFixedIncome = 0,
+      halfWeekHourlyPay = 0,
+      additionalFixedIncomes = [],
+      commissions = 0,
+      punctualityBonus = 0,
+      receptionBonus = 0,
+      expressBranchCompensation = 0,
+      vacationCompensation = 0,
+      specialBonuses = [],
+      guaranteedIncomeCompensation = 0,
+      mealCompensation = 0,
+      absencesJustifiedByCompanyCompensation = 0,
+    } = earnings;
+
+    const {
+      justifiedAbsencesDiscount = 0,
+      unjustifiedAbsencesDiscount = 0,
+      unworkedHoursDiscount = 0,
+      tardinessDiscount = 0,
+      nonCountedDaysDiscount = 0,
+    } = deductions;
+
+    const totalOrdinaryIncome =
+      halfWeekFixedIncome +
+      halfWeekHourlyPay +
+      additionalFixedIncomes.reduce((acc, curr) => acc + curr.amount, 0) +
+      commissions +
+      punctualityBonus +
+      receptionBonus +
+      expressBranchCompensation +
+      vacationCompensation +
+      specialBonuses.reduce((acc, curr) => acc + curr.amount, 0) +
+      guaranteedIncomeCompensation +
+      mealCompensation +
+      absencesJustifiedByCompanyCompensation;
+
+    const totalDeductions =
+      justifiedAbsencesDiscount +
+      unjustifiedAbsencesDiscount +
+      unworkedHoursDiscount +
+      tardinessDiscount +
+      nonCountedDaysDiscount;
+
+    return totalOrdinaryIncome - totalDeductions;
+  };
+
+  private getPayrollContributionBaseSalaryBase = (
+    payroll: PayrollEntity
+  ): number => {
+    const { earnings, deductions } = payroll;
+
+    const {
+      halfWeekFixedIncome = 0,
+      halfWeekHourlyPay = 0,
+      additionalFixedIncomes = [],
+      commissions = 0,
+      punctualityBonus = 0,
+      receptionBonus = 0,
+      expressBranchCompensation = 0,
+      vacationCompensation = 0,
+      specialBonuses = [],
+      guaranteedIncomeCompensation = 0,
+      mealCompensation = 0,
+      absencesJustifiedByCompanyCompensation = 0,
+      // extra from ordinary
+      sundayBonus = 0,
+      holidayOrRestExtraPay = 0,
+      tripleOvertimeHours = 0,
+      traniningActivitySupport = 0,
+      physicalActivitySupport = 0,
+      extraVariableCompensations = [],
+    } = earnings;
+
+    const {
+      justifiedAbsencesDiscount = 0,
+      unjustifiedAbsencesDiscount = 0,
+      unworkedHoursDiscount = 0,
+      tardinessDiscount = 0,
+      nonCountedDaysDiscount = 0,
+    } = deductions;
+
+    const totalEarnings =
+      halfWeekFixedIncome +
+      halfWeekHourlyPay +
+      additionalFixedIncomes.reduce((acc, curr) => acc + curr.amount, 0) +
+      commissions +
+      punctualityBonus +
+      receptionBonus +
+      expressBranchCompensation +
+      vacationCompensation +
+      specialBonuses.reduce((acc, curr) => acc + curr.amount, 0) +
+      guaranteedIncomeCompensation +
+      mealCompensation +
+      absencesJustifiedByCompanyCompensation +
+      sundayBonus +
+      holidayOrRestExtraPay +
+      tripleOvertimeHours +
+      traniningActivitySupport +
+      physicalActivitySupport +
+      extraVariableCompensations.reduce((acc, curr) => acc + curr.amount, 0);
+
+    const totalDeductions =
+      justifiedAbsencesDiscount +
+      unjustifiedAbsencesDiscount +
+      unworkedHoursDiscount +
+      tardinessDiscount +
+      nonCountedDaysDiscount;
+
+    return totalEarnings - totalDeductions;
+  };
 }
 
 type BuildPayrollEstimateArgs = {

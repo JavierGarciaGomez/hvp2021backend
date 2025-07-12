@@ -34,7 +34,7 @@ import quarterOfYear from "dayjs/plugin/quarterOfYear";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import minMax from "dayjs/plugin/minMax";
-import { createJobService } from "../factories";
+import { createEmploymentService, createJobService } from "../factories";
 
 dayjs.extend(quarterOfYear);
 dayjs.extend(utc);
@@ -1547,96 +1547,7 @@ export class CommissionAllocationService extends BaseService<
     }
   }
 
-  public getCollaboratorHourlyCommissionAverage = async (
-    collaboratorId: string,
-    newStartingDate: string
-  ): Promise<{
-    collaboratorId: string;
-    startDate: string;
-    endDate: string;
-    totalCommissions: number;
-    totalHoursWorked: number;
-    hourlyCommissionAverage: number;
-  }> => {
-    // Calculate end date (end of day before newStartingDate)
-    const endDate = dayjs
-      .tz(newStartingDate, MX_TIMEZONE)
-      .subtract(1, "day")
-      .endOf("day")
-      .toDate();
-
-    // Calculate start date (1 year before endDate, start of day)
-    const startDate = dayjs
-      .tz(endDate, MX_TIMEZONE)
-      .subtract(1, "year")
-      .add(1, "day")
-      .startOf("day")
-      .toDate();
-
-    // Get all employments for the collaborator in the period
-    const employments = await this.getEmploymentsByCollaboratorAndPeriod(
-      collaboratorId,
-      startDate.toISOString(),
-      endDate.toISOString()
-    );
-
-    // Get all commissions for the collaborator in the period
-    const commissions = await this.getCommissionsByCollaboratorAndPeriod(
-      collaboratorId,
-      startDate,
-      endDate
-    );
-
-    // Calculate total hours worked
-    const totalHoursWorked = this.calculateTotalHoursWorked(
-      employments,
-      startDate,
-      endDate
-    );
-
-    // Calculate total commissions
-    const totalCommissions = commissions.reduce(
-      (sum, commission) => sum + commission.commissionAmount,
-      0
-    );
-
-    // Calculate hourly commission average
-    const hourlyCommissionAverage =
-      totalHoursWorked > 0 ? totalCommissions / totalHoursWorked : 0;
-
-    return {
-      collaboratorId,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      totalCommissions,
-      totalHoursWorked,
-      hourlyCommissionAverage,
-    };
-  };
-
-  private async getEmploymentsByCollaboratorAndPeriod(
-    collaboratorId: string,
-    periodStartDate: string,
-    periodEndDate: string
-  ) {
-    const employmentService = this.createEmploymentService();
-    return await employmentService.getAll({
-      filteringDto: {
-        collaboratorId,
-        employmentStartDate: { $lte: periodEndDate },
-        $or: [
-          { employmentEndDate: { $exists: false } },
-          { employmentEndDate: { $gte: periodStartDate } },
-        ],
-      },
-      sortingDto: {
-        sort_by: "employmentStartDate",
-        direction: "asc",
-      },
-    });
-  }
-
-  private async getCommissionsByCollaboratorAndPeriod(
+  public async getCommissionsByCollaboratorAndPeriod(
     collaboratorId: string,
     startDate: Date,
     endDate: Date
@@ -1675,42 +1586,6 @@ export class CommissionAllocationService extends BaseService<
     }
 
     return commissions;
-  }
-
-  private calculateTotalHoursWorked(
-    employments: any[],
-    periodStartDate: Date,
-    periodEndDate: Date
-  ): number {
-    let totalHours = 0;
-
-    for (const employment of employments) {
-      // Determine the actual start and end dates for this employment within the period
-      const employmentStart = dayjs.max(
-        dayjs(employment.employmentStartDate),
-        dayjs(periodStartDate)
-      );
-
-      const employmentEnd = employment.employmentEndDate
-        ? dayjs.min(dayjs(employment.employmentEndDate), dayjs(periodEndDate))
-        : dayjs(periodEndDate);
-
-      // Calculate number of weeks worked
-      const weeksWorked = employmentEnd.diff(employmentStart, "week", true);
-
-      // Calculate hours worked for this employment period
-      const hoursWorked = weeksWorked * employment.weeklyHours;
-
-      totalHours += Math.max(0, hoursWorked);
-    }
-
-    return totalHours;
-  }
-
-  private createEmploymentService() {
-    // Import the factory function dynamically to avoid circular dependencies
-    const { createEmploymentService } = require("../factories");
-    return createEmploymentService();
   }
 
   public getResourceName(): string {

@@ -15,6 +15,7 @@ export const MONTH_DAYS = 30;
 export const MONTH_WORK_DAYS = 6 * WEEKS_IN_MONTH;
 export const WEEK_WORK_DAYS = 6;
 export const DAILY_WORK_HOURS = 8;
+export const YEAR_END_BONUS_DAYS = 15;
 
 export const JUSTIFIED_ABSENCES_PERCENTAGE = 0.6; // CANCELLED
 export const DAILY_MEAL_COMPENSATION = 50; // CANCELLED

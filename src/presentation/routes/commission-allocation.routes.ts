@@ -61,11 +61,6 @@ export class CommissionAllocationRoutes extends BaseCRUDRoutes {
       collaboratorStatsAuthMiddleware,
       controller.getCollaboratorCommissionStats
     );
-    this.router.get(
-      "/hourly-average/:collaboratorId",
-      collaboratorStatsAuthMiddleware,
-      controller.getCollaboratorHourlyCommissionAverage
-    );
 
     this.setupCrudRoutes(controller);
   }

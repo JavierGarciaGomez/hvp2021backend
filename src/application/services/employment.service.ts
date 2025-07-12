@@ -1,4 +1,4 @@
-import { EmploymentEntity } from "../../domain/entities";
+import { CollaboratorEntity, EmploymentEntity } from "../../domain/entities";
 import { BaseService } from "./base.service";
 import {
   EmploymentRepository,
@@ -18,6 +18,7 @@ import {
   COMMISSION_SENIORITY_BONUS_PER_SEMESTER,
   AVERAGE_WORK_DAYS_PER_MONTH,
   DEGREE_BONUS,
+  YEAR_END_BONUS_DAYS,
 } from "../../shared";
 
 import dayjs from "dayjs";
@@ -25,8 +26,11 @@ import {
   createCollaboratorService,
   createCommissionAllocationService,
   createJobService,
+  createPayrollService,
   createSalaryDataService,
 } from "../factories";
+
+const MX_TIMEZONE = "America/Mexico_City";
 
 export class EmploymentService extends BaseService<
   EmploymentEntity,
@@ -422,7 +426,8 @@ export class EmploymentService extends BaseService<
           employmentData.employmentStartDate.toString(),
           employmentData.employmentEndDate?.toString(),
           minimumWage,
-          employmentData
+          employmentData,
+          true
         );
 
         results.push(recalculatedEmployment);
@@ -440,12 +445,92 @@ export class EmploymentService extends BaseService<
     return results;
   };
 
+  public async getEmploymentsByCollaboratorAndPeriod(
+    collaboratorId: string,
+    periodStartDate: string,
+    periodEndDate: string
+  ) {
+    return await this.getAll({
+      filteringDto: {
+        collaboratorId,
+        employmentStartDate: { $lte: periodEndDate },
+        $or: [
+          { employmentEndDate: { $exists: false } },
+          { employmentEndDate: null },
+          { employmentEndDate: { $gte: periodStartDate } },
+        ],
+      },
+      sortingDto: {
+        sort_by: "employmentStartDate",
+        direction: "asc",
+      },
+    });
+  }
+
+  public getCollaboratorHourlyCommissionAverage = async (
+    collaboratorId: string,
+    newStartingDate: string
+  ): Promise<number> => {
+    // Calculate end date (last day of the previous month in Mexico)
+    const endDate = dayjs
+      .tz(newStartingDate, MX_TIMEZONE)
+      .subtract(1, "month")
+      .endOf("month")
+      .endOf("day")
+      .toDate();
+
+    // Calculate start date (3 months before endDate, first day of that month)
+    const startDate = dayjs
+      .tz(endDate, MX_TIMEZONE)
+      .subtract(3, "month")
+      .startOf("month")
+      .startOf("day")
+      .toDate();
+
+    // Get all employments for the collaborator in the period
+
+    const employments = await this.getEmploymentsByCollaboratorAndPeriod(
+      collaboratorId,
+      startDate.toISOString(),
+      endDate.toISOString()
+    );
+
+    // Get all commissions for the collaborator in the period
+
+    const commissions =
+      await this.commissionService.getCommissionsByCollaboratorAndPeriod(
+        collaboratorId,
+        startDate,
+        endDate
+      );
+
+    // Calculate total hours worked
+    const totalHoursWorked = this.calculateTotalHoursWorked(
+      employments,
+      startDate,
+      endDate
+    );
+
+    // Calculate total commissions
+    const totalCommissions = commissions.reduce(
+      (sum, commission) => sum + commission.commissionAmount,
+      0
+    );
+
+    // Calculate hourly commission average
+    const hourlyCommissionAverage =
+      totalHoursWorked > 0 ? totalCommissions / totalHoursWorked : 0;
+
+    return Math.max(hourlyCommissionAverage, 10);
+  };
+
   private calculateDraftEmployment = async (
     collaborator: any,
     startDate: string,
     endDate?: string,
     minimumWage: number = 278.8,
-    previousEmployment?: EmploymentEntity | null
+    previousEmployment?: EmploymentEntity | null,
+    overrideData: boolean = false
   ): Promise<EmploymentEntity> => {
     // Get job information
     const jobId = previousEmployment?.jobId || collaborator.jobId || "";
@@ -523,50 +608,31 @@ export class EmploymentService extends BaseService<
     const employmentGuaranteedIncome =
       (job?.guaranteedJobIncome ?? 0) * workWeekRatio;
 
-    // Get average commissions per scheduled hour
-    let averageCommissionsPerScheduledHour = 10; // Default fallback
+    const averageCommissionsPerScheduledHour =
+      await this.getCollaboratorHourlyCommissionAverage(
+        collaborator.id!,
+        startDate
+      );
 
-    if (this.commissionService) {
-      try {
-        const commissionData =
-          await this.commissionService.getCollaboratorHourlyCommissionAverage(
-            collaborator.id!,
-            startDate
-          );
-        averageCommissionsPerScheduledHour =
-          commissionData.hourlyCommissionAverage || 10;
-      } catch (error) {
-        // Use default value if commission data not available
-        averageCommissionsPerScheduledHour = 10;
-      }
-    }
-
-    // Calculate average ordinary income per scheduled hour
-    // TODO: This should take payroll data, but it's not available now
-    // For now, calculate from guaranteed income
+    // ordinary income
     const averageOrdinaryIncomePerScheduledHour =
-      employmentGuaranteedIncome / 30 / dailyWorkingHours;
+      await this.getAverageOrdinaryIncomePerScheduledHour(
+        collaborator.id!,
+        startDate,
+        employmentGuaranteedIncome,
+        dailyWorkingHours,
+        nominalHourlyFixedIncome
+      );
 
-    // contribution base salary
+    // SBC
+    const contributionBaseSalary = overrideData
+      ? previousEmployment?.contributionBaseSalary ?? 0
+      : (await this.getCollaboratorContributionBaseSalary(
+          collaborator,
+          startDate,
+          minimumWage
+        )) ?? 0;
 
-    const yearVacationDays =
-      calculateVacationsForYearAfter2022(completedYearsWorked);
-
-    let contributionBaseSalaryMain = employmentGuaranteedIncome / 30;
-    let contributionBaseSalaryYearBonus =
-      (contributionBaseSalaryMain * 15) / 365;
-    let contributionBaseSalaryVacationBonus =
-      (contributionBaseSalaryMain *
-        yearVacationDays *
-        VACATION_BONUS_PERCENTAGE) /
-      365;
-
-    let contributionBaseSalaryTotal =
-      contributionBaseSalaryMain +
-      contributionBaseSalaryYearBonus +
-      contributionBaseSalaryVacationBonus;
-
-    // Create a draft employment based on the calculated values
     return new EmploymentEntity({
       collaboratorId: collaborator.id!,
       jobId: jobId,
@@ -591,11 +657,10 @@ export class EmploymentService extends BaseService<
       effectiveDailyFixedIncome: effectiveDailyFixedIncome,
       effectiveHourlyFixedIncome: effectiveHourlyFixedIncome,
       averageCommissionsPerScheduledHour: averageCommissionsPerScheduledHour,
-      averageOrdinaryIncomePerScheduledHour:
-        averageOrdinaryIncomePerScheduledHour,
+      averageOrdinaryIncomePerScheduledHour,
       trainingSupport: previousEmployment?.trainingSupport || 0,
       physicalActivitySupport: previousEmployment?.physicalActivitySupport || 0,
-      contributionBaseSalary: contributionBaseSalaryTotal,
+      contributionBaseSalary,
       otherDeductions: previousEmployment?.otherDeductions || [],
       additionalFixedIncomes: previousEmployment?.additionalFixedIncomes || [],
     });
@@ -616,5 +681,157 @@ export class EmploymentService extends BaseService<
     } catch (error) {
       return defaultMinimumWage;
     }
+  };
+
+  private getAverageOrdinaryIncomePerScheduledHour = async (
+    collaboratorId: string,
+    newStartingDate: string,
+    employmentGuaranteedIncome: number,
+    dailyWorkingHours: number,
+    nominalHourlyFixedIncome: number
+  ): Promise<number> => {
+    // Calculate end date (last day of the previous month in Mexico)
+    const endDate = dayjs
+      .tz(newStartingDate, MX_TIMEZONE)
+      .subtract(1, "month")
+      .endOf("month")
+      .endOf("day")
+      .toDate();
+
+    // Calculate start date (3 months before endDate, first day of that month)
+    const startDate = dayjs
+      .tz(endDate, MX_TIMEZONE)
+      .subtract(3, "month")
+      .startOf("month")
+      .startOf("day")
+      .toDate();
+
+    const employments = await this.getEmploymentsByCollaboratorAndPeriod(
+      collaboratorId,
+      startDate.toISOString(),
+      endDate.toISOString()
+    );
+
+    const payrollService = createPayrollService();
+
+    const ordinaryIncome =
+      await payrollService.getOrdinaryIncomeByCollaboratorAndPeriod(
+        collaboratorId,
+        startDate.toISOString(),
+        endDate.toISOString()
+      );
+
+    const totalHoursWorked = this.calculateTotalHoursWorked(
+      employments,
+      startDate,
+      endDate
+    );
+
+    const hourlyOrdinaryIncomeAverage =
+      totalHoursWorked > 0 ? ordinaryIncome / totalHoursWorked : 0;
+
+    const baseHourlyIncome =
+      employmentGuaranteedIncome / 30 / dailyWorkingHours;
+    const minimumHourlyIncome = Math.max(
+      baseHourlyIncome,
+      nominalHourlyFixedIncome
+    );
+
+    const averageOrdinaryIncomePerScheduledHour = Math.max(
+      hourlyOrdinaryIncomeAverage,
+      minimumHourlyIncome
+    );
+
+    return averageOrdinaryIncomePerScheduledHour;
+  };
+
+  private calculateTotalHoursWorked(
+    employments: EmploymentEntity[],
+    periodStartDate: Date,
+    periodEndDate: Date
+  ): number {
+    let totalHours = 0;
+
+    for (const employment of employments) {
+      // Determine the actual start and end dates for this employment within the period
+      const employmentStart = dayjs.max(
+        dayjs(employment.employmentStartDate),
+        dayjs(periodStartDate)
+      );
+
+      const employmentEnd = employment.employmentEndDate
+        ? dayjs.min(dayjs(employment.employmentEndDate), dayjs(periodEndDate))
+        : dayjs(periodEndDate);
+
+      // Calculate number of weeks worked
+      const weeksWorked = employmentEnd.diff(employmentStart, "week", true);
+
+      // Calculate hours worked for this employment period
+      const hoursWorked = weeksWorked * employment.weeklyHours;
+
+      totalHours += Math.max(0, hoursWorked);
+    }
+
+    return totalHours;
+  }
+
+  private getCollaboratorContributionBaseSalary = async (
+    collaboratorId: CollaboratorEntity,
+    newStartingDate: string,
+    minimumWage: number
+  ): Promise<number> => {
+    // Calculate end date (last day of the previous month in Mexico)
+    const endDate = dayjs
+      .tz(newStartingDate, MX_TIMEZONE)
+      .subtract(1, "month")
+      .endOf("month")
+      .endOf("day")
+      .toDate();
+
+    // Calculate start date (2 months before endDate to get exactly 3 months period)
+    const startDate = dayjs
+      .tz(endDate, MX_TIMEZONE)
+      .subtract(2, "month")
+      .startOf("month")
+      .startOf("day")
+      .toDate();
+
+    const payrollService = createPayrollService();
+
+    const contributionBaseSalaryBase =
+      await payrollService.getContributionBaseSalaryBase(
+        collaboratorId.id!,
+        startDate.toISOString(),
+        endDate.toISOString()
+      );
+
+    const contributionBaseSalaryBeforeIntegration = Math.max(
+      contributionBaseSalaryBase / 3 / 30,
+      minimumWage
+    );
+
+    const completedYearsWorked = dayjs(startDate).diff(
+      dayjs(collaboratorId.startDate!).toDate(),
+      "year"
+    );
+
+    const yearVacationDays =
+      calculateVacationsForYearAfter2022(completedYearsWorked);
+
+    const vacationBonusCBS =
+      (contributionBaseSalaryBeforeIntegration *
+        yearVacationDays *
+        VACATION_BONUS_PERCENTAGE) /
+      365;
+
+    const yearEndBonusCBS =
+      (contributionBaseSalaryBeforeIntegration * YEAR_END_BONUS_DAYS) / 365;
+
+    const contributionBaseSalary =
+      contributionBaseSalaryBeforeIntegration +
+      vacationBonusCBS +
+      yearEndBonusCBS;
+
+    return contributionBaseSalary;
   };
 }
