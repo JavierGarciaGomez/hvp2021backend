@@ -35,9 +35,12 @@ export class CommissionableServiceService extends BaseService<
       );
 
     const commissionableServices = await this.repository.getAll();
+    const filteredCommissionableServices = commissionableServices.filter(
+      (service) => service.isActive
+    );
     const result = {
       date: calculationDate,
-      services: commissionableServices.map((service) => {
+      services: filteredCommissionableServices.map((service) => {
         return {
           ...service,
           collaborators: collaboratorsWithJobAndEmployment.map(
