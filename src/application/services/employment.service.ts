@@ -638,7 +638,7 @@ export class EmploymentService extends BaseService<
       jobId: jobId,
       employmentStartDate: startDate,
       employmentEndDate: endDate || undefined,
-      isActive: true,
+      isActive: endDate ? false : true,
       paymentType: previousEmployment?.paymentType || HRPaymentType.SALARY,
       attendanceSource:
         previousEmployment?.attendanceSource ||
