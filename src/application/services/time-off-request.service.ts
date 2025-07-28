@@ -15,6 +15,7 @@ import {
   BaseError,
   buildQueryOptions,
   getLatestDate,
+  LEGAL_VACATIONS,
 } from "../../shared";
 import isAuthorized from "../../presentation/middlewares/isAuthorized";
 import { createCollaboratorService } from "../factories";
@@ -182,6 +183,13 @@ export class TimeOffRequestService extends BaseService<
     }
     const collaborator = await this.collaboratorService.getById(collaboratorId);
     const { startDate, endDate: collaboratorEndDate } = collaborator!;
+
+    const vacationPeriods = this.getVacationPeriods(
+      startDate!,
+      endDate,
+      collaboratorTimeOffRequests
+    );
+
     const lastAnniversaryDate = this.getLastAnniversaryDate(
       startDate ?? new Date()
     );
@@ -239,11 +247,29 @@ export class TimeOffRequestService extends BaseService<
     );
 
     const thisYearVacationDays = totalVacationDays - legalVacationDays;
-    0;
 
     const remainingcurrentYearVacationDays =
       thisYearVacationDays -
-      Math.min(0, legalVacationDays - takenOrRequestedVacationDays);
+      Math.max(0, takenOrRequestedVacationDays - legalVacationDays);
+
+    // todo: working
+
+    const currentPeriod = vacationPeriods[vacationPeriods.length - 1];
+
+    const rawVacations = [];
+    for (const period of vacationPeriods) {
+      for (const request of period.vacationRequests) {
+        rawVacations.push(request);
+      }
+    }
+    const vacationsTaken2 = rawVacations.map(
+      (v) => v.status === TimeOffStatus.Approved
+    );
+    const vacationsRequested2 = rawVacations.map(
+      (v) => v.status === TimeOffStatus.Pending
+    );
+
+    const remainingVacationDays2 = currentPeriod.accumulatedBalance;
 
     const data: CollaboratorTimeOffOverview = {
       collaboratorId,
@@ -292,6 +318,118 @@ export class TimeOffRequestService extends BaseService<
 
     return lastAnniversaryDate.toDate();
   };
+
+  private getVacationPeriods = (
+    startDate: Date,
+    cutoffDate: Date,
+    collaboratorTimeOffRequests: TimeOffRequestEntity[]
+  ) => {
+    const vacationPeriods: VacationPeriod[] = [];
+    let currentStart = new Date(startDate);
+    let years = 1;
+    let accumulatedBalance = 0;
+
+    const getLegalDays = (years: number, anniversaryYear: number): number => {
+      const law = anniversaryYear >= 2023 ? "new" : "old";
+      const table = LEGAL_VACATIONS[law];
+      return table[Math.min(years, table.length - 1)];
+    };
+
+    while (currentStart < cutoffDate) {
+      const nextAnniversary = new Date(currentStart);
+      nextAnniversary.setFullYear(nextAnniversary.getFullYear() + 1);
+      const isCurrent = nextAnniversary > cutoffDate;
+      const periodEnd = isCurrent ? cutoffDate : nextAnniversary;
+
+      // LEGAL: sólo si ya cumplió aniversario
+      const anniversaryYear = nextAnniversary.getFullYear();
+      const legalCalc = getLegalDays(years, anniversaryYear);
+      const legalVacationDays = isCurrent ? 0 : legalCalc;
+
+      // EXTRA: desde 2025, 2 por año natural
+      let extra = 0;
+      if (periodEnd.getFullYear() >= 2025) {
+        // Check if January 1st of this year falls within the period
+        const januaryFirst = new Date(periodEnd.getFullYear(), 0, 1);
+        if (januaryFirst >= currentStart && januaryFirst < periodEnd) {
+          extra = 2;
+        }
+      }
+      // PROVISIONAL (solo periodo actual)
+      let provisional = 0;
+      if (isCurrent) {
+        const expected = legalCalc;
+        const elapsedDays = Math.floor(
+          (cutoffDate.getTime() - currentStart.getTime()) /
+            (1000 * 60 * 60 * 24)
+        );
+        provisional = +(expected * (elapsedDays / 365)).toFixed(0);
+      }
+
+      const total = +(legalVacationDays + extra + provisional).toFixed(2);
+
+      // TODO
+      // Vacaciones tomadas en este periodo
+
+      const periodVacationRequests = this.getVacationDaysTaken(
+        collaboratorTimeOffRequests,
+        currentStart,
+        isCurrent ? new Date(9999, 11, 31) : periodEnd
+      );
+      const takenDays = periodVacationRequests.reduce(
+        (sum, v) => sum + v.requestedDays.length,
+        0
+      );
+
+      const periodBalance = +(total - takenDays).toFixed(2);
+
+      accumulatedBalance += periodBalance;
+
+      vacationPeriods.push({
+        startDate: currentStart,
+        endDate: periodEnd,
+        legalVacationDays: legalVacationDays,
+        extraVacationDays: extra,
+        provisionalVacationDays: provisional,
+        totalVacationDays: total,
+        vacationDaysTaken: takenDays,
+        periodBalance,
+        accumulatedBalance,
+        vacationRequests: periodVacationRequests,
+      });
+
+      currentStart = nextAnniversary;
+      years += 1;
+    }
+
+    return vacationPeriods;
+  };
+
+  private getVacationDaysTaken = (
+    collaboratorTimeOffRequests: TimeOffRequestEntity[],
+    startDate: Date,
+    endDate: Date
+  ) => {
+    return collaboratorTimeOffRequests.filter(
+      (v) =>
+        v.requestedDays.some((d) => d >= startDate && d < endDate) &&
+        (v.status === TimeOffStatus.Approved ||
+          v.status === TimeOffStatus.Pending) &&
+        (v.timeOffType === TimeOffType.Vacation ||
+          v.timeOffType === TimeOffType.PersonalLeave)
+    );
+  };
 }
 
-// todo: move to domain
+type VacationPeriod = {
+  startDate: Date;
+  endDate: Date;
+  legalVacationDays: number;
+  extraVacationDays: number;
+  provisionalVacationDays: number;
+  totalVacationDays: number;
+  vacationDaysTaken: number;
+  periodBalance: number;
+  accumulatedBalance: number;
+  vacationRequests: TimeOffRequestEntity[];
+};

@@ -1,0 +1,79 @@
+[
+  {
+    "Name": "Sueldos, Salarios  Rayas y Jornales",
+    "Value": "001",
+    "appProperties": [
+      "halfWeekFixedIncome",
+      "halfWeekHourlyPay",
+      "additionalFixedIncomes",
+      "holidayOrRestExtraPay"
+    ]
+  },
+  {
+    "Name": "Comisiones",
+    "Value": "028",
+    "appProperties": ["commissions"]
+  },
+  {
+    "Name": "Premios por puntualidad",
+    "Value": "010",
+    "appProperties": ["punctualityBonus"]
+  },
+  {
+    "Name": "Otros ingresos por salarios",
+    "Value": "038",
+    "appProperties": [
+      "receptionBonus",
+      "expressBranchCompensation",
+      "vacationCompensation",
+      "guaranteedIncomeCompensation",
+      "specialBonuses",
+      "extraVariableCompensations"
+    ]
+  },
+  {
+    "Name": "Horas extra",
+    "Value": "019",
+    "appProperties": [
+      "simpleOvertimeHours",
+      "doubleOvertimeHours",
+      "tripleOvertimeHours"
+    ]
+  },
+  {
+    "Name": "Prima dominical",
+    "Value": "020",
+    "appProperties": ["sundayBonus"]
+  },
+  {
+    "Name": "Gratificación Anual (Aguinaldo)",
+    "Value": "002",
+    "appProperties": ["endYearBonus"]
+  },
+  {
+    "Name": "Prima vacacional",
+    "Value": "021",
+    "appProperties": ["vacationBonus"]
+  },
+  {
+    "Name": "Participación de los Trabajadores en las Utilidades PTU",
+    "Value": "003",
+    "appProperties": ["profitSharing"]
+  },
+
+  {
+    "Name": "Subsidios por incapacidad",
+    "Value": "014",
+    "appProperties": ["employmentSubsidy"]
+  },
+  {
+    "Name": "Premios por asistencia",
+    "Value": "049",
+    "appProperties": ["traniningActivitySupport", "physicalActivitySupport"]
+  },
+  {
+    "Name": "Alimentación",
+    "Value": "047",
+    "appProperties": ["mealCompensation"]
+  }
+]
