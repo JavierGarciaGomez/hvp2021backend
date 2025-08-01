@@ -1027,8 +1027,6 @@ export class AttendanceReportService {
         notWorkedHours += extraHours * -1;
       }
 
-      notWorkedHours += estimatedWorkedHours;
-
       const maxSinglePlayWorkedExtraHours = MAX_WORK_WEEK_LIMIT - weeklyHours; // 48 - 35 = 13
       const addToSinglePlayWorkedExtraHours = Math.max(
         Math.min(extraHours, maxSinglePlayWorkedExtraHours),
