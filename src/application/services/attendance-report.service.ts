@@ -759,6 +759,7 @@ export class AttendanceReportService {
       return dayReport;
     }
 
+    // if delay minutes is more than 120, collaborator should reschedule the hours.
     if (timeOffRequestType === TimeOffType.LatePermission) {
       dayReport.delayMinutes = 0;
       if (delayMinutes > 120) {
@@ -1025,6 +1026,8 @@ export class AttendanceReportService {
       if (extraHours < 0) {
         notWorkedHours += extraHours * -1;
       }
+
+      notWorkedHours += estimatedWorkedHours;
 
       const maxSinglePlayWorkedExtraHours = MAX_WORK_WEEK_LIMIT - weeklyHours; // 48 - 35 = 13
       const addToSinglePlayWorkedExtraHours = Math.max(
