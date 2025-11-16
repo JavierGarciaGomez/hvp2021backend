@@ -70,9 +70,11 @@ export const getLatestDate = (dates: Date[]): Date => {
 };
 
 export const getFirstMondayOfExtendedHalfWeek = (date: dayjs.Dayjs) => {
-  const dayOfMonth = date.date();
+  // Asegurar que trabajamos en timezone de México
+  const mxDate = dayjs(date).tz("America/Mexico_City");
+  const dayOfMonth = mxDate.date();
   const targetDay = dayOfMonth <= 15 ? 1 : 16;
-  const targetDate = date.date(targetDay);
+  const targetDate = mxDate.date(targetDay);
 
   const dayOfWeek = targetDate.day();
 
@@ -87,10 +89,12 @@ export const getFirstMondayOfExtendedHalfWeek = (date: dayjs.Dayjs) => {
 };
 
 export const getLastSundayOfExtendedHalfWeek = (date: dayjs.Dayjs) => {
-  const dayOfMonth = date.date();
+  // Asegurar que trabajamos en timezone de México
+  const mxDate = dayjs(date).tz("America/Mexico_City");
+  const dayOfMonth = mxDate.date();
 
-  const targetDay = dayOfMonth <= 15 ? 15 : date.daysInMonth();
-  const targetDate = date.date(targetDay);
+  const targetDay = dayOfMonth <= 15 ? 15 : mxDate.daysInMonth();
+  const targetDate = mxDate.date(targetDay);
 
   const dayOfWeek = targetDate.day();
   if (dayOfWeek === 0) {
@@ -206,8 +210,15 @@ export const isDatetimeBefore = (
 };
 
 export const getPreviousSunday = (date: Dayjs) => {
+  const mxDate = dayjs(date).tz("America/Mexico_City");
+  console.log("getPreviousSunday - input date:", mxDate.format("YYYY-MM-DD"));
+  console.log("getPreviousSunday - day of week:", mxDate.day());
   // Si el día es domingo (0), retorna la misma fecha
-  return date.day() === 0 ? date : date.subtract(date.day(), "day");
+  const result =
+    mxDate.day() === 0 ? mxDate : mxDate.subtract(mxDate.day(), "day");
+  console.log("getPreviousSunday - result:", result.format("YYYY-MM-DD"));
+  console.log("FINISHED");
+  return result;
 };
 
 export const getMxPeriodKey = (date: Date | Dayjs, periodType: string) => {
