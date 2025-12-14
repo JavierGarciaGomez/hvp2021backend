@@ -49,7 +49,7 @@
     "build": "node --max-old-space-size=2048 ./node_modules/.bin/tsc",
     "heroku-postbuild": "yarn build",
     "postinstall": "yarn build",
-    "dev": "tsnd --respawn --clear src/app.ts",
+    "dev": "tsnd --respawn --clear src/index.ts",
     "docker:test": "docker-compose --profile test --env-file .env.test up -d",
     "docker:dev": "docker-compose --profile dev up -d",
     "test": "npm run docker:test && jest",
@@ -61,7 +61,8 @@
     "seed:notifications": "tsnd src/scripts/notificationSeed.ts",
     "parse:tickets": "tsnd --project tsconfig.json src/shared/scripts/commissions/parseTickets.ts",
     "parse:payrolls": "tsnd --project tsconfig.json src/shared/scripts/payrolls/parsePayrolls.ts",
-    "generate:activityRegisters": "tsnd --project tsconfig.json src/shared/scripts/others/generateActivityRegisters.ts"
+    "generate:activityRegisters": "tsnd --project tsconfig.json src/shared/scripts/others/generateActivityRegisters.ts",
+    "db:copy-prod": "bash scripts/copy-prod-to-dev.sh"
   },
   "repository": "git+https://github.com/JavierGarciaGomez/hvp2021backend.git",
   "keywords": [],
@@ -72,6 +73,6 @@
   },
   "homepage": "https://github.com/JavierGarciaGomez/hvp2021backend#readme",
   "engines": {
-    "node": "20.0.0"
+    "node": ">=20.0.0"
   }
 }

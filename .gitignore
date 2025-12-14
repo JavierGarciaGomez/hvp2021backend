@@ -1,6 +1,7 @@
 /s04BasesDeNode/salida/*.txt
 node_modules/
 tokens.txt
+.api-token
 .env
 uploads/productos/**.*
 uploads/usuarios/**.*
