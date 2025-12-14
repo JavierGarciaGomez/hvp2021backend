@@ -28,11 +28,16 @@ TypeScript/Node.js backend for Hospital Veterinario Peninsular (HVP) management 
 
 All protected endpoints require authentication via JWT tokens.
 
-**Required Headers:**
+**IMPORTANT: The token MUST be sent TWICE in every request:**
+```bash
+curl "http://localhost:4000/api/endpoint" \
+  -H "x-token: <jwt-token>" \
+  -H "Authorization: Bearer <jwt-token>"
 ```
-x-token: <jwt-token>
-Authorization: Bearer <jwt-token>
-```
+
+Both headers are required:
+1. `x-token: <token>` - Custom application header
+2. `Authorization: Bearer <token>` - Standard HTTP auth header
 
 **Getting a Token:**
 ```bash
@@ -143,6 +148,136 @@ yarn test:coverage         # Run tests with coverage
 ```bash
 yarn docker:dev            # Start development MongoDB
 yarn docker:test           # Start test MongoDB
+```
+
+---
+
+## Development Logging
+
+HVP2021 includes two logging systems to help with debugging and development:
+
+### API Logger
+
+Captures all HTTP requests/responses to `logs/api/` for debugging and analysis.
+
+**Enable**: Set `API_LOGGER_ENABLED=true` in `.env`
+
+**What it captures**:
+- Request: method, URL, headers, body, query params
+- Response: status code, headers, body
+- Timing: duration in milliseconds
+- Security: Automatically redacts sensitive headers (`x-token`, `authorization`, `password` fields)
+
+**Log location**: `logs/api/{timestamp}-{METHOD}-{endpoint}.json`
+
+**Query logs**: Use `/logs` slash command for common queries:
+```bash
+# Show recent API requests
+/logs
+
+# Or query directly:
+find logs/api -type f -name "*.json" | sort -r | head -10
+
+# Find specific endpoint
+find logs/api -type f -name "*api-employments*.json"
+
+# Pretty-print a log file
+cat logs/api/FILENAME.json | jq '.'
+```
+
+**Example log**:
+```json
+{
+  "timestamp": "2025-12-14T10:30:45.123Z",
+  "request": {
+    "method": "GET",
+    "url": "/api/employments?isActive=true",
+    "query": {"isActive": "true"},
+    "params": {},
+    "headers": {"x-token": "[REDACTED]"},
+    "body": null
+  },
+  "response": {
+    "statusCode": 200,
+    "headers": {"content-type": "application/json"},
+    "body": {"ok": true, "data": [...]}
+  },
+  "timing": {
+    "startedAt": "2025-12-14T10:30:45.100Z",
+    "completedAt": "2025-12-14T10:30:45.123Z",
+    "durationMs": 23
+  }
+}
+```
+
+### Debug Logger
+
+Instrument functions to capture inputs/outputs for detailed debugging.
+
+**Enable**: Set `DEBUG_LOGGER_ENABLED=true` in `.env`
+
+**Usage in code**:
+```typescript
+import { debugLog } from '@/shared/utils/debugLogger';
+
+function calculateAguinaldo(salary: number, startDate: Date) {
+  // Log input
+  debugLog('calculateAguinaldo', { salary, startDate }, 'input');
+
+  // ... calculation logic ...
+  const taxableAmount = /* calculation */;
+  const exemptAmount = /* calculation */;
+
+  // Log intermediate state
+  debugLog('calculateAguinaldo', { taxableAmount, exemptAmount }, 'calculation');
+
+  const result = taxableAmount + exemptAmount;
+
+  // Log output
+  debugLog('calculateAguinaldo', { result }, 'output');
+
+  return result;
+}
+```
+
+**Log location**: `logs/debug/{timestamp}-{functionName}-{context}.json`
+
+**Query logs**:
+```bash
+# Find debug logs for specific function
+find logs/debug -type f -name "*calculateAguinaldo*.json"
+
+# Show recent debug logs
+find logs/debug -type f | sort -r | head -10
+```
+
+**Decorator support** (optional):
+```typescript
+import { DebugLog } from '@/shared/utils/debugLogger';
+
+class PayrollService {
+  @DebugLog('payroll')
+  calculatePayroll(employeeId: string): PayrollResult {
+    // Automatically logs inputs and outputs
+    return /* ... */;
+  }
+}
+```
+
+### Log Management
+
+**Retention**: Logs are automatically deleted after 7 days (configurable via `LOG_RETENTION_DAYS`)
+
+**Storage location**: `/logs` (gitignored)
+
+**Production safety**: Both loggers are disabled by default. Must explicitly enable in `.env`.
+
+**Configuration (.env)**:
+```bash
+# Logging Configuration
+API_LOGGER_ENABLED=true          # Enable API request/response logging
+DEBUG_LOGGER_ENABLED=true        # Enable function debug logging
+LOG_RETENTION_DAYS=7            # Auto-delete logs older than N days
 ```
 
 ---

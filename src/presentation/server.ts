@@ -1,5 +1,6 @@
 import express, { Router } from "express";
 import path from "path";
+import fs from "fs/promises";
 import { corsMiddleware, envsPlugin } from "../infrastructure/adapters";
 import { CookieSessionAdapter } from "../infrastructure/adapters/cookie-session.adapter";
 import { passportAdapter } from "../infrastructure/adapters/passport.adapter";
@@ -8,6 +9,8 @@ import { AttachBaseUrlMiddleware } from "./middlewares";
 import { errorHandler } from "./middlewares/errorHandler";
 import { updateShiftDateField } from "../shared/scripts/upsateShifts";
 import { seedSimplifiedBranchCashReconciliation } from "../shared/seeds/simplifiedBranchCashReconciliationSeed";
+import { ApiLoggerMiddleware } from "./middlewares/apiLogger.middleware";
+import { LogCleanupService } from "../infrastructure/services/LogCleanupService";
 
 interface Options {
   port: number;
@@ -31,11 +34,22 @@ export class Server {
 
   async start() {
     console.log({ env: envsPlugin.NODE_ENV });
+
+    //* Initialize logging infrastructure
+    try {
+      await fs.mkdir("logs/api", { recursive: true });
+      await fs.mkdir("logs/debug", { recursive: true });
+      await LogCleanupService.cleanupOldLogs();
+    } catch (error) {
+      console.error("Failed to initialize logging infrastructure:", error);
+    }
+
     //* Middlewares
     this.app.use(express.json({ limit: "10mb" }));
     this.app.use(express.urlencoded({ extended: true, limit: "10mb" }));
     this.app.use(PrintRouteMiddleware.print);
     this.app.use(AttachBaseUrlMiddleware.attachBaseUrl);
+    this.app.use(ApiLoggerMiddleware.log);
     this.app.use(corsMiddleware);
 
     this.app.use(CookieSessionAdapter.getInstance());

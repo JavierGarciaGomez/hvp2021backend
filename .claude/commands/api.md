@@ -13,9 +13,17 @@ You are helping validate API endpoints for the HVP2021 backend.
 
 **Authentication Headers:**
 
+> **IMPORTANT: BOTH headers are REQUIRED for all authenticated endpoints.**
+> Using only `x-token` will result in `401 Unauthorized: Authorization header not found`.
+
 ```
 x-token: <jwt-token>
 Authorization: Bearer <jwt-token>
+```
+
+Both headers must use the **same token value**. Example:
+```bash
+-H "x-token: eyJhbG..." -H "Authorization: Bearer eyJhbG..."
 ```
 
 ## Your Tasks
@@ -117,9 +125,43 @@ curl -s "http://localhost:4000/api/salary-data?year=2024" \
 - [ ] Error responses have meaningful messages (if testing error cases)
 - [ ] Authentication works correctly
 
+## Troubleshooting
+
+### 401 Unauthorized: "Authorization header not found"
+**Cause:** Missing the `Authorization: Bearer` header.
+**Solution:** Include BOTH headers in every request:
+```bash
+-H "x-token: $TOKEN" -H "Authorization: Bearer $TOKEN"
+```
+
+### 401 Unauthorized: "Token expired"
+**Cause:** JWT token has expired (tokens last ~2 weeks).
+**Solution:** Get a fresh token by logging in again:
+```bash
+curl -s -X POST http://localhost:4000/api/auth/collaborator/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "your@email.com", "password": "secret"}'
+```
+
+### Request hangs or times out
+**Cause:** Server not running or wrong port.
+**Solution:** Verify server is running on port 4000:
+```bash
+curl -s http://localhost:4000/api/health
+```
+
+### Check API Logs for Debugging
+If a request fails, check the API logs:
+```bash
+ls -la logs/api/ | tail -5
+cat logs/api/<latest-log-file>.json
+```
+Logs show full request/response details including headers (tokens redacted).
+
 ## Notes
 
 - Always use `jq` for pretty-printing JSON when available
 - If jq is not available, use `| python -m json.tool` as fallback
 - For debugging, add `-v` flag to curl to see full request/response
-- Token expires after 7 days - get fresh one if requests fail with 401
+- Token expires after 2 weeks - get fresh one if requests fail with 401
+- API logger must be enabled (`API_LOGGER_ENABLED=true` in .env) to capture logs

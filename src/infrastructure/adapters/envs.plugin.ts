@@ -42,6 +42,11 @@ export const envsPlugin = {
   CLOUDINARY_CLOUD_NAME: env.get("CLOUDINARY_CLOUD_NAME").required().asString(),
   CLOUDINARY_API_KEY: env.get("CLOUDINARY_API_KEY").required().asString(),
   CLOUDINARY_API_SECRET: env.get("CLOUDINARY_API_SECRET").required().asString(),
+
+  // Logging Configuration
+  API_LOGGER_ENABLED: env.get("API_LOGGER_ENABLED").default("false").asBool(),
+  DEBUG_LOGGER_ENABLED: env.get("DEBUG_LOGGER_ENABLED").default("false").asBool(),
+  LOG_RETENTION_DAYS: env.get("LOG_RETENTION_DAYS").default("7").asIntPositive(),
 };
 
 export const commonEnvs = {
@@ -57,6 +62,9 @@ export const commonEnvs = {
   CLOUDINARY_CLOUD_NAME: envsPlugin.CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_API_KEY: envsPlugin.CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET: envsPlugin.CLOUDINARY_API_SECRET,
+  API_LOGGER_ENABLED: envsPlugin.API_LOGGER_ENABLED,
+  DEBUG_LOGGER_ENABLED: envsPlugin.DEBUG_LOGGER_ENABLED,
+  LOG_RETENTION_DAYS: envsPlugin.LOG_RETENTION_DAYS,
 };
 
 export const devEnvs = {
