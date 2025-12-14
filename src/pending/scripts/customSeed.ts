@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { CustomerRFCModel } from "../../infrastructure";
 import billCreationInfoModel from "../../infrastructure/db/mongo/models/BillCreationInfoModel";
+
 require("dotenv").config();
 
 const { dbConnection } = require("../database/config");

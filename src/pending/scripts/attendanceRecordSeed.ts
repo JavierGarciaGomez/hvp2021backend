@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-
 import { AttendanceRecordModel, CollaboratorModel } from "../../infrastructure";
 import { Branch } from "../../shared";
 

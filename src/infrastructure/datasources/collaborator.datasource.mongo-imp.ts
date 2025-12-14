@@ -7,7 +7,7 @@ import { BaseError } from "../../shared";
 import { getAllHelper } from "../../shared/helpers";
 import { CustomQueryOptions } from "../../shared/interfaces";
 import { CollaboratorModel } from "../db";
-import { BaseDatasourceMongoImp } from "./base.datasource.mongo";
+import { BaseDatasourceMongoImp } from "./base.datasource.mongo-imp";
 
 export class CollaboratorDataSourceMongoImp
   extends BaseDatasourceMongoImp<CollaboratorEntity>
@@ -63,9 +63,10 @@ export class CollaboratorDataSourceMongoImp
   }
 
   async getAllForWeb(
-    options: CustomQueryOptions
+    options: CustomQueryOptions,
+    session?: import("mongoose").ClientSession
   ): Promise<PublicCollaborator[]> {
-    const result = await getAllHelper(CollaboratorModel, options);
+    const result = await getAllHelper(CollaboratorModel, options, session);
     return result.map((collaborator) =>
       CollaboratorEntity.fromDocument(collaborator).toPublicCollaborator()
     );

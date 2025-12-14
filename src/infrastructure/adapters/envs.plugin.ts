@@ -22,12 +22,12 @@ export const envsPlugin = {
   PROD_CLIENT_URL2: env.get("PROD_CLIENT_URL2").required().asString(),
 
   // Environment: Test
-  TEST_MONGO_URL: env.get("TEST_MONGO_URL").required().asString(),
-  TEST_MONGO_DB_NAME: env.get("TEST_MONGO_DB_NAME").required().asString(),
-  TEST_MONGO_USER: env.get("TEST_MONGO_USER").required().asString(),
-  TEST_MONGO_PASS: env.get("TEST_MONGO_PASS").required().asString(),
-  TEST_CLIENT_URL: env.get("TEST_CLIENT_URL").required().asString(),
-  TEST_CLIENT_URL2: env.get("TEST_CLIENT_URL2").required().asString(),
+  // TEST_MONGO_URL: env.get("TEST_MONGO_URL").asString(),
+  // TEST_MONGO_DB_NAME: env.get("TEST_MONGO_DB_NAME").asString(),
+  // TEST_MONGO_USER: env.get("TEST_MONGO_USER").asString(),
+  // TEST_MONGO_PASS: env.get("TEST_MONGO_PASS").asString(),
+  // TEST_CLIENT_URL: env.get("TEST_CLIENT_URL").asString(),
+  // TEST_CLIENT_URL2: env.get("TEST_CLIENT_URL2").asString(),
 
   // Environment: Common
   PORT: env.get("PORT").required().asPortNumber(),
@@ -39,6 +39,9 @@ export const envsPlugin = {
   GOOGLE_CLIENT_ID: env.get("GOOGLE_CLIENT_ID").required().asString(),
   GOOGLE_CLIENT_SECRET: env.get("GOOGLE_CLIENT_SECRET").required().asString(),
   SECRET_JWT_SEED: env.get("SECRET_JWT_SEED").required().asString(),
+  CLOUDINARY_CLOUD_NAME: env.get("CLOUDINARY_CLOUD_NAME").required().asString(),
+  CLOUDINARY_API_KEY: env.get("CLOUDINARY_API_KEY").required().asString(),
+  CLOUDINARY_API_SECRET: env.get("CLOUDINARY_API_SECRET").required().asString(),
 };
 
 export const commonEnvs = {
@@ -51,6 +54,9 @@ export const commonEnvs = {
   GOOGLE_CLIENT_ID: envsPlugin.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: envsPlugin.GOOGLE_CLIENT_SECRET,
   SECRET_JWT_SEED: envsPlugin.SECRET_JWT_SEED,
+  CLOUDINARY_CLOUD_NAME: envsPlugin.CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: envsPlugin.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: envsPlugin.CLOUDINARY_API_SECRET,
 };
 
 export const devEnvs = {
@@ -75,10 +81,10 @@ export const prodEnvs = {
 
 export const testEnvs = {
   NODE_ENV: envsPlugin.NODE_ENV,
-  MONGO_URL: envsPlugin.TEST_MONGO_URL,
-  MONGO_DB_NAME: envsPlugin.TEST_MONGO_DB_NAME,
-  MONGO_USER: envsPlugin.TEST_MONGO_USER,
-  MONGO_PASS: envsPlugin.TEST_MONGO_PASS,
-  CLIENT_URL: envsPlugin.TEST_CLIENT_URL,
-  CLIENT_URL2: envsPlugin.TEST_CLIENT_URL2,
+  MONGO_URL: envsPlugin.DEV_MONGO_URL,
+  MONGO_DB_NAME: envsPlugin.DEV_MONGO_DB_NAME,
+  MONGO_USER: envsPlugin.DEV_MONGO_USER,
+  MONGO_PASS: envsPlugin.DEV_MONGO_PASS,
+  CLIENT_URL: envsPlugin.DEV_CLIENT_URL,
+  CLIENT_URL2: envsPlugin.DEV_CLIENT_URL2,
 };

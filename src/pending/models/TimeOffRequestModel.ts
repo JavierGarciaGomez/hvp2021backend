@@ -27,7 +27,7 @@ const timeOffRequestSchema = new Schema<TimeOffRequest>(
     status: {
       type: String,
       enum: Object.values(TimeOffStatus),
-      default: TimeOffStatus.pending,
+      default: TimeOffStatus.Pending,
     },
     timeOffType: {
       type: String,

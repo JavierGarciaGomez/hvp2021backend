@@ -1,7 +1,7 @@
 import { NotificationDatasource } from "../../domain";
 import { NotificationEntity } from "../../domain/entities";
-import { NotificationModel } from "../db/mongo/models/notification.model";
-import { BaseDatasourceMongoImp } from "./base.datasource.mongo";
+import { NotificationModel } from "../db";
+import { BaseDatasourceMongoImp } from "./base.datasource.mongo-imp";
 
 export class NotificationDataSourceMongoImp
   extends BaseDatasourceMongoImp<NotificationEntity>

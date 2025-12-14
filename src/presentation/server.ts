@@ -6,6 +6,8 @@ import { passportAdapter } from "../infrastructure/adapters/passport.adapter";
 import { BaseError, PrintRouteMiddleware } from "../shared";
 import { AttachBaseUrlMiddleware } from "./middlewares";
 import { errorHandler } from "./middlewares/errorHandler";
+import { updateShiftDateField } from "../shared/scripts/upsateShifts";
+import { seedSimplifiedBranchCashReconciliation } from "../shared/seeds/simplifiedBranchCashReconciliationSeed";
 
 interface Options {
   port: number;
@@ -30,8 +32,8 @@ export class Server {
   async start() {
     console.log({ env: envsPlugin.NODE_ENV });
     //* Middlewares
-    this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(express.json({ limit: "10mb" }));
+    this.app.use(express.urlencoded({ extended: true, limit: "10mb" }));
     this.app.use(PrintRouteMiddleware.print);
     this.app.use(AttachBaseUrlMiddleware.attachBaseUrl);
     this.app.use(corsMiddleware);
@@ -45,6 +47,9 @@ export class Server {
 
     //* Routes
     this.app.use(this.routes);
+
+    //* Seeds
+    // await seedSimplifiedBranchCashReconciliation();
 
     //* SPA /^\/(?!api).*/  <== Únicamente si no empieza con la palabra api
     // this.app.get("*", (req, res) => {
@@ -63,6 +68,8 @@ export class Server {
     });
 
     this.app.use(errorHandler);
+
+    // await updateShiftDateField();
 
     this.serverListener = this.app.listen(this.port, () => {
       console.log(`Server running on port ${this.port}`);

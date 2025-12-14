@@ -1,36 +1,74 @@
-import { CollaboratorDocument } from "./../../infrastructure/db/mongo/models/";
-import { CollaboratorAuth } from "../../shared";
-import { CollaboratorRole } from "../enums";
-import { BaseEntity } from "./base.entity";
+// import { ICollaborator } from "../../infra/db/mongo/models/collaborator.model";
 
-export interface CollaboratorProps {
-  id?: string;
-  // remove this
+import { Document, Schema } from "mongoose";
+import { CollaboratorAuth } from "../../shared";
+import { Degree, Gender, HRPaymentType, WebAppRole } from "../enums";
+import { AddressVO, ImageUrl } from "../value-objects";
+import { BaseEntity, BaseEntityProps } from "./base.entity";
+
+export interface CollaboratorProps extends BaseEntityProps {
+  // Primary data
+  // todo remove this
   _id?: string;
   first_name: string;
   last_name: string;
-  role: CollaboratorRole;
+  email?: string;
   col_code: string;
   col_numId?: number;
+  jobId?: string;
+  role: WebAppRole;
   isActive: boolean;
-  gender?: string;
+  isDisplayedWeb: boolean;
+
+  // General information
+  gender?: Gender;
+  phoneNumber?: string;
+  phoneNumber2?: string;
+  address?: AddressVO;
+  curp?: string;
+  imssNumber?: string;
+  rfcCode?: string;
+  emergencyContact?: string;
+  emergencyContactPhone?: string;
+
+  // webApp information
   imgUrl?: string;
+  images?: ImageUrl[];
   accessCode?: string;
   isRegistered: boolean;
-  email?: string;
   password?: string;
-  position?: string;
-  isDisplayedWeb: boolean;
   textPresentation?: string;
   registeredDate?: Date;
+  // TODO: remove this
   lastLogin?: Date;
+  vacationsTakenBefore2021?: number;
+
+  // Job information
+  // this could be computed
   startDate?: Date;
   endDate?: Date;
-  vacationsTakenBefore2021?: number;
-  createdAt?: Date;
-  createdBy?: string;
-  updatedAt?: Date;
-  updatedBy?: string;
+  // TODO: remove this
+  position?: string;
+  coverShift?: boolean;
+  weeklyHours?: number;
+  contractDate?: Date;
+  hasIMSS?: boolean;
+  imssEnrollmentDate?: Date;
+  // Payroll information
+  // TODO: set in a parameter the value of the compensation
+  paymentType?: HRPaymentType;
+  additionalCompensation?: number; // based in the hours he goes
+  // TODO: enum
+  degree?: Degree;
+
+  // TODO: enum
+}
+
+export interface CollaboratorDocument
+  extends Omit<CollaboratorProps, "id" | "jobId" | "_id">,
+    Document {
+  id: Schema.Types.ObjectId;
+  jobId: Schema.Types.ObjectId;
 }
 
 export interface PublicCollaborator extends Partial<CollaboratorProps> {
@@ -40,90 +78,164 @@ export interface PublicCollaborator extends Partial<CollaboratorProps> {
   col_code: string;
   position?: string;
   imgUrl?: string;
+  images?: ImageUrl[];
   textPresentation?: string;
+  jobId?: string;
 }
 
+// todo response interface
+
 export class CollaboratorEntity implements BaseEntity {
+  // General information
+  // remove this
   _id?: string;
-  id?: string;
   first_name: string;
   last_name: string;
-  role: CollaboratorRole;
-  col_code: string;
-  col_numId?: number;
-  isActive: boolean;
-  gender?: string;
+  gender?: Gender;
+  email?: string;
+  phoneNumber?: string;
+  phoneNumber2?: string;
+  address?: AddressVO;
+  curp?: string;
+  imssNumber?: string;
+  rfcCode?: string;
+  emergencyContact?: string;
+  emergencyContactPhone?: string;
+
+  // webApp information
+  role: WebAppRole;
   imgUrl?: string;
+  images?: ImageUrl[];
   accessCode?: string;
   isRegistered: boolean;
-  email?: string;
   password?: string;
-  position?: string;
   isDisplayedWeb: boolean;
   textPresentation?: string;
   registeredDate?: Date;
+  // TODO: remove this
   lastLogin?: Date;
+  vacationsTakenBefore2021?: number;
+
+  // Job information
+  col_code: string;
+  col_numId?: number;
+  // this could be computed
+  isActive: boolean;
   startDate?: Date;
   endDate?: Date;
-  vacationsTakenBefore2021?: number;
+  // TODO: remove this
+  position?: string;
+  coverShift?: boolean;
+  weeklyHours?: number;
+  jobId?: string;
+  contractDate?: Date;
+  hasIMSS?: boolean;
+  imssEnrollmentDate?: Date;
+  // Payroll information
+  // TODO: set in a parameter the value of the compensation
+  paymentType?: HRPaymentType;
+  additionalCompensation?: number; // based in the hours he goes
+  // TODO: enum
+  degree?: Degree;
+
+  // TODO: enum
+  id?: string;
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
   updatedBy?: string;
 
   constructor(options: CollaboratorProps) {
-    this._id = options.id;
+    this._id = options._id;
     this.id = options.id;
     this.first_name = options.first_name;
     this.last_name = options.last_name;
-    this.role = options.role;
-    this.col_code = options.col_code;
-    this.col_numId = options.col_numId;
-    this.isActive = options.isActive;
-    this.isRegistered = options.isRegistered;
+    this.gender = options.gender;
     this.email = options.email;
+    this.phoneNumber = options.phoneNumber;
+    this.phoneNumber2 = options.phoneNumber2;
+    this.address = options.address;
+    this.curp = options.curp;
+    this.imssNumber = options.imssNumber;
+    this.rfcCode = options.rfcCode;
+    this.emergencyContact = options.emergencyContact;
+    this.emergencyContactPhone = options.emergencyContactPhone;
+
+    this.role = options.role;
+    this.imgUrl = options.imgUrl;
+    this.images = options.images;
+    this.accessCode = options.accessCode;
+    this.isRegistered = options.isRegistered;
     this.password = options.password;
-    this.position = options.position;
     this.isDisplayedWeb = options.isDisplayedWeb;
     this.textPresentation = options.textPresentation;
     this.registeredDate = options.registeredDate;
     this.lastLogin = options.lastLogin;
+    this.vacationsTakenBefore2021 = options.vacationsTakenBefore2021;
+
+    this.col_code = options.col_code;
+    this.col_numId = options.col_numId;
+    this.isActive = options.isActive;
     this.startDate = options.startDate;
     this.endDate = options.endDate;
-    this.vacationsTakenBefore2021 = options.vacationsTakenBefore2021;
+    this.position = options.position;
+    this.coverShift = options.coverShift;
+    this.weeklyHours = options.weeklyHours;
+    this.jobId = options.jobId;
+    this.contractDate = options.contractDate;
+    this.hasIMSS = options.hasIMSS;
+    this.imssEnrollmentDate = options.imssEnrollmentDate;
+    this.paymentType = options.paymentType;
+    this.additionalCompensation = options.additionalCompensation;
+    this.degree = options.degree;
     this.createdAt = options.createdAt;
     this.createdBy = options.createdBy;
     this.updatedAt = options.updatedAt;
     this.updatedBy = options.updatedBy;
-    this.imgUrl = options.imgUrl;
-    this.gender = options.gender;
-    this.accessCode = options.accessCode;
   }
 
   static fromDocument(document: CollaboratorDocument): CollaboratorEntity {
     return new CollaboratorEntity({
-      _id: document.id,
-      id: document.id,
+      _id: document._id.toString(),
+      id: document._id.toString(),
       first_name: document.first_name,
       last_name: document.last_name,
-      role: document.role,
-      col_code: document.col_code,
-      col_numId: document.col_numId,
-      isActive: document.isActive,
       gender: document.gender,
+      email: document.email,
+      phoneNumber: document.phoneNumber,
+      phoneNumber2: document.phoneNumber2,
+      address: document.address,
+      curp: document.curp,
+      imssNumber: document.imssNumber,
+      rfcCode: document.rfcCode,
+      emergencyContact: document.emergencyContact,
+      emergencyContactPhone: document.emergencyContactPhone,
+      role: document.role,
       imgUrl: document.imgUrl,
+      images: document.images,
       accessCode: document.accessCode,
       isRegistered: document.isRegistered,
-      email: document.email,
       password: document.password,
-      position: document.position,
       isDisplayedWeb: document.isDisplayedWeb,
       textPresentation: document.textPresentation,
       registeredDate: document.registeredDate,
       lastLogin: document.lastLogin,
+      vacationsTakenBefore2021: document.vacationsTakenBefore2021,
+      col_code: document.col_code,
+      col_numId: document.col_numId,
+      isActive: document.isActive,
       startDate: document.startDate,
       endDate: document.endDate,
-      vacationsTakenBefore2021: document.vacationsTakenBefore2021,
+      position: document.position,
+      coverShift: document.coverShift,
+      weeklyHours: document.weeklyHours,
+      jobId: document?.jobId?.toString(),
+      contractDate: document.contractDate,
+      hasIMSS: document.hasIMSS,
+      imssEnrollmentDate: document.imssEnrollmentDate,
+      paymentType: document.paymentType,
+      additionalCompensation: document.additionalCompensation,
+      degree: document.degree,
       createdAt: document.createdAt,
       createdBy: document.createdBy,
       updatedAt: document.updatedAt,
@@ -139,7 +251,9 @@ export class CollaboratorEntity implements BaseEntity {
       col_code: this.col_code,
       position: this.position,
       imgUrl: this.imgUrl,
+      images: this.images,
       textPresentation: this.textPresentation,
+      jobId: this.jobId,
     };
   }
 
@@ -148,7 +262,41 @@ export class CollaboratorEntity implements BaseEntity {
       uid: this.id!,
       col_code: this.col_code,
       role: this.role,
+      // todo: this should be main image
       imgUrl: this.imgUrl,
     };
   }
+}
+
+// export class CollaboratorResponse extends CollaboratorEntity {
+//   baseContributionSalary?: number;
+//   dailyAverageSalary: number;
+//   accumulatedAnnualIncomeRaisePercent: number;
+//   accumulatedAnnualCommissionRaisePercent: number;
+//   aggregatedMonthlyIncome: number;
+//   imssSalaryBase: number;
+//   averageDailyIncome: number;
+
+//   constructor(options: CollaboratorProps) {
+//     super(options);
+//     this.baseContributionSalary = 10;
+//     this.dailyAverageSalary = 10;
+//     this.accumulatedAnnualIncomeRaisePercent = 10;
+//     this.accumulatedAnnualCommissionRaisePercent = 10;
+//     this.aggregatedMonthlyIncome = 10;
+//     this.imssSalaryBase = 10;
+//     this.averageDailyIncome = 10;
+//   }
+
+//   static fromDocument(document: CollaboratorDocument): CollaboratorResponse {
+//     return new CollaboratorResponse(document);
+//   }
+// }
+
+export interface CollaboratorResponse extends CollaboratorProps {}
+
+export interface CollaboratorWithJobAndEmploymentResponse {
+  collaborator: CollaboratorEntity;
+  job?: import("./job.entity").JobEntity;
+  employment?: import("./employment.entity").EmploymentEntity;
 }

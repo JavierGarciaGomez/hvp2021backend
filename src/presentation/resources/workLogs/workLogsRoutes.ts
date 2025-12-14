@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { WorkLogsController } from "./workLogsController";
 import { WorkLogsService } from "./workLogsService";
-import { CollaboratorRole } from "../../../domain";
+import { WebAppRole } from "../../../domain";
 import { AuthMiddleware } from "../../middlewares";
 import isAuthorized from "../../middlewares/isAuthorized";
 
@@ -37,7 +37,7 @@ export class WorkLogsRoutes {
 
     router.delete(
       WorkLogsPaths.delete,
-      isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager]),
+      isAuthorized([WebAppRole.admin, WebAppRole.manager]),
       controller.deleteWorkLog
     );
 

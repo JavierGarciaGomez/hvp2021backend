@@ -1,10 +1,12 @@
+// todo: DELETE THIS
+
 import { Schema } from "mongoose";
 import { AttendanceType } from "./attendanceTypes";
 
 export enum TimeOffType {
   partialPermission = AttendanceType.partialPermission,
   simulatedAbsence = AttendanceType.simulatedAbsence,
-  vacation = AttendanceType.vacation,
+  Vacation = AttendanceType.vacation,
   sickLeaveIMSSUnpaid = AttendanceType.sickLeaveIMSSUnpaid,
   sickLeaveIMSSPaid = AttendanceType.sickLeaveIMSSPaid,
   sickLeaveJustifiedByCompany = AttendanceType.sickLeaveJustifiedByCompany,
@@ -12,10 +14,10 @@ export enum TimeOffType {
 }
 
 export enum TimeOffStatus {
-  pending = "Pending",
-  approved = "Approved",
-  rejected = "Rejected",
-  canceled = "Canceled",
+  Pending = "Pending",
+  Approved = "Approved",
+  Rejected = "Rejected",
+  Canceled = "Canceled",
 }
 
 export interface TimeOffRequest extends Document {

@@ -4,7 +4,7 @@ import {
   NotificationActionType,
   NotificationReferenceType,
 } from "../../domain/enums";
-import { isValidEnum } from "../../shared/helpers";
+import { checkForErrors, isValidEnum } from "../../shared/helpers";
 
 export class NotificationDto implements BaseDTO {
   user: string;
@@ -76,9 +76,7 @@ export class NotificationDto implements BaseDTO {
       errors.push("ReferenceType must be of type NotificationReferenceType");
     }
 
-    if (errors.length) {
-      throw new Error(errors.join(", "));
-    }
+    checkForErrors(errors);
 
     return new NotificationDto({ ...data });
   }

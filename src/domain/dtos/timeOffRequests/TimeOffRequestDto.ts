@@ -1,3 +1,4 @@
+// TODO: DELETE
 import { TimeOffStatus, TimeOffType } from "../../../shared";
 
 interface Options {
@@ -53,7 +54,7 @@ export class TimeOffRequestDto {
   private static validateOptions(data: Options): string | undefined {
     let { collaborator, requestedDays, timeOffType, status } = data;
 
-    status = status ? status : TimeOffStatus.pending;
+    status = status ? status : TimeOffStatus.Pending;
 
     if (!collaborator) return "Collaborator ID is missing";
     if (!requestedDays || requestedDays.length === 0)

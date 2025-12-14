@@ -1,14 +1,11 @@
 import { Response, NextFunction } from "express";
 import { errorHandler } from "./errorHandler";
-import { CollaboratorRole } from "../../domain";
+import { WebAppRole } from "../../domain";
 import { AuthenticatedRequest, BaseError } from "../../shared";
 import { ResourceWithCollaborator, getResource } from "../../shared/helpers";
 
 const isAuthorized =
-  (
-    allowedRoles: CollaboratorRole[] = [],
-    collaboratorCanUpdate: boolean = false
-  ) =>
+  (allowedRoles: WebAppRole[] = [], collaboratorCanUpdate: boolean = false) =>
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const { role: collaboratorRole, uid } = req.authUser!;
     const id = req.params.id;
@@ -26,7 +23,8 @@ const isAuthorized =
     const hasAllowedRole = allowedRoles.includes(collaboratorRole);
 
     const isCollaborator =
-      collaboratorCanUpdate && resource!.collaborator.toString() === uid;
+      collaboratorCanUpdate &&
+      (resource!.collaborator?.toString() === uid || resource.id === uid);
 
     if (hasAllowedRole || (isCollaborator && collaboratorCanUpdate)) {
       next();

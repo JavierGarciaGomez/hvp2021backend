@@ -1,5 +1,5 @@
-find . -type f -name "\*.js" | wc -l
-53
+find . -type f -name '\*.js' -exec dirname {} \; -exec readlink -f {} \; | sort | uniq | wc -l
+56
 javier@javier-machine:~/code/projects/hvp2021/hvp2021backend/src$ find . -type f -name "\_.ts" | wc -l
 179
 

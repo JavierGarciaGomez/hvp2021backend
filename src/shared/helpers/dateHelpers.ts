@@ -1,3 +1,14 @@
+import dayjs, { Dayjs } from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter);
+
 export const getEarliestDate = (dates: Date[]) => {
   const earliestDate = new Date(
     Math.min(...dates.map((date) => date.getTime()))
@@ -35,4 +46,197 @@ export const getCurrentMexicanDate = () => {
   const date = new Date().toLocaleDateString("es-MX", options);
   const [day, month, year] = date.split("/");
   return `${year}-${month}-${day}`;
+};
+
+export const validateDateDay = (date: string | Date, day: string): boolean => {
+  const parsedDate = dayjs(date);
+  const dayOfWeek = parsedDate.format("dddd").toLowerCase();
+  return dayOfWeek === day.toLowerCase();
+};
+
+export const checkIsMonday = (date: string | Date): boolean =>
+  validateDateDay(date, "Monday");
+
+export const checkIsSunday = (date: string | Date): boolean =>
+  validateDateDay(date, "Sunday");
+
+export const sortDates = (dates: Date[]): Date[] => {
+  return dates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+};
+
+export const getLatestDate = (dates: Date[]): Date => {
+  const date = sortDates(dates)[dates.length - 1];
+  return new Date(date);
+};
+
+export const getFirstMondayOfExtendedHalfWeek = (date: dayjs.Dayjs) => {
+  // Asegurar que trabajamos en timezone de México
+  const mxDate = dayjs(date).tz("America/Mexico_City");
+  const dayOfMonth = mxDate.date();
+  const targetDay = dayOfMonth <= 15 ? 1 : 16;
+  const targetDate = mxDate.date(targetDay);
+
+  const dayOfWeek = targetDate.day();
+
+  if (dayOfWeek === 1) {
+    return targetDate;
+  }
+
+  const daysToMonday = (dayOfWeek + 6) % 7;
+  const monday = targetDate.subtract(daysToMonday, "day");
+
+  return monday;
+};
+
+export const getLastSundayOfExtendedHalfWeek = (date: dayjs.Dayjs) => {
+  // Asegurar que trabajamos en timezone de México
+  const mxDate = dayjs(date).tz("America/Mexico_City");
+  const dayOfMonth = mxDate.date();
+
+  const targetDay = dayOfMonth <= 15 ? 15 : mxDate.daysInMonth();
+  const targetDate = mxDate.date(targetDay);
+
+  const dayOfWeek = targetDate.day();
+  if (dayOfWeek === 0) {
+    return targetDate;
+  }
+
+  const daysToSunday = (7 - dayOfWeek) % 7; // Days to add to reach Sunday
+  const sunday = targetDate.add(daysToSunday, "day");
+
+  return sunday;
+};
+
+export const transformMxDateTimeToUtcStartOfDay = (date: dayjs.Dayjs) => {
+  const utcDate = dayjs(date).utc();
+  const startOfDay = utcDate.startOf("day");
+
+  return startOfDay;
+};
+
+export const transformMxDateTimeToEsStartOfDay = (date: dayjs.Dayjs) => {
+  const madridDate = dayjs(date).tz("Europe/Madrid");
+
+  const startOfDate = madridDate.startOf("day");
+
+  return startOfDate;
+};
+
+export const convertUtcDateToMexicoTimeStartOfDay = (
+  utcDate: Date | string | Dayjs
+) => {
+  const dateString = dayjs.utc(utcDate).format("YYYY-MM-DD");
+  return dayjs.tz(`${dateString}T00:00:00`, "America/Mexico_City");
+};
+
+export const getMxDayjsDatetimeByDateAndTime = (date: string, time: string) => {
+  const result = dayjs.tz(`${date}T${time}`, "America/Mexico_City");
+  return result;
+};
+
+export const toMexicoStartOfDay = (date: string | Date) => {
+  const inputDateTime = dayjs(date);
+  // spanish
+  const spanishDate = dayjs(date).tz("Europe/Madrid").format("YYYY-MM-DD");
+  // utc
+  const utcDate = dayjs(date).tz("UTC").format("YYYY-MM-DD");
+
+  const mexicoStartOfDay = getStartOfDayInTimezone(date, "America/Mexico_City");
+  const spanishStartOfDay = getStartOfDayInTimezone(date, "Europe/Madrid");
+  const utcStartOfDay = getStartOfDayInTimezone(date, "UTC");
+
+  if (inputDateTime.isSame(mexicoStartOfDay)) {
+    return mexicoStartOfDay;
+  }
+
+  if (inputDateTime.isSame(spanishStartOfDay)) {
+    return dayjs.tz(spanishDate, "America/Mexico_City").startOf("day");
+  }
+
+  if (inputDateTime.isSame(utcStartOfDay)) {
+    return dayjs.tz(utcDate, "America/Mexico_City").startOf("day");
+  }
+
+  return utcStartOfDay;
+};
+
+const getStartOfDayInTimezone = (date: string | Date, timezone: string) => {
+  const result = dayjs(date).tz(timezone).startOf("day");
+
+  return result;
+};
+
+export const getDayjsRangeFromDates = (
+  startDate: Dayjs,
+  endDate: Dayjs
+): Dayjs[] => {
+  const days = [];
+  for (
+    let date = startDate;
+    date.isSameOrBefore(endDate);
+    date = date.add(1, "day")
+  ) {
+    days.push(date);
+  }
+  return days;
+};
+
+export const calculateProportionalHours = (
+  datetime1: string | Date | dayjs.Dayjs,
+  datetime2: string | Date | dayjs.Dayjs
+) => {
+  return dayjs(datetime2).diff(dayjs(datetime1), "minutes") / 60;
+};
+
+export const minutesBetweenDatetimes = (
+  datetime1: string | Date | dayjs.Dayjs,
+  datetime2: string | Date | dayjs.Dayjs
+) => {
+  return dayjs(datetime2).diff(dayjs(datetime1), "minutes");
+};
+
+export const isDatetimeAfter = (
+  datetime1: string | Date | dayjs.Dayjs,
+  datetime2: string | Date | dayjs.Dayjs
+) => {
+  return dayjs(datetime1).isAfter(dayjs(datetime2));
+};
+
+export const isDatetimeBefore = (
+  datetime1: string | Date | dayjs.Dayjs,
+  datetime2: string | Date | dayjs.Dayjs
+) => {
+  return dayjs(datetime1).isBefore(dayjs(datetime2));
+};
+
+export const getPreviousSunday = (date: Dayjs) => {
+  const mxDate = dayjs(date).tz("America/Mexico_City");
+  console.log("getPreviousSunday - input date:", mxDate.format("YYYY-MM-DD"));
+  console.log("getPreviousSunday - day of week:", mxDate.day());
+  // Si el día es domingo (0), retorna la misma fecha
+  const result =
+    mxDate.day() === 0 ? mxDate : mxDate.subtract(mxDate.day(), "day");
+  console.log("getPreviousSunday - result:", result.format("YYYY-MM-DD"));
+  console.log("FINISHED");
+  return result;
+};
+
+export const getMxPeriodKey = (date: Date | Dayjs, periodType: string) => {
+  const dayjsDate = dayjs(date).tz("America/Mexico_City");
+  switch (periodType) {
+    case "month":
+      return dayjsDate.format("YYYY-MMM");
+    case "half-month":
+      return `${dayjsDate.format("YYYY-MMM")}-${
+        dayjsDate.date() <= 15 ? "H1" : "H2"
+      }`;
+    case "quarter":
+      return `${dayjsDate.format("YYYY")}-Q${Math.ceil(
+        (dayjsDate.month() + 1) / 3
+      )}`;
+    case "year":
+      return dayjsDate.format("YYYY");
+    default:
+      throw new Error(`Unsupported period type: ${periodType}`);
+  }
 };

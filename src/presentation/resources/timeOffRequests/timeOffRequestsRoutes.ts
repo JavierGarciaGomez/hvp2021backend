@@ -1,81 +1,89 @@
-import { Router } from "express";
-import { TimeOffRequestController } from "./timeOffRequestsController";
-import { TimeOffRequestsService } from "./timeOffRequestsService";
-import { CollaboratorRole } from "../../../domain";
-import { AuthMiddleware } from "../../middlewares";
-import isAuthorized from "../../middlewares/isAuthorized";
-import { createNotificationService } from "../../../application";
+// TODO: DELETE
 
-export enum TimeOffRequestsRoutePaths {
-  all = "/",
-  byCollaborator = "/collaborator/:collaboratorId",
-  byYear = "/year/:year",
-  byId = "/:id",
-  collaboratorsOverview = "/collaborators/time-off-overview",
-  collaboratorOverview = "/collaborators/time-off-overview/:collaboratorId",
-  create = "/",
-  update = "/:id",
-  approve = "/:id/approve",
-  delete = "/:id",
-}
+// import { Router } from "express";
+// import { TimeOffRequestController } from "./timeOffRequestsController";
+// import { TimeOffRequestsService } from "./timeOffRequestsService";
+// import { WebAppRole } from "../../../domain";
+// import { AuthMiddleware } from "../../middlewares";
+// import isAuthorized from "../../middlewares/isAuthorized";
+// import { createNotificationService } from "../../../application";
 
-export class TimeOffRequestsRoutes {
-  static get routes(): Router {
-    const router = Router();
+// export enum TimeOffRequestsRoutePaths {
+//   all = "/",
+//   byCollaborator = "/collaborator/:collaboratorId",
+//   byYear = "/year/:year",
+//   byRequestedDays = "/requested-days",
+//   byId = "/:id",
+//   collaboratorsOverview = "/collaborators/time-off-overview",
+//   collaboratorOverview = "/collaborators/time-off-overview/:collaboratorId",
+//   create = "/",
+//   update = "/:id",
+//   approve = "/:id/approve",
+//   delete = "/:id",
+// }
 
-    const notificationService = createNotificationService();
+// export class TimeOffRequestsRoutes {
+//   static get routes(): Router {
+//     const router = Router();
 
-    const service = new TimeOffRequestsService(notificationService);
-    const controller = new TimeOffRequestController(service);
+//     const notificationService = createNotificationService();
 
-    router.use(AuthMiddleware.validateJWT);
+//     const service = new TimeOffRequestsService(notificationService);
+//     const controller = new TimeOffRequestController(service);
 
-    // Definir las rutas
-    router.get(TimeOffRequestsRoutePaths.all, controller.getTimeOffRequests);
-    router.get(
-      TimeOffRequestsRoutePaths.byCollaborator,
-      controller.getTimeOffRequestsByCollaborator
-    );
-    router.get(
-      TimeOffRequestsRoutePaths.byYear,
-      controller.getTimeOffRequestsByYear
-    );
+//     router.use(AuthMiddleware.validateJWT);
 
-    router.get(
-      TimeOffRequestsRoutePaths.byId,
-      controller.getTimeOffRequestById
-    );
+//     // Definir las rutas
+//     router.get(TimeOffRequestsRoutePaths.all, controller.getTimeOffRequests);
+//     router.get(
+//       TimeOffRequestsRoutePaths.byRequestedDays,
+//       controller.getTimeOffRequestsByRequestedDays
+//     );
+//     router.get(
+//       TimeOffRequestsRoutePaths.byCollaborator,
+//       controller.getTimeOffRequestsByCollaborator
+//     );
+//     // todo here
+//     router.get(
+//       TimeOffRequestsRoutePaths.byYear,
+//       controller.getTimeOffRequestsByYear
+//     );
 
-    router.post(
-      TimeOffRequestsRoutePaths.create,
-      controller.createTimeOffRequest
-    );
-    router.put(
-      TimeOffRequestsRoutePaths.update,
-      isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager], true),
-      controller.updateTimeOffRequest
-    );
-    router.patch(
-      TimeOffRequestsRoutePaths.approve,
-      isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager]),
-      controller.approveTimeOffRequest
-    );
-    router.delete(
-      TimeOffRequestsRoutePaths.delete,
-      isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager], true),
-      controller.deleteTimeOffRequest
-    );
-    router.get(
-      TimeOffRequestsRoutePaths.collaboratorsOverview,
-      controller.getCollaboratorsTimeOffOverview
-    );
-    router.get(
-      TimeOffRequestsRoutePaths.collaboratorOverview,
-      controller.getCollaboratorTimeOffOverview
-    );
+//     router.get(
+//       TimeOffRequestsRoutePaths.byId,
+//       controller.getTimeOffRequestById
+//     );
 
-    // router.post("/", [AuthMiddleware.validateJWT], controller.createCategory);
+//     router.post(
+//       TimeOffRequestsRoutePaths.create,
+//       controller.createTimeOffRequest
+//     );
+//     router.put(
+//       TimeOffRequestsRoutePaths.update,
+//       isAuthorized([WebAppRole.admin, WebAppRole.manager], true),
+//       controller.updateTimeOffRequest
+//     );
+//     router.patch(
+//       TimeOffRequestsRoutePaths.approve,
+//       isAuthorized([WebAppRole.admin, WebAppRole.manager]),
+//       controller.approveTimeOffRequest
+//     );
+//     router.delete(
+//       TimeOffRequestsRoutePaths.delete,
+//       isAuthorized([WebAppRole.admin, WebAppRole.manager], true),
+//       controller.deleteTimeOffRequest
+//     );
+//     router.get(
+//       TimeOffRequestsRoutePaths.collaboratorsOverview,
+//       controller.getCollaboratorsTimeOffOverview
+//     );
+//     router.get(
+//       TimeOffRequestsRoutePaths.collaboratorOverview,
+//       controller.getCollaboratorTimeOffOverview
+//     );
 
-    return router;
-  }
-}
+//     // router.post("/", [AuthMiddleware.validateJWT], controller.createCategory);
+
+//     return router;
+//   }
+// }

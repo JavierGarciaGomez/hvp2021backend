@@ -2,6 +2,7 @@ import { envsPlugin } from "./infrastructure/adapters";
 import { MongoDatabase } from "./infrastructure/db/mongo";
 import { AppRoutes } from "./presentation/appRoutes";
 import { Server } from "./presentation/server";
+// todo move multer elsewhere
 
 import { getEnvsByEnvironment } from "./shared/helpers";
 (async () => {
@@ -10,6 +11,7 @@ import { getEnvsByEnvironment } from "./shared/helpers";
 
 async function main() {
   const { MONGO_URL, MONGO_DB_NAME } = getEnvsByEnvironment();
+
   await MongoDatabase.connect({
     mongoUrl: MONGO_URL,
     dbName: MONGO_DB_NAME,

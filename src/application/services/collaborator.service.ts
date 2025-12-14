@@ -1,28 +1,63 @@
-import { CollaboratorEntity, PublicCollaborator } from "../../domain/entities";
+import {
+  CollaboratorEntity,
+  CollaboratorResponse,
+  CollaboratorWithJobAndEmploymentResponse,
+  EmploymentEntity,
+  JobEntity,
+  PublicCollaborator,
+} from "../../domain/entities";
 import { CollaboratorRepository } from "../../domain/repositories";
 import { bcryptAdapter } from "../../infrastructure/adapters";
+import { BaseError } from "../../shared";
 
 import { CustomQueryOptions } from "../../shared/interfaces";
 
-import { CollaboratorDTO } from "../dtos";
+import { CollaboratorDTO, PaginationDto, SortingDto } from "../dtos";
+import { createEmploymentService, createJobService } from "../factories";
 import { BaseService } from "./base.service";
 
 export class CollaboratorService extends BaseService<
   CollaboratorEntity,
-  CollaboratorDTO
+  CollaboratorDTO,
+  CollaboratorResponse
 > {
+  // private readonly employmentService = createEmploymentService();
+  private readonly jobService = createJobService();
+
   constructor(protected repository: CollaboratorRepository) {
     super(repository, CollaboratorEntity);
   }
 
-  public count = async (): Promise<number> => {
-    return await this.repository.count();
+  public create = async (
+    dto: CollaboratorDTO
+  ): Promise<CollaboratorResponse> => {
+    const entity = new CollaboratorEntity(dto);
+    const result = await this.repository.create(entity);
+    return this.transformToResponse(result);
   };
 
   public getAllPublic = async (
     options: CustomQueryOptions
   ): Promise<PublicCollaborator[]> => {
-    return await this.repository.getAllForWeb(options);
+    const collaborators = await this.repository.getAllForWeb(options);
+    if (!this.jobService) {
+      return collaborators;
+    }
+
+    const enhancedCollaborators = await Promise.all(
+      collaborators.map(async (collab) => {
+        if (collab.jobId) {
+          const job = await this.jobService.getById(collab.jobId);
+          return {
+            ...collab,
+            jobTitle: job?.title || "Unknown",
+            sortingOrder: job?.sortingOrder || 0,
+          };
+        }
+        return collab;
+      })
+    );
+    return enhancedCollaborators;
   };
 
   public register = async (
@@ -34,9 +69,130 @@ export class CollaboratorService extends BaseService<
   public update = async (
     id: string,
     dto: CollaboratorDTO
-  ): Promise<CollaboratorEntity> => {
-    if (dto.password) dto.password = bcryptAdapter.hash(dto.password);
+  ): Promise<CollaboratorResponse> => {
+    const existentCollaborator = await this.repository.getById(id);
+    if (existentCollaborator?.password !== dto.password) {
+      if (dto.password) dto.password = bcryptAdapter.hash(dto.password);
+    }
+
     const collaborator = new CollaboratorEntity(dto);
-    return await this.repository.update(id, collaborator);
+    const result = await this.repository.update(id, collaborator);
+    return this.transformToResponse(result);
+  };
+
+  public getCollaboratorsWithJobAndEmployment = async (
+    date: string
+  ): Promise<CollaboratorWithJobAndEmploymentResponse[]> => {
+    const collaborators = await this.getCollaboratorsByDate(date);
+    const employmentService = createEmploymentService();
+
+    const collaboratorsWithJobAndEmployment = await Promise.all(
+      collaborators.map(async (collaborator) => {
+        let job;
+
+        const employment =
+          await employmentService.getEmploymentByCollaboratorAndDate(
+            collaborator.id!,
+            date
+          );
+
+        const employmentJobId = employment?.jobId;
+
+        if (employmentJobId) {
+          job = await this.jobService.getById(employmentJobId);
+        }
+
+        return { collaborator, job, employment };
+      })
+    );
+
+    return collaboratorsWithJobAndEmployment.filter(Boolean);
+  };
+
+  public getCollaboratorWithJobAndEmployment = async (
+    collaboratorId: string,
+    date: string
+  ): Promise<CollaboratorWithJobAndEmploymentResponse> => {
+    const employmentService = createEmploymentService();
+    const collaborator = await this.repository.getById(collaboratorId);
+    if (!collaborator) {
+      throw BaseError.notFound("Collaborator not found");
+    }
+
+    if (!employmentService || !this.jobService) {
+      return { collaborator, job: undefined, employment: undefined };
+    }
+
+    const employment =
+      await employmentService.getEmploymentByCollaboratorAndDate(
+        collaborator?.id!,
+        date
+      );
+    const job = await this.jobService.getById(employment?.jobId);
+
+    return { collaborator, job, employment };
+  };
+
+  public getCollaboratorsByDate = async (
+    dateStr: string
+  ): Promise<CollaboratorEntity[]> => {
+    const date = new Date(dateStr);
+
+    const collaborators = await this.repository.getAll();
+    const filteredCollaborators = collaborators.filter((collaborator) => {
+      const employmentStart = collaborator.startDate
+        ? new Date(collaborator.startDate)
+        : null;
+      const employmentEnd = collaborator.endDate
+        ? new Date(collaborator.endDate)
+        : null;
+      return (
+        employmentStart &&
+        employmentStart <= date &&
+        (!employmentEnd || employmentEnd >= date)
+      );
+    });
+    return filteredCollaborators;
+  };
+
+  public getCollaboratorsByDateRange = async (
+    startDate: Date,
+    endDate: Date
+  ): Promise<CollaboratorEntity[]> => {
+    const collaborators = await this.repository.getAll();
+    const filteredCollaborators = collaborators.filter((collaborator) => {
+      const employmentStart = collaborator.startDate
+        ? new Date(collaborator.startDate)
+        : null;
+      const employmentEnd = collaborator.endDate
+        ? new Date(collaborator.endDate)
+        : null;
+      return (
+        employmentStart &&
+        employmentStart <= endDate && // Started on or before the end date
+        (!employmentEnd || employmentEnd >= startDate) // No end date or ended on or after the start date
+      );
+    });
+    return filteredCollaborators.sort((a, b) => {
+      const employmentStartA = a.startDate ? new Date(a.startDate) : null;
+      const employmentStartB = b.startDate ? new Date(b.startDate) : null;
+      return (
+        (employmentStartA ? employmentStartA.getTime() : 0) -
+        (employmentStartB ? employmentStartB.getTime() : 0)
+      );
+    });
+  };
+
+  public getResourceName(): string {
+    return "collaborator";
+  }
+
+  transformToResponse = async (
+    entity: CollaboratorEntity
+  ): Promise<CollaboratorResponse> => {
+    const collaborator: CollaboratorResponse = {
+      ...entity,
+    };
+    return collaborator;
   };
 }

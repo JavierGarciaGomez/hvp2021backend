@@ -1,23 +1,84 @@
 import { BaseError } from "../../../shared/errors/BaseError";
 
 export class FilteringDto {
-  [key: string]: string | undefined;
+  [key: string]: any;
 
   static create(params: { [key: string]: string }): FilteringDto {
     const instance = new FilteringDto();
 
     for (const key in params) {
       if (params.hasOwnProperty(key)) {
-        instance[key] = params[key];
+        if (key.startsWith("$")) {
+          const field = key.substring(1);
+          const colonIndex = params[key].indexOf(":");
+          const operator = params[key].substring(0, colonIndex);
+          const value = params[key].substring(colonIndex + 1).trim();
+
+          switch (operator) {
+            case "$gte":
+            case "$lte":
+            case "$eq":
+              const dateValue = new Date(value);
+              if (!isNaN(dateValue.getTime())) {
+                instance[field] = { ...instance[field], [operator]: dateValue };
+              } else if (!isNaN(Number(value))) {
+                instance[field] = {
+                  ...instance[field],
+                  [operator]: Number(value),
+                };
+              } else {
+                instance[field] = { ...instance[field], [operator]: value };
+              }
+              break;
+            case "$range":
+              const [startDate, endDate] = value
+                .split("...")
+                .map((dateStr) => dateStr.trim());
+              const parsedStartDate = new Date(startDate);
+              const parsedEndDate = new Date(endDate);
+
+              if (
+                !isNaN(parsedStartDate.getTime()) &&
+                !isNaN(parsedEndDate.getTime())
+              ) {
+                instance[field] = {
+                  $gte: parsedStartDate,
+                  $lte: parsedEndDate,
+                };
+              } else {
+                throw BaseError.badRequest(
+                  `Invalid date range format for ${field}`
+                );
+              }
+              break;
+            case "$regex":
+              instance[field] = { $regex: value, $options: "i" };
+              break;
+            case "$in":
+              const parseValue = (v: string) => {
+                const trimmed = v.trim();
+                const num = Number(trimmed);
+                if (!isNaN(num)) return num;
+
+                const date = new Date(trimmed);
+                if (!isNaN(date.getTime())) return date;
+
+                return trimmed;
+              };
+
+              instance[field] = {
+                $in: value.startsWith("[")
+                  ? JSON.parse(value).map(parseValue)
+                  : value.split(",").map(parseValue),
+              };
+              break;
+            default:
+              throw BaseError.badRequest(`Invalid operator ${operator}`);
+          }
+        } else {
+          instance[key] = params[key];
+        }
       }
-    }
-
-    if (instance.created_at && isNaN(Date.parse(instance.created_at))) {
-      throw BaseError.badRequest("Invalid date format for created_at");
-    }
-
-    if (instance.updated_at && isNaN(Date.parse(instance.updated_at))) {
-      throw BaseError.badRequest("Invalid date format for updated_at");
     }
 
     return instance;

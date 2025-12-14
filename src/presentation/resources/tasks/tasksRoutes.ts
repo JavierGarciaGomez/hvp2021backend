@@ -6,7 +6,7 @@ import {
   NotificationDataSourceMongoImp,
   NotificationRepositoryImpl,
 } from "../../../infrastructure";
-import { CollaboratorRole } from "../../../domain";
+import { WebAppRole } from "../../../domain";
 import { AuthMiddleware } from "../../middlewares";
 import isAuthorized from "../../middlewares/isAuthorized";
 
@@ -46,7 +46,7 @@ export class TasksRoutes {
 
     router.delete(
       TasksPaths.delete,
-      isAuthorized([CollaboratorRole.admin, CollaboratorRole.manager]),
+      isAuthorized([WebAppRole.admin, WebAppRole.manager]),
       controller.deleteTask
     );
 

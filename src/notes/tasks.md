@@ -1,0 +1,2 @@
+- [ ] Cada job tiene que tener el nombre del puesto de ascenso y la estadística requerida.
+- [ ]

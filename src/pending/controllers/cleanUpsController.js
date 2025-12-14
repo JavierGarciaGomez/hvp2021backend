@@ -12,6 +12,7 @@ const { CollaboratorModel } = require("../../infrastructure");
 
 const { uncatchedError } = require("../helpers/const");
 const DailyCleanUp = require("../models/DailyCleanUp");
+const { cleanUpActions } = require("../types/types");
 dayjs.extend(utc);
 
 const getAllCleanUpsFromLastMonth = async (req, res = response) => {
@@ -116,7 +117,7 @@ const updateDailyCleanUp = async (req, res = response) => {
   try {
     const { dailyCleanUpId } = req.params;
     const { action, comment } = req.body;
-    const { uid } = req;
+    const { uid } = req.authenticatedCollaborator;
 
     let dailyCleanUp = await DailyCleanUp.findById(dailyCleanUpId);
 
@@ -141,7 +142,11 @@ const updateDailyCleanUp = async (req, res = response) => {
     switch (action) {
       case cleanUpActions.addCleaner:
         for (const element of dailyCleanUp.cleaners) {
-          if (element.cleaner._id.toString() === uid) {
+          if (
+            element.cleaner &&
+            element.cleaner._id &&
+            element.cleaner._id.toString() === uid
+          ) {
             return res.status(404).json({
               ok: false,
               msg: "Este colaborador ha sido ya registrado",
@@ -191,6 +196,8 @@ const updateDailyCleanUp = async (req, res = response) => {
     });
   } catch (error) {
     console.log(error);
+    {
+    }
     res.status(500).json({
       ok: false,
       msg: "Por favor, hable con el administrador",

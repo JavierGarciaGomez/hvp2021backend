@@ -1,30 +1,78 @@
-import { CollaboratorProps, CollaboratorRole } from "../../domain";
+import {
+  AddressVO,
+  CollaboratorProps,
+  Degree,
+  Gender,
+  ImageUrl,
+  HRPaymentType,
+  WebAppRole,
+} from "../../domain";
 import { BaseError } from "../../shared";
-import { isAlphabetical, isValidEnum } from "../../shared/helpers";
+import {
+  checkForErrors,
+  generateRandomPassword,
+  isAlphabetical,
+  isValidEnum,
+} from "../../shared/helpers";
 import { BaseDTO } from "./";
 
 export class CollaboratorDTO implements BaseDTO {
   id?: string;
+  // Primary data
+  // todo remove this
+  _id?: string;
   first_name: string;
   last_name: string;
-  role: CollaboratorRole;
+  email?: string;
   col_code: string;
   col_numId?: number;
+  jobId?: string;
+  role: WebAppRole;
   isActive: boolean;
-  gender?: string;
+  isDisplayedWeb: boolean;
+
+  // General information
+  gender?: Gender;
+  phoneNumber?: string;
+  phoneNumber2?: string;
+  address?: AddressVO;
+  curp?: string;
+  imssNumber?: string;
+  rfcCode?: string;
+  emergencyContact?: string;
+  emergencyContactPhone?: string;
+
+  // webApp information
   imgUrl?: string;
+  images?: ImageUrl[];
   accessCode?: string;
   isRegistered: boolean;
-  email?: string;
   password?: string;
-  position?: string;
-  isDisplayedWeb: boolean;
   textPresentation?: string;
   registeredDate?: Date;
+  // TODO: remove this
   lastLogin?: Date;
+  vacationsTakenBefore2021?: number;
+
+  // Job information
+  // this could be computed
   startDate?: Date;
   endDate?: Date;
-  vacationsTakenBefore2021?: number;
+  // TODO: remove this
+  position?: string;
+  coverShift?: boolean;
+  weeklyHours?: number;
+  contractDate?: Date;
+  hasIMSS?: boolean;
+  imssEnrollmentDate?: Date;
+  // Payroll information
+  // TODO: set in a parameter the value of the compensation
+  paymentType?: HRPaymentType;
+  additionalCompensation?: number; // based in the hours he goes
+  // TODO: enum
+  degree?: Degree;
+
+  // TODO: enum
   createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
@@ -32,26 +80,45 @@ export class CollaboratorDTO implements BaseDTO {
 
   constructor(options: CollaboratorProps) {
     this.id = options.id;
+    this._id = options._id;
     this.first_name = options.first_name;
     this.last_name = options.last_name;
-    this.role = options.role;
-    this.col_code = options.col_code;
-    this.col_numId = options.col_numId;
-    this.isActive = options.isActive;
     this.gender = options.gender;
+    this.email = options.email;
+    this.phoneNumber = options.phoneNumber;
+    this.phoneNumber2 = options.phoneNumber2;
+    this.address = options.address;
+    this.curp = options.curp;
+    this.imssNumber = options.imssNumber;
+    this.rfcCode = options.rfcCode;
+    this.emergencyContact = options.emergencyContact;
+    this.emergencyContactPhone = options.emergencyContactPhone;
+    this.role = options.role;
     this.imgUrl = options.imgUrl;
     this.accessCode = options.accessCode;
     this.isRegistered = options.isRegistered;
-    this.email = options.email;
     this.password = options.password;
-    this.position = options.position;
     this.isDisplayedWeb = options.isDisplayedWeb;
     this.textPresentation = options.textPresentation;
     this.registeredDate = options.registeredDate;
     this.lastLogin = options.lastLogin;
+    this.vacationsTakenBefore2021 = options.vacationsTakenBefore2021;
+    this.col_code = options.col_code;
+    this.col_numId = options.col_numId;
+    this.isActive = options.isActive;
     this.startDate = options.startDate;
     this.endDate = options.endDate;
-    this.vacationsTakenBefore2021 = options.vacationsTakenBefore2021;
+    this.position = options.position;
+    this.coverShift = options.coverShift;
+    this.weeklyHours = options.weeklyHours;
+    this.jobId = options.jobId;
+    this.contractDate = options.contractDate;
+    this.hasIMSS = options.hasIMSS;
+    this.imssEnrollmentDate = options.imssEnrollmentDate;
+    this.paymentType = options.paymentType;
+    this.additionalCompensation = options.additionalCompensation;
+    this.degree = options.degree;
+    this.images = options.images;
     this.createdAt = options.createdAt;
     this.createdBy = options.createdBy;
     this.updatedAt = options.updatedAt;
@@ -60,25 +127,21 @@ export class CollaboratorDTO implements BaseDTO {
 
   static create(data: CollaboratorProps): CollaboratorDTO {
     const errors = this.validateCreate(data);
-    if (errors.length > 0) {
-      throw BaseError.badRequest(errors.join(", "));
-    }
+    const accessCode = generateRandomPassword();
+    data.accessCode = accessCode;
+    checkForErrors(errors);
     return new CollaboratorDTO(data);
   }
 
   static update(data: CollaboratorProps): CollaboratorDTO {
     const errors = this.commonValidation(data);
-    if (errors.length > 0) {
-      throw BaseError.badRequest(errors.join(", "));
-    }
+    checkForErrors(errors);
     return new CollaboratorDTO(data);
   }
 
   static register(data: Partial<CollaboratorProps>): Partial<CollaboratorDTO> {
     const errors = this.validateRegister(data);
-    if (errors.length > 0) {
-      throw BaseError.badRequest(errors.join(", "));
-    }
+    checkForErrors(errors);
     return { ...data, isRegistered: true };
   }
 
@@ -102,8 +165,8 @@ export class CollaboratorDTO implements BaseDTO {
   }
 
   private static commonValidation(data: Partial<CollaboratorProps>): string[] {
-    const errors = [];
-    if (data.role && !isValidEnum(CollaboratorRole, data.role)) {
+    const errors: string[] = [];
+    if (data.role && !isValidEnum(WebAppRole, data.role)) {
       errors.push("Role must be of type CollaboratorRole");
     }
     if (data.password && data.password.length < 6) {

@@ -1,6 +1,6 @@
 import { JwtAdapter } from "../../../infrastructure/adapters/jwt.adapter";
 
-import { CollaboratorRole } from "../../../domain";
+import { WebAppRole } from "../../../domain";
 
 import { CollaboratorLoginDto } from "../../../domain/dtos/collaboratorAuth/collaboratorLoginDto";
 import { CollaboratorRegisterDto } from "../../../domain/dtos/collaboratorAuth/collaboratorRegisterDto";
@@ -31,10 +31,13 @@ export class AuthService {
     if (!collaborator) {
       throw BaseError.notFound("Collaborator not found");
     }
-    const passwordsMatch = await bcryptAdapter.compare(
+    const passwordsMatch = bcryptAdapter.compare(
       password,
       collaborator.password!
     );
+    if (!collaborator.isActive) {
+      throw BaseError.unauthorized("Collaborator is not active");
+    }
     if (!passwordsMatch) {
       throw BaseError.unauthorized("Invalid password");
     }
@@ -77,7 +80,7 @@ export class AuthService {
     const collaboratorAuth: CollaboratorAuth = {
       uid: collaborator._id,
       col_code: collaborator.col_code,
-      role: CollaboratorRole.admin,
+      role: WebAppRole.admin,
       imgUrl: collaborator.imgUrl,
     };
 
@@ -225,7 +228,7 @@ export class AuthService {
 
   public async collaboratorRegister(dto: CollaboratorRegisterDto) {
     try {
-      const { email, password, col_code, access_code: access_code } = dto.data;
+      const { email, password, col_code, accessCode } = dto.data;
       const usedEmail = await CollaboratorModel.findOne({ email });
       if (usedEmail) {
         throw BaseError.badRequest("Email already in use");
@@ -234,7 +237,7 @@ export class AuthService {
       if (!collaborator) {
         throw BaseError.notFound("Collaborator not found");
       }
-      if (collaborator.accessCode !== access_code) {
+      if (collaborator.accessCode !== accessCode) {
         throw BaseError.unauthorized("Invalid access code");
       }
       if (collaborator.isRegistered) {

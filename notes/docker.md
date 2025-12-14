@@ -1,26 +1,24 @@
 Stop Docker Services:
-sh
-Copiar código
 sudo systemctl stop docker
 sudo systemctl stop docker.socket
+
 Ensure All Docker Processes Are Killed:
-sh
-Copiar código
 sudo pkill -f docker
+
 Restart Docker Services:
-sh
-Copiar código
 sudo systemctl start docker
 sudo systemctl start docker.socket
-Verify Docker is Running:
-sh
-Copiar código
-sudo systemctl status docker
-If Needed, Restart Docker Desktop Application:
-If you are using the Docker Desktop application, you might need to restart it as well. If it's a GUI application, you can do this manually or by using the following commands:
 
-sh
-Copiar código
+Verify Docker is Running:
+sudo systemctl status docker
+
+ALL:
+sudo systemctl stop docker
+sudo systemctl stop docker.socket
+sudo pkill -f docker
+sudo systemctl start docker
+sudo systemctl start docker.socket
+sudo systemctl status docker
 
 # Close Docker Desktop application
 

@@ -1,225 +1,258 @@
-import { Response, Request, NextFunction } from "express";
-import { AuthenticatedRequest } from "../../../shared/interfaces/RequestsAndResponses";
-import { PaginationDto } from "../../../domain";
-import { TimeOffRequestsService } from "./timeOffRequestsService";
-import { TimeOffRequestDto } from "../../../domain/dtos/timeOffRequests/TimeOffRequestDto";
-import { BaseError } from "../../../shared/errors/BaseError";
-import { TimeOffRequest } from "../../../shared";
+// // TODO: DELETE
 
-export class TimeOffRequestController {
-  constructor(
-    private readonly timeOffRequestsService: TimeOffRequestsService
-  ) {}
+// import { Response, Request, NextFunction } from "express";
+// import { AuthenticatedRequest } from "../../../shared/interfaces/RequestsAndResponses";
+// import { PaginationDto } from "../../../domain";
+// import { TimeOffRequestsService } from "./timeOffRequestsService";
+// import { TimeOffRequestDto } from "../../../domain/dtos/timeOffRequests/TimeOffRequestDto";
+// import { BaseError } from "../../../shared/errors/BaseError";
+// import { TimeOffRequest } from "../../../shared";
 
-  // TODO This need to throw error to next so its catched by handleErrorMiddleware
-  private handleError = (error: unknown, res: Response, next: NextFunction) => {
-    next(error);
-  };
-  // Todo review
-  public getTimeOffRequests = async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const { page, limit } = req.query;
-      const paginationDto = PaginationDto.create(Number(page), Number(limit));
+// export class TimeOffRequestController {
+//   constructor(
+//     private readonly timeOffRequestsService: TimeOffRequestsService
+//   ) {}
 
-      const timeOffRequestsResponse =
-        await this.timeOffRequestsService.getTimeOffRequests(paginationDto!);
-      res
-        .status(timeOffRequestsResponse.status_code)
-        .json(timeOffRequestsResponse);
-    } catch (error) {
-      this.handleError(error, res, next);
-    }
-  };
+//   // TODO This need to throw error to next so its catched by handleErrorMiddleware
+//   private handleError = (error: unknown, res: Response, next: NextFunction) => {
+//     next(error);
+//   };
+//   // Todo review
+//   public getTimeOffRequests = async (
+//     req: AuthenticatedRequest,
+//     res: Response,
+//     next: NextFunction
+//   ) => {
+//     try {
+//       const { page, limit } = req.query;
+//       const paginationDto = PaginationDto.create(Number(page), Number(limit));
 
-  public getTimeOffRequestsByCollaborator = async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const { page, limit } = req.query;
-      const paginationDto = PaginationDto.create(Number(page), Number(limit));
+//       const timeOffRequestsResponse =
+//         await this.timeOffRequestsService.getTimeOffRequests(paginationDto!);
+//       res
+//         .status(timeOffRequestsResponse.status_code)
+//         .json(timeOffRequestsResponse);
+//     } catch (error) {
+//       this.handleError(error, res, next);
+//     }
+//   };
 
-      const collaboratorId = req.params.collaboratorId;
+//   public getTimeOffRequestsByCollaborator = async (
+//     req: AuthenticatedRequest,
+//     res: Response,
+//     next: NextFunction
+//   ) => {
+//     try {
+//       const { page, limit } = req.query;
+//       const paginationDto = PaginationDto.create(Number(page), Number(limit));
 
-      const timeOffRequestsResponse =
-        await this.timeOffRequestsService.getTimeOffRequestsByCollaborator(
-          paginationDto!,
-          collaboratorId
-        );
-      res
-        .status(timeOffRequestsResponse.status_code)
-        .json(timeOffRequestsResponse);
-    } catch (error) {
-      this.handleError(error, res, next);
-    }
-  };
+//       const collaboratorId = req.params.collaboratorId;
 
-  public getTimeOffRequestsByYear = async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const { page, limit } = req.query;
-      const paginationDto = PaginationDto.create(Number(page), Number(limit));
+//       const timeOffRequestsResponse =
+//         await this.timeOffRequestsService.getTimeOffRequestsByCollaborator(
+//           paginationDto!,
+//           collaboratorId
+//         );
+//       res
+//         .status(timeOffRequestsResponse.status_code)
+//         .json(timeOffRequestsResponse);
+//     } catch (error) {
+//       this.handleError(error, res, next);
+//     }
+//   };
 
-      const year = req.params.year;
+//   public getTimeOffRequestsByYear = async (
+//     req: AuthenticatedRequest,
+//     res: Response,
+//     next: NextFunction
+//   ) => {
+//     try {
+//       const { page, limit } = req.query;
+//       const paginationDto = PaginationDto.create(Number(page), Number(limit));
 
-      const timeOffRequestsResponse =
-        await this.timeOffRequestsService.getTimeOffRequestsByYear(
-          paginationDto!,
-          Number(year)
-        );
-      res
-        .status(timeOffRequestsResponse.status_code)
-        .json(timeOffRequestsResponse);
-    } catch (error) {
-      this.handleError(error, res, next);
-    }
-  };
+//       const year = req.params.year;
 
-  public getTimeOffRequestById = async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
-    const id = req.params.id;
-    try {
-      const response = await this.timeOffRequestsService.getTimeOffRequestById(
-        id
-      );
-      res.status(response.status_code).json(response);
-    } catch (error) {
-      this.handleError(error, res, next);
-    }
-  };
+//       const timeOffRequestsResponse =
+//         await this.timeOffRequestsService.getTimeOffRequestsByYear(
+//           paginationDto!,
+//           Number(year)
+//         );
+//       res
+//         .status(timeOffRequestsResponse.status_code)
+//         .json(timeOffRequestsResponse);
+//     } catch (error) {
+//       this.handleError(error, res, next);
+//     }
+//   };
 
-  public createTimeOffRequest = async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const { authUser } = req;
-      const body = req.body;
-      const [error, createTimeOffRequestDto] = TimeOffRequestDto.create(body);
-      if (error)
-        throw BaseError.badRequest("Invalid time off request data", error);
+//   public getTimeOffRequestById = async (
+//     req: AuthenticatedRequest,
+//     res: Response,
+//     next: NextFunction
+//   ) => {
+//     const id = req.params.id;
+//     try {
+//       const response = await this.timeOffRequestsService.getTimeOffRequestById(
+//         id
+//       );
+//       res.status(response.status_code).json(response);
+//     } catch (error) {
+//       this.handleError(error, res, next);
+//     }
+//   };
 
-      const response = await this.timeOffRequestsService.createTimeOffRequest(
-        createTimeOffRequestDto!,
-        authUser!
-      );
-      res.status(response.status_code).json(response);
-    } catch (error) {
-      next(error);
-    }
-  };
+//   public createTimeOffRequest = async (
+//     req: AuthenticatedRequest,
+//     res: Response,
+//     next: NextFunction
+//   ) => {
+//     try {
+//       const { authUser } = req;
+//       const body = req.body;
+//       const [error, createTimeOffRequestDto] = TimeOffRequestDto.create(body);
+//       if (error)
+//         throw BaseError.badRequest("Invalid time off request data", error);
 
-  public updateTimeOffRequest = async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const id = req.params.id;
-      const { authUser } = req;
-      const body = req.body;
-      const [error, timeOffRequestDto] = TimeOffRequestDto.update(body);
+//       const response = await this.timeOffRequestsService.createTimeOffRequest(
+//         createTimeOffRequestDto!,
+//         authUser!
+//       );
+//       res.status(response.status_code).json(response);
+//     } catch (error) {
+//       next(error);
+//     }
+//   };
 
-      if (error)
-        throw BaseError.badRequest("Invalid time off request data", error);
+//   public updateTimeOffRequest = async (
+//     req: AuthenticatedRequest,
+//     res: Response,
+//     next: NextFunction
+//   ) => {
+//     try {
+//       const id = req.params.id;
+//       const { authUser } = req;
+//       const body = req.body;
+//       const [error, timeOffRequestDto] = TimeOffRequestDto.update(body);
 
-      const response = await this.timeOffRequestsService.updateTimeOffRequest(
-        id,
-        timeOffRequestDto!,
-        authUser!
-      );
-      res.status(response.status_code).json(response);
-    } catch (error) {
-      next(error);
-    }
-  };
+//       if (error)
+//         throw BaseError.badRequest("Invalid time off request data", error);
 
-  public approveTimeOffRequest = async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const id = req.params.id;
-      const { approvedBy, managerNote, status } =
-        req.body as Partial<TimeOffRequest>;
+//       const response = await this.timeOffRequestsService.updateTimeOffRequest(
+//         id,
+//         timeOffRequestDto!,
+//         authUser!
+//       );
+//       res.status(response.status_code).json(response);
+//     } catch (error) {
+//       next(error);
+//     }
+//   };
 
-      const response = await this.timeOffRequestsService.approveTimeOffRequest(
-        { approvedBy, managerNote, status },
-        id
-      );
-      res.status(response.status_code).json(response);
-    } catch (error) {}
-  };
-  public deleteTimeOffRequest = async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const id = req.params.id;
-      const response = await this.timeOffRequestsService.deleteTimeOffRequest(
-        id
-      );
-      res.status(response.status_code).json(response);
-    } catch (error) {
-      next(error);
-    }
-  };
-  public getCollaboratorTimeOffOverview = async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const endDateParam = req.query.endDate?.toString();
-      const endDate = endDateParam ? new Date(endDateParam) : new Date();
+//   public approveTimeOffRequest = async (
+//     req: AuthenticatedRequest,
+//     res: Response,
+//     next: NextFunction
+//   ) => {
+//     try {
+//       const id = req.params.id;
+//       const { approvedBy, managerNote, status } =
+//         req.body as Partial<TimeOffRequest>;
 
-      const collaboratorId = req.params.collaboratorId;
+//       const response = await this.timeOffRequestsService.approveTimeOffRequest(
+//         { approvedBy, managerNote, status },
+//         id
+//       );
+//       res.status(response.status_code).json(response);
+//     } catch (error) {}
+//   };
+//   public deleteTimeOffRequest = async (
+//     req: AuthenticatedRequest,
+//     res: Response,
+//     next: NextFunction
+//   ) => {
+//     try {
+//       const id = req.params.id;
+//       const response = await this.timeOffRequestsService.deleteTimeOffRequest(
+//         id
+//       );
+//       res.status(response.status_code).json(response);
+//     } catch (error) {
+//       next(error);
+//     }
+//   };
+//   public getCollaboratorTimeOffOverview = async (
+//     req: AuthenticatedRequest,
+//     res: Response,
+//     next: NextFunction
+//   ) => {
+//     try {
+//       const endDateParam = req.query.endDate?.toString();
+//       const endDate = endDateParam ? new Date(endDateParam) : new Date();
 
-      const response =
-        await this.timeOffRequestsService.getCollaboratorTimeOffOverview(
-          collaboratorId,
-          new Date(endDate)
-        );
-      res.status(response.status_code).json(response);
-    } catch (error) {
-      next(error);
-    }
-  };
-  public getCollaboratorsTimeOffOverview = async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const { page, limit } = req.query;
-      const paginationDto = PaginationDto.create(Number(page), Number(limit));
+//       const collaboratorId = req.params.collaboratorId;
 
-      const response =
-        await this.timeOffRequestsService.getCollaboratorsTimeOffOverview(
-          paginationDto!
-        );
-      res.status(response.status_code).json(response);
-    } catch (error) {}
-  };
-}
+//       const response =
+//         await this.timeOffRequestsService.getCollaboratorTimeOffOverview(
+//           collaboratorId,
+//           new Date(endDate)
+//         );
+//       res.status(response.status_code).json(response);
+//     } catch (error) {
+//       next(error);
+//     }
+//   };
+//   public getCollaboratorsTimeOffOverview = async (
+//     req: AuthenticatedRequest,
+//     res: Response,
+//     next: NextFunction
+//   ) => {
+//     try {
+//       const { page, limit } = req.query;
+//       const paginationDto = PaginationDto.create(Number(page), Number(limit));
 
-interface HandleRequestParams {
-  req: AuthenticatedRequest;
-  res: Response;
-  query: any;
-  operation: string;
-}
+//       const response =
+//         await this.timeOffRequestsService.getCollaboratorsTimeOffOverview(
+//           paginationDto!
+//         );
+//       res.status(response.status_code).json(response);
+//     } catch (error) {}
+//   };
+
+//   public getTimeOffRequestsByRequestedDays = async (
+//     req: AuthenticatedRequest,
+//     res: Response,
+//     next: NextFunction
+//   ) => {
+//     try {
+//       const { page, limit } = req.query;
+//       const paginationDto = PaginationDto.create(Number(page), Number(limit));
+
+//       const startDateParam = req.query.startDate?.toString();
+//       const endDateParam = req.query.endDate?.toString();
+
+//       if (!startDateParam || !endDateParam) {
+//         throw BaseError.badRequest("Start date and end date are required");
+//       }
+
+//       const startDate = new Date(startDateParam);
+//       const endDate = new Date(endDateParam);
+
+//       const response =
+//         await this.timeOffRequestsService.getTimeOffRequestsByRequestedDays(
+//           paginationDto!,
+//           startDate,
+//           endDate
+//         );
+//       res.status(response.status_code).json(response);
+//     } catch (error) {
+//       next(error);
+//     }
+//   };
+// }
+
+// interface HandleRequestParams {
+//   req: AuthenticatedRequest;
+//   res: Response;
+//   query: any;
+//   operation: string;
+// }

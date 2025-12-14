@@ -18,3 +18,13 @@ export const handleUnknownError = (error: unknown) => {
   }
   throw BaseError.internalServer("Unknown error");
 };
+
+export const generateRandomPassword = (): string => {
+  const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let password = "";
+  for (let i = 0; i < 6; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    password += characters[randomIndex];
+  }
+  return password;
+};

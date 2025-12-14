@@ -1,6 +1,5 @@
 /s04BasesDeNode/salida/*.txt
 node_modules/
-/node_modules
 tokens.txt
 .env
 uploads/productos/**.*
@@ -13,6 +12,10 @@ coverage/
 
 # Build directory
 /build
+/dist
+*.tsbuildinfo
+yarn.lock
+/mongo
+/mongo-test
+/node_modules
 
-mongo
-mongo-test

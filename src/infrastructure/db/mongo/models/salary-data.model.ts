@@ -1,0 +1,37 @@
+import mongoose, { Schema } from "mongoose";
+import { isrRatesSchema, SalaryDataDocument } from "../../../../domain";
+
+const SalaryDataSchema: Schema = new Schema<SalaryDataDocument>(
+  {
+    year: { type: Number, required: true },
+    minimumWage: { type: Number, required: true },
+    minimumWageHVP: { type: Number, required: true },
+    uma: { type: Number, required: true },
+    ocupationalRisk: { type: Number, required: true },
+    imssEmployerRates: { type: Object, required: true },
+    imssEmployeeRates: { type: Object, required: true },
+    createdAt: { type: Date, default: Date.now },
+    createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
+    updatedAt: { type: Date, default: Date.now },
+    updatedBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
+    employmentSubsidyLimit: { type: Number, required: true },
+    employmentSubsidyAmount: { type: Number, required: true },
+    avgMonthlyOvertimeHours: { type: Number, default: 0 },
+    avgMonthlySundayHours: { type: Number, default: 0 },
+    avgMonthlyHolidayHours: { type: Number, default: 0 },
+    justifiedAbsenceCompensationPercent: { type: Number, default: 0 },
+    foodDayCompensation: { type: Number, default: 0 },
+    halfMonthIsrRates: [{ type: isrRatesSchema, default: [] }],
+  },
+  {
+    timestamps: {
+      createdAt: "createdAt",
+      updatedAt: "updatedAt",
+    },
+  }
+);
+
+export const SalaryDataModel = mongoose.model<SalaryDataDocument>(
+  "SalaryData",
+  SalaryDataSchema
+);
