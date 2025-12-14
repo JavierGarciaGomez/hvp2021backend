@@ -50,7 +50,17 @@ import { createCollaboratorHalfWeekClosingReportService } from "../factories/col
 import {
   HOLIDAY_OR_REST_EXTRA_PAY_PERCENTAGE,
   SUNDAY_BONUS_PERCENTAGE,
+  COMMISSION_PERCENTAGE_FOR_YEAR_END_BONUS,
+  YEAR_END_BONUS_DAYS,
 } from "../../shared/constants/hris.constants";
+import { debugLog } from "../../shared/utils/debugLogger";
+import {
+  getMxStartOfYear,
+  getMxEndOfYear,
+  toMxStartOfDay,
+  isMxDateAfter,
+  calculateMxDaysBetween,
+} from "../../shared/helpers/dateHelpers";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -97,7 +107,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
   };
 
   public getPayrollEstimates = async (
-    queryOptions: CustomQueryOptions
+    queryOptions: CustomQueryOptions,
+    calculateYearEndBonus?: boolean
   ): Promise<PayrollEstimate[]> => {
     const { periodStartDate, periodEndDate } = queryOptions?.filteringDto ?? {};
     if (!periodStartDate || !periodEndDate) {
@@ -136,7 +147,9 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
           collaborator.id!,
           periodStartDate,
           periodEndDate,
-          salaryData
+          salaryData,
+          undefined,
+          calculateYearEndBonus
         );
       });
 
@@ -151,7 +164,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     collaboratorId: string,
     queryOptions: CustomQueryOptions
   ): Promise<PayrollEstimate> => {
-    const { periodStartDate, periodEndDate } = queryOptions?.filteringDto ?? {};
+    const { periodStartDate, periodEndDate, calculateYearEndBonus } =
+      queryOptions?.filteringDto ?? {};
     if (!periodStartDate || !periodEndDate) {
       throw BaseError.badRequest(
         `Missing required fields: ${[
@@ -172,11 +186,19 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       throw BaseError.notFound("Salary data not found");
     }
 
+    // Parse the boolean flag from query parameter
+    const shouldCalculateYearEndBonus =
+      calculateYearEndBonus === true ||
+      calculateYearEndBonus === "true" ||
+      calculateYearEndBonus === "1";
+
     const payrollEstimate = await this.generatePayrollEstimate(
       collaboratorId,
       periodStartDate,
       periodEndDate,
-      salaryData
+      salaryData,
+      undefined,
+      shouldCalculateYearEndBonus
     );
 
     return payrollEstimate;
@@ -363,7 +385,8 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     periodStartDate: string,
     periodEndDate: string,
     salaryData: SalaryDataEntity,
-    payrollDraft?: PayrollEstimate
+    payrollDraft?: PayrollEstimate,
+    shouldCalculateYearEndBonus?: boolean
   ) {
     const rawData = await this.getRawData(
       collaboratorId,
@@ -372,11 +395,12 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       salaryData
     );
 
-    const payroll = this.calculatePayroll(
+    const payroll = await this.calculatePayroll(
       rawData,
       periodStartDate,
       periodEndDate,
-      payrollDraft
+      payrollDraft,
+      shouldCalculateYearEndBonus
     );
 
     return payroll;
@@ -465,12 +489,13 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     };
   }
 
-  private calculatePayroll(
+  private async calculatePayroll(
     rawData: PayrollCollaboratorRawData,
     periodStartDate: string,
     periodEndDate: string,
-    payrollDraft?: PayrollEstimate
-  ): PayrollEstimate {
+    payrollDraft?: PayrollEstimate,
+    shouldCalculateYearEndBonus?: boolean
+  ): Promise<PayrollEstimate> {
     // Step 1: Fill payroll general data
 
     // Check if this is an hourly employee
@@ -481,19 +506,21 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
 
     if (isHourlyEmployee) {
       // Use hourly calculation logic
-      payrollEstimate = this.calculateHourlyPayroll(
+      payrollEstimate = await this.calculateHourlyPayroll(
         rawData,
         periodStartDate,
         periodEndDate,
-        payrollDraft
+        payrollDraft,
+        shouldCalculateYearEndBonus
       );
     } else {
       // Use original salary calculation logic
-      payrollEstimate = this.calculateSalaryPayroll(
+      payrollEstimate = await this.calculateSalaryPayroll(
         rawData,
         periodStartDate,
         periodEndDate,
-        payrollDraft
+        payrollDraft,
+        shouldCalculateYearEndBonus
       );
     }
 
@@ -501,12 +528,13 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     return this.roundPayrollEstimateNumbers(payrollEstimate);
   }
 
-  private calculateSalaryPayroll(
+  private async calculateSalaryPayroll(
     rawData: PayrollCollaboratorRawData,
     periodStartDate: string,
     periodEndDate: string,
-    payrollDraft?: PayrollEstimate
-  ): PayrollEstimate {
+    payrollDraft?: PayrollEstimate,
+    shouldCalculateYearEndBonus?: boolean
+  ): Promise<PayrollEstimate> {
     const generalData = this.getPayrollGeneralData(rawData);
     // **** common variables ****
     // periodDaysLength
@@ -539,6 +567,22 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
 
     const frontendSalaryPayrollEarnings =
       this.calculateFrontendSalaryPayrollEarnings(payrollDraft);
+
+    // Calculate year-end bonus if flag is enabled
+    if (shouldCalculateYearEndBonus) {
+      const calculationYear = new Date(periodEndDate).getFullYear();
+      const startDate = new Date(rawData.collaborator.startDate!);
+      const minimumWage = rawData.salaryData.minimumWage;
+
+      frontendSalaryPayrollEarnings.endYearBonus =
+        await this.calculateYearEndBonus({
+          collaboratorId: rawData.collaborator.id!,
+          calculationYear,
+          hireDate: startDate,
+          minimumDailyWage: minimumWage,
+          applyMinimumWageFloor: true,
+        });
+    }
 
     const guaranteedIncome = this.calculateGuaranteedIncomeCompensation(
       rawData,
@@ -577,12 +621,13 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     return payrollEstimate;
   }
 
-  private calculateHourlyPayroll(
+  private async calculateHourlyPayroll(
     rawData: PayrollCollaboratorRawData,
     periodStartDate: string,
     periodEndDate: string,
-    payrollDraft?: PayrollEstimate
-  ): PayrollEstimate {
+    payrollDraft?: PayrollEstimate,
+    shouldCalculateYearEndBonus?: boolean
+  ): Promise<PayrollEstimate> {
     const { employment, job, totalCommissions, attendanceReport } = rawData;
     const { employmentHourlyRate } = employment;
 
@@ -617,7 +662,23 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
       attendanceReport.periodHours.publicHolidaysHours *
       employmentHourlyRate *
       HOLIDAY_OR_REST_EXTRA_PAY_PERCENTAGE;
-    const endYearBonus = payrollDraft?.earnings?.endYearBonus ?? 0;
+
+    // Calculate year-end bonus if flag is enabled
+    let endYearBonus = payrollDraft?.earnings?.endYearBonus ?? 0;
+    if (shouldCalculateYearEndBonus) {
+      const calculationYear = new Date(periodEndDate).getFullYear();
+      const startDate = new Date(rawData.collaborator.startDate!);
+      const minimumWage = rawData.salaryData.minimumWage;
+
+      endYearBonus = await this.calculateYearEndBonus({
+        collaboratorId: rawData.collaborator.id!,
+        calculationYear,
+        hireDate: startDate,
+        minimumDailyWage: minimumWage,
+        applyMinimumWageFloor: false,
+      });
+    }
+
     const vacationBonus = vacationCompensation * VACATION_BONUS_PERCENTAGE;
 
     const traniningActivitySupport = employment.trainingSupport / 2;
@@ -1388,7 +1449,224 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
 
     return totalEarnings - totalDeductions;
   };
+
+  /**
+   * Sum an array of concepts with amounts
+   */
+  private sumPayrollConcepts(concepts: Array<{ amount: number }>): number {
+    return concepts.reduce((sum, concept) => sum + concept.amount, 0);
+  }
+
+  /**
+   * Calculate year-end bonus based on all payrolls from the calculation year
+   * Includes: halfWeekFixedIncome/halfWeekHourlyPay, additionalFixedIncomes, commissions * 50%
+   * Excludes: All other earnings
+   * Deducts: Attendance-related deductions only
+   */
+  private async calculateYearEndBonus(
+    params: CalculateYearEndBonusParams
+  ): Promise<number> {
+    const {
+      collaboratorId,
+      calculationYear,
+      hireDate,
+      minimumDailyWage,
+      applyMinimumWageFloor,
+    } = params;
+
+    // Determine period dates using Mexico timezone helpers
+    const startOfYear = getMxStartOfYear(calculationYear);
+    const hireDateMx = toMxStartOfDay(hireDate);
+    const endOfYear = getMxEndOfYear(calculationYear);
+
+    // Use hire date if after start of year, otherwise use start of year
+    const periodStartDate = isMxDateAfter(hireDate, startOfYear)
+      ? hireDateMx
+      : startOfYear;
+    const periodEndDate = endOfYear;
+
+    // Debug logging
+    await debugLog(
+      "calculateYearEndBonus",
+      {
+        inputHireDate: hireDate,
+        hireDateMx: hireDateMx.format(),
+        startOfYear: startOfYear.format(),
+        periodStartDate: periodStartDate.format(),
+        periodEndDate: periodEndDate.format(),
+        collaboratorId,
+        calculationYear,
+      },
+      "dates"
+    );
+
+    // Get all payrolls for the collaborator in the calculation year
+    // Use periodEndDate >= hireDate to include payrolls that started before hire
+    // but ended after (e.g., hired May 5, payroll is May 1-15)
+    const payrolls = await this.getAll({
+      filteringDto: {
+        collaboratorId,
+        periodEndDate: {
+          $gte: periodStartDate.toISOString(),
+          $lte: periodEndDate.toISOString(),
+        },
+      },
+    });
+
+    await debugLog(
+      "calculateYearEndBonus",
+      {
+        payrollsFound: payrolls.length,
+        collaboratorId,
+      },
+      "payrolls"
+    );
+
+    if (payrolls.length === 0) {
+      return 0;
+    }
+
+    // Sum all concepts separately
+    let totalBaseIncome = 0;
+    let totalAdditionalIncomes = 0;
+    let totalCommissions = 0;
+    let totalAttendanceDeductions = 0;
+
+    // Track oldest and newest payroll dates
+    let oldestPayrollStart: Date | null = null;
+    let newestPayrollEnd: Date | null = null;
+
+    for (const payroll of payrolls) {
+      const {
+        earnings,
+        deductions,
+        periodStartDate: payrollStart,
+        periodEndDate: payrollEnd,
+      } = payroll;
+
+      // Track date range
+      const startDate = new Date(payrollStart);
+      const endDate = new Date(payrollEnd);
+      if (!oldestPayrollStart || startDate < oldestPayrollStart) {
+        oldestPayrollStart = startDate;
+      }
+      if (!newestPayrollEnd || endDate > newestPayrollEnd) {
+        newestPayrollEnd = endDate;
+      }
+
+      const baseIncome =
+        (earnings.halfWeekFixedIncome ?? 0) + (earnings.halfWeekHourlyPay ?? 0);
+
+      // Include: halfWeekFixedIncome OR halfWeekHourlyPay
+      totalBaseIncome += baseIncome;
+
+      // Include: additionalFixedIncomes
+      totalAdditionalIncomes += this.sumPayrollConcepts(
+        earnings.additionalFixedIncomes ?? []
+      );
+
+      // Include: commissions (will apply 50% later)
+      totalCommissions += earnings.commissions ?? 0;
+
+      // Deduct attendance-related deductions
+      totalAttendanceDeductions +=
+        (deductions.justifiedAbsencesDiscount ?? 0) +
+        (deductions.unjustifiedAbsencesDiscount ?? 0) +
+        (deductions.unworkedHoursDiscount ?? 0) +
+        (deductions.tardinessDiscount ?? 0) +
+        (deductions.nonCountedDaysDiscount ?? 0);
+    }
+
+    // Calculate days covered: from oldest start (or hire date) to newest end
+    const effectiveStart =
+      oldestPayrollStart! < periodStartDate.toDate()
+        ? periodStartDate.toDate()
+        : oldestPayrollStart!;
+    const totalDaysCovered = calculateMxDaysBetween(
+      effectiveStart,
+      newestPayrollEnd!
+    );
+
+    // Log payroll summary
+    await debugLog(
+      "calculateYearEndBonus",
+      {
+        oldestPayrollStart: oldestPayrollStart?.toISOString(),
+        effectiveStart: effectiveStart.toISOString(),
+        newestPayrollEnd: newestPayrollEnd?.toISOString(),
+        totalDaysCovered,
+        payrollsCount: payrolls.length,
+      },
+      "payroll-range"
+    );
+
+    // Calculate totals
+    const commissionsForBonus =
+      totalCommissions * COMMISSION_PERCENTAGE_FOR_YEAR_END_BONUS;
+    const totalIncludedEarnings =
+      totalBaseIncome + totalAdditionalIncomes + commissionsForBonus;
+    const yearEndBonusBase = totalIncludedEarnings - totalAttendanceDeductions;
+
+    // Debug logging
+    await debugLog(
+      "calculateYearEndBonus",
+      {
+        totalBaseIncome,
+        totalAdditionalIncomes,
+        totalCommissions,
+        commissionsForBonus,
+        totalIncludedEarnings,
+        totalAttendanceDeductions,
+        yearEndBonusBase,
+        totalDaysCovered,
+        payrollsCount: payrolls.length,
+      },
+      "calculation"
+    );
+
+    // Calculate daily average using actual days covered by payrolls
+    const dailyAverage = yearEndBonusBase / totalDaysCovered;
+
+    // Apply minimum wage floor only for salaried employees
+    const effectiveDailyAverage = applyMinimumWageFloor
+      ? Math.max(dailyAverage, minimumDailyWage)
+      : dailyAverage;
+
+    // Calculate days worked in the year (from hire date or Jan 1 to Dec 31)
+    const daysWorkedInYear = calculateMxDaysBetween(
+      periodStartDate.toDate(),
+      periodEndDate.toDate()
+    );
+    const DAYS_IN_YEAR = 365;
+    const proportionOfYear = daysWorkedInYear / DAYS_IN_YEAR;
+
+    // Calculate year-end bonus: daily average * 15 days * proportion of year worked
+    const yearEndBonus =
+      effectiveDailyAverage * YEAR_END_BONUS_DAYS * proportionOfYear;
+
+    await debugLog(
+      "calculateYearEndBonus",
+      {
+        dailyAverage,
+        effectiveDailyAverage,
+        daysWorkedInYear,
+        proportionOfYear,
+        yearEndBonus,
+      },
+      "result"
+    );
+
+    return yearEndBonus;
+  }
 }
+
+type CalculateYearEndBonusParams = {
+  collaboratorId: string;
+  calculationYear: number;
+  hireDate: Date;
+  minimumDailyWage: number;
+  applyMinimumWageFloor: boolean;
+};
 
 type BuildPayrollEstimateArgs = {
   periodStartDate: string;

@@ -26,7 +26,15 @@ export class PayrollController extends BaseController<
     try {
       const query = req.query;
       const options = buildQueryOptions(query);
-      const data = await this.service.getPayrollEstimates(options);
+
+      const calculateYearEndBonus =
+        query.calculateYearEndBonus === "true" ||
+        query.calculateYearEndBonus === "1";
+
+      const data = await this.service.getPayrollEstimates(
+        options,
+        calculateYearEndBonus
+      );
       const response = ResponseFormatterService.formatListResponse({
         data,
         path: this.path,

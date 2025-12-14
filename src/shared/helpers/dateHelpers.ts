@@ -240,3 +240,63 @@ export const getMxPeriodKey = (date: Date | Dayjs, periodType: string) => {
       throw new Error(`Unsupported period type: ${periodType}`);
   }
 };
+
+const MX_TIMEZONE = "America/Mexico_City";
+
+/**
+ * Get the start of a year in Mexico timezone
+ * @param year - The year number (e.g., 2025)
+ * @returns Dayjs object representing Jan 1st 00:00:00 in Mexico timezone
+ */
+export const getMxStartOfYear = (year: number): Dayjs => {
+  return dayjs.tz(`${year}-01-01`, MX_TIMEZONE).startOf("day");
+};
+
+/**
+ * Get the end of a year in Mexico timezone
+ * @param year - The year number (e.g., 2025)
+ * @returns Dayjs object representing Dec 31st 23:59:59 in Mexico timezone
+ */
+export const getMxEndOfYear = (year: number): Dayjs => {
+  return dayjs.tz(`${year}-12-31`, MX_TIMEZONE).endOf("day");
+};
+
+/**
+ * Convert a date to Mexico timezone and get start of day
+ * @param date - Date to convert
+ * @returns Dayjs object representing the date at 00:00:00 in Mexico timezone
+ */
+export const toMxStartOfDay = (date: Date | string | Dayjs): Dayjs => {
+  return dayjs(date).tz(MX_TIMEZONE).startOf("day");
+};
+
+/**
+ * Compare if date A is after date B, both normalized to Mexico timezone start of day
+ * @param dateA - First date
+ * @param dateB - Second date
+ * @returns true if dateA is after dateB
+ */
+export const isMxDateAfter = (
+  dateA: Date | string | Dayjs,
+  dateB: Date | string | Dayjs
+): boolean => {
+  const mxDateA = toMxStartOfDay(dateA);
+  const mxDateB = toMxStartOfDay(dateB);
+  return mxDateA.isAfter(mxDateB);
+};
+
+/**
+ * Calculate the number of days between two dates (inclusive)
+ * Both dates are normalized to Mexico timezone start of day
+ * @param startDate - Start date
+ * @param endDate - End date
+ * @returns Number of days between the dates (inclusive)
+ */
+export const calculateMxDaysBetween = (
+  startDate: Date | string | Dayjs,
+  endDate: Date | string | Dayjs
+): number => {
+  const start = dayjs(startDate).tz(MX_TIMEZONE).startOf("day");
+  const end = dayjs(endDate).tz(MX_TIMEZONE).startOf("day");
+  return end.diff(start, "day") + 1;
+};
