@@ -139,8 +139,8 @@ describe("AttendanceReportService", () => {
 
       const queryOptions = {
         filteringDto: {
-          periodStartDate: "2024-03-01",
-          periodEndDate: "2024-03-15",
+          periodStartDate: "2024-03-01T06:00:00.000Z",
+          periodEndDate: "2024-03-15T05:59:59.999Z",
         },
       };
 
@@ -148,8 +148,8 @@ describe("AttendanceReportService", () => {
 
       expect(result).toHaveLength(1);
       expect(result[0].collaboratorId).toBe("1");
-      expect(result[0].startDate).toEqual(new Date("2024-03-01"));
-      expect(result[0].endDate).toEqual(new Date("2024-03-15"));
+      expect(result[0].startDate).toEqual(new Date("2024-03-01T06:00:00.000Z"));
+      expect(result[0].endDate).toEqual(new Date("2024-03-15T05:59:59.999Z"));
     });
   });
 
@@ -193,16 +193,16 @@ describe("AttendanceReportService", () => {
 
       const queryOptions = {
         filteringDto: {
-          periodStartDate: "2024-03-01",
-          periodEndDate: "2024-03-15",
+          periodStartDate: "2024-03-01T06:00:00.000Z",
+          periodEndDate: "2024-03-15T05:59:59.999Z",
         },
       };
 
       const result = await service.getByCollaboratorId("1", queryOptions);
 
       expect(result.collaboratorId).toBe("1");
-      expect(result.startDate).toEqual(new Date("2024-03-01"));
-      expect(result.endDate).toEqual(new Date("2024-03-15"));
+      expect(result.startDate).toEqual(new Date("2024-03-01T06:00:00.000Z"));
+      expect(result.endDate).toEqual(new Date("2024-03-15T05:59:59.999Z"));
     });
   });
 
