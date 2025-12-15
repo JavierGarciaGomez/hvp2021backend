@@ -1,7 +1,7 @@
 {
   "name": "hvp2021backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "HVP2021 Backend - Hospital Veterinario Peninsular management system",
   "main": "app.js",
   "dependencies": {
     "@types/faker": "^6.6.9",
