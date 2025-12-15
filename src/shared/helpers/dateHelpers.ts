@@ -211,13 +211,9 @@ export const isDatetimeBefore = (
 
 export const getPreviousSunday = (date: Dayjs) => {
   const mxDate = dayjs(date).tz("America/Mexico_City");
-  console.log("getPreviousSunday - input date:", mxDate.format("YYYY-MM-DD"));
-  console.log("getPreviousSunday - day of week:", mxDate.day());
   // Si el día es domingo (0), retorna la misma fecha
   const result =
     mxDate.day() === 0 ? mxDate : mxDate.subtract(mxDate.day(), "day");
-  console.log("getPreviousSunday - result:", result.format("YYYY-MM-DD"));
-  console.log("FINISHED");
   return result;
 };
 
