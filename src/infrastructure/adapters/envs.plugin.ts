@@ -5,21 +5,20 @@ export const envsPlugin = {
   NODE_ENV: env.get("NODE_ENV").required().asString(),
 
   // Environment: Development
-
-  DEV_MONGO_URL: env.get("DEV_MONGO_URL").required().asString(),
-  DEV_MONGO_DB_NAME: env.get("DEV_MONGO_DB_NAME").required().asString(),
-  DEV_MONGO_USER: env.get("DEV_MONGO_USER").required().asString(),
-  DEV_MONGO_PASS: env.get("DEV_MONGO_PASS").required().asString(),
-  DEV_CLIENT_URL: env.get("DEV_CLIENT_URL").required().asString(),
-  DEV_CLIENT_URL2: env.get("DEV_CLIENT_URL2").required().asString(),
+  DEV_MONGO_URL: env.get("DEV_MONGO_URL").default("").asString(),
+  DEV_MONGO_DB_NAME: env.get("DEV_MONGO_DB_NAME").default("").asString(),
+  DEV_MONGO_USER: env.get("DEV_MONGO_USER").default("").asString(),
+  DEV_MONGO_PASS: env.get("DEV_MONGO_PASS").default("").asString(),
+  DEV_CLIENT_URL: env.get("DEV_CLIENT_URL").default("").asString(),
+  DEV_CLIENT_URL2: env.get("DEV_CLIENT_URL2").default("").asString(),
 
   // Environment: Production
-  PROD_MONGO_URL: env.get("PROD_MONGO_URL").required().asString(),
-  PROD_MONGO_DB_NAME: env.get("PROD_MONGO_DB_NAME").required().asString(),
-  PROD_MONGO_USER: env.get("PROD_MONGO_USER").required().asString(),
-  PROD_MONGO_PASS: env.get("PROD_MONGO_PASS").required().asString(),
-  PROD_CLIENT_URL: env.get("PROD_CLIENT_URL").required().asString(),
-  PROD_CLIENT_URL2: env.get("PROD_CLIENT_URL2").required().asString(),
+  PROD_MONGO_URL: env.get("PROD_MONGO_URL").default("").asString(),
+  PROD_MONGO_DB_NAME: env.get("PROD_MONGO_DB_NAME").default("").asString(),
+  PROD_MONGO_USER: env.get("PROD_MONGO_USER").default("").asString(),
+  PROD_MONGO_PASS: env.get("PROD_MONGO_PASS").default("").asString(),
+  PROD_CLIENT_URL: env.get("PROD_CLIENT_URL").default("").asString(),
+  PROD_CLIENT_URL2: env.get("PROD_CLIENT_URL2").default("").asString(),
 
   // Environment: Test
   // TEST_MONGO_URL: env.get("TEST_MONGO_URL").asString(),
@@ -30,18 +29,18 @@ export const envsPlugin = {
   // TEST_CLIENT_URL2: env.get("TEST_CLIENT_URL2").asString(),
 
   // Environment: Common
-  PORT: env.get("PORT").required().asPortNumber(),
-  BASE_URL: env.get("BASE_URL").required().asString(),
-  MAILER_EMAIL: env.get("MAILER_EMAIL").required().asEmailString(),
-  MAILER_SECRET_KEY: env.get("MAILER_SECRET_KEY").required().asString(),
-  MAILER_SERVICE: env.get("MAILER_SERVICE").required().asString(),
-  PUBLIC_PATH: env.get("PUBLIC_PATH").required().asString(),
-  GOOGLE_CLIENT_ID: env.get("GOOGLE_CLIENT_ID").required().asString(),
-  GOOGLE_CLIENT_SECRET: env.get("GOOGLE_CLIENT_SECRET").required().asString(),
-  SECRET_JWT_SEED: env.get("SECRET_JWT_SEED").required().asString(),
-  CLOUDINARY_CLOUD_NAME: env.get("CLOUDINARY_CLOUD_NAME").required().asString(),
-  CLOUDINARY_API_KEY: env.get("CLOUDINARY_API_KEY").required().asString(),
-  CLOUDINARY_API_SECRET: env.get("CLOUDINARY_API_SECRET").required().asString(),
+  PORT: env.get("PORT").default("4000").asPortNumber(),
+  BASE_URL: env.get("BASE_URL").default("http://localhost:4000").asString(),
+  MAILER_EMAIL: env.get("MAILER_EMAIL").default("test@test.com").asString(),
+  MAILER_SECRET_KEY: env.get("MAILER_SECRET_KEY").default("test-secret").asString(),
+  MAILER_SERVICE: env.get("MAILER_SERVICE").default("gmail").asString(),
+  PUBLIC_PATH: env.get("PUBLIC_PATH").default("public").asString(),
+  GOOGLE_CLIENT_ID: env.get("GOOGLE_CLIENT_ID").default("test-client-id").asString(),
+  GOOGLE_CLIENT_SECRET: env.get("GOOGLE_CLIENT_SECRET").default("test-secret").asString(),
+  SECRET_JWT_SEED: env.get("SECRET_JWT_SEED").default("test-jwt-secret").asString(),
+  CLOUDINARY_CLOUD_NAME: env.get("CLOUDINARY_CLOUD_NAME").default("test-cloud").asString(),
+  CLOUDINARY_API_KEY: env.get("CLOUDINARY_API_KEY").default("test-key").asString(),
+  CLOUDINARY_API_SECRET: env.get("CLOUDINARY_API_SECRET").default("test-secret").asString(),
 
   // Logging Configuration
   API_LOGGER_ENABLED: env.get("API_LOGGER_ENABLED").default("false").asBool(),
