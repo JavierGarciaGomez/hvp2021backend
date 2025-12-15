@@ -3,6 +3,8 @@
 ## Project Overview
 TypeScript/Node.js backend for Hospital Veterinario Peninsular (HVP) management system. Handles payroll, HR, attendance, inventory, and billing operations.
 
+_Last updated: 2024-12-15_
+
 ## Tech Stack
 - **Runtime:** Node.js 20+
 - **Language:** TypeScript
