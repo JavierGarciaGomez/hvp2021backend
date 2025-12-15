@@ -1,6 +1,5 @@
 // services/cloudinary.service.ts
 import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
-console.log("here");
 import { BaseError } from "../../shared";
 import { getEnvsByEnvironment } from "../../shared/helpers/envHelpers";
 import { envsPlugin } from "../../infrastructure/adapters";

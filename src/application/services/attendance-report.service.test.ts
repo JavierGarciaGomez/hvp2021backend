@@ -27,6 +27,9 @@ jest.mock("../factories", () => ({
   createAttendanceRecordService: jest.fn(() => ({
     getAll: jest.fn(),
   })),
+  createActivityRegisterService: jest.fn(() => ({
+    getAll: jest.fn(),
+  })),
   createJobService: jest.fn(() => ({
     getAll: jest.fn(),
   })),

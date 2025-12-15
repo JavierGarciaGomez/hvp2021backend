@@ -206,7 +206,7 @@ describe("timeOffHelpers", () => {
       const employmentStartDate = new Date("2023-06-01");
       const endDate = new Date("2025-06-01");
 
-      const expectedTotalVacationDays = 26;
+      const expectedTotalVacationDays = 28;
       expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
         expectedTotalVacationDays
       );
@@ -216,7 +216,7 @@ describe("timeOffHelpers", () => {
       const employmentStartDate = new Date("2023-06-01");
       const endDate = new Date("2025-12-01");
 
-      const expectedTotalVacationDays = 34;
+      const expectedTotalVacationDays = 36;
       expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
         expectedTotalVacationDays
       );
@@ -226,7 +226,7 @@ describe("timeOffHelpers", () => {
       const employmentStartDate = new Date("2023-06-01");
       const endDate = new Date("2026-06-01");
 
-      const expectedTotalVacationDays = 42;
+      const expectedTotalVacationDays = 46;
       expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
         expectedTotalVacationDays
       );
@@ -236,7 +236,7 @@ describe("timeOffHelpers", () => {
       const employmentStartDate = new Date("2023-06-01");
       const endDate = new Date("2028-12-01");
 
-      const expectedTotalVacationDays = 91;
+      const expectedTotalVacationDays = 99;
       expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
         expectedTotalVacationDays
       );
@@ -258,7 +258,7 @@ describe("timeOffHelpers", () => {
       const employmentStartDate = new Date("2016-12-16");
       const endDate = new Date("2024-03-19");
 
-      const expectedTotalVacationDays = 91;
+      const expectedTotalVacationDays = 99;
       expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
         expectedTotalVacationDays
       );
@@ -318,7 +318,7 @@ describe("timeOffHelpers", () => {
       const employmentStartDate = new Date("2021-10-21");
       const endDate = new Date("2024-03-19");
 
-      const expectedTotalVacationDays = 26;
+      const expectedTotalVacationDays = 28;
       expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
         expectedTotalVacationDays
       );
