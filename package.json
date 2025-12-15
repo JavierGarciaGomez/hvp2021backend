@@ -45,7 +45,7 @@
     "ts-node-dev": "^2.0.0"
   },
   "scripts": {
-    "start": "node dist/app.js",
+    "start": "node dist/index.js",
     "build": "node --max-old-space-size=2048 ./node_modules/.bin/tsc",
     "heroku-postbuild": "yarn build",
     "postinstall": "yarn build",
