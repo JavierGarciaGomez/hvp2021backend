@@ -85,8 +85,8 @@ describe("timeOffHelpers", () => {
 
     // BEFORE 2023
     test("returns correct total vacation days for employees that left before 2023. Less than a year", () => {
-      const employmentStartDate = new Date("2016-12-01");
-      const endDate = new Date("2017-06-01");
+      const employmentStartDate = new Date("2016-12-01T06:00:00.000Z");
+      const endDate = new Date("2017-06-01T06:00:00.000Z");
 
       const expectedTotalVacationDays = 3;
       expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
@@ -95,8 +95,8 @@ describe("timeOffHelpers", () => {
     });
 
     test("returns correct total vacation days for employees that left before 2023. Almost a year", () => {
-      const employmentStartDate = new Date("2016-12-01");
-      const endDate = new Date("2017-11-28");
+      const employmentStartDate = new Date("2016-12-01T06:00:00.000Z");
+      const endDate = new Date("2017-11-28T06:00:00.000Z");
       const expectedTotalVacationDays = 5;
       expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
         expectedTotalVacationDays
@@ -104,8 +104,8 @@ describe("timeOffHelpers", () => {
     });
 
     test("returns correct total vacation days for employees that left before 2023. Exactly a year", () => {
-      const employmentStartDate = new Date("2016-12-01");
-      const endDate = new Date("2017-12-01");
+      const employmentStartDate = new Date("2016-12-01T06:00:00.000Z");
+      const endDate = new Date("2017-12-01T06:00:00.000Z");
 
       const expectedTotalVacationDays = 6;
       expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
@@ -114,8 +114,8 @@ describe("timeOffHelpers", () => {
     });
 
     test("returns correct total vacation days for employees that left before 2023. Year and a half", () => {
-      const employmentStartDate = new Date("2016-12-01");
-      const endDate = new Date("2018-06-01");
+      const employmentStartDate = new Date("2016-12-01T06:00:00.000Z");
+      const endDate = new Date("2018-06-01T06:00:00.000Z");
 
       const expectedTotalVacationDays = 10;
       expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
@@ -124,8 +124,8 @@ describe("timeOffHelpers", () => {
     });
 
     test("returns correct total vacation days for employees that left before 2023. 2 years", () => {
-      const employmentStartDate = new Date("2016-12-01");
-      const endDate = new Date("2018-12-01");
+      const employmentStartDate = new Date("2016-12-01T06:00:00.000Z");
+      const endDate = new Date("2018-12-01T06:00:00.000Z");
 
       const expectedTotalVacationDays = 14;
       expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
@@ -134,8 +134,8 @@ describe("timeOffHelpers", () => {
     });
 
     test("returns correct total vacation days for employees that left before 2023. 2.5 years", () => {
-      const employmentStartDate = new Date("2016-12-01");
-      const endDate = new Date("2019-06-01");
+      const employmentStartDate = new Date("2016-12-01T06:00:00.000Z");
+      const endDate = new Date("2019-06-01T06:00:00.000Z");
 
       const expectedTotalVacationDays = 19;
       expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
@@ -143,8 +143,8 @@ describe("timeOffHelpers", () => {
       );
     });
     test("returns correct total vacation days for employees that left before 2023. 3 years", () => {
-      const employmentStartDate = new Date("2016-12-01");
-      const endDate = new Date("2019-12-01");
+      const employmentStartDate = new Date("2016-12-01T06:00:00.000Z");
+      const endDate = new Date("2019-12-01T06:00:00.000Z");
 
       const expectedTotalVacationDays = 24;
       expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
@@ -153,8 +153,8 @@ describe("timeOffHelpers", () => {
     });
 
     test("returns correct total vacation days for employees that left before 2023. 5.5 years", () => {
-      const employmentStartDate = new Date("2016-12-01");
-      const endDate = new Date("2022-06-01");
+      const employmentStartDate = new Date("2016-12-01T06:00:00.000Z");
+      const endDate = new Date("2022-06-01T06:00:00.000Z");
 
       const expectedTotalVacationDays = 57;
       expect(calculateTotalVacationDays(employmentStartDate, endDate)).toBe(
@@ -452,8 +452,8 @@ describe("timeOffHelpers", () => {
 
   describe("calculateVacationsAfter2022", () => {
     test("returns correct calculation when the worker has not worked before 2023", () => {
-      const employmentStartDate = new Date("2023-01-01");
-      const endDate = new Date("2023-12-31");
+      const employmentStartDate = new Date("2023-01-01T06:00:00.000Z");
+      const endDate = new Date("2023-12-31T06:00:00.000Z");
 
       const expectedTotalDays = 11; // Replace with your expected result
       expect(calculateVacationsAfter2022(employmentStartDate, endDate)).toBe(
@@ -462,8 +462,8 @@ describe("timeOffHelpers", () => {
     });
 
     test("returns correct calculation when the worker has not worked after 2022", () => {
-      const employmentStartDate = new Date("2021-01-01");
-      const endDate = new Date("2022-12-31");
+      const employmentStartDate = new Date("2021-01-01T06:00:00.000Z");
+      const endDate = new Date("2022-12-31T06:00:00.000Z");
 
       const expectedTotalDays = 0; // Replace with your expected result
       expect(calculateVacationsAfter2022(employmentStartDate, endDate)).toBe(
@@ -472,8 +472,8 @@ describe("timeOffHelpers", () => {
     });
 
     test("returns correct calculation when the worker has worked a lot of years", () => {
-      const employmentStartDate = new Date("2018-01-01");
-      const endDate = new Date("2023-12-31");
+      const employmentStartDate = new Date("2018-01-01T06:00:00.000Z");
+      const endDate = new Date("2023-12-31T06:00:00.000Z");
 
       const expectedTotalDays = 41; // Replace with your expected result
       expect(calculateVacationsAfter2022(employmentStartDate, endDate)).toBe(
