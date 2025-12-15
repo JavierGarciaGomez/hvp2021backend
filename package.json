@@ -54,6 +54,7 @@
     "docker:test": "docker-compose --profile test --env-file .env.test up -d",
     "docker:dev": "docker-compose --profile dev up -d",
     "test": "npm run docker:test && jest",
+    "test:ci": "jest",
     "test:watch": "npm run docker:test && jest --watch",
     "test:coverage": "npm run docker:test && jest --coverage",
     "seed:attendanceRecords": "tsc && node build/scripts/attendanceRecordSeed.js",
