@@ -30,7 +30,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Run tests
-        run: jest
+        run: yarn test
         env:
           MONGO_URL: mongodb://mongo-user:123456@localhost:27017/hvp-test?authSource=admin
           JWT_SECRET: test-secret
