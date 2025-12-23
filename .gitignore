@@ -21,6 +21,7 @@ coverage/
 yarn.lock
 /mongo
 /mongo-test
+/mongo-backup-*
 /node_modules
 
 tmp/
