@@ -25,6 +25,7 @@ import {
   PayrollCollaboratorRawData,
   PayrollEstimate,
 } from "../../domain/read-models/payroll-estimate.rm";
+import { getYearInMexicoTimezone } from "../../shared/utils/dateTimeHelpers";
 
 // Internal calculation types removed - using contextData instead
 import {
@@ -126,7 +127,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     const [activeCollaborators, salaryDataResponse] = await Promise.all([
       this.collaboratorService.getCollaboratorsByDate(periodEndDate),
       this.salaryDataService.getAll({
-        filteringDto: { year: new Date(periodEndDate).getFullYear() },
+        filteringDto: { year: getYearInMexicoTimezone(periodEndDate) },
       }),
     ]);
 
@@ -178,7 +179,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     }
 
     const salaryDataResponse = await this.salaryDataService.getAll({
-      filteringDto: { year: new Date(periodEndDate).getFullYear() },
+      filteringDto: { year: getYearInMexicoTimezone(periodEndDate) },
     });
 
     const salaryData = salaryDataResponse[0];
@@ -219,7 +220,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     }
 
     const salaryDataResponse = await this.salaryDataService.getAll({
-      filteringDto: { year: newPeriodEndDate.getFullYear() },
+      filteringDto: { year: getYearInMexicoTimezone(newPeriodEndDate) },
     });
 
     const salaryData = salaryDataResponse[0];
@@ -249,7 +250,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     const firstPayroll = payrollListData[0];
     const salaryDataResponse = await this.salaryDataService.getAll({
       filteringDto: {
-        year: new Date(firstPayroll.periodEndDate).getFullYear(),
+        year: getYearInMexicoTimezone(firstPayroll.periodEndDate),
       },
     });
 
@@ -570,7 +571,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
 
     // Calculate year-end bonus if flag is enabled
     if (shouldCalculateYearEndBonus) {
-      const calculationYear = new Date(periodEndDate).getFullYear();
+      const calculationYear = getYearInMexicoTimezone(periodEndDate);
       const startDate = new Date(rawData.collaborator.startDate!);
       const minimumWage = rawData.salaryData.minimumWage;
 
@@ -666,7 +667,7 @@ export class PayrollService extends BaseService<PayrollEntity, PayrollDTO> {
     // Calculate year-end bonus if flag is enabled
     let endYearBonus = payrollDraft?.earnings?.endYearBonus ?? 0;
     if (shouldCalculateYearEndBonus) {
-      const calculationYear = new Date(periodEndDate).getFullYear();
+      const calculationYear = getYearInMexicoTimezone(periodEndDate);
       const startDate = new Date(rawData.collaborator.startDate!);
       const minimumWage = rawData.salaryData.minimumWage;
 
