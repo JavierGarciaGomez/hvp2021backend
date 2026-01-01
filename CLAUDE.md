@@ -375,3 +375,5 @@ src/
 - All monetary amounts in MXN (Mexican Pesos)
 - Dates in ISO 8601 format
 - All payroll calculations must comply with Mexican labor law
+
+_Last auto-deploy test: 2026-01-01_
