@@ -794,7 +794,91 @@ mv .claude/plans/active/20260102-GH99-old-plan.md .claude/plans/archived/
 
 ---
 
-## 14. Examples
+## 14. Deploy Strategy & Checkpoints
+
+### Flujo de Deploy Seguro
+
+```
+LOCAL → STAGING → PRODUCCIÓN
+```
+
+**Reglas:**
+
+| Acción | Cuándo | Dónde |
+|--------|--------|-------|
+| **Commit** | Después de cada sección completada que compila | Local |
+| **Push** | Al completar una fase/subplan | Branch → main |
+| **Deploy** | Después de merge a main | Staging primero, SIEMPRE |
+| **Migración** | Solo después de deploy exitoso | Staging → verificar → Prod |
+| **Producción** | Solo si staging funciona 100% | Nunca directo |
+
+### Checkpoints Obligatorios (antes de Producción)
+
+```
+□ Código compila (tsc --noEmit)
+□ Tests pasan (yarn test)
+□ Desplegado en staging
+□ Migración ejecutada en staging (si aplica)
+□ Verificación manual en staging
+□ Frontend actualizado (si es bloqueante)
+```
+
+### Plan de Rollback
+
+```
+SI FALLA EN STAGING:
+  → Arreglar en local → nuevo commit → repetir
+
+SI FALLA EN PRODUCCIÓN:
+  → git revert → push → las migraciones de "agregar campo" son seguras
+```
+
+---
+
+## 15. Frontend Dependencies
+
+### Cada subplan DEBE incluir sección de Frontend
+
+```markdown
+## 🖥️ Frontend Tasks
+
+**¿Cambios breaking?** Sí/No
+**¿Bloqueante para continuar?** Sí/No
+
+### Tareas (si aplica):
+- [ ] Tarea 1
+- [ ] Tarea 2
+
+**Esperar confirmación del usuario antes de:** [indicar fase/paso]
+```
+
+### Clasificación de cambios
+
+| Tipo | Impacto | Acción |
+|------|---------|--------|
+| Campos nuevos **opcionales** | ✅ Ninguno | Frontend puede ignorar |
+| Campos nuevos **requeridos** | 🔴 Breaking | Frontend DEBE actualizar ANTES del deploy |
+| Campos **eliminados** | 🔴 Breaking | Frontend DEBE actualizar ANTES del deploy |
+| Cambio **formato respuesta** | 🔴 Breaking | Frontend DEBE actualizar ANTES del deploy |
+| Endpoint **nuevo** | ✅ Ninguno | Frontend lo usa cuando quiera |
+
+### Flujo con tareas Frontend bloqueantes
+
+```
+Backend completa fase
+        ↓
+Notificar usuario: "Frontend necesita: X, Y, Z"
+        ↓
+Usuario implementa en frontend
+        ↓
+Usuario confirma: "Frontend listo"
+        ↓
+Continuar siguiente fase backend
+```
+
+---
+
+## 16. Examples
 
 ### Example Plan:
 See: `.claude/templates/plan.md`

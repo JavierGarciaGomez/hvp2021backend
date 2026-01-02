@@ -12,3 +12,4 @@ export * from "./time-off-requests.enum";
 export * from "./payroll.enum";
 export * from "./hr.enum";
 export * from "./commissions.enum";
+export * from "./sat-cfdi.enum";

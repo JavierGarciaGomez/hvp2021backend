@@ -23,3 +23,4 @@ export * from "./employment.datasource";
 export * from "./payroll.datasource";
 export * from "./commissionable-service.datasource";
 export * from "./commission-allocation.datasource";
+export * from "./company-settings.datasource";

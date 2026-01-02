@@ -2,7 +2,15 @@
 
 import { Document, Schema } from "mongoose";
 import { CollaboratorAuth } from "../../shared";
-import { Degree, Gender, HRPaymentType, WebAppRole } from "../enums";
+import {
+  Degree,
+  Gender,
+  HRPaymentType,
+  WebAppRole,
+  SATContractType,
+  SATRegimeType,
+  SATFiscalRegime,
+} from "../enums";
 import { AddressVO, ImageUrl } from "../value-objects";
 import { BaseEntity, BaseEntityProps } from "./base.entity";
 
@@ -30,6 +38,15 @@ export interface CollaboratorProps extends BaseEntityProps {
   rfcCode?: string;
   emergencyContact?: string;
   emergencyContactPhone?: string;
+
+  // CFDI/Fiscal data
+  fiscalAddress?: AddressVO; // Dirección fiscal (solo si es diferente a address)
+  taxZipCode?: string; // CP fiscal explícito para CFDI
+  contractType?: SATContractType | string; // Tipo de contrato SAT (01, 02, etc.)
+  regimeType?: SATRegimeType | string; // Tipo de régimen SAT (02, 03, etc.)
+  fiscalRegime?: SATFiscalRegime | string; // Régimen fiscal (605)
+  bank?: string; // Banco para pago de nómina
+  bankAccount?: string; // Cuenta bancaria para pago
 
   // webApp information
   imgUrl?: string;
@@ -102,6 +119,15 @@ export class CollaboratorEntity implements BaseEntity {
   emergencyContact?: string;
   emergencyContactPhone?: string;
 
+  // CFDI/Fiscal data
+  fiscalAddress?: AddressVO;
+  taxZipCode?: string;
+  contractType?: SATContractType | string;
+  regimeType?: SATRegimeType | string;
+  fiscalRegime?: SATFiscalRegime | string;
+  bank?: string;
+  bankAccount?: string;
+
   // webApp information
   role: WebAppRole;
   imgUrl?: string;
@@ -161,6 +187,15 @@ export class CollaboratorEntity implements BaseEntity {
     this.emergencyContact = options.emergencyContact;
     this.emergencyContactPhone = options.emergencyContactPhone;
 
+    // CFDI/Fiscal data
+    this.fiscalAddress = options.fiscalAddress;
+    this.taxZipCode = options.taxZipCode;
+    this.contractType = options.contractType;
+    this.regimeType = options.regimeType;
+    this.fiscalRegime = options.fiscalRegime;
+    this.bank = options.bank;
+    this.bankAccount = options.bankAccount;
+
     this.role = options.role;
     this.imgUrl = options.imgUrl;
     this.images = options.images;
@@ -210,6 +245,14 @@ export class CollaboratorEntity implements BaseEntity {
       rfcCode: document.rfcCode,
       emergencyContact: document.emergencyContact,
       emergencyContactPhone: document.emergencyContactPhone,
+      // CFDI/Fiscal data
+      fiscalAddress: document.fiscalAddress,
+      taxZipCode: document.taxZipCode,
+      contractType: document.contractType,
+      regimeType: document.regimeType,
+      fiscalRegime: document.fiscalRegime,
+      bank: document.bank,
+      bankAccount: document.bankAccount,
       role: document.role,
       imgUrl: document.imgUrl,
       images: document.images,
@@ -265,6 +308,46 @@ export class CollaboratorEntity implements BaseEntity {
       // todo: this should be main image
       imgUrl: this.imgUrl,
     };
+  }
+
+  // CFDI Helper Methods
+
+  /**
+   * Get tax zip code for CFDI
+   * Priority: taxZipCode > fiscalAddress.zipCode > address.zipCode
+   */
+  public getTaxZipCode(): string | undefined {
+    return (
+      this.taxZipCode ?? this.fiscalAddress?.zipCode ?? this.address?.zipCode
+    );
+  }
+
+  /**
+   * Get employee number for CFDI (uses col_code)
+   */
+  public getEmployeeNumber(): string {
+    return this.col_code;
+  }
+
+  /**
+   * Get start date of labor relations for CFDI (uses contractDate)
+   */
+  public getStartDateLaborRelations(): Date | undefined {
+    return this.contractDate;
+  }
+
+  /**
+   * Get NSS (Social Security Number) for CFDI (uses imssNumber)
+   */
+  public getNss(): string | undefined {
+    return this.imssNumber;
+  }
+
+  /**
+   * Get full name for CFDI
+   */
+  public getFullName(): string {
+    return `${this.first_name} ${this.last_name}`.trim();
   }
 }
 

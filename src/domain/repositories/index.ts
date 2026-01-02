@@ -25,3 +25,4 @@ export * from "./employment.repository";
 export * from "./payroll.repository";
 export * from "./commissionable-service.repository";
 export * from "./commission-allocation.repository";
+export * from "./company-settings.repository";

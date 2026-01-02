@@ -4,12 +4,11 @@ import {
   Gender,
   HRPaymentType,
   WebAppRole,
+  SATContractType,
+  SATRegimeType,
+  SATFiscalRegime,
 } from "../../../../domain/enums";
-import {
-  AddressSchema,
-  CollaboratorDocument,
-  CollaboratorProps,
-} from "../../../../domain";
+import { AddressSchema, CollaboratorDocument } from "../../../../domain";
 
 const CollaboratorSchema: Schema = new Schema<CollaboratorDocument>(
   {
@@ -56,6 +55,35 @@ const CollaboratorSchema: Schema = new Schema<CollaboratorDocument>(
       required: false,
     },
     emergencyContactPhone: {
+      type: String,
+      required: false,
+    },
+    // CFDI/Fiscal data
+    fiscalAddress: AddressSchema,
+    taxZipCode: {
+      type: String,
+      required: false,
+    },
+    contractType: {
+      type: String,
+      enum: Object.values(SATContractType),
+      required: false,
+    },
+    regimeType: {
+      type: String,
+      enum: Object.values(SATRegimeType),
+      required: false,
+    },
+    fiscalRegime: {
+      type: String,
+      enum: Object.values(SATFiscalRegime),
+      required: false,
+    },
+    bank: {
+      type: String,
+      required: false,
+    },
+    bankAccount: {
       type: String,
       required: false,
     },

@@ -154,6 +154,60 @@ yarn docker:test           # Start test MongoDB
 
 ---
 
+## Language Policy
+
+**All generated content MUST be in English:**
+- Code (variables, functions, comments)
+- Commit messages
+- Documentation files
+- Branch names
+- PR descriptions
+
+**Exception:** Chat interactions with the user can be in Spanish if the user prefers.
+
+---
+
+## Git Workflow
+
+### Branch Rules
+
+**NEVER commit directly to `main`.**
+
+```bash
+# Always create a new branch for work
+git checkout -b feature/descriptive-name
+
+# After finishing, push to the branch
+git push origin feature/descriptive-name
+
+# Create PR to merge into main
+```
+
+### Branch Naming Convention
+
+```
+feature/sp2-cfdi-fields      # New functionality
+fix/payroll-calculation      # Bug fix
+refactor/cleanup-entities    # Refactor
+docs/update-readme           # Documentation
+```
+
+### Commit Flow
+
+```
+1. Create branch from main
+2. Make commits on the branch
+3. Push to origin
+4. Create PR
+5. Review (if applicable)
+6. Merge to main
+7. Deploy to staging
+8. Verify
+9. Deploy to production
+```
+
+---
+
 ## Development Logging
 
 HVP2021 includes two logging systems to help with debugging and development:
