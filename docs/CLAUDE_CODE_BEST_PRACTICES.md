@@ -8,14 +8,15 @@ A comprehensive guide for structuring information and tools for optimal Claude C
 
 1. [Quick Decision Matrix](#quick-decision-matrix)
 2. [CLAUDE.md - Project Memory](#claudemd---project-memory)
-3. [Slash Commands](#slash-commands)
-4. [Agents (Subagents)](#agents-subagents)
-5. [Skills](#skills)
-6. [MCP Servers](#mcp-servers)
-7. [Scripts & Automation](#scripts--automation)
-8. [Documentation](#documentation)
-9. [Real-World Examples](#real-world-examples)
-10. [Common Patterns](#common-patterns)
+3. [Rules - Modular Context](#rules---modular-context)
+4. [Slash Commands](#slash-commands)
+5. [Agents (Subagents)](#agents-subagents)
+6. [Skills](#skills)
+7. [MCP Servers](#mcp-servers)
+8. [Scripts & Automation](#scripts--automation)
+9. [Documentation](#documentation)
+10. [Real-World Examples](#real-world-examples)
+11. [Common Patterns](#common-patterns)
 
 ---
 
@@ -28,6 +29,9 @@ Use this table to quickly decide which mechanism to use:
 | Claude should always know project structure | **CLAUDE.md** | Loaded automatically at session start |
 | Claude should always know API endpoints | **CLAUDE.md** | Always available reference |
 | Claude should always know coding standards | **CLAUDE.md** | Passive reference, team-shared |
+| Context only for specific files/folders | **Rules** | Loaded conditionally via glob patterns |
+| Domain-specific guidelines (payroll, auth) | **Rules** | Modular, organized, conditional loading |
+| Keep CLAUDE.md from getting too large | **Rules** | Split into focused, maintainable files |
 | Quick way to test endpoints manually | **Slash Command** | Explicit invocation, can run bash |
 | Validate implementations with curl | **Slash Command** | Manual trigger when needed |
 | Run a specific workflow on demand | **Slash Command** | Simple, single-file, manual |
@@ -128,23 +132,281 @@ Step-by-step procedures for common tasks...
 4. **Be concise** - Summarize, don't duplicate docs
 5. **Version control** - Commit to git, share with team
 
-### Modular Organization
-For large projects, split into modular rules:
+---
 
+## Rules - Modular Context
+
+### What They Are
+Rules are modular markdown files that extend CLAUDE.md with conditional, context-specific instructions. They live in `.claude/rules/` and can be loaded always or only when working with specific files.
+
+Think of them as "plugins" for your project context - they keep CLAUDE.md focused while providing deep expertise when needed.
+
+### When to Use
+Use Rules for:
+- ✅ Domain-specific guidelines (payroll calculations, tax rules)
+- ✅ File-type specific conventions (API routes, database models)
+- ✅ Complex workflows that apply to specific areas
+- ✅ Keeping CLAUDE.md from becoming too large
+- ✅ Team standards that only apply in certain contexts
+- ✅ Compliance requirements for specific modules
+
+### When NOT to Use
+- ❌ Information needed in every conversation (use CLAUDE.md)
+- ❌ Quick procedures (use Slash Commands)
+- ❌ One-time instructions (just tell Claude directly)
+- ❌ Sensitive credentials (use environment variables)
+
+### Structure
+
+**Location:** `.claude/rules/<rule-name>.md`
+
+**Directory Structure:**
 ```
 .claude/
-├── CLAUDE.md (main overview)
+├── CLAUDE.md              # Main project context (always loaded)
 └── rules/
-    ├── api-guidelines.md
-    ├── testing-standards.md
-    └── deployment.md
+    ├── planning.md        # Planning mode rules (always loaded)
+    ├── api-guidelines.md  # API-specific rules (conditional)
+    ├── payroll-rules.md   # Payroll domain rules (conditional)
+    └── testing.md         # Testing standards (conditional)
 ```
 
-Activate rules with glob patterns in frontmatter:
+### Loading Modes
+
+#### 1. Always Loaded (No Frontmatter)
+Rules without frontmatter are loaded in every conversation:
+
+```markdown
+# Planning Rules
+
+These rules apply to all planning activities...
+```
+
+#### 2. Conditionally Loaded (With Glob Patterns)
+Rules with `globs` frontmatter only load when working with matching files:
+
 ```yaml
 ---
-globs: ["src/api/**/*", "src/routes/**/*"]
+globs: ["src/presentation/routes/**/*", "src/presentation/controllers/**/*"]
 ---
+
+# API Development Rules
+
+When working on API routes and controllers, follow these guidelines...
+```
+
+#### 3. Description-Based Discovery
+Add descriptions to help Claude understand when to apply the rule:
+
+```yaml
+---
+globs: ["src/domain/**/*", "src/application/services/**/*"]
+description: "Rules for payroll calculations and Mexican tax compliance"
+---
+
+# Payroll Domain Rules
+
+## Tax Calculation Requirements
+- Always use Mexico timezone for date operations
+- Apply UMA-based exemptions correctly
+...
+```
+
+### Frontmatter Options
+
+```yaml
+---
+# Glob patterns - rule loads when working with matching files
+globs: ["src/api/**/*", "*.routes.ts"]
+
+# Description - helps Claude understand when to apply
+description: "Guidelines for API endpoint development"
+
+# Optional: Restrict to specific operations
+applies_to: ["create", "modify"]  # Only when creating/modifying files
+---
+```
+
+### Glob Pattern Examples
+
+| Pattern | Matches |
+|---------|---------|
+| `src/api/**/*` | All files under src/api/ |
+| `*.test.ts` | All TypeScript test files |
+| `src/**/*.routes.ts` | All route files in src/ |
+| `["*.ts", "*.tsx"]` | All TypeScript files |
+| `src/domain/entities/**/*` | All entity files |
+
+### Examples
+
+#### Example 1: API Guidelines
+**File:** `.claude/rules/api-guidelines.md`
+```yaml
+---
+globs: ["src/presentation/**/*"]
+description: "API development standards and patterns"
+---
+
+# API Development Guidelines
+
+## Authentication
+All endpoints require dual-header authentication:
+- `x-token: <jwt-token>`
+- `Authorization: Bearer <jwt-token>`
+
+## Response Format
+Always return consistent JSON structure:
+\`\`\`json
+{
+  "ok": true,
+  "data": { ... }
+}
+\`\`\`
+
+## Error Handling
+Use HTTP status codes correctly:
+- 400: Validation errors
+- 401: Authentication required
+- 403: Forbidden
+- 404: Resource not found
+- 500: Server errors
+```
+
+#### Example 2: Domain-Specific Rules
+**File:** `.claude/rules/payroll-rules.md`
+```yaml
+---
+globs: ["src/domain/**/payroll*", "src/application/services/**/payroll*"]
+description: "Mexican payroll and tax calculation rules"
+---
+
+# Payroll Domain Rules
+
+## Critical Compliance
+
+### Timezone Handling
+ALWAYS use Mexico timezone for date operations:
+\`\`\`typescript
+// ✅ Correct
+import moment from 'moment-timezone';
+const year = moment.tz(date, 'America/Mexico_City').year();
+
+// ❌ Incorrect - uses UTC
+const year = new Date(date).getFullYear();
+\`\`\`
+
+### Tax-Exempt Limits (Mexican Law)
+- Aguinaldo: First 30 UMA days exempt
+- Prima Vacacional: First 15 UMA days exempt
+- Overtime: First 5 UMA per period exempt
+
+### Current UMA Value (2024)
+- Daily: $108.57 MXN
+```
+
+#### Example 3: Testing Standards
+**File:** `.claude/rules/testing.md`
+```yaml
+---
+globs: ["**/*.test.ts", "**/*.spec.ts", "src/__tests__/**/*"]
+description: "Testing standards and conventions"
+---
+
+# Testing Standards
+
+## File Naming
+- Unit tests: `<name>.test.ts`
+- Integration tests: `<name>.integration.test.ts`
+- E2E tests: `<name>.e2e.test.ts`
+
+## Test Structure
+Use AAA pattern (Arrange, Act, Assert):
+\`\`\`typescript
+describe('PayrollService', () => {
+  it('should calculate aguinaldo correctly', () => {
+    // Arrange
+    const salary = 10000;
+    const startDate = new Date('2024-01-15');
+
+    // Act
+    const result = service.calculateAguinaldo(salary, startDate);
+
+    // Assert
+    expect(result.totalAmount).toBe(expectedAmount);
+  });
+});
+\`\`\`
+
+## Coverage Requirements
+- Minimum 80% coverage for new code
+- 100% coverage for payroll calculations
+```
+
+#### Example 4: Planning Rules (Always Loaded)
+**File:** `.claude/rules/planning.md`
+```markdown
+# Planning Mode Rules
+
+These rules govern how implementation plans are created and tracked.
+
+## Plan File Naming
+Format: `YYYYMMDD-GH<number>-<descriptive-name>.md`
+
+## Required Sections
+Every plan must include:
+1. Objective
+2. Scope
+3. Current State Analysis
+4. Proposed Solution
+5. Implementation Steps
+6. Files to Modify
+7. Testing Strategy
+8. Risks and Mitigation
+...
+```
+
+### Best Practices
+
+1. **Keep rules focused** - One domain/concern per rule file
+2. **Use specific globs** - Avoid overly broad patterns
+3. **Add descriptions** - Help Claude discover when to apply
+4. **Don't duplicate** - Reference CLAUDE.md instead of repeating
+5. **Version control** - Commit rules to git with the project
+6. **Review periodically** - Update rules as the project evolves
+
+### Rules vs CLAUDE.md
+
+| Aspect | CLAUDE.md | Rules |
+|--------|-----------|-------|
+| Loading | Always | Conditional or always |
+| Scope | Project-wide | Specific domains/files |
+| Size | Keep concise | Can be detailed |
+| Location | Project root or `.claude/` | `.claude/rules/` |
+| Use case | Core context | Specialized guidelines |
+
+### Common Patterns
+
+#### Pattern 1: CLAUDE.md + Specialized Rules
+```
+CLAUDE.md           → Project overview, tech stack, key commands
+rules/api.md        → API-specific patterns (loaded for routes/controllers)
+rules/domain.md     → Domain rules (loaded for entities/services)
+rules/testing.md    → Test conventions (loaded for test files)
+```
+
+#### Pattern 2: Domain-Driven Rules
+```
+rules/payroll.md    → Payroll calculations, tax rules
+rules/inventory.md  → Inventory management rules
+rules/billing.md    → Billing and invoicing rules
+```
+
+#### Pattern 3: Layer-Based Rules
+```
+rules/presentation.md  → HTTP layer conventions
+rules/application.md   → Service layer patterns
+rules/infrastructure.md → Database, external APIs
+rules/domain.md        → Business logic rules
 ```
 
 ---
