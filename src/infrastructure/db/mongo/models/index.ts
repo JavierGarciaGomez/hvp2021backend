@@ -27,3 +27,4 @@ export * from "./employment.model";
 export * from "./payroll.model";
 export * from "./commissionable-service.model";
 export * from "./commission-allocation.model";
+export * from "./company-settings.model";

@@ -41,4 +41,5 @@ export const mainRoutes = {
   payrolls: "/api/payrolls",
   commissionableServices: "/api/commissionable-services",
   commissionAllocations: "/api/commission-allocations",
+  companySettings: "/api/company-settings",
 };

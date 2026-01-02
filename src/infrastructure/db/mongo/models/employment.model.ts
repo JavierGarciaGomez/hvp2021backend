@@ -4,6 +4,8 @@ import {
   HRAttendanceSource,
   HRPaymentType,
   employmentFixedConceptSchema,
+  SATJourneyType,
+  SATPaymentFrequency,
 } from "../../../../domain";
 
 const EmploymentSchema: Schema = new Schema<EmploymentDocument>(
@@ -63,6 +65,17 @@ const EmploymentSchema: Schema = new Schema<EmploymentDocument>(
       type: [employmentFixedConceptSchema],
       required: false,
       default: [],
+    },
+    // CFDI/SAT fields
+    journeyType: {
+      type: String,
+      enum: Object.values(SATJourneyType),
+      required: false,
+    },
+    cfdiPaymentFrequency: {
+      type: String,
+      enum: Object.values(SATPaymentFrequency),
+      required: false,
     },
     createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
     updatedBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },

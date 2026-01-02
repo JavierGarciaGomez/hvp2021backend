@@ -1,5 +1,10 @@
 import { Document, Schema } from "mongoose";
-import { HRAttendanceSource, HRPaymentType } from "../enums";
+import {
+  HRAttendanceSource,
+  HRPaymentType,
+  SATJourneyType,
+  SATPaymentFrequency,
+} from "../enums";
 import { BaseEntity, newBaseEntityProps } from "./base.entity";
 
 import { EmploymentFixedConcept } from "../value-objects/hr.vo";
@@ -32,6 +37,10 @@ export interface EmploymentBase extends newBaseEntityProps {
   contributionBaseSalary: number;
   additionalFixedIncomes: EmploymentFixedConcept[];
   otherDeductions: EmploymentFixedConcept[];
+
+  // CFDI/SAT fields
+  journeyType?: SATJourneyType | string; // Tipo de jornada SAT (01, 02, 03)
+  cfdiPaymentFrequency?: SATPaymentFrequency | string; // Periodicidad de pago SAT (04 = Quincenal)
 }
 
 export interface EmploymentProps extends EmploymentBase {
@@ -88,6 +97,10 @@ export class EmploymentEntity implements BaseEntity {
   contributionBaseSalary: number = 0;
 
   otherDeductions: EmploymentFixedConcept[] = [];
+
+  // CFDI/SAT fields
+  journeyType?: SATJourneyType | string;
+  cfdiPaymentFrequency?: SATPaymentFrequency | string;
 
   constructor(props: EmploymentProps) {
     Object.assign(this, props);

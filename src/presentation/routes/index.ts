@@ -23,3 +23,4 @@ export * from "./attendance-reports.routes";
 export * from "./payroll.routes";
 export * from "./commissionable-service.routes";
 export * from "./commission-allocation.routes";
+export * from "./company-settings.routes";
