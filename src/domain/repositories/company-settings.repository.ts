@@ -1,34 +1,55 @@
-import { CompanySettingsEntity } from "../entities";
+import { CompanySettingsEntity } from '../entities/company-settings.entity';
 
 /**
- * CompanySettings Repository Interface
- * Singleton repository - only one company settings document exists
+ * ICompanySettingsRepository Interface
+ *
+ * LEARNING POINTS:
+ *
+ * 1. This is an INTERFACE (contract), not implementation:
+ *    - Defines WHAT operations are available
+ *    - Does NOT define HOW they're implemented
+ *    - Implementation will be in Infrastructure layer
+ *
+ * 2. Lives in DOMAIN layer:
+ *    - Domain defines what it needs
+ *    - Infrastructure provides implementation
+ *    - This is Dependency Inversion Principle (SOLID)
+ *
+ * 3. Speaks domain language:
+ *    - Uses Entity (not database model)
+ *    - Methods are business-focused
+ *    - No mention of MongoDB, SQL, or any specific technology
+ *
+ * 4. Company Settings is a SINGLETON:
+ *    - Only one instance exists in the system
+ *    - get() instead of findById() - no ID parameter needed
+ *    - No delete method - singleton can't be deleted
+ *    - save() handles both create and update
  */
-export abstract class CompanySettingsRepository {
+
+export interface ICompanySettingsRepository {
   /**
-   * Get singleton company settings
-   * @returns CompanySettingsEntity or null if not initialized
+   * Get the company settings (singleton pattern)
+   * Returns null if not initialized yet (first time use)
+   *
+   * @returns CompanySettingsEntity if exists, null otherwise
    */
-  abstract get(): Promise<CompanySettingsEntity | null>;
+  get(): Promise<CompanySettingsEntity | null>;
 
   /**
-   * Create initial company settings (for seed)
-   * @param entity CompanySettingsEntity
-   * @returns Created CompanySettingsEntity
-   * @throws Error if company settings already exist
+   * Save company settings (create or update)
+   * This is the only persistence method needed for a singleton
+   *
+   * @param settings - The entity to save
+   * @returns The saved entity (with updated timestamps if applicable)
    */
-  abstract create(entity: CompanySettingsEntity): Promise<CompanySettingsEntity>;
+  save(settings: CompanySettingsEntity): Promise<CompanySettingsEntity>;
 
   /**
-   * Update company settings
-   * @param entity CompanySettingsEntity with updated values
-   * @returns Updated CompanySettingsEntity
+   * Check if company settings exist
+   * Useful for initialization checks and conditional logic
+   *
+   * @returns true if settings exist, false otherwise
    */
-  abstract update(entity: CompanySettingsEntity): Promise<CompanySettingsEntity>;
-
-  /**
-   * Delete company settings (use with caution!)
-   * @returns void
-   */
-  abstract delete(): Promise<void>;
+  exists(): Promise<boolean>;
 }

@@ -1,48 +1,106 @@
-import mongoose, { Schema } from "mongoose";
-import { CompanySettingsDocument } from "../../../../domain/entities/company-settings.entity";
-import { AddressSchema } from "../../../../domain/value-objects";
+import mongoose, { Schema, Document, Types } from 'mongoose';
+import { AddressSchema } from '../schemas/address.schema';
+import {
+  RFCFieldDefinition,
+  BusinessNameFieldDefinition,
+  TaxRegimeFieldDefinition,
+  EmailFieldDefinition,
+  PhoneFieldDefinition,
+  CreatedByFieldDefinition,
+  UpdatedByFieldDefinition
+} from '../schemas/common-fields';
 
 /**
- * Address Schema for MongoDB
+ * MongoDB Document Interface
+ *
+ * LEARNING POINTS:
+ * 1. This extends Mongoose Document - it's infrastructure code
+ * 2. Structure mirrors database, not domain
+ * 3. All fields are primitives (no Value Objects)
+ * 4. No business logic here - just persistence structure
  */
-const MongoAddressSchema = new Schema(
-  AddressSchema,
-  { _id: false }
-);
+export interface ICompanySettingsDocument extends Document {
+  _id: string;
+  rfc: string;
+  businessName: string;
+  taxRegime: string;
+  address: {
+    street: string;
+    exteriorNumber: string;
+    interiorNumber?: string;
+    neighborhood: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  };
+  email: string;
+  phone?: string;
+  facturamaApiKey?: string;
+  facturamaApiSecret?: string;
+  facturamaUseSandbox: boolean;
+  createdAt: Date;
+  createdBy: Types.ObjectId;
+  updatedAt: Date;
+  updatedBy: Types.ObjectId;
+}
 
 /**
- * CompanySettings Schema
- * Singleton collection for company fiscal data
+ * Mongoose Schema Definition
+ *
+ * Uses reusable schemas and field definitions for consistency.
  */
-const CompanySettingsSchema: Schema = new Schema<CompanySettingsDocument>(
+const CompanySettingsSchema = new Schema<ICompanySettingsDocument>(
   {
-    name: { type: String, required: true },
-    rfc: { type: String, required: true, length: 12 },
-    employerRegistration: { type: String, required: true }, // Registro patronal IMSS
-    expeditionZipCode: { type: String, required: true, length: 5 },
-    federalEntityKey: { type: String, required: true, length: 3 }, // e.g., "YUC"
-    fiscalAddress: { type: MongoAddressSchema, required: false },
-    createdBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
-    updatedBy: { type: Schema.Types.ObjectId, ref: "Collaborator" },
+    _id: {
+      type: String,
+      default: 'company-settings',
+      required: true
+    },
+
+    // Tax Information - using reusable field definitions
+    rfc: RFCFieldDefinition,
+    businessName: BusinessNameFieldDefinition,
+    taxRegime: TaxRegimeFieldDefinition,
+
+    // Address - using reusable schema
+    address: {
+      type: AddressSchema,
+      required: true
+    },
+
+    // Contact - using reusable field definitions
+    email: EmailFieldDefinition,
+    phone: PhoneFieldDefinition,
+
+    // Facturama Integration
+    facturamaApiKey: {
+      type: String,
+      trim: true
+    },
+    facturamaApiSecret: {
+      type: String,
+      trim: true
+    },
+    facturamaUseSandbox: {
+      type: Boolean,
+      required: true,
+      default: true
+    },
+
+    // Audit fields
+    createdBy: CreatedByFieldDefinition,
+    updatedBy: UpdatedByFieldDefinition
   },
   {
     timestamps: true,
-    collection: "company-settings",
+    collection: 'company_settings'
   }
 );
 
-/**
- * Ensure singleton: only one document can exist
- */
-CompanySettingsSchema.pre("save", async function (next) {
-  const count = await mongoose.model("CompanySettings").countDocuments();
-  if (count > 0 && this.isNew) {
-    throw new Error("CompanySettings: Only one document allowed (singleton)");
-  }
-  next();
-});
+CompanySettingsSchema.index({ _id: 1 });
 
-export const CompanySettingsModel = mongoose.model<CompanySettingsDocument>(
-  "CompanySettings",
+export const CompanySettingsModel = mongoose.model<ICompanySettingsDocument>(
+  'CompanySettings',
   CompanySettingsSchema
 );

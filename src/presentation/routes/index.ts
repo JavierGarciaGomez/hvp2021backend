@@ -23,4 +23,4 @@ export * from "./attendance-reports.routes";
 export * from "./payroll.routes";
 export * from "./commissionable-service.routes";
 export * from "./commission-allocation.routes";
-export * from "./company-settings.routes";
+// company-settings.routes: Removed - being refactored to DDD (SP3/SP4)

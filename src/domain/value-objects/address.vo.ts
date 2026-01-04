@@ -1,266 +1,222 @@
+import { MexicanStateCode, MEXICAN_STATES } from 'hvp2021-shared';
+
 /**
  * Address Value Object
  *
- * Unified address representation supporting both international (line1/line2)
- * and Mexican detailed format (street, exteriorNumber, neighborhood, etc.)
+ * LEARNING POINTS:
  *
- * This is a Value Object - it's immutable and compared by value.
+ * 1. Composite Value Object:
+ *    - Contains multiple primitive values (street, city, etc.)
+ *    - But treated as single cohesive unit
+ *    - All fields validated together
  *
- * Use cases:
- * - Company fiscal address (use Mexican format for CFDI)
- * - Collaborator home/fiscal address (use Mexican format for payroll receipts)
- * - Branch physical addresses
- * - Supplier/Customer addresses (either format)
+ * 2. Self-validating:
+ *    - Validates all required fields
+ *    - Validates Mexican postal code format (5 digits)
+ *    - Validates state code against official INEGI codes
+ *    - No invalid address can exist in memory
+ *
+ * 3. Immutable:
+ *    - readonly fields can't be changed
+ *    - Object.freeze() prevents modification
+ *    - Use copyWith() to create modified copy
+ *
+ * 4. Has domain behavior:
+ *    - formatForInvoice() - business logic for CFDI
+ *    - isComplete() - domain rule for invoicing
+ *    - NOT just a data container
+ *
+ * 5. Uses shared types:
+ *    - MexicanStateCode from hvp2021-shared
+ *    - Ensures consistency with frontend
+ *    - Single source of truth
  */
 
 export interface AddressProps {
-  // Common fields (always present)
-  city: string;            // Localidad/Ciudad
-  state: string;           // Estado
-  country: string;         // País (default: México)
-  zipCode: string;         // Código Postal (5 digits for Mexico)
-
-  // International format (optional - legacy compatibility)
-  line1?: string;          // Address line 1
-  line2?: string;          // Address line 2
-
-  // Mexican detailed format (optional - CFDI compliance)
-  street?: string;         // Calle
-  exteriorNumber?: string; // Número exterior
-  interiorNumber?: string; // Número interior
-  neighborhood?: string;   // Colonia
-  municipality?: string;   // Municipio/Delegación
+  street: string;
+  exteriorNumber: string;
+  interiorNumber?: string;
+  neighborhood: string;
+  city: string;
+  state: MexicanStateCode;
+  postalCode: string;
+  country: string;
 }
 
-/**
- * Address Value Object
- *
- * Immutable representation of an address.
- * Supports both international and Mexican formats.
- */
 export class Address {
-  // Common fields
-  readonly city: string;
-  readonly state: string;
-  readonly country: string;
-  readonly zipCode: string;
-
-  // International format
-  readonly line1?: string;
-  readonly line2?: string;
-
-  // Mexican detailed format
-  readonly street?: string;
-  readonly exteriorNumber?: string;
+  readonly street: string;
+  readonly exteriorNumber: string;
   readonly interiorNumber?: string;
-  readonly neighborhood?: string;
-  readonly municipality?: string;
+  readonly neighborhood: string;
+  readonly city: string;
+  readonly state: MexicanStateCode;
+  readonly postalCode: string;
+  readonly country: string;
 
   constructor(props: AddressProps) {
-    this.validate(props);
-
-    // Common fields
-    this.city = props.city.trim();
-    this.state = props.state.trim();
-    this.country = props.country.trim();
-    this.zipCode = props.zipCode.trim();
-
-    // International format
-    this.line1 = props.line1?.trim();
-    this.line2 = props.line2?.trim();
-
-    // Mexican detailed format
-    this.street = props.street?.trim();
-    this.exteriorNumber = props.exteriorNumber?.trim();
+    this.street = props.street.trim();
+    this.exteriorNumber = props.exteriorNumber.trim();
     this.interiorNumber = props.interiorNumber?.trim();
-    this.neighborhood = props.neighborhood?.trim();
-    this.municipality = props.municipality?.trim();
+    this.neighborhood = props.neighborhood.trim();
+    this.city = props.city.trim();
+    this.state = props.state;
+    this.postalCode = props.postalCode.trim();
+    this.country = props.country.trim();
 
-    // Make immutable
+    this.validate();
     Object.freeze(this);
   }
 
-  private validate(props: AddressProps): void {
-    const errors: string[] = [];
-
-    // Validate common fields (always required)
-    if (!props.city || props.city.trim().length === 0) {
-      errors.push("city is required");
-    }
-
-    if (!props.state || props.state.trim().length === 0) {
-      errors.push("state is required");
-    }
-
-    if (!props.country || props.country.trim().length === 0) {
-      errors.push("country is required");
-    }
-
-    if (!props.zipCode || props.zipCode.trim().length === 0) {
-      errors.push("zipCode is required");
-    }
-
-    // Validate that at least one format is provided
-    const hasInternationalFormat = props.line1;
-    const hasMexicanFormat = props.street && props.exteriorNumber && props.neighborhood;
-
-    if (!hasInternationalFormat && !hasMexicanFormat) {
-      errors.push("Either international format (line1) or Mexican format (street, exteriorNumber, neighborhood) must be provided");
-    }
-
-    // Validate Mexican format if provided
-    if (props.street || props.exteriorNumber || props.neighborhood) {
-      if (!props.street || props.street.trim().length === 0) {
-        errors.push("street is required when using Mexican format");
-      }
-      if (!props.exteriorNumber || props.exteriorNumber.trim().length === 0) {
-        errors.push("exteriorNumber is required when using Mexican format");
-      }
-      if (!props.neighborhood || props.neighborhood.trim().length === 0) {
-        errors.push("neighborhood is required when using Mexican format");
-      }
-    }
-
-    if (errors.length > 0) {
-      throw new Error(`Address validation failed: ${errors.join(", ")}`);
-    }
-  }
-
   /**
-   * Check if this address uses Mexican detailed format
+   * Validate all address fields
+   * Called automatically in constructor
    */
-  isMexicanFormat(): boolean {
-    return !!(this.street && this.exteriorNumber && this.neighborhood);
-  }
+  private validate(): void {
+    // Required fields validation
+    if (!this.street) {
+      throw new Error('Calle es requerida');
+    }
 
-  /**
-   * Check if this address uses international format
-   */
-  isInternationalFormat(): boolean {
-    return !!this.line1;
-  }
+    if (!this.exteriorNumber) {
+      throw new Error('Número exterior es requerido');
+    }
 
-  /**
-   * Get formatted full address
-   */
-  getFullAddress(): string {
-    if (this.isMexicanFormat()) {
-      // Mexican format: "Calle #Ext [Int. #], Colonia, Ciudad, Estado CP, País"
-      const interior = this.interiorNumber ? ` Int. ${this.interiorNumber}` : "";
-      const municipality = this.municipality ? `, ${this.municipality}` : "";
-      return `${this.street} ${this.exteriorNumber}${interior}, ${this.neighborhood}, ${this.city}${municipality}, ${this.state} ${this.zipCode}, ${this.country}`;
-    } else {
-      // International format: "Line1, [Line2, ]City, State ZipCode, Country"
-      const line2Part = this.line2 ? `${this.line2}, ` : "";
-      return `${this.line1}, ${line2Part}${this.city}, ${this.state} ${this.zipCode}, ${this.country}`;
+    if (!this.neighborhood) {
+      throw new Error('Colonia es requerida');
+    }
+
+    if (!this.city) {
+      throw new Error('Ciudad es requerida');
+    }
+
+    if (!this.postalCode) {
+      throw new Error('Código postal es requerido');
+    }
+
+    if (!this.country) {
+      throw new Error('País es requerido');
+    }
+
+    // Mexican postal code validation (5 digits)
+    const postalCodeRegex = /^\d{5}$/;
+    if (!postalCodeRegex.test(this.postalCode)) {
+      throw new Error(`Código postal inválido: ${this.postalCode}. Debe ser 5 dígitos`);
+    }
+
+    // Validate state code against official INEGI codes
+    if (!(this.state in MEXICAN_STATES)) {
+      throw new Error(`Código de estado inválido: ${this.state}`);
+    }
+
+    // For now, only support México as country
+    // In future, this could be extended to support other countries
+    const normalizedCountry = this.country.toLowerCase();
+    if (normalizedCountry !== 'méxico' && normalizedCountry !== 'mexico') {
+      throw new Error(`Solo se soporta México como país, recibido: ${this.country}`);
     }
   }
 
   /**
-   * Get address formatted for CFDI XML
-   * Only works if Mexican format is available
+   * DOMAIN BEHAVIOR: Format address for CFDI invoice (Mexican tax receipt)
+   *
+   * This is business logic that belongs in the domain.
+   * CFDI requires specific address format for tax compliance.
+   *
+   * Returns comma-separated address string suitable for CFDI XML
    */
-  getForCFDI(): {
-    Calle: string;
-    NumeroExterior: string;
-    NumeroInterior?: string;
-    Colonia: string;
-    Localidad: string;
-    Municipio?: string;
-    Estado: string;
-    Pais: string;
-    CodigoPostal: string;
-  } {
-    if (!this.isMexicanFormat()) {
-      throw new Error("Cannot generate CFDI format: Mexican address details not available");
-    }
+  formatForInvoice(): string {
+    const parts = [
+      this.street,
+      this.exteriorNumber,
+      this.interiorNumber ? `Int. ${this.interiorNumber}` : null,
+      this.neighborhood,
+      this.city,
+      MEXICAN_STATES[this.state], // Full state name, not just code
+      `C.P. ${this.postalCode}`,
+      this.country
+    ].filter(Boolean); // Remove null/undefined parts
 
-    return {
-      Calle: this.street!,
-      NumeroExterior: this.exteriorNumber!,
-      ...(this.interiorNumber && { NumeroInterior: this.interiorNumber }),
-      Colonia: this.neighborhood!,
-      Localidad: this.city,
-      ...(this.municipality && { Municipio: this.municipality }),
-      Estado: this.state,
-      Pais: this.country,
-      CodigoPostal: this.zipCode,
-    };
+    return parts.join(', ');
   }
 
   /**
-   * Compare two addresses for equality (by value)
+   * DOMAIN BEHAVIOR: Format address for display (multiple lines)
+   *
+   * Returns formatted address suitable for display on screen or documents
+   */
+  formatForDisplay(): string[] {
+    return [
+      `${this.street} ${this.exteriorNumber}${this.interiorNumber ? ` Int. ${this.interiorNumber}` : ''}`,
+      this.neighborhood,
+      `${this.city}, ${MEXICAN_STATES[this.state]}`,
+      `C.P. ${this.postalCode}`,
+      this.country
+    ];
+  }
+
+  /**
+   * DOMAIN BEHAVIOR: Check if address is complete enough for invoicing
+   *
+   * Business rule: Address must have all required fields to be used in CFDI
+   * This is a domain invariant - incomplete addresses shouldn't be used for invoicing
+   */
+  isComplete(): boolean {
+    return !!(
+      this.street &&
+      this.exteriorNumber &&
+      this.neighborhood &&
+      this.city &&
+      this.state &&
+      this.postalCode &&
+      this.country
+    );
+  }
+
+  /**
+   * Value equality comparison
+   * Two addresses are equal if all fields match
    */
   equals(other: Address): boolean {
     if (!other) return false;
 
     return (
-      this.city === other.city &&
-      this.state === other.state &&
-      this.country === other.country &&
-      this.zipCode === other.zipCode &&
-      this.line1 === other.line1 &&
-      this.line2 === other.line2 &&
       this.street === other.street &&
       this.exteriorNumber === other.exteriorNumber &&
       this.interiorNumber === other.interiorNumber &&
       this.neighborhood === other.neighborhood &&
-      this.municipality === other.municipality
+      this.city === other.city &&
+      this.state === other.state &&
+      this.postalCode === other.postalCode &&
+      this.country === other.country
     );
   }
 
   /**
-   * Convert to plain object (for serialization)
+   * Create a new Address with some fields changed
+   *
+   * Since Address is immutable, this is how you "modify" it:
+   * Create a new instance with different values.
+   *
+   * Example:
+   *   const newAddress = oldAddress.copyWith({ city: 'Cancún', state: 'QROO' });
    */
-  toObject(): AddressProps {
-    return {
-      city: this.city,
-      state: this.state,
-      country: this.country,
-      zipCode: this.zipCode,
-      ...(this.line1 && { line1: this.line1 }),
-      ...(this.line2 && { line2: this.line2 }),
-      ...(this.street && { street: this.street }),
-      ...(this.exteriorNumber && { exteriorNumber: this.exteriorNumber }),
-      ...(this.interiorNumber && { interiorNumber: this.interiorNumber }),
-      ...(this.neighborhood && { neighborhood: this.neighborhood }),
-      ...(this.municipality && { municipality: this.municipality }),
-    };
+  copyWith(changes: Partial<AddressProps>): Address {
+    return new Address({
+      street: changes.street ?? this.street,
+      exteriorNumber: changes.exteriorNumber ?? this.exteriorNumber,
+      interiorNumber: changes.interiorNumber ?? this.interiorNumber,
+      neighborhood: changes.neighborhood ?? this.neighborhood,
+      city: changes.city ?? this.city,
+      state: changes.state ?? this.state,
+      postalCode: changes.postalCode ?? this.postalCode,
+      country: changes.country ?? this.country
+    });
   }
 
   /**
-   * Create from plain object
+   * String representation for logging/debugging
    */
-  static fromObject(obj: AddressProps): Address {
-    return new Address(obj);
+  toString(): string {
+    return this.formatForInvoice();
   }
 }
-
-/**
- * Mongoose Schema for Address
- * Use this in your MongoDB models
- */
-export const AddressSchema = {
-  // Common fields
-  city: { type: String, required: true },
-  state: { type: String, required: true },
-  country: { type: String, required: true, default: "México" },
-  zipCode: { type: String, required: true },
-
-  // International format (optional)
-  line1: { type: String, required: false },
-  line2: { type: String, required: false },
-
-  // Mexican detailed format (optional)
-  street: { type: String, required: false },
-  exteriorNumber: { type: String, required: false },
-  interiorNumber: { type: String, required: false },
-  neighborhood: { type: String, required: false },
-  municipality: { type: String, required: false },
-};
-
-/**
- * @deprecated Use Address class and AddressProps instead
- * Kept for backward compatibility
- */
-export interface AddressVO extends AddressProps {}

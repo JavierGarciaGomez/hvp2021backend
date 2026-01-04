@@ -167,6 +167,17 @@ yarn docker:test           # Start test MongoDB
 
 ---
 
+## TypeScript Conventions
+
+**See workspace-level conventions:** `/.claude/CLAUDE.md` (section: TypeScript Conventions)
+
+**Key points for this repo:**
+- Value Objects: Use `readonly` fields (no underscore, no getters)
+- Entities: Same pattern for immutable fields
+- Follow TypeScript/JavaScript standards (not C#)
+
+---
+
 ## Git Workflow
 
 ### Branch Rules
@@ -360,6 +371,118 @@ src/
 │   ├── routes/         # Route definitions
 │   └── middlewares/    # Express middlewares
 └── shared/              # Shared utilities and constants
+```
+
+---
+
+## File Naming Conventions
+
+**IMPORTANT:** All files use suffix-based naming for clarity and searchability.
+
+### Standard Suffixes
+
+| Component Type | Suffix | Example |
+|----------------|--------|---------|
+| **Value Object** | `.vo.ts` | `rfc.vo.ts`, `address.vo.ts` |
+| **Entity** | `.entity.ts` | `company-settings.entity.ts` |
+| **Model** (Mongoose) | `.model.ts` | `company-settings.model.ts` |
+| **Schema** (reusable) | `.schema.ts` | `address.schema.ts` |
+| **DTO** | `.dto.ts` | `update-company-settings.dto.ts` |
+| **Service** | `.service.ts` | `company-settings.service.ts` |
+| **Repository** | `.repository.ts` | `company-settings.repository.ts` |
+| **Controller** | `.controller.ts` | `company-settings.controller.ts` |
+| **Mapper** | `.mapper.ts` | `company-settings.mapper.ts` |
+| **Test** | `.test.ts` | `rfc.vo.test.ts` |
+
+### Rules
+
+1. **kebab-case** for file names: `company-settings.entity.ts`
+2. **PascalCase** for class names: `CompanySettingsEntity`
+3. **Suffix always last**: `create-company-settings.dto.ts`
+
+### Full Directory Structure
+
+```
+src/
+├── domain/
+│   ├── entities/
+│   │   └── company-settings.entity.ts
+│   ├── value-objects/
+│   │   ├── rfc.vo.ts
+│   │   └── address.vo.ts
+│   └── repositories/
+│       └── company-settings.repository.ts  # Interface
+│
+├── application/
+│   ├── services/
+│   │   └── company-settings.service.ts
+│   └── dtos/
+│       └── update-company-settings.dto.ts
+│
+├── infrastructure/
+│   ├── db/mongo/
+│   │   ├── models/
+│   │   │   └── company-settings.model.ts
+│   │   └── schemas/
+│   │       ├── address.schema.ts
+│   │       └── common-fields.ts
+│   ├── mappers/
+│   │   └── company-settings.mapper.ts
+│   └── repositories/
+│       └── mongo-company-settings.repository.ts
+│
+└── presentation/
+    ├── controllers/
+    │   └── company-settings.controller.ts
+    └── routes/
+        └── company-settings.routes.ts
+```
+
+---
+
+## MongoDB Schema Organization
+
+### Model vs Schema
+
+| Type | Suffix | Has Collection? | Purpose |
+|------|--------|-----------------|---------|
+| **Model** | `.model.ts` | ✅ Yes | Top-level entity |
+| **Schema** | `.schema.ts` | ❌ No | Embedded sub-document (VO) |
+| **Fields** | `common-fields.ts` | ❌ No | Reusable field definitions |
+
+### Reusable Schemas & Fields
+
+Create once, use everywhere:
+
+```typescript
+// schemas/address.schema.ts - Embedded document (Address VO)
+export const AddressSchema = new Schema({
+  street: { type: String, required: true },
+  city: { type: String, required: true },
+  // ...
+}, { _id: false });
+
+// schemas/common-fields.ts - Simple field definitions
+export const RFCFieldDefinition = {
+  type: String,
+  required: true,
+  uppercase: true,
+  trim: true
+};
+```
+
+### Usage in Models
+
+```typescript
+// models/company-settings.model.ts
+import { AddressSchema } from '../schemas/address.schema';
+import { RFCFieldDefinition, EmailFieldDefinition } from '../schemas/common-fields';
+
+const CompanySettingsSchema = new Schema({
+  rfc: RFCFieldDefinition,                           // ✅ Reused
+  email: EmailFieldDefinition,                       // ✅ Reused
+  address: { type: AddressSchema, required: true }   // ✅ Reused
+});
 ```
 
 ---
